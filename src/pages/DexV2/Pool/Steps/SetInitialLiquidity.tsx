@@ -1,6 +1,11 @@
-import React, { useState } from 'react'
-import { Line } from '../Create'
+import React from 'react'
 import styled from 'styled-components'
+import EthIcon from 'assets/images/dex-v2/eth.svg'
+import PolIcon from 'assets/images/dex-v2/pol.svg'
+import { ReactComponent as WalletIcon } from 'assets/images/dex-v2/wallet.svg'
+import { ReactComponent as WarningIcon } from 'assets/images/dex-v2/warning.svg'
+import { Flex } from 'rebass'
+import Switch from '../components/Switch'
 
 interface SetPoolFeesProps {}
 
@@ -9,13 +14,69 @@ const SetInitialLiquidity: React.FC<SetPoolFeesProps> = () => {
     <div>
       <LiquidityContainer>
         <FlexContainer>
-          <TokenSymbol>SFP</TokenSymbol>
-          <InputWrapper>
-            <StyledInput placeholder="0" />
-          </InputWrapper>
+          <TokenWrap>
+            <img src={EthIcon} alt="ETH" width={20} height={20} />
+            <TokenSymbol>ETH</TokenSymbol>
+            <PercentText>50%</PercentText>
+          </TokenWrap>
+
+          <StyledInput placeholder="0.00" />
         </FlexContainer>
-        <BalanceText>Balance: 256.13</BalanceText>
+        <Flex justifyContent="space-between" alignItems="center">
+          <FlexBalance>
+            <BalanceText>256.13</BalanceText>
+            <WalletIcon />
+          </FlexBalance>
+
+          <FlexBalance>
+            <ErrorText>Must be greater than 0</ErrorText>
+            <WarningIcon />
+          </FlexBalance>
+        </Flex>
       </LiquidityContainer>
+
+      <LiquidityContainer>
+        <FlexContainer>
+          <TokenWrap>
+            <img src={PolIcon} alt="POL" width={20} height={20} />
+            <TokenSymbol>POL</TokenSymbol>
+            <PercentText>50%</PercentText>
+          </TokenWrap>
+
+          <StyledInput placeholder="0.00" />
+        </FlexContainer>
+        <Flex justifyContent="space-between" alignItems="center">
+          <FlexBalance>
+            <BalanceText>9254.68</BalanceText>
+            <WalletIcon />
+          </FlexBalance>
+
+          <FlexBalance>
+            <ErrorText>Must be greater than 0</ErrorText>
+            <WarningIcon />
+          </FlexBalance>
+        </Flex>
+      </LiquidityContainer>
+
+      <Flex alignItems="center" style={{ gap: 8 }} marginTop={16}>
+        <Switch />
+        <SwitchText>Auto optimize liquidity</SwitchText>
+      </Flex>
+
+      <SummaryContainer>
+        <SummaryItem>
+          <div>Total</div>
+          <div>$0.00</div>
+        </SummaryItem>
+
+        <SummaryItem>
+          <div>
+            Available: $0.00 <Maxed>Maxed</Maxed>
+          </div>
+          <Optimized>Optimized</Optimized>
+        </SummaryItem>
+      </SummaryContainer>
+
       <NavigationButtons>
         <BackButton>Back</BackButton>
         <NextButton>Next</NextButton>
@@ -28,6 +89,10 @@ export default SetInitialLiquidity
 
 const LiquidityContainer = styled.div`
   margin-top: 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 128, 128, 0.5);
+  background: #f7f7fa;
+  padding: 16px;
 `
 
 const FlexContainer = styled.div`
@@ -37,36 +102,65 @@ const FlexContainer = styled.div`
   margin-bottom: 8px;
 `
 
-const TokenSymbol = styled.div`
-  font-family: Inter;
-  font-size: 16px;
-  font-weight: 500;
-  color: #292933;
-`
-
-const InputWrapper = styled.div`
+const FlexBalance = styled.div`
   display: flex;
   align-items: center;
+  gap: 8px;
+`
+
+const TokenSymbol = styled.div`
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
+`
+
+const TokenWrap = styled.div`
+  display: flex;
+  padding: 8px 12px 8px 8px;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  border: 1px solid #e6e6ff;
+  background: #fff;
+`
+
+const PercentText = styled.div`
+  color: #b8b8d2;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
 `
 
 const StyledInput = styled.input`
-  border: 1px solid #e6e6ff;
-  border-radius: 8px;
-  padding: 8px;
+  color: rgba(41, 41, 51, 0.9);
   font-family: Inter;
-  font-size: 16px;
-  color: #292933;
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.84px;
+  text-align: right;
   outline: none;
-
-  &:focus {
-    border-color: #007bff;
-  }
+  border: none;
+  background: transparent;
+  max-width: 240px;
 `
 
 const BalanceText = styled.div`
+  color: #b8b8d2;
   font-family: Inter;
   font-size: 14px;
-  color: #84849d;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
 `
 const NavigationButtons = styled.div`
   display: flex;
@@ -127,4 +221,56 @@ const NextButton = styled.button`
   &:disabled {
     background: #ececfb;
   }
+`
+
+const ErrorText = styled.div`
+  color: rgba(255, 128, 128, 0.9);
+  text-align: center;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
+`
+
+const SwitchText = styled.div`
+  color: #b8b8d2;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
+`
+
+const SummaryContainer = styled.div`
+  margin-top: 16px;
+  border-radius: 8px;
+  border: 1px solid #e6e6ff;
+  background: #fff;
+  display: flex;
+  padding: 16px;
+  flex-direction: column;
+  gap: 8px;
+  align-self: stretch;
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 14px;
+  font-weight: 500;
+`
+
+const SummaryItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+`
+
+const Optimized = styled.div`
+  color: #66f;
+`
+
+const Maxed = styled.span`
+  color: #b8b8d2;
 `
