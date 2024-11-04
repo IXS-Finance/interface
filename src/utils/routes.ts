@@ -79,6 +79,9 @@ export const routes = {
   tenantCreate: '/tenant/create',
   tenantClone: '/tenant/clone',
   tenantEdit: '/tenant/edit/:id',
+
+  // Dex V2
+  dexV2CreatePool: '/dex-v2/pool/create',
 }
 
 export function checkAllowed(path: string, allowedPages: string[] | null | undefined): boolean {
