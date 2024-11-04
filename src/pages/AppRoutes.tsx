@@ -66,6 +66,8 @@ const LBPPublicDetailsPage = lazy(() => import('./LBP/PublicDetails'))
 const TenantPage = lazy(() => import('./Tenant'))
 const CreateTenantPage = lazy(() => import('./Tenant/TenantForm'))
 
+const DexV2CreatePool = lazy(() => import('pages/DexV2/Pool/Create'))
+
 export interface RouteMapEntry {
   path: string
   render?: () => JSX.Element
@@ -158,11 +160,9 @@ export const routeConfigs: RouteMapEntry[] = [
   { path: '/swap', component: Swap },
   { path: '/find', component: PoolFinder },
   { path: '/pool', component: PoolV2 },
-
   { path: '/add/:currencyIdA?/:currencyIdB?', component: RedirectDuplicateTokenIdsV2 },
-
   { path: '/remove/:currencyIdA/:currencyIdB', component: RemoveLiquidity },
-
+  { path: routes.dexV2CreatePool, component: DexV2CreatePool },
   { path: routes.faucet, component: Faucet },
 
   { path: routes.securityToken(), component: SecTokenDetails },
