@@ -8,7 +8,7 @@ import SetPoolFees from './Steps/SetPoolFees'
 import SetInitialLiquidity from './Steps/SetInitialLiquidity'
 
 const Create: React.FC = () => {
-  const [activeStep, setActiveStep] = useState(StepIds.SetInitialLiquidity)
+  const [activeStep, setActiveStep] = useState(StepIds.TokensAndWeights)
 
   const steps: { [key in StepIds]: StepLabels } = {
     [StepIds.TokensAndWeights]: StepLabels.TokensAndWeights,

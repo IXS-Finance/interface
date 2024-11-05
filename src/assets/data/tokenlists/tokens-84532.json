@@ -1,0 +1,34 @@
+[
+  {
+    "chainId": 84532,
+    "address": "0x4a2b0767ACEE85C7825F09F48A9347285F58a5C2",
+    "name": "Wrapped Ether",
+    "symbol": "WETH",
+    "decimals": 18,
+    "extensions": { "coingeckoId": "weth" },
+    "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png"
+  },
+  {
+    "chainId": 84532,
+    "address": "0x142953B2F88D0939FD9f48F4bFfa3A2BFa21e4F8",
+    "name": "USDT",
+    "symbol": "USDT",
+    "decimals": 6,
+    "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"
+  },
+  {
+    "chainId": 84532,
+    "address": "0xA9c2c7D5E9bdA19bF9728384FFD3cF71Ada5dfcB",
+    "name": "USDC",
+    "symbol": "USDC",
+    "decimals": 6,
+    "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png"
+  },
+  {
+    "chainId": 84532,
+    "address": "0x949546713004ee02537292b1F41046f705909191",
+    "name": "TIXS",
+    "symbol": "TIXS",
+    "decimals": 18
+  }
+]
