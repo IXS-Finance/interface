@@ -1,4 +1,4 @@
-import * as baseSepolia from 'assets/data/contracts/base-sepolia.json';
+import baseSepolia from 'assets/data/contracts/base-sepolia.json';
 import { Contracts } from 'lib/config/types';
 
 const contracts: Contracts = {
