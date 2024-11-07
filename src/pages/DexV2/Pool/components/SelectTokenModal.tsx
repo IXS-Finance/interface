@@ -7,6 +7,8 @@ import { CenteredFixed } from 'components/LaunchpadMisc/styled'
 import { ReactComponent as CloseIcon } from 'assets/images/dex-v2/close.svg'
 import EthIcon from 'assets/images/dex-v2/eth.svg'
 import PolIcon from 'assets/images/dex-v2/pol.svg'
+import { useWeb3React } from 'hooks/useWeb3React'
+import config from 'lib/config'
 
 interface SelectTokenModalProps {
   // tokens: string[];
@@ -14,7 +16,44 @@ interface SelectTokenModalProps {
   onClose: () => void
 }
 
+// function mapTokenListTokens(tokenListMap) {
+//   const isEmpty = Object.keys(tokenListMap).length === 0;
+//   if (isEmpty) return {};
+
+//   const tokens = [...Object.values(tokenListMap)]
+//     .map(list => list.tokens)
+//     .flat();
+
+//   const tokensMap = tokens.reduce((acc, token) => {
+//     const address: string = getAddress(token.address);
+
+//     // Don't include if already included
+//     if (acc[address]) return acc;
+
+//     // Don't include if not on app network
+//     if (token.chainId !== networkConfig.chainId) return acc;
+
+//     acc[address] = token;
+//     return acc;
+//   }, {});
+
+//   return tokensMap;
+// }
+
 const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ onClose }) => {
+  const { chainId } = useWeb3React()
+  const networkConfig = config[chainId]
+  const tokens = {
+    [networkConfig.nativeAsset.address]: {
+      ...networkConfig.nativeAsset,
+      chainId: networkConfig.chainId,
+    },
+    // ...mapTokenListTokens(allTokenLists.value),
+  }
+
+  console.log('networkConfig', networkConfig)
+
+  console.log('chainId', chainId)
   return (
     <Portal>
       <CenteredFixed width="100vw" height="100vh">
