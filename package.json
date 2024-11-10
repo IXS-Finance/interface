@@ -165,6 +165,8 @@
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
+    "bignumber.js": "^9.0.1",
+    "@cyntler/react-doc-viewer": "^1.14.1",
     "@date-io/dayjs": "1.x",
     "@material-ui/core": "^4.12.3",
     "@material-ui/pickers": "4.0.0-alpha.12",

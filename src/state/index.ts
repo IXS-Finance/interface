@@ -39,7 +39,7 @@ import issuance from './issuance/reducer'
 import wallet from './wallet'
 import global from './global'
 import jumpTask from './jumpTask'
-import dexV2 from './dexV2'
+import poolCreation from './dexV2/poolCreation'
 
 const PERSISTED_KEYS: string[] = ['auth', 'lists', 'swap', 'swapHelper', 'transactions', 'user', 'wallet', 'global']
 
@@ -85,7 +85,7 @@ const combinedReducer = combineReducers({
   wallet,
   global,
   jumpTask,
-  dexV2,
+  poolCreation,
 })
 
 const rootReducer = (state: any, action: any) => {

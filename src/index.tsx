@@ -1,5 +1,5 @@
 import { CookiesProvider } from 'react-cookie'
-import React, { StrictMode } from 'react'
+import React from 'react'
 import { isMobile } from 'react-device-detect'
 import ReactDOM from 'react-dom/client'
 import ReactGA from 'react-ga'
@@ -86,32 +86,30 @@ Sentry.init({
 })
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <HashRouter>
-          <LanguageProvider>
-            <Web3Provider>
-              <Blocklist>
-                <Updaters />
-                <ThemeProvider>
-                  <ThemedGlobalStyle />
-                  <MuiThemeProvider>
-                    <LocalizationProvider dateAdapter={DayJsUtils}>
-                      <CookiesProvider>
-                        <App />
-                        <ToastContainer />
-                      </CookiesProvider>
-                    </LocalizationProvider>
-                  </MuiThemeProvider>
-                </ThemeProvider>
-              </Blocklist>
-            </Web3Provider>
-          </LanguageProvider>
-        </HashRouter>
-      </PersistGate>
-    </Provider>
-  </StrictMode>
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <HashRouter>
+        <LanguageProvider>
+          <Web3Provider>
+            <Blocklist>
+              <Updaters />
+              <ThemeProvider>
+                <ThemedGlobalStyle />
+                <MuiThemeProvider>
+                  <LocalizationProvider dateAdapter={DayJsUtils}>
+                    <CookiesProvider>
+                      <App />
+                      <ToastContainer />
+                    </CookiesProvider>
+                  </LocalizationProvider>
+                </MuiThemeProvider>
+              </ThemeProvider>
+            </Blocklist>
+          </Web3Provider>
+        </LanguageProvider>
+      </HashRouter>
+    </PersistGate>
+  </Provider>
 )
 
 serviceWorkerRegistration.unregister()
