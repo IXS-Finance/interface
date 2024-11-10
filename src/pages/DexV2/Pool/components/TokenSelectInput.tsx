@@ -1,13 +1,25 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { ReactComponent as ChevDown } from 'assets/images/dex-v2/chev-down.svg'
 import SelectTokenModal from './SelectTokenModal'
 
-interface TokenSelectInputProps {}
+interface TokenSelectInputProps {
+  modelValue?: string
+}
 
-const TokenSelectInput: React.FC<TokenSelectInputProps> = () => {
+const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const hasToken = useMemo(() => !!modelValue, [modelValue])
+
+  const token = useMemo(() => {
+    if (!hasToken) return null
+    return null
+    // return getToken(modelValue)
+  }, [])
+
+  console.log('token', token)
 
   const onClose = () => {
     setIsModalOpen(false)

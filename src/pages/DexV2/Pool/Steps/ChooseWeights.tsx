@@ -1,16 +1,29 @@
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
+import { uniqueId } from 'lodash'
 
 import TokenWeightInput from '../components/TokenWeightInput'
 import BalProgressBar from '../components/ProgressBar'
 import { Line } from '../Create'
+import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
+import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
+import { PoolSeedToken } from '../types'
+import { useDispatch } from 'react-redux'
+import { distributeWeights } from 'state/dexV2/poolCreation'
 
-interface TokenWeight {
-  token: string
-  weight: number
+const emptyTokenWeight: PoolSeedToken = {
+  tokenAddress: '',
+  weight: 0,
+  id: '0',
+  isLocked: false,
+  amount: '0',
 }
 
-const TokensAndWeights: React.FC = () => {
+const ChooseWeights: React.FC = () => {
+  const dipatch = useDispatch()
+  const { updateTokenWeights, updateTokenWeight } = usePoolCreation()
+  const { seedTokens } = usePoolCreationState()
+
   const totalAllocatedWeight = 70
 
   const progressBarColor = () => {
@@ -20,11 +33,41 @@ const TokensAndWeights: React.FC = () => {
     return '#66F'
   }
 
+  async function addTokenToPool() {
+    const newWeights: PoolSeedToken[] = [...seedTokens, { ...emptyTokenWeight, id: uniqueId() } as PoolSeedToken]
+
+    updateTokenWeights(newWeights)
+    // distributeWeights();
+  }
+
+  function handleWeightChange(weight: string, id: number) {
+    updateTokenWeight(id, Number(weight))
+  }
+
+  useEffect(() => {
+    if (!seedTokens.length) {
+      const newWeights: PoolSeedToken[] = [
+        { ...emptyTokenWeight, id: uniqueId() } as PoolSeedToken,
+        { ...emptyTokenWeight, id: uniqueId() } as PoolSeedToken,
+      ]
+
+      updateTokenWeights(newWeights)
+      dipatch(distributeWeights())
+    }
+  }, [])
+
   return (
     <div>
-      <TokenWeightInput />
-
-      <TokenWeightInput />
+      {seedTokens.map((token, i) => {
+        return (
+          <TokenWeightInput
+            key={`tokenweight-${token.id}`}
+            weight={token.weight}
+            address={token.tokenAddress}
+            updateWeight={(data) => handleWeightChange(data, i)}
+          />
+        )
+      })}
 
       <AddTokenButton>Add a Token</AddTokenButton>
 
@@ -45,7 +88,7 @@ const TokensAndWeights: React.FC = () => {
   )
 }
 
-export default TokensAndWeights
+export default ChooseWeights
 
 const AddTokenButton = styled.button`
   border-radius: 8px;
