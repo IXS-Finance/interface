@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import TokenSelectInput from './TokenSelectInput'
 
@@ -6,15 +6,38 @@ import { ReactComponent as Lock } from 'assets/images/dex-v2/lock.svg'
 import { ReactComponent as Unlock } from 'assets/images/dex-v2/unlock.svg'
 import { ReactComponent as Trash } from 'assets/images/dex-v2/trash.svg'
 
-interface TokenWeightInputProps {}
+interface TokenWeightInputProps {
+  address?: string
+  weight?: number
+  label?: string
+  fixedToken?: boolean
+  hint?: string
+  hintAmount?: string
+  excludedTokens?: string[]
+  showWarningIcon?: boolean
+  updateWeight: (weight: string) => void
+}
 
-const TokenWeightInput: React.FC<TokenWeightInputProps> = () => {
+const TokenWeightInput: React.FC<TokenWeightInputProps> = ({ weight, address, updateWeight }) => {
+  const [_weight, setWeight] = useState<any>('')
+  const [_address, setAddress] = useState<any>('')
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    updateWeight(value)
+  }
+
+  useEffect(() => {
+    setWeight(weight ? weight.toString() : '')
+    setAddress(address)
+  }, [weight])
+
   return (
     <Container>
-      <TokenSelectInput />
+      <TokenSelectInput modelValue={_address} />
 
       <InputWrap>
-        <Input placeholder="Weight" value="50" />
+        <Input placeholder="0.0" value={_weight} onChange={onChange} />
         <Percent>%</Percent>
 
         <StyledButton>
@@ -22,7 +45,7 @@ const TokenWeightInput: React.FC<TokenWeightInputProps> = () => {
         </StyledButton>
 
         <StyledButton>
-          <StyledTrash/>
+          <StyledTrash />
         </StyledButton>
       </InputWrap>
     </Container>
@@ -91,7 +114,7 @@ const StyledUnlock = styled(Unlock)`
 const StyledTrash = styled(Trash)`
   &:hover {
     path {
-      stroke: #EF4444;
+      stroke: #ef4444;
     }
   }
 `

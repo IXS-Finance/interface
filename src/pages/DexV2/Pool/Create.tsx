@@ -3,15 +3,16 @@ import styled from 'styled-components'
 
 import VerticleSteps from './components/VerticleSteps'
 import { StepIds, StepLabels } from './types'
-import TokensAndWeights from './Steps/TokensAndWeights'
+import ChooseWeights from './Steps/ChooseWeights'
 import SetPoolFees from './Steps/SetPoolFees'
 import SetInitialLiquidity from './Steps/SetInitialLiquidity'
+import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 
 const Create: React.FC = () => {
-  const [activeStep, setActiveStep] = useState(StepIds.TokensAndWeights)
+  const { activeStep } = usePoolCreationState()
 
   const steps: { [key in StepIds]: StepLabels } = {
-    [StepIds.TokensAndWeights]: StepLabels.TokensAndWeights,
+    [StepIds.ChooseWeights]: StepLabels.ChooseWeights,
     [StepIds.SetPoolFees]: StepLabels.SetPoolFees,
     [StepIds.SetInitialLiquidity]: StepLabels.SetInitialLiquidity,
     [StepIds.ConfirmPoolCreation]: StepLabels.ConfirmPoolCreation,
@@ -28,7 +29,7 @@ const Create: React.FC = () => {
             <NetworkText>Ethereum Mainnet</NetworkText>
             <Title>{steps[activeStep]}</Title>
 
-            {activeStep === StepIds.TokensAndWeights ? <TokensAndWeights /> : null}
+            {activeStep === StepIds.ChooseWeights ? <ChooseWeights /> : null}
             {activeStep === StepIds.SetPoolFees ? <SetPoolFees /> : null}
             {activeStep === StepIds.SetInitialLiquidity ? <SetInitialLiquidity /> : null}
           </Card>
