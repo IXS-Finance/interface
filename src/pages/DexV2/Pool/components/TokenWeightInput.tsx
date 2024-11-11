@@ -42,6 +42,7 @@ const TokenWeightInput: React.FC<TokenWeightInputProps> = ({
     if (!isNaN(Number(value)) || value === '') {
       setWeight(value)
       updateWeight(value)
+      updateLocked(true)
     }
   }
 
@@ -60,8 +61,11 @@ const TokenWeightInput: React.FC<TokenWeightInputProps> = ({
 
   useEffect(() => {
     setWeight(weight)
+  }, [weight])
+
+  useEffect(() => {
     setAddress(address)
-  }, [])
+  }, [address])
 
   return (
     <Container>
