@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { sum } from 'lodash'
+import { set, sum } from 'lodash'
 
 import { bnum } from 'lib/utils'
 import { PoolSeedToken, StepIds } from 'pages/DexV2/Pool/types'
@@ -29,6 +29,11 @@ const poolCreationSlice = createSlice({
       const seedTokens = state.seedTokens
       const targetToken = seedTokens[action.payload.id]
       targetToken.weight = action.payload.weight
+    },
+    setTokenLocked(state, action) {
+      const seedTokens = state.seedTokens
+      const targetToken = seedTokens[action.payload.id]
+      targetToken.isLocked = action.payload.isLocked
     },
     distributeWeights: (state) => {
       const seedTokens = state.seedTokens
@@ -65,6 +70,6 @@ const poolCreationSlice = createSlice({
   },
 })
 
-export const { setPoolCreationState, resetPoolCreationState, setTokenWeight, distributeWeights } =
+export const { setPoolCreationState, resetPoolCreationState, setTokenWeight, setTokenLocked, distributeWeights } =
   poolCreationSlice.actions
 export default poolCreationSlice.reducer
