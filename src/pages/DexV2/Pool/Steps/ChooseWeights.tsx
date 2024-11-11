@@ -21,7 +21,7 @@ const emptyTokenWeight: PoolSeedToken = {
 
 const ChooseWeights: React.FC = () => {
   const dipatch = useDispatch()
-  const { updateTokenWeights, updateTokenWeight } = usePoolCreation()
+  const { updateTokenWeights, updateTokenWeight, updateLockedWeight } = usePoolCreation()
   const { seedTokens } = usePoolCreationState()
 
   const totalAllocatedWeight = 70
@@ -42,6 +42,10 @@ const ChooseWeights: React.FC = () => {
 
   function handleWeightChange(weight: string, id: number) {
     updateTokenWeight(id, Number(weight))
+  }
+
+  function handleLockedWeight(isLocked: boolean, id: number) {
+    updateLockedWeight(id, isLocked)
   }
 
   useEffect(() => {
@@ -65,6 +69,7 @@ const ChooseWeights: React.FC = () => {
             weight={token.weight}
             address={token.tokenAddress}
             updateWeight={(data) => handleWeightChange(data, i)}
+            updateLocked={(data) => handleLockedWeight(data, i)}
           />
         )
       })}
