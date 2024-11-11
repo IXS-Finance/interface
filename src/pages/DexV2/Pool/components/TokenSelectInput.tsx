@@ -6,9 +6,10 @@ import SelectTokenModal from './SelectTokenModal'
 
 interface TokenSelectInputProps {
   modelValue?: string
+  updateAddress: (address: string) => void
 }
 
-const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue }) => {
+const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue, updateAddress }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const hasToken = useMemo(() => !!modelValue, [modelValue])
@@ -36,7 +37,7 @@ const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue }) => {
         <ChevDown />
       </TokenSelectInputWrapper>
 
-      {isModalOpen ? <SelectTokenModal onClose={onClose} /> : null}
+      {isModalOpen ? <SelectTokenModal updateAddress={updateAddress} onClose={onClose} /> : null}
     </div>
   )
 }
