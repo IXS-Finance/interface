@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux'
-import { distributeWeights, setPoolCreationState, setTokenWeight } from '..'
+import { setPoolCreationState, setTokenLocked, setTokenWeight } from '..'
 import { PoolSeedToken } from 'pages/DexV2/Pool/types'
 
 export const usePoolCreation = () => {
@@ -13,8 +13,13 @@ export const usePoolCreation = () => {
     dispatch(setTokenWeight({ id, weight }))
   }
 
+  function updateLockedWeight(id: number, isLocked: boolean) {
+    dispatch(setTokenLocked({ id, isLocked }))
+  }
+
   return {
     updateTokenWeights,
     updateTokenWeight,
+    updateLockedWeight,
   }
 }

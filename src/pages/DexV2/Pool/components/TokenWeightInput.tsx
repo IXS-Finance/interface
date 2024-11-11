@@ -16,33 +16,61 @@ interface TokenWeightInputProps {
   excludedTokens?: string[]
   showWarningIcon?: boolean
   updateWeight: (weight: string) => void
+  updateLocked: (isLocked: boolean) => void
 }
 
-const TokenWeightInput: React.FC<TokenWeightInputProps> = ({ weight, address, updateWeight }) => {
+function blockInvalidChar(event: KeyboardEvent) {
+  if (['e', 'E', '+', '-'].includes(event.key)) {
+    event.preventDefault()
+  }
+}
+
+const TokenWeightInput: React.FC<TokenWeightInputProps> = ({ weight = 0, address, updateWeight, updateLocked }) => {
   const [_weight, setWeight] = useState<any>('')
   const [_address, setAddress] = useState<any>('')
+  const [isLocked, setLocked] = useState(false)
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    updateWeight(value)
+    if (!isNaN(Number(value)) || value === '') {
+      setWeight(value)
+      updateWeight(value)
+    }
+  }
+
+  function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
+    blockInvalidChar(event.nativeEvent)
+  }
+
+  const handleLocked = () => {
+    setLocked(!isLocked)
+    updateLocked(!isLocked)
   }
 
   useEffect(() => {
-    setWeight(weight ? weight.toString() : '')
+    setWeight(weight)
     setAddress(address)
-  }, [weight])
+  }, [])
 
   return (
     <Container>
       <TokenSelectInput modelValue={_address} />
 
       <InputWrap>
-        <Input placeholder="0.0" value={_weight} onChange={onChange} />
+        <Input
+          placeholder="0.0"
+          value={_weight}
+          onChange={onChange}
+          min="0"
+          step="0.01"
+          onKeyDown={onKeyDown}
+          type="text"
+          inputMode="decimal"
+          pattern="[0-9]*[.,]?[0-9]*"
+        />
         <Percent>%</Percent>
 
-        <StyledButton>
-          <StyledUnlock />
-        </StyledButton>
+        <StyledButton onClick={handleLocked}>{isLocked ? <StyledUnLock /> : <StyledLock />}</StyledButton>
 
         <StyledButton>
           <StyledTrash />
@@ -95,7 +123,7 @@ const Percent = styled.span`
   letter-spacing: -0.6px;
 `
 
-const StyledLock = styled(Lock)`
+const StyledUnLock = styled(Lock)`
   &:hover {
     path {
       stroke: #6666ff;
@@ -103,7 +131,7 @@ const StyledLock = styled(Lock)`
   }
 `
 
-const StyledUnlock = styled(Unlock)`
+const StyledLock = styled(Unlock)`
   &:hover {
     path {
       stroke: #6666ff;
