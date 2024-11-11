@@ -17,6 +17,7 @@ interface TokenWeightInputProps {
   showWarningIcon?: boolean
   updateWeight: (weight: string) => void
   updateLocked: (isLocked: boolean) => void
+  deleteItem: () => void
 }
 
 function blockInvalidChar(event: KeyboardEvent) {
@@ -25,7 +26,13 @@ function blockInvalidChar(event: KeyboardEvent) {
   }
 }
 
-const TokenWeightInput: React.FC<TokenWeightInputProps> = ({ weight = 0, address, updateWeight, updateLocked }) => {
+const TokenWeightInput: React.FC<TokenWeightInputProps> = ({
+  weight = 0,
+  address,
+  updateWeight,
+  updateLocked,
+  deleteItem,
+}) => {
   const [_weight, setWeight] = useState<any>('')
   const [_address, setAddress] = useState<any>('')
   const [isLocked, setLocked] = useState(false)
@@ -45,6 +52,10 @@ const TokenWeightInput: React.FC<TokenWeightInputProps> = ({ weight = 0, address
   const handleLocked = () => {
     setLocked(!isLocked)
     updateLocked(!isLocked)
+  }
+
+  const handleDelete = () => {
+    deleteItem()
   }
 
   useEffect(() => {
@@ -72,7 +83,7 @@ const TokenWeightInput: React.FC<TokenWeightInputProps> = ({ weight = 0, address
 
         <StyledButton onClick={handleLocked}>{isLocked ? <StyledUnLock /> : <StyledLock />}</StyledButton>
 
-        <StyledButton>
+        <StyledButton onClick={handleDelete}>
           <StyledTrash />
         </StyledButton>
       </InputWrap>

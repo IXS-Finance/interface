@@ -48,6 +48,10 @@ const ChooseWeights: React.FC = () => {
     updateLockedWeight(id, isLocked)
   }
 
+  async function handleRemoveToken(index: number) {
+    updateTokenWeights(seedTokens.filter((_, i) => i !== index))
+  }
+
   useEffect(() => {
     if (!seedTokens.length) {
       const newWeights: PoolSeedToken[] = [
@@ -70,6 +74,7 @@ const ChooseWeights: React.FC = () => {
             address={token.tokenAddress}
             updateWeight={(data) => handleWeightChange(data, i)}
             updateLocked={(data) => handleLockedWeight(data, i)}
+            deleteItem={() => handleRemoveToken(i)}
           />
         )
       })}
