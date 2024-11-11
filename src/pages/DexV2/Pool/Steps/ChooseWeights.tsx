@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 import { uniqueId } from 'lodash'
 
@@ -9,7 +9,6 @@ import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { PoolSeedToken } from '../types'
 import { useDispatch } from 'react-redux'
-import { distributeWeights } from 'state/dexV2/poolCreation'
 
 const emptyTokenWeight: PoolSeedToken = {
   tokenAddress: '',
@@ -20,9 +19,12 @@ const emptyTokenWeight: PoolSeedToken = {
 }
 
 const ChooseWeights: React.FC = () => {
-  const dipatch = useDispatch()
   const { updateTokenWeights, updateTokenWeight, updateLockedWeight } = usePoolCreation()
   const { seedTokens } = usePoolCreationState()
+
+  const maxTokenAmountReached = useMemo(() => {
+    return seedTokens.length >= 8
+  }, [seedTokens.length])
 
   const totalAllocatedWeight = 70
 
@@ -37,7 +39,6 @@ const ChooseWeights: React.FC = () => {
     const newWeights: PoolSeedToken[] = [...seedTokens, { ...emptyTokenWeight, id: uniqueId() } as PoolSeedToken]
 
     updateTokenWeights(newWeights)
-    // distributeWeights();
   }
 
   function handleWeightChange(weight: string, id: number) {
@@ -60,10 +61,10 @@ const ChooseWeights: React.FC = () => {
       ]
 
       updateTokenWeights(newWeights)
-      dipatch(distributeWeights())
     }
   }, [])
 
+  console.log('seedTokens', seedTokens)
   return (
     <div>
       {seedTokens.map((token, i) => {
@@ -79,7 +80,9 @@ const ChooseWeights: React.FC = () => {
         )
       })}
 
-      <AddTokenButton>Add a Token</AddTokenButton>
+      <AddTokenButton disabled={maxTokenAmountReached} onClick={addTokenToPool}>
+        Add a Token
+      </AddTokenButton>
 
       <Line />
 
