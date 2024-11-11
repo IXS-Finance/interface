@@ -64,6 +64,11 @@ const poolCreationSlice = createSlice({
       const targetToken = seedTokens[action.payload.id]
       targetToken.weight = action.payload.weight
     },
+    setTokenAddress(state, action) {
+      const seedTokens = state.seedTokens
+      const targetToken = seedTokens[action.payload.id]
+      targetToken.tokenAddress = action.payload.tokenAddress
+    },
     setTokenLocked(state, action) {
       const seedTokens = state.seedTokens
       const targetToken = seedTokens[action.payload.id]
@@ -84,5 +89,6 @@ export const {
   setTokenLocked,
   distributeWeights,
   setTokenWeights,
+  setTokenAddress
 } = poolCreationSlice.actions
 export default poolCreationSlice.reducer
