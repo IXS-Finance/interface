@@ -16,7 +16,7 @@ import { wagmiConfig } from 'components/Web3Provider'
 
 interface SelectTokenModalProps {
   // tokens: string[];
-  // onSelect: (token: string) => void;
+  updateAddress: (address: string) => void
   onClose: () => void
 }
 
@@ -41,7 +41,7 @@ export function formatAmount(amount: number, maximumFractionDigits = 10) {
   })
 }
 
-const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ onClose }) => {
+const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ updateAddress, onClose }) => {
   const { chainId, provider, account } = useWeb3React()
   const [tokens, setTokens] = useState<Token[]>([])
 
@@ -67,6 +67,16 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ onClose }) => {
       balance: balances[index],
     }))
     setTokens(updatedTokens)
+  }
+
+  async function onSelectToken(token: string): Promise<void> {
+    // Todo: Implement onSelectToken
+    // if (!getToken(token)) {
+    //   await injectTokens([token]);
+    // }
+
+    updateAddress(token)
+    onClose()
   }
 
   useEffect(() => {
@@ -95,7 +105,7 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ onClose }) => {
                 const balance = formatAmount(+formatUnits(token?.balance, token?.decimals), 2)
 
                 return (
-                  <TokenItem key={token.name}>
+                  <TokenItem key={token.name} onClick={() => onSelectToken(token.address)}>
                     <TokenInfo>
                       <img src={token.logoURI} alt="ETH" width={20} height={20} />
                       <TokenDetails>
@@ -127,8 +137,12 @@ const TokenItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 0;
   border-bottom: 1px solid #e6e6ff;
+  cursor: pointer;
+
+  &:hover {
+    background: #f3f3ff;
+  }
 
   &:last-child {
     border-bottom: none;
@@ -138,6 +152,7 @@ const TokenItem = styled.div`
 const TokenInfo = styled.div`
   display: flex;
   align-items: center;
+  padding: 16px 0;
 `
 
 const TokenDetails = styled.div`

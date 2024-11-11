@@ -8,7 +8,6 @@ import { Line } from '../Create'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { PoolSeedToken } from '../types'
-import { useDispatch } from 'react-redux'
 
 const emptyTokenWeight: PoolSeedToken = {
   tokenAddress: '',
@@ -19,7 +18,7 @@ const emptyTokenWeight: PoolSeedToken = {
 }
 
 const ChooseWeights: React.FC = () => {
-  const { updateTokenWeights, updateTokenWeight, updateLockedWeight } = usePoolCreation()
+  const { updateTokenWeights, updateTokenWeight, updateLockedWeight, updateTokenAddress } = usePoolCreation()
   const { seedTokens } = usePoolCreationState()
 
   const maxTokenAmountReached = useMemo(() => {
@@ -53,6 +52,10 @@ const ChooseWeights: React.FC = () => {
     updateTokenWeights(seedTokens.filter((_, i) => i !== index))
   }
 
+  function handleAddressChange(address: string, id: number) {
+    updateTokenAddress(id, address)
+  }
+
   useEffect(() => {
     if (!seedTokens.length) {
       const newWeights: PoolSeedToken[] = [
@@ -76,6 +79,7 @@ const ChooseWeights: React.FC = () => {
             updateWeight={(data) => handleWeightChange(data, i)}
             updateLocked={(data) => handleLockedWeight(data, i)}
             deleteItem={() => handleRemoveToken(i)}
+            updateAddress={(data) => handleAddressChange(data, i)}
           />
         )
       })}
@@ -120,6 +124,18 @@ const AddTokenButton = styled.button`
   font-weight: 500;
   line-height: 0;
   cursor: pointer;
+
+  &:hover {
+    background: #f6f6ff;
+  }
+
+  &:active {
+    background: #f0f0ff;
+  }
+
+  &:disabled {
+    color: #b8b8d2;
+  }
 `
 
 const ButtonPrimary = styled.button`

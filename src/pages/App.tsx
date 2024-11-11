@@ -46,6 +46,7 @@ import SignMessageModal from 'components/SignMessageModal'
 import useQuery from 'hooks/useQuery'
 import { setJumpTaskState } from 'state/jumpTask'
 import { CHAINS } from 'components/Web3Provider/constants'
+import { fetchTokenLists } from 'state/dexV2/tokenLists'
 
 const chains = CHAINS ? CHAINS.map((chain) => chain.id) : []
 const lbpAdminRoutes = [routes.lbpCreate, routes.lbpEdit, routes.lbpDashboard, routes.adminDetails]
@@ -237,6 +238,10 @@ export default function App() {
       dispatch(setJumpTaskState({ affUnique1 }))
     }
   }, [transactionId, affUnique1])
+
+  useEffect(() => {
+    dispatch(fetchTokenLists())
+  }, [])
 
   if (!config) {
     return <LoadingIndicator isLoading />
