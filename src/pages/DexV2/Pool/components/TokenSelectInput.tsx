@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as ChevDown } from 'assets/images/dex-v2/chev-down.svg'
 import SelectTokenModal from './SelectTokenModal'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 interface TokenSelectInputProps {
   modelValue?: string
@@ -10,15 +11,18 @@ interface TokenSelectInputProps {
 }
 
 const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue, updateAddress }) => {
+  const { getToken } = useTokens()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const hasToken = useMemo(() => !!modelValue, [modelValue])
 
   const token = useMemo(() => {
-    if (!hasToken) return null
-    return null
-    // return getToken(modelValue)
-  }, [])
+    if (!hasToken || !modelValue) {
+      return null
+    }
+
+    return getToken(modelValue)
+  }, [modelValue])
 
   console.log('token', token)
 
@@ -30,10 +34,20 @@ const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue, updateA
     setIsModalOpen(!isModalOpen)
   }
 
+  console.log('modelValue', modelValue)
+
   return (
     <div>
       <TokenSelectInputWrapper onClick={toggleModal}>
-        <span>Select token</span>
+        {token ? (
+          <TokenSelected>
+            <img src={token.logoURI} alt={token.symbol} width={20} height={20} />
+            <span>{token.symbol}</span>
+          </TokenSelected>
+        ) : (
+          <span>Select token</span>
+        )}
+
         <ChevDown />
       </TokenSelectInputWrapper>
 
@@ -51,6 +65,12 @@ const TokenSelectInputWrapper = styled.div`
   background: #fff;
   display: flex;
   padding: 8px 12px 8px 8px;
+  align-items: center;
+  gap: 8px;
+`
+
+const TokenSelected = styled.div`
+  display: flex;
   align-items: center;
   gap: 8px;
 `
