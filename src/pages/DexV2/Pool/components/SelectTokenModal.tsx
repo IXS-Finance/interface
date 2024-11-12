@@ -1,8 +1,9 @@
 import Portal from '@reach/portal'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { multicall } from '@wagmi/core'
 import { formatUnits } from 'viem'
+import { orderBy } from 'lodash'
 
 import TextInput from './TextInput'
 import { CenteredFixed } from 'components/LaunchpadMisc/styled'
@@ -13,25 +14,13 @@ import { useWeb3React } from 'hooks/useWeb3React'
 import config, { tokenLists } from 'lib/config'
 import { default as erc20Abi } from 'lib/abi/ERC20.json'
 import { wagmiConfig } from 'components/Web3Provider'
+import { useTokensState } from 'state/dexV2/tokens/hooks'
+import { useDispatch } from 'react-redux'
+import { fetchTokensBalances } from 'state/dexV2/tokens'
 
 interface SelectTokenModalProps {
-  // tokens: string[];
   updateAddress: (address: string) => void
   onClose: () => void
-}
-
-type Token = {
-  address: string
-  chainId: number
-  symbol: string
-  name: string
-  logoURI: string
-  balance: bigint
-  decimals: number
-}
-
-type TokenList = {
-  tokens: Token[]
 }
 
 export function formatAmount(amount: number, maximumFractionDigits = 10) {
@@ -43,31 +32,29 @@ export function formatAmount(amount: number, maximumFractionDigits = 10) {
 
 const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ updateAddress, onClose }) => {
   const { chainId, provider, account } = useWeb3React()
-  const [tokens, setTokens] = useState<Token[]>([])
+  const { tokens: results, balances } = useTokensState()
+  const dispatch = useDispatch()
 
-  const fetchBalances = async () => {
-    const tokensList = tokenLists[chainId]
-    const addresses = tokensList.map((token: Token) => token.address)
-
-    // @ts-ignore
-    const result = await multicall(wagmiConfig, {
-      // @ts-ignore
-      contracts: addresses.map((address: string) => ({
-        address,
-        abi: erc20Abi,
-        functionName: 'balanceOf',
-        args: [account],
-      })),
+  const tokens = useMemo(() => {
+    const tokensWithValues = Object.values(results).map((token) => {
+      const balance = balances[token.address]
+      // const price = priceFor(token.address)
+      // const value = Number(balance) * price
+      return {
+        ...token,
+        // price,
+        balance,
+        // value,
+      }
     })
 
-    const balances = result.map((v: any) => v.result)
+    // if (ignoreBalances) return tokensWithValues
+    // else return orderBy(tokensWithValues, ['value', 'balance'], ['desc', 'desc'])
 
-    const updatedTokens = tokensList.map((token: Token, index: number) => ({
-      ...token,
-      balance: balances[index],
-    }))
-    setTokens(updatedTokens)
-  }
+    return orderBy(tokensWithValues, ['value', 'balance'], ['desc', 'desc'])
+  }, [results, balances])
+
+  console.log('results', results)
 
   async function onSelectToken(token: string): Promise<void> {
     // Todo: Implement onSelectToken
@@ -80,7 +67,14 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ updateAddress, onCl
   }
 
   useEffect(() => {
-    fetchBalances()
+    if (account) {
+      dispatch(
+        fetchTokensBalances({
+          addresses: Object.keys(results),
+          account,
+        })
+      )
+    }
   }, [chainId, provider, account])
 
   console.log('tokens', tokens)
@@ -101,18 +95,18 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ updateAddress, onCl
 
           <BodyModal>
             <TokenList>
-              {tokens.map((token: Token) => {
-                const balance = formatAmount(+formatUnits(token?.balance, token?.decimals), 2)
+              {tokens.map((token: any) => {
+                const balance = token?.balance ? formatAmount(+formatUnits(token?.balance, token?.decimals), 2) : ''
 
                 return (
                   <TokenItem key={token.name} onClick={() => onSelectToken(token.address)}>
-                    <TokenInfo>
+                    <TokenInfoWrap>
                       <img src={token.logoURI} alt="ETH" width={20} height={20} />
                       <TokenDetails>
                         <TokenSymbol>{token.symbol}</TokenSymbol>
                         <TokenName>{token.name}</TokenName>
                       </TokenDetails>
-                    </TokenInfo>
+                    </TokenInfoWrap>
                     <TokenBalance>{balance}</TokenBalance>
                   </TokenItem>
                 )
@@ -149,7 +143,7 @@ const TokenItem = styled.div`
   }
 `
 
-const TokenInfo = styled.div`
+const TokenInfoWrap = styled.div`
   display: flex;
   align-items: center;
   padding: 16px 0;

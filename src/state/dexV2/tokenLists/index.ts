@@ -2,45 +2,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { getChainId } from '@wagmi/core'
 
+import { TokenListMap } from 'types/TokenList'
 import { wagmiConfig } from 'components/Web3Provider'
-
-export interface Version {
-  readonly major: number
-  readonly minor: number
-  readonly patch: number
-}
-
-export interface Tags {
-  readonly [tagId: string]: {
-    readonly name: string
-    readonly description: string
-  }
-}
-
-export interface TokenInfo {
-  readonly chainId: number
-  readonly address: string
-  readonly name: string
-  readonly decimals: number
-  readonly symbol: string
-  readonly logoURI?: string
-  readonly tags?: string[]
-  readonly extensions?: {
-    readonly [key: string]: string | number | boolean | null
-  }
-}
-
-export interface TokenList {
-  readonly name: string
-  readonly timestamp: string
-  readonly version: Version
-  readonly tokens: TokenInfo[]
-  readonly keywords?: string[]
-  readonly tags?: Tags
-  readonly logoURI?: string
-}
-
-export type TokenListMap = { [address: string]: TokenList }
+import { fetchTokensFromListTokens } from '../tokens'
 
 interface TokenListsState {
   allTokenLists: TokenListMap
@@ -66,13 +30,18 @@ const initialState: TokenListsState = {
   isTestMode: process.env.NODE_ENV === 'test',
 }
 
-export const fetchTokenLists = createAsyncThunk('tokenLists/fetchTokenLists', async () => {
+export const fetchTokenLists = createAsyncThunk('tokenLists/fetchTokenLists', async (_, thunkAPI) => {
   const tokensListPromise = import(`assets/data/tokenlists/tokens-${chainId}.json`)
 
   const module = await tokensListPromise
 
   const tokenLists = module.default as TokenListMap
-  return filterTokensList(tokenLists, chainId)
+
+  const result = filterTokensList(tokenLists, chainId)
+
+  thunkAPI.dispatch(fetchTokensFromListTokens(result))
+
+  return result
 })
 
 const tokenListsSlice = createSlice({
