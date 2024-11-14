@@ -1,6 +1,10 @@
+// @ts-nocheck
 import React, { useEffect, useMemo } from 'react'
 import styled from 'styled-components'
-import { uniqueId } from 'lodash'
+import { uniqueId, sumBy } from 'lodash'
+import { useConnectModal } from '@rainbow-me/rainbowkit'
+import { useWriteContract } from 'wagmi'
+import { parseUnits } from 'viem'
 
 import TokenWeightInput from '../components/TokenWeightInput'
 import BalProgressBar from '../components/ProgressBar'
@@ -8,6 +12,14 @@ import { Line } from '../Create'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { PoolSeedToken } from '../types'
+import { useWeb3React } from 'hooks/useWeb3React'
+import WeightedPoolFactoryV4Abi from 'lib/abi/WeightedPoolFactoryV4.json'
+import config from 'lib/config'
+import { generateSalt } from 'lib/utils/random'
+import { ZERO_ADDRESS } from 'constants/misc'
+import { ethers } from 'ethers'
+import { wagmiConfig } from 'components/Web3Provider'
+import { publicClient } from 'components/Web3Provider/wagmi'
 
 const emptyTokenWeight: PoolSeedToken = {
   tokenAddress: '',
@@ -20,12 +32,37 @@ const emptyTokenWeight: PoolSeedToken = {
 const ChooseWeights: React.FC = () => {
   const { updateTokenWeights, updateTokenWeight, updateLockedWeight, updateTokenAddress } = usePoolCreation()
   const { seedTokens } = usePoolCreationState()
+  const { account, chainId } = useWeb3React()
+  const { openConnectModal } = useConnectModal()
+  const { data: hash, writeContract } = useWriteContract()
+  const networkConfig = config[chainId]
+
+  const totalLiquidity = 10000
 
   const maxTokenAmountReached = useMemo(() => {
     return seedTokens.length >= 8
   }, [seedTokens.length])
 
-  const totalAllocatedWeight = 70
+  // const showLiquidityAlert = useMemo(() => {
+  //   const validTokens = seedTokens.filter(t => t.tokenAddress !== '')
+  //   return totalLiquidity.lt(20000) && validTokens.length >= 2
+  // }, [seedTokens, totalLiquidity])
+
+  const walletLabel = useMemo(() => {
+    if (!account) {
+      return 'Connect Wallet'
+    }
+    // if (showLiquidityAlert) {
+    //   return 'Continue anyway'
+    // }
+    return 'Next'
+  }, [account])
+
+  const totalAllocatedWeight = useMemo(() => {
+    const validTokens = seedTokens.filter((t) => t.tokenAddress !== '')
+    const validPercentage = sumBy(validTokens, 'weight')
+    return validPercentage.toFixed(2)
+  }, [seedTokens])
 
   const progressBarColor = () => {
     if (Number(totalAllocatedWeight) > 100 || Number(totalAllocatedWeight) <= 0) {
@@ -54,6 +91,67 @@ const ChooseWeights: React.FC = () => {
 
   function handleAddressChange(address: string, id: number) {
     updateTokenAddress(id, address)
+  }
+
+  async function createPool() {
+    const name = '50USDT-50TIXS'
+    const symbol = '50USDT-50TIXS'
+    const tokenAddresses = seedTokens
+      .map((t) => t.tokenAddress.toLowerCase())
+      .sort((tokenA, tokenB) => {
+        return tokenA > tokenB ? 1 : -1
+      })
+    const seedTokensWeights = seedTokens.map((t) => parseUnits(t.weight.toString(), 16).toString())
+    const swapFeeScaled = parseUnits('0.3', 18).toString()
+    const params = [
+      name,
+      symbol,
+      tokenAddresses,
+      ['500000000000000000', '500000000000000000'],
+      [ZERO_ADDRESS, ZERO_ADDRESS],
+      '3000000000000000',
+      '0x93f082392e9991107eafFa8Fe5F44A33aD9105B1',
+      generateSalt(),
+    ] as any
+
+    console.log('params', params)
+
+    const { result } = await publicClient.simulateContract({
+      address: networkConfig.addresses.weightedPoolFactory,
+      abi: WeightedPoolFactoryV4Abi,
+      functionName: 'create',
+      args: params,
+      account,
+    })
+
+    console.log('result', result)
+
+
+
+    // // @ts-ignore
+    // writeContract(
+    //   {
+    //     // @ts-ignore
+    //     address: networkConfig.addresses.weightedPoolFactory,
+    //     abi: WeightedPoolFactoryV4Abi,
+    //     functionName: 'create',
+    //     args: params,
+    //   },
+    //   {
+    //     onError: (err: any) => {
+    //       console.error(err.message)
+    //     },
+    //   }
+    // )
+  }
+
+  function handleProceed() {
+    if (!account) {
+      openConnectModal && openConnectModal()
+    } else {
+      createPool()
+      // proceed();
+    }
   }
 
   useEffect(() => {
@@ -95,12 +193,12 @@ const ChooseWeights: React.FC = () => {
           <LeftContentProgressBar>Total Allocated</LeftContentProgressBar>
           <RightContentProgressBar>{totalAllocatedWeight}%</RightContentProgressBar>
         </TitleProgressBar>
-        <BalProgressBar width={70} color={progressBarColor()} />
+        <BalProgressBar width={Number(totalAllocatedWeight)} color={progressBarColor()} />
       </WrapProgressBar>
 
       <Line />
 
-      <ButtonPrimary>Connect Wallet</ButtonPrimary>
+      <ButtonPrimary onClick={handleProceed}>{walletLabel}</ButtonPrimary>
     </div>
   )
 }
@@ -157,13 +255,10 @@ const ButtonPrimary = styled.button`
   background: #66f;
   border: none;
   width: 100%;
+  cursor: pointer;
 
   &:hover {
-    background: #4dabf7;
-  }
-
-  &:active {
-    background: #3a8de3;
+    transform: scale(0.99);
   }
 
   &:disabled {

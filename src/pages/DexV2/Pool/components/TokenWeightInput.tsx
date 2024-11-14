@@ -45,6 +45,7 @@ const TokenWeightInput: React.FC<TokenWeightInputProps> = ({
       setWeight(value)
       updateWeight(value)
       updateLocked(true)
+      setLocked(true)
     }
   }
 
