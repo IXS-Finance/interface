@@ -22,8 +22,8 @@ import { wagmiConfig } from 'components/Web3Provider'
 import { publicClient } from 'components/Web3Provider/wagmi'
 import { setTokensList } from 'state/dexV2/poolCreation'
 import { useDispatch } from 'react-redux'
-import { useTokens } from 'pages/Pool/useTokens'
 import BalAlert from '../components/BalAlert'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 const emptyTokenWeight: PoolSeedToken = {
   tokenAddress: '',
@@ -34,7 +34,8 @@ const emptyTokenWeight: PoolSeedToken = {
 }
 
 const ChooseWeights: React.FC = () => {
-  const { updateTokenWeights, updateTokenWeight, updateLockedWeight, updateTokenAddress } = usePoolCreation()
+  const { totalLiquidity, updateTokenWeights, updateTokenWeight, updateLockedWeight, updateTokenAddress } =
+    usePoolCreation()
   const { seedTokens, tokensList } = usePoolCreationState()
   const { account, chainId } = useWeb3React()
   const { openConnectModal } = useConnectModal()
@@ -42,8 +43,6 @@ const ChooseWeights: React.FC = () => {
   const { getToken } = useTokens()
   const { data: hash, writeContract } = useWriteContract()
   const networkConfig = config[chainId]
-
-  const totalLiquidity = 10000
 
   const maxTokenAmountReached = useMemo(() => {
     return seedTokens.length >= 8
@@ -68,6 +67,11 @@ const ChooseWeights: React.FC = () => {
     return validPercentage.toFixed(2)
   }, [JSON.stringify(seedTokens)])
 
+  const totalWeight = useMemo(() => {
+    const pct = sumBy(seedTokens, 'weight')
+    return pct.toFixed(2)
+  }, [JSON.stringify(seedTokens)])
+
   const isProceedDisabled = useMemo(() => {
     if (!account) return false
     if (Number(totalAllocatedWeight) !== 100) return true
@@ -76,10 +80,17 @@ const ChooseWeights: React.FC = () => {
     return false
   }, [account, JSON.stringify(seedTokens)])
 
-  // const showLiquidityAlert = useMemo(() => {
-  //   const validTokens = seedTokens.filter(t => t.tokenAddress !== '')
-  //   return totalLiquidity.lt(20000) && validTokens.length >= 2
-  // }, [seedTokens, totalLiquidity])
+  const showLiquidityAlert = useMemo(() => {
+    const validTokens = seedTokens.filter((t) => t.tokenAddress !== '')
+    return totalLiquidity.lt(20000) && validTokens.length >= 2
+  }, [seedTokens, totalLiquidity])
+
+  const weightColor = useMemo(() => {
+    if (Number(totalWeight) > 100 || Number(totalWeight) <= 0) {
+      return { color: 'red' }
+    }
+    return {}
+  }, [totalWeight])
 
   const walletLabel = useMemo(() => {
     if (!account) {
@@ -210,16 +221,24 @@ const ChooseWeights: React.FC = () => {
       <WrapProgressBar>
         <TitleProgressBar>
           <LeftContentProgressBar>Total Allocated</LeftContentProgressBar>
-          <RightContentProgressBar>{totalAllocatedWeight}%</RightContentProgressBar>
+          <RightContentProgressBar style={weightColor}>{totalAllocatedWeight}%</RightContentProgressBar>
         </TitleProgressBar>
         <BalProgressBar width={Number(totalAllocatedWeight)} color={progressBarColor()} />
       </WrapProgressBar>
 
       <Line />
 
-      <BalAlert title="It’s recommended to provide new pools with at least $20,000 in initial funds" type="warning">
-        {`Based on your wallet balances for these tokens, the maximum amount you can fund this pool with is ~${0}.`}
-      </BalAlert>
+      {account && showLiquidityAlert ? (
+        <BalAlert title="It’s recommended to provide new pools with at least $20,000 in initial funds" type="warning">
+          {`Based on your wallet balances for these tokens, the maximum amount you can fund this pool with is ~${0}.`}
+        </BalAlert>
+      ) : null}
+
+      {!!zeroWeightToken ? (
+        <BalAlert title="You’ve included a token with zero weight" type="warning">
+          {`All tokens in a pool must have a weighting greater than zero. Either remove or replace {0} or set it above 0.01%.`}
+        </BalAlert>
+      ) : null}
 
       <ButtonPrimary onClick={handleProceed} disabled={isProceedDisabled}>
         {walletLabel}
