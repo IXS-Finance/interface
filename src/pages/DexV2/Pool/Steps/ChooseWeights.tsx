@@ -20,6 +20,10 @@ import { ZERO_ADDRESS } from 'constants/misc'
 import { ethers } from 'ethers'
 import { wagmiConfig } from 'components/Web3Provider'
 import { publicClient } from 'components/Web3Provider/wagmi'
+import { setTokensList } from 'state/dexV2/poolCreation'
+import { useDispatch } from 'react-redux'
+import { useTokens } from 'pages/Pool/useTokens'
+import BalAlert from '../components/BalAlert'
 
 const emptyTokenWeight: PoolSeedToken = {
   tokenAddress: '',
@@ -31,9 +35,11 @@ const emptyTokenWeight: PoolSeedToken = {
 
 const ChooseWeights: React.FC = () => {
   const { updateTokenWeights, updateTokenWeight, updateLockedWeight, updateTokenAddress } = usePoolCreation()
-  const { seedTokens } = usePoolCreationState()
+  const { seedTokens, tokensList } = usePoolCreationState()
   const { account, chainId } = useWeb3React()
   const { openConnectModal } = useConnectModal()
+  const dispatch = useDispatch()
+  const { getToken } = useTokens()
   const { data: hash, writeContract } = useWriteContract()
   const networkConfig = config[chainId]
 
@@ -42,6 +48,33 @@ const ChooseWeights: React.FC = () => {
   const maxTokenAmountReached = useMemo(() => {
     return seedTokens.length >= 8
   }, [seedTokens.length])
+
+  const excludedTokens = useMemo(() => {
+    return [...tokensList]
+  }, [JSON.stringify(tokensList)])
+
+  const zeroWeightToken = useMemo(() => {
+    const validTokens = seedTokens.filter((t) => t.tokenAddress !== '')
+    const zeroWeightToken = validTokens.find((t) => t.weight === 0)
+    if (zeroWeightToken) {
+      return getToken(zeroWeightToken.tokenAddress)
+    }
+    return null
+  }, [JSON.stringify(seedTokens)])
+
+  const totalAllocatedWeight = useMemo(() => {
+    const validTokens = seedTokens.filter((t) => t.tokenAddress !== '')
+    const validPercentage = sumBy(validTokens, 'weight')
+    return validPercentage.toFixed(2)
+  }, [JSON.stringify(seedTokens)])
+
+  const isProceedDisabled = useMemo(() => {
+    if (!account) return false
+    if (Number(totalAllocatedWeight) !== 100) return true
+    if (seedTokens.length < 2) return true
+    if (zeroWeightToken) return true
+    return false
+  }, [account, JSON.stringify(seedTokens)])
 
   // const showLiquidityAlert = useMemo(() => {
   //   const validTokens = seedTokens.filter(t => t.tokenAddress !== '')
@@ -57,12 +90,6 @@ const ChooseWeights: React.FC = () => {
     // }
     return 'Next'
   }, [account])
-
-  const totalAllocatedWeight = useMemo(() => {
-    const validTokens = seedTokens.filter((t) => t.tokenAddress !== '')
-    const validPercentage = sumBy(validTokens, 'weight')
-    return validPercentage.toFixed(2)
-  }, [seedTokens])
 
   const progressBarColor = () => {
     if (Number(totalAllocatedWeight) > 100 || Number(totalAllocatedWeight) <= 0) {
@@ -116,33 +143,21 @@ const ChooseWeights: React.FC = () => {
 
     console.log('params', params)
 
-    const { result } = await publicClient.simulateContract({
-      address: networkConfig.addresses.weightedPoolFactory,
-      abi: WeightedPoolFactoryV4Abi,
-      functionName: 'create',
-      args: params,
-      account,
-    })
-
-    console.log('result', result)
-
-
-
-    // // @ts-ignore
-    // writeContract(
-    //   {
-    //     // @ts-ignore
-    //     address: networkConfig.addresses.weightedPoolFactory,
-    //     abi: WeightedPoolFactoryV4Abi,
-    //     functionName: 'create',
-    //     args: params,
-    //   },
-    //   {
-    //     onError: (err: any) => {
-    //       console.error(err.message)
-    //     },
-    //   }
-    // )
+    // @ts-ignore
+    writeContract(
+      {
+        // @ts-ignore
+        address: networkConfig.addresses.weightedPoolFactory,
+        abi: WeightedPoolFactoryV4Abi,
+        functionName: 'create',
+        args: params,
+      },
+      {
+        onError: (err: any) => {
+          console.error(err.message)
+        },
+      }
+    )
   }
 
   function handleProceed() {
@@ -165,7 +180,10 @@ const ChooseWeights: React.FC = () => {
     }
   }, [])
 
-  console.log('seedTokens', seedTokens)
+  useEffect(() => {
+    dispatch(setTokensList(seedTokens.map((w) => w.tokenAddress)))
+  }, [JSON.stringify(seedTokens)])
+
   return (
     <div>
       {seedTokens.map((token, i) => {
@@ -174,6 +192,7 @@ const ChooseWeights: React.FC = () => {
             key={`tokenweight-${token.id}`}
             weight={token.weight}
             address={token.tokenAddress}
+            excludedTokens={excludedTokens}
             updateWeight={(data) => handleWeightChange(data, i)}
             updateLocked={(data) => handleLockedWeight(data, i)}
             deleteItem={() => handleRemoveToken(i)}
@@ -198,7 +217,13 @@ const ChooseWeights: React.FC = () => {
 
       <Line />
 
-      <ButtonPrimary onClick={handleProceed}>{walletLabel}</ButtonPrimary>
+      <BalAlert title="It’s recommended to provide new pools with at least $20,000 in initial funds" type="warning">
+        {`Based on your wallet balances for these tokens, the maximum amount you can fund this pool with is ~${0}.`}
+      </BalAlert>
+
+      <ButtonPrimary onClick={handleProceed} disabled={isProceedDisabled}>
+        {walletLabel}
+      </ButtonPrimary>
     </div>
   )
 }
@@ -262,8 +287,7 @@ const ButtonPrimary = styled.button`
   }
 
   &:disabled {
-    background: #e6e6ff;
-    color: #b8b8d2;
+    background: #ececfb;
   }
 `
 

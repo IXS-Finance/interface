@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
+import _get from 'lodash/get'
 
 import VerticleSteps from './components/VerticleSteps'
 import { StepIds, StepLabels } from './types'
@@ -7,9 +8,16 @@ import ChooseWeights from './Steps/ChooseWeights'
 import SetPoolFees from './Steps/SetPoolFees'
 import SetInitialLiquidity from './Steps/SetInitialLiquidity'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
+import config from 'lib/config'
+import { useWeb3React } from 'hooks/useWeb3React'
 
 const Create: React.FC = () => {
+  const { chainId } = useWeb3React()
   const { activeStep } = usePoolCreationState()
+  const networkConfig = config[chainId]
+  const name = _get(networkConfig, 'name', '')
+
+  console.log('networkConfig', networkConfig)
 
   const steps: { [key in StepIds]: StepLabels } = {
     [StepIds.ChooseWeights]: StepLabels.ChooseWeights,
@@ -26,7 +34,7 @@ const Create: React.FC = () => {
         </LeftContent>
         <CenterContent>
           <Card>
-            <NetworkText>Ethereum Mainnet</NetworkText>
+            <NetworkText>{name}</NetworkText>
             <Title>{steps[activeStep]}</Title>
 
             {activeStep === StepIds.ChooseWeights ? <ChooseWeights /> : null}
