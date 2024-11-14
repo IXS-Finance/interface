@@ -19,6 +19,7 @@ import { useDispatch } from 'react-redux'
 import { fetchTokensBalances } from 'state/dexV2/tokens'
 
 interface SelectTokenModalProps {
+  excludedTokens: string[]
   updateAddress: (address: string) => void
   onClose: () => void
 }
@@ -30,13 +31,13 @@ export function formatAmount(amount: number, maximumFractionDigits = 10) {
   })
 }
 
-const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ updateAddress, onClose }) => {
+const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ excludedTokens = [], updateAddress, onClose }) => {
   const { chainId, provider, account } = useWeb3React()
   const { tokens: results, balances } = useTokensState()
   const dispatch = useDispatch()
 
   const tokens = useMemo(() => {
-    const tokensWithValues = Object.values(results).map((token) => {
+    let tokensWithValues = Object.values(results).map((token) => {
       const balance = balances[token.address]
       // const price = priceFor(token.address)
       // const value = Number(balance) * price
@@ -47,6 +48,8 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ updateAddress, onCl
         // value,
       }
     })
+
+    tokensWithValues = tokensWithValues.filter((token) => !excludedTokens.includes(token.address))
 
     // if (ignoreBalances) return tokensWithValues
     // else return orderBy(tokensWithValues, ['value', 'balance'], ['desc', 'desc'])

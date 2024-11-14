@@ -6,11 +6,12 @@ import SelectTokenModal from './SelectTokenModal'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 interface TokenSelectInputProps {
-  modelValue?: string
+  modelValue: string
+  excludedTokens: string[]
   updateAddress: (address: string) => void
 }
 
-const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue, updateAddress }) => {
+const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue, excludedTokens = [], updateAddress }) => {
   const { getToken } = useTokens()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -24,8 +25,6 @@ const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue, updateA
     return getToken(modelValue)
   }, [modelValue])
 
-  console.log('token', token)
-
   const onClose = () => {
     setIsModalOpen(false)
   }
@@ -33,8 +32,6 @@ const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue, updateA
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen)
   }
-
-  console.log('modelValue', modelValue)
 
   return (
     <div>
@@ -51,7 +48,13 @@ const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue, updateA
         <ChevDown />
       </TokenSelectInputWrapper>
 
-      {isModalOpen ? <SelectTokenModal updateAddress={updateAddress} onClose={onClose} /> : null}
+      {isModalOpen ? (
+        <SelectTokenModal
+          excludedTokens={[...excludedTokens, modelValue]}
+          updateAddress={updateAddress}
+          onClose={onClose}
+        />
+      ) : null}
     </div>
   )
 }

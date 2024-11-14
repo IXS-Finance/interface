@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { sum } from 'lodash'
+import { set, sum } from 'lodash'
 
 import { bnum } from 'lib/utils'
 import { PoolSeedToken, StepIds } from 'pages/DexV2/Pool/types'
@@ -8,12 +8,14 @@ export interface DexV2State {
   activeStep: StepIds
   seedTokens: PoolSeedToken[]
   initialFee: string
+  tokensList: string[]
 }
 
 const initialState: DexV2State = {
   seedTokens: [] as PoolSeedToken[],
   activeStep: StepIds.ChooseWeights,
   initialFee: '0.003',
+  tokensList:  []
 }
 
 function handleDistributeWeights(seedTokens: PoolSeedToken[]) {
@@ -78,6 +80,9 @@ const poolCreationSlice = createSlice({
     distributeWeights(state) {
       handleDistributeWeights(state.seedTokens)
     },
+    setTokensList(state, action) {
+      state.tokensList = action.payload
+    },
     resetPoolCreationState: () => initialState,
   },
 })
@@ -89,6 +94,7 @@ export const {
   setTokenLocked,
   distributeWeights,
   setTokenWeights,
-  setTokenAddress
+  setTokenAddress,
+  setTokensList,
 } = poolCreationSlice.actions
 export default poolCreationSlice.reducer
