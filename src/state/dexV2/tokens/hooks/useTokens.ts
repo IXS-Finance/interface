@@ -4,7 +4,7 @@ import { TokenInfo } from 'types/TokenList'
 import { useTokensState } from '.'
 
 export const useTokens = () => {
-  const { tokens } = useTokensState()
+  const { tokens, balances, prices } = useTokensState()
 
   /**
    * Get single token from state
@@ -14,5 +14,34 @@ export const useTokens = () => {
 
     return selectByAddressFast(tokens, getAddress(address)) as TokenInfo
   }
-  return { getToken }
+
+  /**
+   * Fetch balance for a token
+   */
+  function balanceFor(address: string): string {
+    try {
+      return selectByAddressFast(balances, getAddress(address)) || '0'
+    } catch {
+      return '0'
+    }
+  }
+
+  /**
+   * Fetch price for a token
+   */
+  function priceFor(address: string): number {
+    try {
+      const price = selectByAddressFast(prices, getAddress(address))
+
+      if (!price) {
+        return 0
+      }
+
+      return price
+    } catch {
+      return 0
+    }
+  }
+
+  return { getToken, balanceFor, priceFor }
 }

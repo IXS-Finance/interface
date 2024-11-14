@@ -9,10 +9,12 @@ import config from 'lib/config'
 import { erc20Abi } from 'viem'
 
 export type BalanceMap = { [address: string]: string }
+export type TokenPrices = { [address: string]: number };
 
 interface TokensState {
   balances: BalanceMap
   tokens: TokenInfoMap
+  prices: TokenPrices
   wrappedNativeAsset: TokenInfo | null
 }
 
@@ -24,6 +26,7 @@ interface BalanceInputPayload {
 const initialState: TokensState = {
   balances: {},
   tokens: {},
+  prices: {},
   wrappedNativeAsset: null,
 }
 
