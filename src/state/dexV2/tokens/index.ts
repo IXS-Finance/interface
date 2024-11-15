@@ -6,10 +6,10 @@ import { getChainId, multicall } from '@wagmi/core'
 import { TokenListMap, TokenInfoMap, TokenInfo } from 'types/TokenList'
 import { wagmiConfig } from 'components/Web3Provider'
 import config from 'lib/config'
-import { erc20Abi } from 'viem'
+import { erc20Abi, formatUnits } from 'viem'
 
 export type BalanceMap = { [address: string]: string }
-export type TokenPrices = { [address: string]: number };
+export type TokenPrices = { [address: string]: number }
 
 interface TokensState {
   balances: BalanceMap
@@ -19,7 +19,7 @@ interface TokensState {
 }
 
 interface BalanceInputPayload {
-  addresses: string[]
+  tokens: TokenInfoMap
   account: string
 }
 
@@ -65,7 +65,8 @@ export const fetchTokensFromListTokens = createAsyncThunk(
 
 export const fetchTokensBalances = createAsyncThunk(
   'tokens/fetchTokensBalances',
-  async ({ addresses, account }: BalanceInputPayload) => {
+  async ({ tokens, account }: BalanceInputPayload) => {
+    const addresses = Object.keys(tokens) as string[];
     // @ts-ignore
     const result = await multicall(wagmiConfig, {
       // @ts-ignore
@@ -79,13 +80,37 @@ export const fetchTokensBalances = createAsyncThunk(
 
     const balances = result.map((v: any) => v.result)
     const balancesMap = addresses.reduce<BalanceMap>((acc, address, i) => {
-      acc[address] = balances[i].toString()
+      acc[address] = formatUnits(balances[i].toString(), tokens[address].decimals)
       return acc
     }, {})
 
     return balancesMap
   }
 )
+
+export const fetchTokenPrices = createAsyncThunk('tokens/fetchTokenPrices', async (tokens: TokenInfoMap) => {
+  const addresses = Object.keys(tokens) as string[]
+  // const prices = await Promise.all(
+  //   addresses.map(async (address) => {
+  //     const response = await fetch(
+  //       `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${address}&vs_currencies=usd`
+  //     )
+  //     const data = await response.json()
+  //     return data[address.toLowerCase()].usd
+  //   })
+  // )
+
+  return addresses.reduce<TokenPrices>((acc, address, i) => {
+    acc[address] = 1
+    if (tokens[address].symbol === 'WETH') {
+      acc[address] = 3000
+    }
+    if (tokens[address].symbol === 'TIXS') {
+      acc[address] = 0.4
+    }
+    return acc
+  }, {})
+})
 
 const tokensSlice = createSlice({
   name: 'tokens',
@@ -101,6 +126,9 @@ const tokensSlice = createSlice({
     })
     builder.addCase(fetchTokensBalances.fulfilled, (state, action) => {
       state.balances = action.payload
+    })
+    builder.addCase(fetchTokenPrices.fulfilled, (state, action) => {
+      state.prices = action.payload
     })
   },
 })

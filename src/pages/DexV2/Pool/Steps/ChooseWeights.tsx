@@ -24,6 +24,7 @@ import { setTokensList } from 'state/dexV2/poolCreation'
 import { useDispatch } from 'react-redux'
 import BalAlert from '../components/BalAlert'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 
 const emptyTokenWeight: PoolSeedToken = {
   tokenAddress: '',
@@ -42,6 +43,8 @@ const ChooseWeights: React.FC = () => {
   const dispatch = useDispatch()
   const { getToken } = useTokens()
   const { data: hash, writeContract } = useWriteContract()
+  const { fNum } = useNumbers()
+
   const networkConfig = config[chainId]
 
   const maxTokenAmountReached = useMemo(() => {
@@ -195,6 +198,7 @@ const ChooseWeights: React.FC = () => {
     dispatch(setTokensList(seedTokens.map((w) => w.tokenAddress)))
   }, [JSON.stringify(seedTokens)])
 
+  console.log('test', fNum(totalLiquidity.toString(), FNumFormats.fiat))
   return (
     <div>
       {seedTokens.map((token, i) => {
@@ -230,7 +234,10 @@ const ChooseWeights: React.FC = () => {
 
       {account && showLiquidityAlert ? (
         <BalAlert title="It’s recommended to provide new pools with at least $20,000 in initial funds" type="warning">
-          {`Based on your wallet balances for these tokens, the maximum amount you can fund this pool with is ~${0}.`}
+          {`Based on your wallet balances for these tokens, the maximum amount you can fund this pool with is ~${fNum(
+            totalLiquidity.toString(),
+            FNumFormats.fiat
+          )}.`}
         </BalAlert>
       ) : null}
 

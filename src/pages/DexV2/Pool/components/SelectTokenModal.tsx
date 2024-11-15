@@ -16,7 +16,7 @@ import { default as erc20Abi } from 'lib/abi/ERC20.json'
 import { wagmiConfig } from 'components/Web3Provider'
 import { useTokensState } from 'state/dexV2/tokens/hooks'
 import { useDispatch } from 'react-redux'
-import { fetchTokensBalances } from 'state/dexV2/tokens'
+import { fetchTokensBalances, fetchTokenPrices } from 'state/dexV2/tokens'
 
 interface SelectTokenModalProps {
   excludedTokens: string[]
@@ -73,10 +73,11 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ excludedTokens = []
     if (account) {
       dispatch(
         fetchTokensBalances({
-          addresses: Object.keys(results),
+          tokens: results,
           account,
         })
       )
+      dispatch(fetchTokenPrices(results))
     }
   }, [chainId, provider, account])
 
@@ -99,7 +100,7 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ excludedTokens = []
           <BodyModal>
             <TokenList>
               {tokens.map((token: any) => {
-                const balance = token?.balance ? formatAmount(+formatUnits(token?.balance, token?.decimals), 2) : ''
+                const balance = token?.balance ? formatAmount(+token?.balance, 2) : ''
 
                 return (
                   <TokenItem key={token.name} onClick={() => onSelectToken(token.address)}>
