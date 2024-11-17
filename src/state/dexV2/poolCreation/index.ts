@@ -15,7 +15,7 @@ const initialState: DexV2State = {
   seedTokens: [] as PoolSeedToken[],
   activeStep: StepIds.ChooseWeights,
   initialFee: '0.003',
-  tokensList:  []
+  tokensList: [],
 }
 
 function handleDistributeWeights(seedTokens: PoolSeedToken[]) {
@@ -31,7 +31,7 @@ function handleDistributeWeights(seedTokens: PoolSeedToken[]) {
   const error = pctAvailableToDistribute.minus(evenDistributionWeight.times(unlockedWeights.length))
   const isErrorDivisible = error.mod(unlockedWeights.length).eq(0)
   const distributableError = isErrorDivisible ? error.div(unlockedWeights.length) : error
-
+ debugger;
   const normalisedWeights = unlockedWeights.map((_, i) => {
     const evenDistributionWeight4DP = Number(evenDistributionWeight.toFixed(4))
     const errorScaledTo4DP = Number(distributableError.toString()) * 1e14
@@ -44,6 +44,7 @@ function handleDistributeWeights(seedTokens: PoolSeedToken[]) {
     }
   })
 
+  console.log('normalisedWeights', normalisedWeights)
   unlockedWeights.forEach((tokenWeight, i) => {
     tokenWeight.weight = Number((normalisedWeights[i] * 100).toFixed(2))
   })
@@ -60,6 +61,12 @@ const poolCreationSlice = createSlice({
     },
     setTokenWeights(state, action) {
       state.seedTokens = action.payload
+      handleDistributeWeights(state.seedTokens)
+    },
+    addTokenWeight(state, action) {
+      state.seedTokens = [...state.seedTokens, action.payload]
+      console.log('state.seedTokens', state.seedTokens)
+      handleDistributeWeights(state.seedTokens)
     },
     setTokenWeight(state, action) {
       const seedTokens = state.seedTokens
@@ -83,6 +90,9 @@ const poolCreationSlice = createSlice({
     setTokensList(state, action) {
       state.tokensList = action.payload
     },
+    setActiveStep(state, action) {
+      state.activeStep = action.payload
+    },
     resetPoolCreationState: () => initialState,
   },
 })
@@ -96,5 +106,7 @@ export const {
   setTokenWeights,
   setTokenAddress,
   setTokensList,
+  addTokenWeight,
+  setActiveStep
 } = poolCreationSlice.actions
 export default poolCreationSlice.reducer

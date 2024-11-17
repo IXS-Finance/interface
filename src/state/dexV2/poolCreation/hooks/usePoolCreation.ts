@@ -1,7 +1,7 @@
 import { useDispatch } from 'react-redux'
 import { useMemo } from 'react'
 
-import { distributeWeights, setTokenLocked, setTokenWeight, setTokenWeights, setTokenAddress } from '..'
+import { setActiveStep, setTokenLocked, setTokenWeight, setTokenWeights, setTokenAddress, addTokenWeight } from '..'
 import { PoolSeedToken } from 'pages/DexV2/Pool/types'
 import { usePoolCreationState } from '.'
 import { bnum } from 'lib/utils'
@@ -9,7 +9,7 @@ import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 export const usePoolCreation = () => {
   const dispatch = useDispatch()
-  const { tokensList } = usePoolCreationState()
+  const { tokensList, activeStep } = usePoolCreationState()
   const { priceFor, balanceFor } = useTokens()
 
   const totalLiquidity = useMemo(() => {
@@ -22,7 +22,10 @@ export const usePoolCreation = () => {
 
   function updateTokenWeights(weights: PoolSeedToken[]) {
     dispatch(setTokenWeights(weights))
-    dispatch(distributeWeights())
+  }
+
+  function addTokenWeightToPool(token: PoolSeedToken) {
+    dispatch(addTokenWeight(token))
   }
 
   function updateTokenWeight(id: number, weight: number) {
@@ -37,11 +40,17 @@ export const usePoolCreation = () => {
     dispatch(setTokenLocked({ id, isLocked }))
   }
 
+  function proceed() {
+    dispatch(setActiveStep(activeStep + 1))
+  }
+
   return {
     totalLiquidity,
     updateTokenWeights,
     updateTokenWeight,
     updateLockedWeight,
     updateTokenAddress,
+    addTokenWeightToPool,
+    proceed,
   }
 }

@@ -54,7 +54,9 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ excludedTokens = []
     // if (ignoreBalances) return tokensWithValues
     // else return orderBy(tokensWithValues, ['value', 'balance'], ['desc', 'desc'])
 
-    return orderBy(tokensWithValues, ['value', 'balance'], ['desc', 'desc'])
+    // return orderBy(tokensWithValues, ['value', 'balance'], ['desc', 'desc'])
+
+    return tokensWithValues
   }, [results, balances])
 
   console.log('results', results)

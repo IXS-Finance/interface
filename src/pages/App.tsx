@@ -2,6 +2,8 @@ import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'reac
 import { Redirect, RouteComponentProps, Route, Switch, useLocation } from 'react-router-dom'
 import styled from 'styled-components/macro'
 import { useDispatch } from 'react-redux'
+import BigNumber from 'bignumber.js'
+import { DEFAULT_TOKEN_DECIMALS } from 'constants/tokens'
 
 import { useActiveWeb3React } from 'hooks/web3'
 import ApeModeQueryParamReader from 'hooks/useApeModeQueryParamReader'
@@ -61,6 +63,8 @@ const initSafary = () => {
   script.crossOrigin = 'anonymous'
   document.head.appendChild(script)
 }
+
+BigNumber.config({ DECIMAL_PLACES: DEFAULT_TOKEN_DECIMALS });
 
 export default function App() {
   const getMe = useGetMe()
