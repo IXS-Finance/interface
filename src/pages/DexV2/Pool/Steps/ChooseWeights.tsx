@@ -35,8 +35,15 @@ const emptyTokenWeight: PoolSeedToken = {
 }
 
 const ChooseWeights: React.FC = () => {
-  const { totalLiquidity, updateTokenWeights, updateTokenWeight, updateLockedWeight, updateTokenAddress } =
-    usePoolCreation()
+  const {
+    totalLiquidity,
+    updateTokenWeights,
+    updateTokenWeight,
+    updateLockedWeight,
+    updateTokenAddress,
+    addTokenWeightToPool,
+    proceed
+  } = usePoolCreation()
   const { seedTokens, tokensList } = usePoolCreationState()
   const { account, chainId } = useWeb3React()
   const { openConnectModal } = useConnectModal()
@@ -113,9 +120,7 @@ const ChooseWeights: React.FC = () => {
   }
 
   async function addTokenToPool() {
-    const newWeights: PoolSeedToken[] = [...seedTokens, { ...emptyTokenWeight, id: uniqueId() } as PoolSeedToken]
-
-    updateTokenWeights(newWeights)
+    addTokenWeightToPool({ ...emptyTokenWeight, id: uniqueId() } as PoolSeedToken)
   }
 
   function handleWeightChange(weight: string, id: number) {
@@ -178,8 +183,7 @@ const ChooseWeights: React.FC = () => {
     if (!account) {
       openConnectModal && openConnectModal()
     } else {
-      createPool()
-      // proceed();
+      proceed();
     }
   }
 
@@ -198,7 +202,6 @@ const ChooseWeights: React.FC = () => {
     dispatch(setTokensList(seedTokens.map((w) => w.tokenAddress)))
   }, [JSON.stringify(seedTokens)])
 
-  console.log('test', fNum(totalLiquidity.toString(), FNumFormats.fiat))
   return (
     <div>
       {seedTokens.map((token, i) => {

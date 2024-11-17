@@ -165,3 +165,5 @@ export enum TokenStatusEnum {
   APPROVED = 'approved',
   WRAPPING = 'wrapping',
 }
+
+export const DEFAULT_TOKEN_DECIMALS = 18;
