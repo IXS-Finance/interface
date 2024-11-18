@@ -44,6 +44,14 @@ export const usePoolCreation = () => {
     dispatch(setActiveStep(activeStep + 1))
   }
 
+  function goBack() {
+    if (activeStep === 3) {
+      dispatch(setActiveStep(1))
+      return
+    }
+    dispatch(setActiveStep(activeStep - 1))
+  }
+
   return {
     totalLiquidity,
     updateTokenWeights,
@@ -52,5 +60,6 @@ export const usePoolCreation = () => {
     updateTokenAddress,
     addTokenWeightToPool,
     proceed,
+    goBack,
   }
 }
