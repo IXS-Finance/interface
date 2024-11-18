@@ -1,10 +1,38 @@
 import React, { useState } from 'react'
-import { Line } from '../Create'
 import styled from 'styled-components'
+import { useDispatch } from 'react-redux'
+
+import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
+import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
+import { setPoolCreationState } from 'state/dexV2/poolCreation'
+import { Line } from '../Create'
 
 interface SetPoolFeesProps {}
 
 const SetPoolFees: React.FC<SetPoolFeesProps> = () => {
+  const { goBack } = usePoolCreation()
+  const { initialFee } = usePoolCreationState()
+  const dispatch = useDispatch()
+
+  const [fee, setFee] = useState((Number(initialFee) * 100).toString())
+
+  const onFeeChange = (value: string) => {
+    if (!isNaN(Number(value)) || value === '') {
+      setFee(value)
+      dispatch(setPoolCreationState({ initialFee: Number(value) / 100}))
+    }
+  }
+
+  function blockInvalidChar(event: KeyboardEvent) {
+    if (['e', 'E', '+', '-'].includes(event.key)) {
+      event.preventDefault()
+    }
+  }
+
+  function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
+    blockInvalidChar(event.nativeEvent)
+  }
+
   return (
     <div>
       <Line />
@@ -12,14 +40,24 @@ const SetPoolFees: React.FC<SetPoolFeesProps> = () => {
       <Title>Initial swap fees</Title>
       <Desc>0.30% is best for most weighted pools with established tokens. Go higher for more exotic tokens.</Desc>
       <Wrapper>
-        <StyledInput placeholder="0" />
+        <StyledInput
+          placeholder="0"
+          value={fee}
+          min="0"
+          step="0.01"
+          onKeyDown={onKeyDown}
+          type="text"
+          inputMode="decimal"
+          pattern="[0-9]*[.,]?[0-9]*"
+          onChange={(e) => onFeeChange(e.target.value)}
+        />
         <PercentSymbol>%</PercentSymbol>
       </Wrapper>
       <ButtonContainer>
-        <StyledButton>0.1%</StyledButton>
-        <StyledButton>0.3%</StyledButton>
-        <StyledButton>0.5%</StyledButton>
-        <StyledButton>1%</StyledButton>
+        <StyledButton onClick={() => onFeeChange('0.1')}>0.1%</StyledButton>
+        <StyledButton onClick={() => onFeeChange('0.3')}>0.3%</StyledButton>
+        <StyledButton onClick={() => onFeeChange('0.5')}>0.5%</StyledButton>
+        <StyledButton onClick={() => onFeeChange('1')}>1%</StyledButton>
       </ButtonContainer>
 
       <Line />
@@ -34,7 +72,7 @@ const SetPoolFees: React.FC<SetPoolFeesProps> = () => {
       </Wrapper>
 
       <NavigationButtons>
-        <BackButton>Back</BackButton>
+        <BackButton onClick={goBack}>Back</BackButton>
         <NextButton>Next</NextButton>
       </NavigationButtons>
     </div>
@@ -77,7 +115,6 @@ const Wrapper = styled.div`
 const StyledInput = styled.input`
   border: none;
   outline: none;
-  color: #b8b8d2;
   font-family: Inter;
   font-size: 14px;
   font-style: normal;
