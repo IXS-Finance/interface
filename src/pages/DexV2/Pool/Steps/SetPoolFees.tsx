@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { useDispatch } from 'react-redux'
 
@@ -10,16 +10,30 @@ import { Line } from '../Create'
 interface SetPoolFeesProps {}
 
 const SetPoolFees: React.FC<SetPoolFeesProps> = () => {
-  const { goBack } = usePoolCreation()
+  const { goBack, getPoolSymbol, proceed } = usePoolCreation()
   const { initialFee } = usePoolCreationState()
   const dispatch = useDispatch()
 
   const [fee, setFee] = useState((Number(initialFee) * 100).toString())
+  const [name, setName] = useState(getPoolSymbol())
+  const [isInvalidFee, setIsInvalidFee] = useState(false)
+
+  const isProceedDisabled = useMemo(() => {
+    if (isInvalidFee) return true
+
+    return false
+  }, [isInvalidFee])
 
   const onFeeChange = (value: string) => {
     if (!isNaN(Number(value)) || value === '') {
       setFee(value)
-      dispatch(setPoolCreationState({ initialFee: Number(value) / 100}))
+      dispatch(setPoolCreationState({ initialFee: (Number(value) / 100).toString() }))
+
+      if (Number(value) < 0.0001 || Number(value) > 10) {
+        setIsInvalidFee(true)
+      } else {
+        setIsInvalidFee(false)
+      }
     }
   }
 
@@ -32,6 +46,15 @@ const SetPoolFees: React.FC<SetPoolFeesProps> = () => {
   function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
     blockInvalidChar(event.nativeEvent)
   }
+
+  function onNameChange(value: string) {
+    setName(value)
+    dispatch(setPoolCreationState({ name: value }))
+  }
+
+  useEffect(() => {
+    dispatch(setPoolCreationState({ symbol: getPoolSymbol() }))
+  }, [])
 
   return (
     <div>
@@ -68,12 +91,14 @@ const SetPoolFees: React.FC<SetPoolFeesProps> = () => {
       </Desc>
 
       <Wrapper>
-        <StyledInput placeholder="SFP50-USDC50" />
+        <StyledInput placeholder={name} value={name} onChange={(e) => onNameChange(e.target.value)} />
       </Wrapper>
 
       <NavigationButtons>
         <BackButton onClick={goBack}>Back</BackButton>
-        <NextButton>Next</NextButton>
+        <NextButton disabled={isProceedDisabled} onClick={proceed}>
+          Next
+        </NextButton>
       </NavigationButtons>
     </div>
   )
@@ -191,7 +216,11 @@ const BackButton = styled.button`
   cursor: pointer;
 
   &:hover {
-    background: #f0f0ff;
+    transform: scale(0.99);
+  }
+
+  &:disabled {
+    background: #ececfb;
   }
 `
 
@@ -217,7 +246,7 @@ const NextButton = styled.button`
   border: none;
 
   &:hover {
-    background: #dcdcfb;
+    transform: scale(0.99);
   }
 
   &:disabled {

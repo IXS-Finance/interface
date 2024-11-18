@@ -6,7 +6,7 @@ import VerticleSteps from './components/VerticleSteps'
 import { StepIds, StepLabels } from './types'
 import ChooseWeights from './Steps/ChooseWeights'
 import SetPoolFees from './Steps/SetPoolFees'
-import SetInitialLiquidity from './Steps/SetInitialLiquidity'
+import InitialLiquidity from './Steps/InitialLiquidity'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 import config from 'lib/config'
 import { useWeb3React } from 'hooks/useWeb3React'
@@ -22,7 +22,7 @@ const Create: React.FC = () => {
   const steps: { [key in StepIds]: StepLabels } = {
     [StepIds.ChooseWeights]: StepLabels.ChooseWeights,
     [StepIds.SetPoolFees]: StepLabels.SetPoolFees,
-    [StepIds.SetInitialLiquidity]: StepLabels.SetInitialLiquidity,
+    [StepIds.InitialLiquidity]: StepLabels.InitialLiquidity,
     [StepIds.ConfirmPoolCreation]: StepLabels.ConfirmPoolCreation,
   }
 
@@ -39,7 +39,7 @@ const Create: React.FC = () => {
 
             {activeStep === StepIds.ChooseWeights ? <ChooseWeights /> : null}
             {activeStep === StepIds.SetPoolFees ? <SetPoolFees /> : null}
-            {activeStep === StepIds.SetInitialLiquidity ? <SetInitialLiquidity /> : null}
+            {activeStep === StepIds.InitialLiquidity ? <InitialLiquidity /> : null}
           </Card>
         </CenterContent>
         <RightContent></RightContent>

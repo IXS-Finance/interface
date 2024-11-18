@@ -1,14 +1,14 @@
 export enum StepIds {
   ChooseWeights = 0,
   SetPoolFees = 1,
-  SetInitialLiquidity = 2,
+  InitialLiquidity = 2,
   ConfirmPoolCreation = 3,
 }
 
 export enum StepLabels {
   ChooseWeights = 'Tokens and weights',
   SetPoolFees = 'Set pool fees',
-  SetInitialLiquidity = 'Set initial liquidity',
+  InitialLiquidity = 'Set initial liquidity',
   ConfirmPoolCreation = 'Confirm pool creation',
 }
 
@@ -19,3 +19,6 @@ export type PoolSeedToken = {
   amount: string;
   id: string;
 };
+
+export type RuleFunction = (val: string | number) => string | boolean;
+export type Rules = Array<RuleFunction>;

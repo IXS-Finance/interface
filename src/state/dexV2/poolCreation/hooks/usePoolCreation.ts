@@ -9,8 +9,8 @@ import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 export const usePoolCreation = () => {
   const dispatch = useDispatch()
-  const { tokensList, activeStep } = usePoolCreationState()
-  const { priceFor, balanceFor } = useTokens()
+  const { tokensList, activeStep, seedTokens } = usePoolCreationState()
+  const { priceFor, balanceFor, getToken } = useTokens()
 
   const totalLiquidity = useMemo(() => {
     let total = bnum(0)
@@ -52,6 +52,25 @@ export const usePoolCreation = () => {
     dispatch(setActiveStep(activeStep - 1))
   }
 
+  function getPoolSymbol() {
+    let valid = true;
+
+    const tokenSymbols = seedTokens.map(
+      (token: PoolSeedToken) => {
+        const weightRounded = Math.round(token.weight);
+        const tokenInfo = getToken(token.tokenAddress);
+        if (!tokenInfo) {
+          valid = false;
+        }
+        return tokenInfo
+          ? `${Math.round(weightRounded)}${tokenInfo.symbol}`
+          : '';
+      }
+    );
+
+    return valid ? tokenSymbols.join('-') : '';
+  }
+
   return {
     totalLiquidity,
     updateTokenWeights,
@@ -61,5 +80,6 @@ export const usePoolCreation = () => {
     addTokenWeightToPool,
     proceed,
     goBack,
+    getPoolSymbol
   }
 }
