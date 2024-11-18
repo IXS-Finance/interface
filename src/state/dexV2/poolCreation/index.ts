@@ -31,7 +31,7 @@ function handleDistributeWeights(seedTokens: PoolSeedToken[]) {
   const error = pctAvailableToDistribute.minus(evenDistributionWeight.times(unlockedWeights.length))
   const isErrorDivisible = error.mod(unlockedWeights.length).eq(0)
   const distributableError = isErrorDivisible ? error.div(unlockedWeights.length) : error
- debugger;
+
   const normalisedWeights = unlockedWeights.map((_, i) => {
     const evenDistributionWeight4DP = Number(evenDistributionWeight.toFixed(4))
     const errorScaledTo4DP = Number(distributableError.toString()) * 1e14

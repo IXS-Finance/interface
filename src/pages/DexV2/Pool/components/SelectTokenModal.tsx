@@ -83,8 +83,6 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ excludedTokens = []
     }
   }, [chainId, provider, account])
 
-  console.log('tokens', tokens)
-
   return (
     <Portal>
       <CenteredFixed width="100vw" height="100vh">

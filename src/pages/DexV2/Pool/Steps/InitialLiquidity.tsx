@@ -6,57 +6,34 @@ import { ReactComponent as WalletIcon } from 'assets/images/dex-v2/wallet.svg'
 import { ReactComponent as WarningIcon } from 'assets/images/dex-v2/warning.svg'
 import { Flex } from 'rebass'
 import Switch from '../components/Switch'
+import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
+import TokenInput from '../components/TokenInput'
+import { isGreaterThan } from 'lib/utils/validations'
 
 interface SetPoolFeesProps {}
 
-const SetInitialLiquidity: React.FC<SetPoolFeesProps> = () => {
+const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
+  const { seedTokens, tokensList } = usePoolCreationState()
+
+  const handleAmountChange = (tokenAddress: string, amount: string) => {
+    console.log(tokenAddress, amount)
+  }
+
   return (
     <div>
-      <LiquidityContainer>
-        <FlexContainer>
-          <TokenWrap>
-            <img src={EthIcon} alt="ETH" width={20} height={20} />
-            <TokenSymbol>ETH</TokenSymbol>
-            <PercentText>50%</PercentText>
-          </TokenWrap>
-
-          <StyledInput placeholder="0.00" />
-        </FlexContainer>
-        <Flex justifyContent="space-between" alignItems="center">
-          <FlexBalance>
-            <BalanceText>256.13</BalanceText>
-            <WalletIcon />
-          </FlexBalance>
-
-          <FlexBalance>
-            <ErrorText>Must be greater than 0</ErrorText>
-            <WarningIcon />
-          </FlexBalance>
-        </Flex>
-      </LiquidityContainer>
-
-      <LiquidityContainer>
-        <FlexContainer>
-          <TokenWrap>
-            <img src={PolIcon} alt="POL" width={20} height={20} />
-            <TokenSymbol>POL</TokenSymbol>
-            <PercentText>50%</PercentText>
-          </TokenWrap>
-
-          <StyledInput placeholder="0.00" />
-        </FlexContainer>
-        <Flex justifyContent="space-between" alignItems="center">
-          <FlexBalance>
-            <BalanceText>9254.68</BalanceText>
-            <WalletIcon />
-          </FlexBalance>
-
-          <FlexBalance>
-            <ErrorText>Must be greater than 0</ErrorText>
-            <WarningIcon />
-          </FlexBalance>
-        </Flex>
-      </LiquidityContainer>
+      {seedTokens.map((token, i) => {
+        return (
+          <TokenInput
+            key={`tokenweight-${token.id}`}
+            name={`initial-token-${token.tokenAddress}`}
+            weight={token.weight}
+            address={token.tokenAddress}
+            amount={0}
+            rules={[isGreaterThan(0)]}
+            updateAmount={() => {}}
+          />
+        )
+      })}
 
       <Flex alignItems="center" style={{ gap: 8 }} marginTop={16}>
         <Switch />
@@ -85,7 +62,7 @@ const SetInitialLiquidity: React.FC<SetPoolFeesProps> = () => {
   )
 }
 
-export default SetInitialLiquidity
+export default InitialLiquidity
 
 const LiquidityContainer = styled.div`
   margin-top: 16px;
