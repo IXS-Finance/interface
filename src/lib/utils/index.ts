@@ -1,8 +1,9 @@
-import BigNumber from 'bignumber.js';
+import BigNumber from 'bignumber.js'
+import { getAddress } from '@ethersproject/address'
 
 export function bnum(val: string | number | BigNumber): BigNumber {
-  const number = typeof val === 'string' ? val : val ? val.toString() : '0';
-  return new BigNumber(number);
+  const number = typeof val === 'string' ? val : val ? val.toString() : '0'
+  return new BigNumber(number)
 }
 
 /**
@@ -13,13 +14,15 @@ export function bnum(val: string | number | BigNumber): BigNumber {
  * @param address An address to find in the map
  * @returns Item from map or undefined
  */
-export function selectByAddressFast<T>(
-  map: Record<string, T>,
-  address: string
-): T | undefined {
-  return map[address];
+export function selectByAddressFast<T>(map: Record<string, T>, address: string): T | undefined {
+  return map[address]
 }
 
 export function getAddressFromPoolId(poolId: string) {
-  return poolId.substring(0, 42);
+  return poolId.substring(0, 42)
+}
+
+export function isSameAddress(address1: string, address2: string): boolean {
+  if (!address1 || !address2) return false
+  return getAddress(address1) === getAddress(address2)
 }

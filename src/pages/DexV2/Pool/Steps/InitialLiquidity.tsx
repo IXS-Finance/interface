@@ -1,5 +1,7 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
+import { useDispatch } from 'react-redux'
+
 import EthIcon from 'assets/images/dex-v2/eth.svg'
 import PolIcon from 'assets/images/dex-v2/pol.svg'
 import { ReactComponent as WalletIcon } from 'assets/images/dex-v2/wallet.svg'
@@ -9,15 +11,51 @@ import Switch from '../components/Switch'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 import TokenInput from '../components/TokenInput'
 import { isGreaterThan } from 'lib/utils/validations'
+import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
+import { setPoolCreationState, setTokenAmount } from 'state/dexV2/poolCreation'
 
 interface SetPoolFeesProps {}
 
 const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
-  const { seedTokens, tokensList } = usePoolCreationState()
+  const { seedTokens, tokensList, manuallySetToken, autoOptimiseBalances } = usePoolCreationState()
+  const { scaledLiquidity, getOptimisedLiquidity, proceed } = usePoolCreation()
+  const dispatch = useDispatch()
+
+  const [isOptimised, setIsOptimised] = useState(false)
 
   const handleAmountChange = (tokenAddress: string, amount: string) => {
     console.log(tokenAddress, amount)
   }
+
+  function optimiseLiquidity(force = false) {
+    if (manuallySetToken && !force) return
+    setIsOptimised(true)
+
+    const optimisedLiquidity = getOptimisedLiquidity()
+
+    seedTokens.forEach((token, idx) => {
+      dispatch(setTokenAmount({ id: idx, amount: optimisedLiquidity[token.tokenAddress].balanceRequired }))
+    })
+  }
+
+  function scaleLiquidity() {
+    if (!autoOptimiseBalances || !manuallySetToken) return
+
+    seedTokens.forEach((token, idx) => {
+      if (token.tokenAddress !== manuallySetToken) {
+        dispatch(setTokenAmount({ id: idx, amount: scaledLiquidity[token.tokenAddress].balanceRequired }))
+      }
+    })
+  }
+
+  function saveAndProcessed() {
+    proceed()
+  }
+
+  useEffect(() => {
+    optimiseLiquidity()
+    scaleLiquidity()
+  }, [manuallySetToken, autoOptimiseBalances])
 
   return (
     <div>
@@ -28,9 +66,8 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
             name={`initial-token-${token.tokenAddress}`}
             weight={token.weight}
             address={token.tokenAddress}
-            amount={0}
+            amount={token.amount}
             rules={[isGreaterThan(0)]}
-            updateAmount={() => {}}
           />
         )
       })}
@@ -56,7 +93,7 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
 
       <NavigationButtons>
         <BackButton>Back</BackButton>
-        <NextButton>Next</NextButton>
+        <NextButton onClick={() => saveAndProcessed()}>Next</NextButton>
       </NavigationButtons>
     </div>
   )
@@ -64,81 +101,6 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
 
 export default InitialLiquidity
 
-const LiquidityContainer = styled.div`
-  margin-top: 16px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 128, 128, 0.5);
-  background: #f7f7fa;
-  padding: 16px;
-`
-
-const FlexContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-`
-
-const FlexBalance = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`
-
-const TokenSymbol = styled.div`
-  color: rgba(41, 41, 51, 0.9);
-  font-family: Inter;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  letter-spacing: -0.42px;
-`
-
-const TokenWrap = styled.div`
-  display: flex;
-  padding: 8px 12px 8px 8px;
-  align-items: center;
-  gap: 8px;
-  border-radius: 8px;
-  border: 1px solid #e6e6ff;
-  background: #fff;
-`
-
-const PercentText = styled.div`
-  color: #b8b8d2;
-  font-family: Inter;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  letter-spacing: -0.42px;
-`
-
-const StyledInput = styled.input`
-  color: rgba(41, 41, 51, 0.9);
-  font-family: Inter;
-  font-size: 28px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  letter-spacing: -0.84px;
-  text-align: right;
-  outline: none;
-  border: none;
-  background: transparent;
-  max-width: 240px;
-`
-
-const BalanceText = styled.div`
-  color: #b8b8d2;
-  font-family: Inter;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  letter-spacing: -0.42px;
-`
 const NavigationButtons = styled.div`
   display: flex;
   margin-top: 16px;
@@ -166,7 +128,7 @@ const BackButton = styled.button`
   cursor: pointer;
 
   &:hover {
-    background: #f0f0ff;
+    transform: scale(0.99);
   }
 `
 
@@ -192,7 +154,7 @@ const NextButton = styled.button`
   border: none;
 
   &:hover {
-    background: #dcdcfb;
+    transform: scale(0.99);
   }
 
   &:disabled {

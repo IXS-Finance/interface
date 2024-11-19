@@ -23,7 +23,7 @@ interface TokenInputProps {
 
 const TokenInput: React.FC<TokenInputProps> = (props) => {
   const { getToken, balanceFor } = useTokens()
-  const { weight = 0, address = '', rules = [], ignoreWalletBalance = false } = props
+  const { weight = 0, address = '', rules = [], ignoreWalletBalance = false, amount } = props
 
   const [errors, setErrors] = useState<string[]>([])
 
@@ -100,6 +100,7 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
           type="text"
           inputMode="decimal"
           pattern="[0-9]*[.,]?[0-9]*"
+          value={amount}
           onChange={(e) => onAmountChange(e.target.value)}
         />
       </FlexContainer>
