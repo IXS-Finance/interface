@@ -9,13 +9,17 @@ export interface DexV2State {
   seedTokens: PoolSeedToken[]
   initialFee: string
   tokensList: string[]
+  manuallySetToken: string
+  autoOptimiseBalances: boolean
 }
 
 const initialState: DexV2State = {
-  seedTokens: [] as PoolSeedToken[],
+  seedTokens: [],
   activeStep: StepIds.ChooseWeights,
   initialFee: '0.003',
   tokensList: [],
+  manuallySetToken: '',
+  autoOptimiseBalances: false,
 }
 
 function handleDistributeWeights(seedTokens: PoolSeedToken[]) {
@@ -84,6 +88,11 @@ const poolCreationSlice = createSlice({
       targetToken.isLocked = action.payload.isLocked
       handleDistributeWeights(seedTokens)
     },
+    setTokenAmount(state, action) {
+      const seedTokens = state.seedTokens
+      const targetToken = seedTokens[action?.payload?.id]
+      targetToken.amount = action.payload.amount
+    },
     distributeWeights(state) {
       handleDistributeWeights(state.seedTokens)
     },
@@ -107,6 +116,7 @@ export const {
   setTokenAddress,
   setTokensList,
   addTokenWeight,
-  setActiveStep
+  setActiveStep,
+  setTokenAmount,
 } = poolCreationSlice.actions
 export default poolCreationSlice.reducer
