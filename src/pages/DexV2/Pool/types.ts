@@ -9,7 +9,7 @@ export enum StepLabels {
   ChooseWeights = 'Tokens and weights',
   SetPoolFees = 'Set pool fees',
   InitialLiquidity = 'Set initial liquidity',
-  ConfirmPoolCreation = 'Confirm pool creation',
+  ConfirmPoolCreation = 'Preview New weighted Pool',
 }
 
 export type PoolSeedToken = {
