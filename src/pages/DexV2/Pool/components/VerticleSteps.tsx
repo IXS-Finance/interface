@@ -38,8 +38,8 @@ const Circle = styled.div<{ isActive: boolean }>`
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: ${({ isActive }) => (isActive ? '#007bff' : '#FFF')};
-  color: ${({ isActive }) => (isActive ? 'white' : '#B8B8D2')};
+  background-color: ${({ isActive }) => (isActive ? '#007bff' : 'rgba(102, 102, 255, 0.20)')};
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
