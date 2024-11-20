@@ -10,6 +10,7 @@ import InitialLiquidity from './Steps/InitialLiquidity'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 import config from 'lib/config'
 import { useWeb3React } from 'hooks/useWeb3React'
+import PreviewPool from './Steps/PreviewPool'
 
 const Create: React.FC = () => {
   const { chainId } = useWeb3React()
@@ -40,6 +41,7 @@ const Create: React.FC = () => {
             {activeStep === StepIds.ChooseWeights ? <ChooseWeights /> : null}
             {activeStep === StepIds.SetPoolFees ? <SetPoolFees /> : null}
             {activeStep === StepIds.InitialLiquidity ? <InitialLiquidity /> : null}
+            {activeStep === StepIds.ConfirmPoolCreation ? <PreviewPool /> : null}
           </Card>
         </CenterContent>
         <RightContent></RightContent>
@@ -151,4 +153,65 @@ export const Line = styled.div`
   border: 1px solid #e6e6ff;
   margin-top: 16px;
   margin-bottom: 16px;
+`
+
+export const NavigationButtons = styled.div`
+  display: flex;
+  margin-top: 16px;
+  gap: 8px;
+`
+
+export const BackButton = styled.button`
+  display: flex;
+  height: 48px;
+  padding: 12px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex: 1 0 0;
+  border-radius: 8px;
+  border: 1px solid #e6e6ff;
+  background: #fff;
+  color: #66f;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.28px;
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(0.99);
+  }
+`
+
+export const NextButton = styled.button`
+  display: flex;
+  height: 48px;
+  padding: 12px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex: 1 0 0;
+  border-radius: 8px;
+  background: #66f;
+  font-family: Inter;
+  color: #fff;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.28px;
+  cursor: pointer;
+  border: none;
+
+  &:hover {
+    transform: scale(0.99);
+  }
+
+  &:disabled {
+    background: #ececfb;
+  }
 `
