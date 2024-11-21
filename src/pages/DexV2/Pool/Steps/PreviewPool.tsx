@@ -1,12 +1,35 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import styled from 'styled-components'
 import { BackButton, Line, NavigationButtons, NextButton } from '../Create'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 import TokenInfo from '../components/TokenInfo'
 import { Flex } from 'rebass'
+import CreateActions from '../components/CreateActions'
+import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 
 const PreviewPool: React.FC = () => {
-  const { seedTokens } = usePoolCreationState()
+  const { seedTokens, name: poolName, symbol: poolSymbol } = usePoolCreationState()
+  const { getAmounts, goBack } = usePoolCreation()
+
+  const tokenAddresses = useMemo(() => {
+    return seedTokens.map((token) => token.tokenAddress)
+  }, [])
+
+  const tokensAmounts = useMemo(() => {
+    return getAmounts()
+  }, [])
+
+  const hasMissingPoolNameOrSymbol = useMemo(() => {
+    return poolSymbol === '' || poolName === ''
+  }, [])
+
+  const actionsDisabled = useMemo(() => {
+    return hasMissingPoolNameOrSymbol
+  }, [])
+
+  function handleSuccess() {
+    console.log('success')
+  }
 
   console.log('seedTokens', seedTokens)
   return (
@@ -51,10 +74,13 @@ const PreviewPool: React.FC = () => {
         </Flex>
       </SummaryContainer>
 
-      <NavigationButtons>
-        <BackButton>Back</BackButton>
-        <NextButton>Next</NextButton>
-      </NavigationButtons>
+      <CreateActions
+        tokenAddresses={tokenAddresses}
+        amounts={tokensAmounts}
+        createDisabled={actionsDisabled}
+        goBack={() => goBack()}
+        success={handleSuccess}
+      />
     </div>
   )
 }

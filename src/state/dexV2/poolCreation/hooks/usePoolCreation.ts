@@ -2,8 +2,16 @@ import { useDispatch } from 'react-redux'
 import { useMemo } from 'react'
 import BigNumber from 'bignumber.js'
 
-import { setActiveStep, setTokenLocked, setTokenWeight, setTokenWeights, setTokenAddress, addTokenWeight } from '..'
-import { PoolSeedToken } from 'pages/DexV2/Pool/types'
+import {
+  setActiveStep,
+  setTokenLocked,
+  setTokenWeight,
+  setTokenWeights,
+  setTokenAddress,
+  addTokenWeight,
+  PoolType,
+} from '..'
+import { PoolSeedToken } from 'pages/DexV2/types'
 import { usePoolCreationState } from '.'
 import { bnum, isSameAddress } from 'lib/utils'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
@@ -15,7 +23,7 @@ export type OptimisedLiquidity = {
 
 export const usePoolCreation = () => {
   const dispatch = useDispatch()
-  const { tokensList, activeStep, seedTokens, manuallySetToken } = usePoolCreationState()
+  const { tokensList, activeStep, seedTokens, manuallySetToken, poolType } = usePoolCreationState()
   const { priceFor, balanceFor, getToken } = useTokens()
 
   const totalLiquidity = useMemo(() => {
@@ -25,6 +33,15 @@ export const usePoolCreation = () => {
     }
     return total
   }, [JSON.stringify(tokensList)])
+
+  const poolTypeString = useMemo((): string => {
+    switch (poolType) {
+      case PoolType.Weighted:
+        return 'weighted'
+      default:
+        return ''
+    }
+  }, [])
 
   function getTokensScaledByBIP(bip: BigNumber): Record<string, OptimisedLiquidity> {
     const optimisedLiquidity = {} as any
@@ -156,6 +173,13 @@ export const usePoolCreation = () => {
     return valid ? tokenSymbols.join('-') : ''
   }
 
+  function getAmounts() {
+    const amounts = seedTokens.map((token: PoolSeedToken) => {
+      return token.amount
+    })
+    return amounts
+  }
+
   return {
     totalLiquidity,
     updateTokenWeights,
@@ -168,5 +192,9 @@ export const usePoolCreation = () => {
     getPoolSymbol,
     getOptimisedLiquidity,
     scaledLiquidity,
+    getAmounts,
+    poolTypeString,
+    createPool: () => {},
+    joinPool: () => {},
   }
 }
