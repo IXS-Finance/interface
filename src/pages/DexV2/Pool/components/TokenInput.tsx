@@ -7,7 +7,7 @@ import { ReactComponent as WalletIcon } from 'assets/images/dex-v2/wallet.svg'
 import { ReactComponent as WarningIcon } from 'assets/images/dex-v2/warning.svg'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { formatAmount } from './SelectTokenModal'
-import { RuleFunction, Rules } from '../types'
+import { RuleFunction, Rules } from '../../types'
 import { isLessThanOrEqualTo, isPositive } from 'lib/utils/validations'
 
 type InputValue = string | number
