@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import _get from 'lodash/get'
 
 import VerticleSteps from './components/VerticleSteps'
-import { StepIds, StepLabels } from './types'
+import { StepIds, StepLabels } from '../types'
 import ChooseWeights from './Steps/ChooseWeights'
 import SetPoolFees from './Steps/SetPoolFees'
 import InitialLiquidity from './Steps/InitialLiquidity'

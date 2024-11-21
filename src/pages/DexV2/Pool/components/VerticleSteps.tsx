@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { StepLabels } from '../types'
+import { StepLabels } from '../../types'
 
 interface VerticleStepsProps {
   activeStep: number

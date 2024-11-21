@@ -18,7 +18,7 @@ interface SetPoolFeesProps {}
 
 const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
   const { seedTokens, tokensList, manuallySetToken, autoOptimiseBalances } = usePoolCreationState()
-  const { scaledLiquidity, getOptimisedLiquidity, proceed } = usePoolCreation()
+  const { scaledLiquidity, getOptimisedLiquidity, proceed, goBack } = usePoolCreation()
   const dispatch = useDispatch()
 
   const [isOptimised, setIsOptimised] = useState(false)
@@ -92,7 +92,7 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
       </SummaryContainer>
 
       <NavigationButtons>
-        <BackButton>Back</BackButton>
+        <BackButton onClick={() => goBack()}>Back</BackButton>
         <NextButton onClick={() => saveAndProcessed()}>Next</NextButton>
       </NavigationButtons>
     </div>
