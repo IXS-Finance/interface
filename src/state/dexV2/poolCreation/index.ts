@@ -4,6 +4,9 @@ import { set, sum } from 'lodash'
 import { bnum } from 'lib/utils'
 import { PoolSeedToken, StepIds } from 'pages/DexV2/types'
 
+type FeeManagementType = 'governance' | 'self';
+type FeeController = 'self' | 'other';
+
 export enum PoolType {
   Weighted = 'Weighted',
   Investment = 'Investment',
@@ -41,6 +44,10 @@ export interface DexV2State {
   manuallySetToken: string
   autoOptimiseBalances: boolean
   poolType: PoolType
+  feeManagementType: FeeManagementType
+  feeController: FeeController
+  thirdPartyFeeController: string
+  needsSeeding: boolean
 }
 
 const initialState: DexV2State = {
@@ -53,6 +60,10 @@ const initialState: DexV2State = {
   manuallySetToken: '',
   autoOptimiseBalances: false,
   poolType: PoolType.Weighted,
+  feeManagementType: 'governance',
+  feeController: 'self',
+  thirdPartyFeeController: '',
+  needsSeeding: false,
 }
 
 function handleDistributeWeights(seedTokens: PoolSeedToken[]) {
