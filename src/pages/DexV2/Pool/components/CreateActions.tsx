@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import { BackButton, NavigationButtons, NextButton } from '../Create'
 import { TransactionActionInfo } from 'pages/DexV2/types/transactions'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
+import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 
 interface Props {
   tokenAddresses: string[]
@@ -12,7 +13,10 @@ interface Props {
 }
 
 const CreateActions: React.FC<Props> = ({ goBack }) => {
-  const { poolTypeString, createPool, joinPool } = usePoolCreation()
+  const { hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
+  const { needsSeeding } = usePoolCreationState()
+
+  const [isRestoredTxConfirmed, setIsRestoredTxConfirmed] = useState(false)
 
   const actions: TransactionActionInfo[] = [
     {
@@ -31,11 +35,26 @@ const CreateActions: React.FC<Props> = ({ goBack }) => {
     },
   ]
 
+  const requiredActions = useMemo(() => {
+    if ((hasRestoredFromSavedState && needsSeeding) || isRestoredTxConfirmed) {
+      return actions.filter((action) => action.label === 'Fund pool')
+    }
+
+    return actions
+  }, [])
+
+  const onSubmit = async () => {
+    try {
+      createPool()
+    } catch (e) {
+      console.error(e)
+    }
+  }
   return (
     <div>
       <NavigationButtons>
         <BackButton onClick={goBack}>Back</BackButton>
-        <NextButton>Next</NextButton>
+        <NextButton onClick={onSubmit}>Next</NextButton>
       </NavigationButtons>
     </div>
   )

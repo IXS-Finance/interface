@@ -1,18 +1,25 @@
 import React, { useMemo } from 'react'
 import { Flex } from 'rebass'
+import BigNumber from 'bignumber.js'
 
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import styled from 'styled-components'
 import { Line } from '../Create'
+import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
+import { PoolSeedToken } from 'pages/DexV2/types'
+import { bnum } from 'lib/utils'
 
 interface TokenInfoProps {
   address: string
+  initialWeights: Record<string, BigNumber>
+  token: PoolSeedToken
 }
 
 const TokenInfo: React.FC<TokenInfoProps> = (props) => {
-  const { address = '' } = props
+  const { address = '', initialWeights, token } = props
 
-  const { getToken, balanceFor } = useTokens()
+  const { fNum } = useNumbers()
+  const { getToken, priceFor } = useTokens()
 
   const tokenInfo = useMemo(() => {
     if (!address) {
@@ -29,13 +36,15 @@ const TokenInfo: React.FC<TokenInfoProps> = (props) => {
           <img src={tokenInfo?.logoURI} alt={tokenInfo?.name} width={40} height={40} />
           <div style={{ marginLeft: 12 }}>
             <Title>{tokenInfo?.name}</Title>
-            <Description>Initial weight: 50.00%</Description>
+            <Description>Initial weight: {fNum(initialWeights[address].toString(), FNumFormats.percent)}</Description>
           </div>
         </Flex>
 
         <div>
-          <Title>5</Title>
-          <Description>$25</Description>
+          <Title>{fNum(token?.amount, FNumFormats.token)}</Title>
+          <Description>
+            {fNum(bnum(token.amount).times(priceFor(token.tokenAddress)).toString(), FNumFormats.fiat)}
+          </Description>
         </div>
       </Flex>
       <Line />

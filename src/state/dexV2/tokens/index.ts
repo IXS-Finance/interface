@@ -9,13 +9,17 @@ import config from 'lib/config'
 import { erc20Abi, formatUnits } from 'viem'
 
 export type BalanceMap = { [address: string]: string }
+export type AllowanceMap = { [address: string]: string }
+export type ContractAllowancesMap = { [address: string]: AllowanceMap }
 export type TokenPrices = { [address: string]: number }
 
 interface TokensState {
   balances: BalanceMap
+  allowances: ContractAllowancesMap
   tokens: TokenInfoMap
   prices: TokenPrices
   wrappedNativeAsset: TokenInfo | null
+  spenders: string[]
 }
 
 interface BalanceInputPayload {
@@ -23,11 +27,19 @@ interface BalanceInputPayload {
   account: string
 }
 
+interface AllowanceInputPayload {
+  tokens: TokenInfoMap
+  account: string
+  contractAddress: string
+}
+
 const initialState: TokensState = {
   balances: {},
+  allowances: {},
   tokens: {},
   prices: {},
   wrappedNativeAsset: null,
+  spenders: [],
 }
 
 const chainId = getChainId(wagmiConfig)
@@ -66,7 +78,7 @@ export const fetchTokensFromListTokens = createAsyncThunk(
 export const fetchTokensBalances = createAsyncThunk(
   'tokens/fetchTokensBalances',
   async ({ tokens, account }: BalanceInputPayload) => {
-    const addresses = Object.keys(tokens) as string[];
+    const addresses = Object.keys(tokens) as string[]
     // @ts-ignore
     const result = await multicall(wagmiConfig, {
       // @ts-ignore
@@ -85,6 +97,31 @@ export const fetchTokensBalances = createAsyncThunk(
     }, {})
 
     return balancesMap
+  }
+)
+
+export const fetchTokensAllowwances = createAsyncThunk(
+  'tokens/fetchTokensAlowances',
+  async ({ tokens, account, contractAddress }: AllowanceInputPayload) => {
+    const addresses = Object.keys(tokens) as string[]
+    // @ts-ignore
+    const result = await multicall(wagmiConfig, {
+      // @ts-ignore
+      contracts: addresses.map((address) => ({
+        address,
+        abi: erc20Abi,
+        functionName: 'allowance',
+        args: [account, contractAddress],
+      })),
+    })
+
+    const allowances = result.map((v: any) => v.result)
+    const allowancesMap = addresses.reduce<AllowanceMap>((acc, address, i) => {
+      acc[address] = formatUnits(allowances[i].toString(), tokens[address].decimals)
+      return acc
+    }, {})
+
+    return { [contractAddress]: allowancesMap }
   }
 )
 
@@ -119,6 +156,9 @@ const tokensSlice = createSlice({
     setTokens(state, action) {
       state.tokens = action.payload
     },
+    setSpenders(state, action) {
+      state.spenders = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchTokensFromListTokens.fulfilled, (state, action) => {
@@ -127,13 +167,16 @@ const tokensSlice = createSlice({
     builder.addCase(fetchTokensBalances.fulfilled, (state, action) => {
       state.balances = action.payload
     })
+    builder.addCase(fetchTokensAllowwances.fulfilled, (state, action) => {
+      state.allowances = { ...state.allowances, ...action.payload }
+    })
     builder.addCase(fetchTokenPrices.fulfilled, (state, action) => {
       state.prices = action.payload
     })
   },
 })
 
-export const { setTokens } = tokensSlice.actions
+export const { setTokens, setSpenders } = tokensSlice.actions
 
 export const selectWrappedNativeAsset = (state: { tokens: TokensState }) =>
   state.tokens.tokens[TOKENS.Addresses.wNativeAsset]

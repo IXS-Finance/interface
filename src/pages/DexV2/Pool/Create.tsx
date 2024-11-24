@@ -18,8 +18,6 @@ const Create: React.FC = () => {
   const networkConfig = config[chainId]
   const name = _get(networkConfig, 'name', '')
 
-  console.log('networkConfig', networkConfig)
-
   const steps: { [key in StepIds]: StepLabels } = {
     [StepIds.ChooseWeights]: StepLabels.ChooseWeights,
     [StepIds.SetPoolFees]: StepLabels.SetPoolFees,
