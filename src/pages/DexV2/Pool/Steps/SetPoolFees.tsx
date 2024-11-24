@@ -53,7 +53,7 @@ const SetPoolFees: React.FC<SetPoolFeesProps> = () => {
   }
 
   useEffect(() => {
-    dispatch(setPoolCreationState({ symbol: getPoolSymbol() }))
+    dispatch(setPoolCreationState({ symbol: getPoolSymbol(), name: getPoolSymbol() }))
   }, [])
 
   return (

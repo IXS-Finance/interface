@@ -1,6 +1,8 @@
 import { useDispatch } from 'react-redux'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import BigNumber from 'bignumber.js'
+import { BigNumber as EPBigNumber } from '@ethersproject/bignumber'
+import { simulateContract, waitForTransactionReceipt, writeContract } from '@wagmi/core'
 
 import {
   setActiveStep,
@@ -13,8 +15,15 @@ import {
 } from '..'
 import { PoolSeedToken } from 'pages/DexV2/types'
 import { usePoolCreationState } from '.'
-import { bnum, isSameAddress } from 'lib/utils'
+import { bnum, isSameAddress, toNormalizedWeights, userRejectedError } from 'lib/utils'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import { wagmiConfig } from 'components/Web3Provider'
+import { useWeb3React } from 'hooks/useWeb3React'
+import config from 'lib/config'
+import WeightedPoolFactoryV4Abi from 'lib/abi/WeightedPoolFactoryV4.json'
+import { Address, parseUnits } from 'viem'
+import { ZERO_ADDRESS } from 'constants/misc'
+import { generateSalt } from 'lib/utils/random'
 
 export type OptimisedLiquidity = {
   liquidityRequired: string
@@ -23,8 +32,22 @@ export type OptimisedLiquidity = {
 
 export const usePoolCreation = () => {
   const dispatch = useDispatch()
-  const { tokensList, activeStep, seedTokens, manuallySetToken, poolType } = usePoolCreationState()
+  const { name, symbol, tokensList, activeStep, seedTokens, manuallySetToken, poolType, initialFee } =
+    usePoolCreationState()
   const { priceFor, balanceFor, getToken } = useTokens()
+  const { account, chainId } = useWeb3React()
+
+  const [hasRestoredFromSavedState, setHasRestoredFromSavedState] = useState<boolean | null>(null)
+
+  const networkConfig = config[chainId]
+
+  const poolLiquidity = useMemo(() => {
+    let sum = bnum(0)
+    for (const token of seedTokens) {
+      sum = sum.plus(bnum(token.amount).times(priceFor(token.tokenAddress)))
+    }
+    return sum
+  }, [])
 
   const totalLiquidity = useMemo(() => {
     let total = bnum(0)
@@ -180,13 +203,78 @@ export const usePoolCreation = () => {
     return amounts
   }
 
+  function calculateTokenWeights(tokens: PoolSeedToken[]): string[] {
+    const weights: EPBigNumber[] = tokens.map((token: PoolSeedToken) => {
+      const normalizedWeight = new BigNumber(token.weight).multipliedBy(new BigNumber(1e16))
+      return EPBigNumber.from(normalizedWeight.toString())
+    })
+    const normalizedWeights = toNormalizedWeights(weights)
+    const weightStrings = normalizedWeights.map((weight: EPBigNumber) => {
+      return weight.toString()
+    })
+
+    return weightStrings
+  }
+
+  async function createPool() {
+    try {
+      const address = networkConfig.addresses.weightedPoolFactory as Address
+      const tokenAddresses: string[] = seedTokens.map((token: PoolSeedToken) => {
+        return token.tokenAddress
+      })
+      const weights = calculateTokenWeights(seedTokens)
+      const params = [
+        name,
+        symbol,
+        tokenAddresses,
+        weights,
+        [ZERO_ADDRESS, ZERO_ADDRESS],
+        parseUnits(initialFee, 18).toString(),
+        account,
+        generateSalt(),
+      ] as any
+
+      console.log('params', params)
+
+      // @ts-ignore
+      const { request } = await simulateContract(wagmiConfig, {
+        account,
+        address,
+        abi: WeightedPoolFactoryV4Abi,
+        args: params,
+        functionName: 'create',
+      })
+
+      // @ts-ignore
+      const txHash = await writeContract(wagmiConfig, request)
+
+      // @ts-ignore
+      const transaction = await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
+
+      const map = {
+        success: () => ({ txHash, blockNumber: transaction.blockNumber.toString() }),
+        reverted: () => ({ error: new Error('Transaction reverted') }),
+      }
+
+      return map[transaction.status]?.()
+    } catch (error: any) {
+      if (userRejectedError(error)) {
+        console.log('Transaction rejected')
+      } else {
+        console.log(typeof error === 'string' ? error : (error as any)?.message)
+      }
+    }
+  }
+
   return {
+    hasRestoredFromSavedState,
     totalLiquidity,
     updateTokenWeights,
     updateTokenWeight,
     updateLockedWeight,
     updateTokenAddress,
     addTokenWeightToPool,
+    poolLiquidity,
     proceed,
     goBack,
     getPoolSymbol,
@@ -194,7 +282,7 @@ export const usePoolCreation = () => {
     scaledLiquidity,
     getAmounts,
     poolTypeString,
-    createPool: () => {},
+    createPool,
     joinPool: () => {},
   }
 }
