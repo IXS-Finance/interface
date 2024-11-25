@@ -1,8 +1,11 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { BackButton, NavigationButtons, NextButton } from '../Create'
 import { TransactionActionInfo } from 'pages/DexV2/types/transactions'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
+import useTokenApprovalActions, { ApprovalAction } from 'state/dexV2/tokens/hooks/useTokenApprovalActions'
+import { useWeb3React } from 'hooks/useWeb3React'
+import config from 'lib/config'
 
 interface Props {
   tokenAddresses: string[]
@@ -12,11 +15,22 @@ interface Props {
   success: () => void
 }
 
-const CreateActions: React.FC<Props> = ({ goBack }) => {
+const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => {
   const { hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
   const { needsSeeding } = usePoolCreationState()
+  const { getTokenApprovalActions } = useTokenApprovalActions()
+  const { account, chainId } = useWeb3React()
+
+  const networkConfig = config[chainId]
 
   const [isRestoredTxConfirmed, setIsRestoredTxConfirmed] = useState(false)
+
+  const amountsToApprove = amounts.map((amount, index) => {
+    return {
+      address: tokenAddresses[index],
+      amount,
+    }
+  })
 
   const actions: TransactionActionInfo[] = [
     {
@@ -50,6 +64,20 @@ const CreateActions: React.FC<Props> = ({ goBack }) => {
       console.error(e)
     }
   }
+
+  const getActions = async () => {
+    const approvalActions = await getTokenApprovalActions({
+      amountsToApprove,
+      spender: networkConfig.addresses.vault,
+      actionType: ApprovalAction.AddLiquidity,
+    })
+
+    console.log('approvalActions', approvalActions)
+  }
+
+  useEffect(() => {
+    getActions()
+  }, [])
   return (
     <div>
       <NavigationButtons>
