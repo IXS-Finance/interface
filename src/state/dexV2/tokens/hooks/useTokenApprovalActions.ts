@@ -2,7 +2,7 @@ import { MaxUint256 } from '@ethersproject/constants'
 import { parseUnits } from '@ethersproject/units'
 import { simulateContract, waitForTransactionReceipt, writeContract } from '@wagmi/core'
 import { flatten } from 'lodash'
-import { Address } from 'viem'
+import { Address, erc20Abi } from 'viem'
 
 import { wagmiConfig } from 'components/Web3Provider'
 import { useWeb3React } from 'hooks/useWeb3React'
@@ -112,15 +112,16 @@ export default function useTokenApprovalActions() {
    * @returns {Promise<TransactionResponse>} The transaction response.
    */
   async function approveToken({ token, normalizedAmount, spender, actionType, forceMax = true }: ApproveTokenParams) {
-    const amount = forceMax ? MaxUint256.toString() : parseUnits(normalizedAmount, token.decimals).toString()
+    const amount = forceMax ? MaxUint256.toString() : parseUnits(normalizedAmount, token.decimals)
     const address = token.address as Address
-
+    const spenderAddress = spender as Address
+debugger;
     // @ts-ignore
     const { request } = await simulateContract(wagmiConfig, {
       account,
       address,
-      abi: ['function approve(address spender, uint256 amount) public returns (bool)'],
-      args: [spender, amount],
+      abi: erc20Abi,
+      args: [spenderAddress, amount],
       functionName: 'approve',
     })
 
@@ -219,7 +220,7 @@ export default function useTokenApprovalActions() {
     skipAllowanceCheck = false,
   }: Params): Promise<TransactionActionInfo[]> {
     const approvalsRequired = await getApprovalsRequired(amountsToApprove, spender, skipAllowanceCheck)
-debugger;
+
     return flatten(
       approvalsRequired.map((amountToApprove: any) => {
         const token = getToken(amountToApprove.address)
