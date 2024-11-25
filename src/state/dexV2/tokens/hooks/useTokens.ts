@@ -7,6 +7,7 @@ import { useTokensState } from '.'
 import { fetchTokensAllowwances, setSpenders } from '..'
 import { useWeb3React } from 'hooks/useWeb3React'
 import BigNumber from 'bignumber.js'
+import { AmountToApprove } from './useTokenApprovalActions'
 
 export const useTokens = () => {
   const { tokens, balances, prices, spenders, allowances } = useTokensState()
@@ -111,5 +112,5 @@ export const useTokens = () => {
     dispatch(setSpenders(newSpenders))
   }
 
-  return { getToken, balanceFor, priceFor, injectSpenders, refetchAllowances }
+  return { getToken, balanceFor, priceFor, injectSpenders, refetchAllowances, approvalsRequired }
 }
