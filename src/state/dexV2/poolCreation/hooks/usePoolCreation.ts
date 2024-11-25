@@ -3,6 +3,12 @@ import { useMemo, useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { BigNumber as EPBigNumber } from '@ethersproject/bignumber'
 import { simulateContract, waitForTransactionReceipt, writeContract } from '@wagmi/core'
+import {
+  Vault__factory,
+  // WeightedPool__factory,
+  // WeightedPoolFactory__factory,
+} from '@balancer-labs/typechain';
+import { defaultAbiCoder } from '@ethersproject/abi';
 
 import {
   setActiveStep,
@@ -29,6 +35,15 @@ export type OptimisedLiquidity = {
   liquidityRequired: string
   balanceRequired: string
 }
+
+export interface JoinPoolRequest {
+  assets: Address[];
+  maxAmountsIn: string[];
+  userData: any;
+  fromInternalBalance: boolean;
+}
+
+const JOIN_KIND_INIT = 0;
 
 export const usePoolCreation = () => {
   const dispatch = useDispatch()
@@ -216,6 +231,83 @@ export const usePoolCreation = () => {
     return weightStrings
   }
 
+  function parseValue(amountsIn: string[], tokensIn: string[]): EPBigNumber {
+    let value = '0';
+    // const nativeAsset = configService.network.nativeAsset;
+
+    // amountsIn.forEach((amount, i) => {
+    //   if (tokensIn[i] === nativeAsset.address) {
+    //     value = amount;
+    //   }
+    // });
+
+    return EPBigNumber.from(value);
+  }
+
+  async function joinPool() {
+    try {
+      const address = networkConfig.addresses.vault as Address
+      const tokenAddresses: string[] = seedTokens.map((token: PoolSeedToken) => {
+        return token.tokenAddress
+      })
+
+      const tokenBalances = [
+        new BigNumber(6e6).toString(), // USDT, 6 decimals
+        new BigNumber(6e6).toString(), // USDC, 6 decimals
+      ];
+
+      const initUserData = defaultAbiCoder.encode(
+        ['uint256', 'uint256[]'],
+        [JOIN_KIND_INIT, tokenBalances]
+      );
+
+      const joinPoolRequest: JoinPoolRequest = {
+        // @ts-ignore
+        assets: tokenAddresses,
+        maxAmountsIn: tokenBalances,
+        userData: initUserData,
+        fromInternalBalance: false,
+      };
+
+      const poolId = '0x2682987a70858efd815afccb8fab2aa6035a58a4000200000000000000000003'
+
+      const sender = account
+      const receiver = account
+
+      const params = [poolId.toLowerCase(), sender, receiver, joinPoolRequest] as any
+debugger;
+      // @ts-ignore
+      const { request } = await simulateContract(wagmiConfig, {
+        account,
+        address,
+        abi: Vault__factory.abi,
+        args: params,
+        functionName: 'joinPool',
+        // @ts-ignore
+        value: parseValue(tokenBalances, tokenAddresses),
+      })
+
+      // @ts-ignore
+      const txHash = await writeContract(wagmiConfig, request)
+
+      // @ts-ignore
+      const transaction = await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
+
+      const map = {
+        success: () => ({ txHash, blockNumber: transaction.blockNumber.toString() }),
+        reverted: () => ({ error: new Error('Transaction reverted') }),
+      }
+
+      return map[transaction.status]?.()
+    } catch (error: any) {
+      if (userRejectedError(error)) {
+        console.log('Transaction rejected')
+      } else {
+        console.log(typeof error === 'string' ? error : (error as any)?.message)
+      }
+    }
+  }
+
   async function createPool() {
     try {
       const address = networkConfig.addresses.weightedPoolFactory as Address
@@ -283,6 +375,6 @@ export const usePoolCreation = () => {
     getAmounts,
     poolTypeString,
     createPool,
-    joinPool: () => {},
+    joinPool,
   }
 }
