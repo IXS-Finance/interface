@@ -112,5 +112,14 @@ export const useTokens = () => {
     dispatch(setSpenders(newSpenders))
   }
 
-  return { getToken, balanceFor, priceFor, injectSpenders, refetchAllowances, approvalsRequired }
+  return {
+    getToken,
+    balanceFor,
+    priceFor,
+    injectSpenders,
+    refetchAllowances,
+    approvalsRequired,
+    allowanceFor,
+    approvalRequired,
+  }
 }
