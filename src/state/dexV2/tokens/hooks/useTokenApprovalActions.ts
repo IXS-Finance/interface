@@ -115,7 +115,7 @@ export default function useTokenApprovalActions() {
     const amount = forceMax ? MaxUint256.toString() : parseUnits(normalizedAmount, token.decimals)
     const address = token.address as Address
     const spenderAddress = spender as Address
-debugger;
+    debugger
     // @ts-ignore
     const { request } = await simulateContract(wagmiConfig, {
       account,
@@ -220,7 +220,7 @@ debugger;
     skipAllowanceCheck = false,
   }: Params): Promise<TransactionActionInfo[]> {
     const approvalsRequired = await getApprovalsRequired(amountsToApprove, spender, skipAllowanceCheck)
-
+    debugger
     return flatten(
       approvalsRequired.map((amountToApprove: any) => {
         const token = getToken(amountToApprove.address)

@@ -21,7 +21,7 @@ import {
 } from '..'
 import { PoolSeedToken } from 'pages/DexV2/types'
 import { usePoolCreationState } from '.'
-import { bnum, isSameAddress, toNormalizedWeights, userRejectedError } from 'lib/utils'
+import { bnum, isSameAddress, scale, toNormalizedWeights, userRejectedError } from 'lib/utils'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { wagmiConfig } from 'components/Web3Provider'
 import { useWeb3React } from 'hooks/useWeb3React'
@@ -244,6 +244,23 @@ export const usePoolCreation = () => {
     return EPBigNumber.from(value);
   }
 
+  function getScaledAmounts() {
+    const scaledAmounts: string[] = seedTokens.map(
+      (token: PoolSeedToken) => {
+        const tokenInfo = getToken(token.tokenAddress);
+        if (!tokenInfo) return '0';
+        const amount = new BigNumber(token.amount);
+        const scaledAmount = scale(amount, tokenInfo.decimals);
+        const scaledRoundedAmount = scaledAmount.toFixed(
+          0,
+          BigNumber.ROUND_FLOOR
+        );
+        return scaledRoundedAmount;
+      }
+    );
+    return scaledAmounts;
+  }
+
   async function joinPool() {
     try {
       const address = networkConfig.addresses.vault as Address
@@ -251,10 +268,7 @@ export const usePoolCreation = () => {
         return token.tokenAddress
       })
 
-      const tokenBalances = [
-        new BigNumber(6e6).toString(), // USDT, 6 decimals
-        new BigNumber(6e6).toString(), // USDC, 6 decimals
-      ];
+      const tokenBalances = getScaledAmounts();
 
       const initUserData = defaultAbiCoder.encode(
         ['uint256', 'uint256[]'],
@@ -269,7 +283,7 @@ export const usePoolCreation = () => {
         fromInternalBalance: false,
       };
 
-      const poolId = '0x2682987a70858efd815afccb8fab2aa6035a58a4000200000000000000000003'
+      const poolId = '0x10b4c07ef37dce0b09c81a7df3a36516b47e8b43000200000000000000000002'
 
       const sender = account
       const receiver = account
