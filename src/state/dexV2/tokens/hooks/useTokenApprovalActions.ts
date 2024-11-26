@@ -58,7 +58,7 @@ export default function useTokenApprovalActions() {
       case ApprovalAction.Unwrapping:
         return `Approve ${symbol} for unwrapping`
       default:
-        return `Approve ${symbol} for adding liquidity`
+        return `Approve ${symbol}`
     }
   }
 
@@ -115,12 +115,13 @@ export default function useTokenApprovalActions() {
     const amount = forceMax ? MaxUint256.toString() : parseUnits(normalizedAmount, token.decimals)
     const address = token.address as Address
     const spenderAddress = spender as Address
-    debugger
+
     // @ts-ignore
     const { request } = await simulateContract(wagmiConfig, {
       account,
       address,
       abi: erc20Abi,
+      // @ts-ignore
       args: [spenderAddress, amount],
       functionName: 'approve',
     })
@@ -220,7 +221,7 @@ export default function useTokenApprovalActions() {
     skipAllowanceCheck = false,
   }: Params): Promise<TransactionActionInfo[]> {
     const approvalsRequired = await getApprovalsRequired(amountsToApprove, spender, skipAllowanceCheck)
-    debugger
+
     return flatten(
       approvalsRequired.map((amountToApprove: any) => {
         const token = getToken(amountToApprove.address)

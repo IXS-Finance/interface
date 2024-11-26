@@ -6,6 +6,7 @@ import useTokenApprovalActions, { ApprovalAction } from 'state/dexV2/tokens/hook
 import { useWeb3React } from 'hooks/useWeb3React'
 import config from 'lib/config'
 import ActionSteps from './ActionSteps'
+import { useTokensState } from 'state/dexV2/tokens/hooks'
 
 interface Props {
   tokenAddresses: string[]
@@ -20,6 +21,10 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
   const { needsSeeding } = usePoolCreationState()
   const { getTokenApprovalActions } = useTokenApprovalActions()
   const { account, chainId } = useWeb3React()
+  const { allowanceLoading, allowances } = useTokensState()
+
+  console.log('allowances outside', allowances)
+
   const initActions: TransactionActionInfo[] = [
     {
       label: 'Create Pool',
@@ -79,7 +84,10 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
     getActions()
   }, [])
 
-  console.log('requiredActions', requiredActions)
+  if (allowanceLoading) {
+    return <div>Loading...</div>
+  }
+
   return (
     <div>
       <ActionSteps requiredActions={requiredActions} primaryActionType="createPool" disabled={false} goBack={goBack} />

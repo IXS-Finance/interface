@@ -48,6 +48,8 @@ export interface DexV2State {
   feeController: FeeController
   thirdPartyFeeController: string
   needsSeeding: boolean
+  poolId: string
+  createPoolTxHash: string
 }
 
 const initialState: DexV2State = {
@@ -64,6 +66,8 @@ const initialState: DexV2State = {
   feeController: 'self',
   thirdPartyFeeController: '',
   needsSeeding: false,
+  poolId: '',
+  createPoolTxHash: '',
 }
 
 function handleDistributeWeights(seedTokens: PoolSeedToken[]) {
