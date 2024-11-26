@@ -19,6 +19,7 @@ export const useTokens = () => {
    *  (so 1 ETH = 1, 1 GWEI = 0.000000001)
    */
   function allowanceFor(tokenAddress: string, spenderAddress: string): any {
+    console.log('allowances', allowances)
     return bnum((allowances[getAddress(spenderAddress)] || {})[getAddress(tokenAddress)])
   }
 
@@ -33,6 +34,7 @@ export const useTokens = () => {
 
     const allowance = allowanceFor(tokenAddress, spenderAddress)
 
+    console.log('allowance', allowance.toString(), bnum(amount).toString())
     return allowance.lt(bnum(amount))
   }
 
@@ -46,7 +48,6 @@ export const useTokens = () => {
   function approvalsRequired(amountsToApprove: AmountToApprove[], spender: string): AmountToApprove[] {
     return amountsToApprove.filter(({ address, amount }) => {
       if (!spender) return false
-
       return approvalRequired(address, amount, spender)
     })
   }
@@ -107,10 +108,7 @@ export const useTokens = () => {
   async function injectSpenders(addresses: string[]): Promise<void> {
     addresses = addresses.filter((a) => a).map(getAddress)
 
-    const currentSpenders = [...spenders]
-    const newSpenders = [...currentSpenders.concat(addresses)]
-
-    dispatch(setSpenders(newSpenders))
+    dispatch(setSpenders(addresses))
   }
 
   return {
