@@ -13,15 +13,6 @@ export type AllowanceMap = { [address: string]: string }
 export type ContractAllowancesMap = { [address: string]: AllowanceMap }
 export type TokenPrices = { [address: string]: number }
 
-interface TokensState {
-  balances: BalanceMap
-  allowances: ContractAllowancesMap
-  tokens: TokenInfoMap
-  prices: TokenPrices
-  wrappedNativeAsset: TokenInfo | null
-  spenders: string[]
-}
-
 interface BalanceInputPayload {
   tokens: TokenInfoMap
   account: string
@@ -33,6 +24,17 @@ interface AllowanceInputPayload {
   contractAddress: string
 }
 
+interface TokensState {
+  balances: BalanceMap
+  allowances: ContractAllowancesMap
+  tokens: TokenInfoMap
+  prices: TokenPrices
+  wrappedNativeAsset: TokenInfo | null
+  spenders: string[]
+  balanceLoading: boolean
+  allowanceLoading: boolean
+}
+
 const initialState: TokensState = {
   balances: {},
   allowances: {},
@@ -40,6 +42,8 @@ const initialState: TokensState = {
   prices: {},
   wrappedNativeAsset: null,
   spenders: [],
+  balanceLoading: false,
+  allowanceLoading: false,
 }
 
 const chainId = getChainId(wagmiConfig)
@@ -102,26 +106,34 @@ export const fetchTokensBalances = createAsyncThunk(
 
 export const fetchTokensAllowwances = createAsyncThunk(
   'tokens/fetchTokensAlowances',
-  async ({ tokens, account, contractAddress }: AllowanceInputPayload) => {
-    const addresses = Object.keys(tokens) as string[]
-    // @ts-ignore
-    const result = await multicall(wagmiConfig, {
+  async ({ tokens, account, contractAddress }: AllowanceInputPayload, { dispatch }) => {
+    try {
+      dispatch(setAllowanceLoading(true))
+      const addresses = Object.keys(tokens) as string[]
       // @ts-ignore
-      contracts: addresses.map((address) => ({
-        address,
-        abi: erc20Abi,
-        functionName: 'allowance',
-        args: [account, contractAddress],
-      })),
-    })
+      const result = await multicall(wagmiConfig, {
+        // @ts-ignore
+        contracts: addresses.map((address) => ({
+          address,
+          abi: erc20Abi,
+          functionName: 'allowance',
+          args: [account, contractAddress],
+        })),
+      })
 
-    const allowances = result.map((v: any) => v.result)
-    const allowancesMap = addresses.reduce<AllowanceMap>((acc, address, i) => {
-      acc[address] = formatUnits(allowances[i].toString(), tokens[address].decimals)
-      return acc
-    }, {})
+      const allowances = result.map((v: any) => v.result)
+      const allowancesMap = addresses.reduce<AllowanceMap>((acc, address, i) => {
+        acc[address] = formatUnits(allowances[i].toString(), tokens[address].decimals)
+        return acc
+      }, {})
 
-    return { [contractAddress]: allowancesMap }
+      dispatch(setAllowanceLoading(false))
+      return { [contractAddress]: allowancesMap }
+    } catch (error) {
+      console.error('Failed to fetch allowances for:', account, error);
+      dispatch(setAllowanceLoading(false))
+      return {};
+    }
   }
 )
 
@@ -157,7 +169,13 @@ const tokensSlice = createSlice({
       state.tokens = action.payload
     },
     setSpenders(state, action) {
-      state.spenders = action.payload
+      state.spenders = [...state.spenders, ...action.payload]
+    },
+    setBalanceLoading(state, action) {
+      state.balanceLoading = action.payload
+    },
+    setAllowanceLoading(state, action) {
+      state.allowanceLoading = action.payload
     },
   },
   extraReducers: (builder) => {
@@ -176,7 +194,7 @@ const tokensSlice = createSlice({
   },
 })
 
-export const { setTokens, setSpenders } = tokensSlice.actions
+export const { setTokens, setSpenders, setAllowanceLoading, setBalanceLoading } = tokensSlice.actions
 
 export const selectWrappedNativeAsset = (state: { tokens: TokensState }) =>
   state.tokens.tokens[TOKENS.Addresses.wNativeAsset]

@@ -4,6 +4,7 @@ import { TransactionActionInfo, TransactionActionState } from 'pages/DexV2/types
 import { Step, StepState, TransactionAction } from 'pages/DexV2/types'
 import HorizSteps from './HorizSteps'
 import { BackButton, NavigationButtons, NextButton } from '../Create'
+import { useTokensState } from 'state/dexV2/tokens/hooks'
 
 type BalStepAction = {
   label: string
@@ -63,9 +64,8 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   }
 
   async function submit(actionInfo: TransactionActionInfo, state: TransactionActionState): Promise<void> {
-    const { action } = actionInfo;
-    await action();
-    debugger
+    const { action } = actionInfo
+    await action()
     // try {
     //   state.init = true;
     //   state.error = null;
@@ -120,11 +120,11 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     setActions(newActions)
   }, [JSON.stringify(requiredActions)])
 
-  console.log('steps', steps)
   return (
-    <div className="action-steps">
+    <div>
       {actions.length > 1 ? <HorizSteps steps={steps} /> : null}{' '}
       <NavigationButtons>
+        <BackButton onClick={goBack}>Back</BackButton>
         <NextButton onClick={() => currentAction?.promise()}>{currentAction?.label}</NextButton>
       </NavigationButtons>
     </div>

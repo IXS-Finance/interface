@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import _get from 'lodash/get'
+import { Address } from 'viem'
 
 import VerticleSteps from './components/VerticleSteps'
 import { StepIds, StepLabels } from '../types'
@@ -11,10 +12,15 @@ import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 import config from 'lib/config'
 import { useWeb3React } from 'hooks/useWeb3React'
 import PreviewPool from './Steps/PreviewPool'
+import { useDispatch } from 'react-redux'
+import { useTokensState } from 'state/dexV2/tokens/hooks'
+import { fetchTokensAllowwances } from 'state/dexV2/tokens'
 
 const Create: React.FC = () => {
-  const { chainId } = useWeb3React()
+  const { chainId, account } = useWeb3React()
   const { activeStep } = usePoolCreationState()
+  const dispatch = useDispatch()
+  const { tokens } = useTokensState()
   const networkConfig = config[chainId]
   const name = _get(networkConfig, 'name', '')
 
@@ -24,6 +30,17 @@ const Create: React.FC = () => {
     [StepIds.InitialLiquidity]: StepLabels.InitialLiquidity,
     [StepIds.ConfirmPoolCreation]: StepLabels.ConfirmPoolCreation,
   }
+
+  useEffect(() => {
+    const accountAddress = account as Address
+    dispatch(
+      fetchTokensAllowwances({
+        tokens,
+        account: accountAddress,
+        contractAddress: networkConfig.addresses.vault,
+      })
+    )
+  }, [])
 
   return (
     <WidthFull>

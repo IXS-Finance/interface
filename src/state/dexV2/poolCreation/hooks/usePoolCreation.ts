@@ -289,7 +289,7 @@ export const usePoolCreation = () => {
       const receiver = account
 
       const params = [poolId.toLowerCase(), sender, receiver, joinPoolRequest] as any
-debugger;
+
       // @ts-ignore
       const { request } = await simulateContract(wagmiConfig, {
         account,
