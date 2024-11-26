@@ -32,6 +32,7 @@ export const useTokens = () => {
     // if (isSameAddress(tokenAddress, nativeAsset.address)) return false
 
     const allowance = allowanceFor(tokenAddress, spenderAddress)
+
     return allowance.lt(amount)
   }
 
