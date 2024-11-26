@@ -3,6 +3,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { MouseoverTooltip } from 'components/Tooltip'
+import checkImg from 'assets/images/dex-v2/check.svg'
 
 interface HorizStepsProps {
   steps: Step[]
@@ -18,18 +19,12 @@ const HorizSteps: React.FC<HorizStepsProps> = ({ steps }) => {
 
           <MouseoverTooltip text={step.tooltip} placement="top">
             <StepStyled>
-              {step.state === StepState.Completed ? (
-                <CheckIcon className="w-8 h-8" />
-              ) : step.state === StepState.Pending ? (
-                <>
-                  <StepNumber className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    {i + 1}
-                  </StepNumber>
-                  <SpinnerIcon className="w-8 h-8 animate-spin" />
-                </>
-              ) : (
+              {step.state === StepState.Success ? <Image src={checkImg}>Check</Image> : null}
+              {step.state === StepState.WalletOpen ? <Image src={checkImg}>Check</Image> : null}
+              {step.state === StepState.Pending ? <Image src={checkImg}>Check</Image> : null}
+              {![StepState.Success, StepState.WalletOpen, StepState.Pending].includes(step.state) ? (
                 <StepNumber>{i + 1}</StepNumber>
-              )}
+              ) : null}
             </StepStyled>
           </MouseoverTooltip>
         </StepContent>
@@ -57,11 +52,10 @@ const ConnectedLine = styled.div`
 `
 
 const StepStyled = styled.div`
-  width: 2rem;
-  height: 2rem;
+  width: 32px;
+  height: 32px;
   border-radius: 9999px;
-  border: 1px solid #d1d5db;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #E6E6FF;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -74,11 +68,17 @@ const StepNumber = styled.span`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  cursor: pointer;
+  color: #B8B8D2;
+  font-size: 14px;
 `
 
-const CheckIcon = styled.div`
-  width: 2rem;
-  height: 2rem;
+const Image = styled.img`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
 `
 
 const SpinnerIcon = styled.div`

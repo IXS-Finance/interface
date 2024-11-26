@@ -129,9 +129,9 @@ export default function useTokenApprovalActions() {
     // @ts-ignore
     const txHash = await writeContract(wagmiConfig, request)
 
-    const transaction = await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
+    await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
 
-    return transaction
+    return txHash
   }
 
   /**

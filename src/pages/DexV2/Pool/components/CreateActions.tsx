@@ -62,14 +62,6 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
     return actions
   }, [JSON.stringify(actions)])
 
-  // const onSubmit = async () => {
-  //   try {
-  //     createPool()
-  //   } catch (e) {
-  //     console.error(e)
-  //   }
-  // }
-
   const getActions = async () => {
     const approvalActions = await getTokenApprovalActions({
       amountsToApprove,
