@@ -33,7 +33,7 @@ export const useTokens = () => {
 
     const allowance = allowanceFor(tokenAddress, spenderAddress)
 
-    return allowance.lt(amount)
+    return allowance.lt(bnum(amount))
   }
 
   /**
