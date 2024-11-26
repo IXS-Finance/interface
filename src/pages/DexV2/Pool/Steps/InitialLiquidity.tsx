@@ -23,8 +23,8 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
 
   const [isOptimised, setIsOptimised] = useState(false)
 
-  const handleAmountChange = (tokenAddress: string, amount: string) => {
-    console.log(tokenAddress, amount)
+  const handleAmountChange = (idx: number, amount: string) => {
+    dispatch(setTokenAmount({ id: idx, amount }))
   }
 
   function optimiseLiquidity(force = false) {
@@ -68,6 +68,7 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
             address={token.tokenAddress}
             amount={token.amount}
             rules={[isGreaterThan(0)]}
+            updateAmount={(amount: any) => handleAmountChange(i, amount)}
           />
         )
       })}

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { Flex } from 'rebass'
 
@@ -19,13 +19,15 @@ interface TokenInputProps {
   weight?: number | string
   rules?: Rules
   ignoreWalletBalance?: boolean
+  updateAmount: (value: string) => void
 }
 
 const TokenInput: React.FC<TokenInputProps> = (props) => {
   const { getToken, balanceFor } = useTokens()
-  const { weight = 0, address = '', rules = [], ignoreWalletBalance = false, amount } = props
+  const { weight = 0, address = '', rules = [], ignoreWalletBalance = false, amount, updateAmount } = props
 
   const [errors, setErrors] = useState<string[]>([])
+  const [amountValue, setAmountValue] = useState<string>('')
 
   const hasToken = useMemo(() => !!address, [address])
 
@@ -80,7 +82,13 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
 
   function onAmountChange(value: string) {
     validate(value)
+    setAmountValue(value)
+    updateAmount(value)
   }
+
+  useEffect(() => {
+    setAmountValue(amount.toString())
+  }, [amount])
 
   console.log('errors', errors)
   return (
@@ -100,7 +108,7 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
           type="text"
           inputMode="decimal"
           pattern="[0-9]*[.,]?[0-9]*"
-          value={amount}
+          value={amountValue}
           onChange={(e) => onAmountChange(e.target.value)}
         />
       </FlexContainer>
