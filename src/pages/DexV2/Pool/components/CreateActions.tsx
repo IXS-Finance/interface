@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { BackButton, NavigationButtons, NextButton } from '../Create'
 import { TransactionActionInfo } from 'pages/DexV2/types/transactions'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
@@ -22,13 +21,13 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
   const { getTokenApprovalActions } = useTokenApprovalActions()
   const { account, chainId } = useWeb3React()
   const initActions: TransactionActionInfo[] = [
-    // {
-    //   label: 'Create Pool',
-    //   loadingLabel: 'Confirm create in wallet',
-    //   confirmingLabel: 'Confirming...',
-    //   action: createPool,
-    //   stepTooltip: `Create ${poolTypeString} pool`,
-    // },
+    {
+      label: 'Create Pool',
+      loadingLabel: 'Confirm create in wallet',
+      confirmingLabel: 'Confirming...',
+      action: createPool,
+      stepTooltip: `Create ${poolTypeString} pool`,
+    },
     {
       label: 'Fund pool',
       loadingLabel: 'Confirm funding in wallet',
@@ -73,7 +72,7 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
       actionType: ApprovalAction.AddLiquidity,
     })
 
-    // setActions([...approvalActions, ...initActions])
+    setActions([...approvalActions, ...initActions])
   }
 
   useEffect(() => {
