@@ -5,6 +5,8 @@ import { Step, StepState, TransactionAction } from 'pages/DexV2/types'
 import HorizSteps from './HorizSteps'
 import { BackButton, NavigationButtons, NextButton } from '../Create'
 import { useTokensState } from 'state/dexV2/tokens/hooks'
+import { useErrorMsg } from 'lib/utils/errors'
+import { toast } from 'react-toastify'
 
 type BalStepAction = {
   label: string
@@ -51,6 +53,8 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   requiredActions,
   goBack,
 }) => {
+  const { formatErrorMsg } = useErrorMsg();
+
   const [currentActionIndex, setCurrentActionIndex] = useState(0)
   const [actionStates, setActionStates] = useState<TransactionActionState[]>([])
   const [actions, setActions] = useState<BalStepAction[]>([])
@@ -65,28 +69,23 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
 
   async function submit(actionInfo: TransactionActionInfo, state: TransactionActionState): Promise<void> {
     const { action } = actionInfo
-    await action()
-    // try {
-    //   state.init = true;
-    //   state.error = null;
-    //   const tx = await action();
-    //   state.init = false;
-    //   state.confirming = true;
-    //   if (currentAction.value?.isSignAction) {
-    //     handleSignAction(state);
-    //     return;
-    //   }
-    //   if (tx) handleTransaction(tx, state, actionInfo);
-    // } catch (error) {
-    //   state.init = false;
-    //   state.confirming = false;
-    //   state.error = formatErrorMsg(error);
-    //   captureBalancerException({
-    //     error: (error as Error)?.cause || error,
-    //     action: props.primaryActionType,
-    //     context: { level: 'fatal' },
-    //   });
-    // }
+    try {
+      state.init = true
+      state.error = null
+      await action()
+      state.init = false
+      state.confirming = true
+      if (currentActionIndex >= actions.length - 1) {
+        toast.success('Create pool success')
+      } else {
+        setCurrentActionIndex(currentActionIndex + 1)
+      }
+
+    } catch (error) {
+      state.init = false
+      state.confirming = false
+      state.error = formatErrorMsg(error)
+    }
   }
 
   const steps = useMemo((): Step[] => actions.map((action) => action.step), [JSON.stringify(actions)])
