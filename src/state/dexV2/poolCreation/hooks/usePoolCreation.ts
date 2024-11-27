@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { BigNumber as EPBigNumber } from '@ethersproject/bignumber'
 import { simulateContract, waitForTransactionReceipt, writeContract } from '@wagmi/core'
@@ -27,6 +27,7 @@ import WeightedPoolFactoryV4Abi from 'lib/abi/WeightedPoolFactoryV4.json'
 import { Address, parseUnits } from 'viem'
 import { ZERO_ADDRESS } from 'constants/misc'
 import { generateSalt } from 'lib/utils/random'
+import { useAccount } from 'hooks/useAccount'
 
 export type OptimisedLiquidity = {
   liquidityRequired: string
@@ -274,6 +275,9 @@ export const usePoolCreation = () => {
     const sender = account
     const receiver = account
 
+    console.log('poolId', poolId)
+    debugger
+
     const params = [poolId.toLowerCase(), sender, receiver, joinPoolRequest] as any
 
     // @ts-ignore
@@ -313,9 +317,15 @@ export const usePoolCreation = () => {
     if (!poolCreationEvent) return null
     const poolAddress = poolCreationEvent.args.pool
 
-    const pool = WeightedPool__factory.connect(poolAddress, provider as any)
-    const poolId = await pool.getPoolId()
-    dispatch(setPoolCreationState({ poolId, poolAddress, needsSeeding: true }))
+    try {
+      const pool = WeightedPool__factory.connect(poolAddress, provider as any)
+      console.log('poolAddress', poolAddress)
+      debugger
+      const poolId = await pool.getPoolId()
+      dispatch(setPoolCreationState({ poolId, poolAddress, needsSeeding: true }))
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   async function createPool() {
@@ -350,8 +360,9 @@ export const usePoolCreation = () => {
     const txHash = await writeContract(wagmiConfig, request)
 
     // @ts-ignore
-    const receipt: any = await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
+    const receipt: any = await waitForTransactionReceipt(wagmiConfig, { confirmations: 5, hash: txHash })
 
+    debugger;
     if (receipt) {
       retrievePoolAddress(receipt)
     }

@@ -18,12 +18,11 @@ interface Props {
 
 const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => {
   const { hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
-  const { needsSeeding } = usePoolCreationState()
+  const { needsSeeding, poolId } = usePoolCreationState()
   const { getTokenApprovalActions } = useTokenApprovalActions()
   const { account, chainId } = useWeb3React()
   const { allowanceLoading, allowances } = useTokensState()
 
-  console.log('allowances outside', allowances)
 
   const initActions: TransactionActionInfo[] = [
     {
