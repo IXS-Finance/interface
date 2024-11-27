@@ -150,6 +150,10 @@ const poolCreationSlice = createSlice({
     setActiveStep(state, action) {
       state.activeStep = action.payload
     },
+    removeTokenWeightsByIndex(state, action) {
+      state.seedTokens = state.seedTokens.filter((_, i) => i !== action.payload)
+      handleDistributeWeights(state.seedTokens)
+    },
     resetPoolCreationState: () => initialState,
   },
 })
@@ -166,5 +170,6 @@ export const {
   addTokenWeight,
   setActiveStep,
   setTokenAmount,
+  removeTokenWeightsByIndex,
 } = poolCreationSlice.actions
 export default poolCreationSlice.reducer
