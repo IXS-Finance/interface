@@ -36,6 +36,7 @@
         "address": "0x949546713004ee02537292b1F41046f705909191",
         "name": "TIXS",
         "symbol": "TIXS",
+        "logoURI": "https://static.ixswap.io/ixs-logo.png",
         "decimals": 18
       }
     ]
