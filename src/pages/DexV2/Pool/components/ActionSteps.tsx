@@ -7,6 +7,8 @@ import { BackButton, NavigationButtons, NextButton } from '../Create'
 import { useTokensState } from 'state/dexV2/tokens/hooks'
 import { useErrorMsg } from 'lib/utils/errors'
 import { toast } from 'react-toastify'
+import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
+import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 
 type BalStepAction = {
   label: string
@@ -53,7 +55,9 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   requiredActions,
   goBack,
 }) => {
-  const { formatErrorMsg } = useErrorMsg();
+  const { formatErrorMsg } = useErrorMsg()
+  const { hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
+  const { needsSeeding, poolId } = usePoolCreationState()
 
   const [currentActionIndex, setCurrentActionIndex] = useState(0)
   const [actionStates, setActionStates] = useState<TransactionActionState[]>([])
@@ -72,15 +76,16 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     try {
       state.init = true
       state.error = null
-      await action()
-      state.init = false
-      state.confirming = true
-      if (currentActionIndex >= actions.length - 1) {
+      if (actionInfo.label === 'Fund pool') {
+        joinPool()
         toast.success('Create pool success')
+        return;
       } else {
+        await action()
         setCurrentActionIndex(currentActionIndex + 1)
       }
-
+      state.init = false
+      state.confirming = true
     } catch (error) {
       state.init = false
       state.confirming = false
