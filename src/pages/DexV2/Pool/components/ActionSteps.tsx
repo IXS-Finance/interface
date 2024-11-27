@@ -77,13 +77,15 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
       state.init = true
       state.error = null
       if (actionInfo.label === 'Fund pool') {
-        joinPool()
+        await joinPool()
         toast.success('Create pool success')
-        return;
+        return
+      } else if (actionInfo.label === 'Create Pool') {
+        await createPool()
       } else {
         await action()
-        setCurrentActionIndex(currentActionIndex + 1)
       }
+      setCurrentActionIndex(currentActionIndex + 1)
       state.init = false
       state.confirming = true
     } catch (error) {

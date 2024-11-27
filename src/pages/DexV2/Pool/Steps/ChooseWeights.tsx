@@ -36,6 +36,7 @@ const emptyTokenWeight: PoolSeedToken = {
 
 const ChooseWeights: React.FC = () => {
   const {
+    tokensList,
     totalLiquidity,
     updateTokenWeights,
     updateTokenWeight,
@@ -45,7 +46,7 @@ const ChooseWeights: React.FC = () => {
     proceed,
     removeTokenWeights,
   } = usePoolCreation()
-  const { seedTokens, tokensList } = usePoolCreationState()
+  const { seedTokens } = usePoolCreationState()
   const { account, chainId } = useWeb3React()
   const { openConnectModal } = useConnectModal()
   const dispatch = useDispatch()

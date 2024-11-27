@@ -46,14 +46,22 @@ const JOIN_KIND_INIT = 0
 
 export const usePoolCreation = () => {
   const dispatch = useDispatch()
-  const { name, symbol, tokensList, activeStep, seedTokens, manuallySetToken, poolType, initialFee, poolId } =
-    usePoolCreationState()
+  const poolCreationState = usePoolCreationState()
+  const { name, symbol, activeStep, seedTokens, manuallySetToken, poolType, initialFee, poolId } = poolCreationState
   const { priceFor, balanceFor, getToken } = useTokens()
   const { account, chainId, provider } = useWeb3React()
 
   const [hasRestoredFromSavedState, setHasRestoredFromSavedState] = useState<boolean | null>(null)
 
   const networkConfig = config[chainId]
+
+  const tokensList = useMemo(
+    () =>
+      [...poolCreationState.tokensList].sort((tokenA, tokenB) => {
+        return tokenA > tokenB ? 1 : -1
+      }),
+    [JSON.stringify(poolCreationState.tokensList)]
+  )
 
   const poolLiquidity = useMemo(() => {
     let sum = bnum(0)
@@ -98,7 +106,7 @@ export const usePoolCreation = () => {
 
   function getOptimisedLiquidity(): Record<string, OptimisedLiquidity> {
     // need to filter out the empty tokens just in case
-    const validTokens = tokensList.filter((t) => t !== '')
+    const validTokens = tokensList.filter((t: any) => t !== '')
     const optimisedLiquidity = {}
 
     // TODO: implement dynamic data loading
@@ -394,5 +402,6 @@ export const usePoolCreation = () => {
     createPool,
     joinPool,
     removeTokenWeights,
+    tokensList,
   }
 }

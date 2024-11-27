@@ -17,8 +17,8 @@ import { setPoolCreationState, setTokenAmount } from 'state/dexV2/poolCreation'
 interface SetPoolFeesProps {}
 
 const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
-  const { seedTokens, tokensList, manuallySetToken, autoOptimiseBalances } = usePoolCreationState()
-  const { scaledLiquidity, getOptimisedLiquidity, proceed, goBack } = usePoolCreation()
+  const { seedTokens, manuallySetToken, autoOptimiseBalances } = usePoolCreationState()
+  const { tokensList, scaledLiquidity, getOptimisedLiquidity, proceed, goBack } = usePoolCreation()
   const dispatch = useDispatch()
 
   const [isOptimised, setIsOptimised] = useState(false)
