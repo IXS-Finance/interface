@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 import BigNumber from 'bignumber.js'
 import { Flex } from 'rebass'
+import { useDispatch } from 'react-redux'
 
 import { BackButton, Line, NavigationButtons, NextButton } from '../Create'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
@@ -13,6 +14,7 @@ import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { useWeb3React } from 'hooks/useWeb3React'
 import BalAlert from '../components/BalAlert'
+import { sortSeedTokens } from 'state/dexV2/poolCreation'
 
 const PreviewPool: React.FC = () => {
   const { account } = useWeb3React()
@@ -28,6 +30,7 @@ const PreviewPool: React.FC = () => {
   const { getAmounts, goBack, poolLiquidity, poolTypeString } = usePoolCreation()
   const { priceFor } = useTokens()
   const { fNum } = useNumbers()
+  const dispatch = useDispatch()
 
   const tokenAddresses = useMemo(() => {
     return seedTokens.map((token) => token.tokenAddress)
@@ -76,6 +79,10 @@ const PreviewPool: React.FC = () => {
       }
     }
   }
+
+  useEffect(() => {
+    dispatch(sortSeedTokens())
+  }, [])
 
   console.log('seedTokens', seedTokens)
   return (

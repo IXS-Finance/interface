@@ -154,6 +154,14 @@ const poolCreationSlice = createSlice({
       state.seedTokens = state.seedTokens.filter((_, i) => i !== action.payload)
       handleDistributeWeights(state.seedTokens)
     },
+    sortSeedTokens(state) {
+      state.seedTokens.sort((tokenA, tokenB) => {
+        return tokenA.tokenAddress.toLowerCase() >
+          tokenB.tokenAddress.toLowerCase()
+          ? 1
+          : -1;
+      });
+    },
     resetPoolCreationState: () => initialState,
   },
 })
@@ -171,5 +179,6 @@ export const {
   setActiveStep,
   setTokenAmount,
   removeTokenWeightsByIndex,
+  sortSeedTokens,
 } = poolCreationSlice.actions
 export default poolCreationSlice.reducer
