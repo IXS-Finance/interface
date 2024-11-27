@@ -2,13 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { Flex } from 'rebass'
 
-import EthIcon from 'assets/images/dex-v2/eth.svg'
 import { ReactComponent as WalletIcon } from 'assets/images/dex-v2/wallet.svg'
 import { ReactComponent as WarningIcon } from 'assets/images/dex-v2/warning.svg'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { formatAmount } from './SelectTokenModal'
 import { RuleFunction, Rules } from '../../types'
 import { isLessThanOrEqualTo, isPositive } from 'lib/utils/validations'
+import { overflowProtected } from './helpers'
 
 type InputValue = string | number
 
@@ -29,8 +29,6 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
   const [errors, setErrors] = useState<string[]>([])
   const [amountValue, setAmountValue] = useState<string>('')
 
-  const hasToken = useMemo(() => !!address, [address])
-
   const token = useMemo(() => {
     if (!address) {
       return null
@@ -38,6 +36,8 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
 
     return getToken(address)
   }, [address])
+  const hasToken = useMemo(() => !!address, [address])
+  const decimalLimit = useMemo<number>(() => token?.decimals || 18, [token])
 
   const balance = useMemo(() => {
     if (!address) {
@@ -80,17 +80,18 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
     blockInvalidChar(event.nativeEvent)
   }
 
-  function onAmountChange(value: string) {
-    validate(value)
-    setAmountValue(value)
-    updateAmount(value)
+  function handleAmountChange(value: string) {
+    const safeAmount = overflowProtected(value, decimalLimit)
+    debugger;
+    validate(safeAmount)
+    setAmountValue(safeAmount)
+    updateAmount(safeAmount)
   }
 
   useEffect(() => {
-    setAmountValue(amount.toString())
+    setAmountValue(formatAmount(+amount, 2));
   }, [amount])
 
-  console.log('errors', errors)
   return (
     <LiquidityContainer className="token-input">
       <FlexContainer>
@@ -109,7 +110,7 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
           inputMode="decimal"
           pattern="[0-9]*[.,]?[0-9]*"
           value={amountValue}
-          onChange={(e) => onAmountChange(e.target.value)}
+          onChange={(e) => handleAmountChange(e.target.value)}
         />
       </FlexContainer>
       <Flex justifyContent="space-between" alignItems="center">
