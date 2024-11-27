@@ -42,7 +42,8 @@ const ChooseWeights: React.FC = () => {
     updateLockedWeight,
     updateTokenAddress,
     addTokenWeightToPool,
-    proceed
+    proceed,
+    removeTokenWeights,
   } = usePoolCreation()
   const { seedTokens, tokensList } = usePoolCreationState()
   const { account, chainId } = useWeb3React()
@@ -132,58 +133,18 @@ const ChooseWeights: React.FC = () => {
   }
 
   async function handleRemoveToken(index: number) {
-    updateTokenWeights(seedTokens.filter((_, i) => i !== index))
+    removeTokenWeights(index)
   }
 
   function handleAddressChange(address: string, id: number) {
     updateTokenAddress(id, address)
   }
 
-  // async function createPool() {
-  //   const name = '50USDT-50TIXS'
-  //   const symbol = '50USDT-50TIXS'
-  //   const tokenAddresses = seedTokens
-  //     .map((t) => t.tokenAddress.toLowerCase())
-  //     .sort((tokenA, tokenB) => {
-  //       return tokenA > tokenB ? 1 : -1
-  //     })
-  //   const seedTokensWeights = seedTokens.map((t) => parseUnits(t.weight.toString(), 16).toString())
-  //   const swapFeeScaled = parseUnits('0.3', 18).toString()
-  //   const params = [
-  //     name,
-  //     symbol,
-  //     tokenAddresses,
-  //     ['500000000000000000', '500000000000000000'],
-  //     [ZERO_ADDRESS, ZERO_ADDRESS],
-  //     '3000000000000000',
-  //     '0x93f082392e9991107eafFa8Fe5F44A33aD9105B1',
-  //     generateSalt(),
-  //   ] as any
-
-  //   console.log('params', params)
-
-  //   // @ts-ignore
-  //   writeContract(
-  //     {
-  //       // @ts-ignore
-  //       address: networkConfig.addresses.weightedPoolFactory,
-  //       abi: WeightedPoolFactoryV4Abi,
-  //       functionName: 'create',
-  //       args: params,
-  //     },
-  //     {
-  //       onError: (err: any) => {
-  //         console.error(err.message)
-  //       },
-  //     }
-  //   )
-  // }
-
   function handleProceed() {
     if (!account) {
       openConnectModal && openConnectModal()
     } else {
-      proceed();
+      proceed()
     }
   }
 
