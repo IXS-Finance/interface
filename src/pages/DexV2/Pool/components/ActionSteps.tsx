@@ -87,6 +87,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
       state.init = false
       state.confirming = true
     } catch (error) {
+      console.error('Error submitting action', error)
       state.init = false
       state.confirming = false
       state.error = formatErrorMsg(error)
