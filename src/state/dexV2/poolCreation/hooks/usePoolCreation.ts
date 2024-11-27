@@ -15,6 +15,7 @@ import {
   addTokenWeight,
   PoolType,
   setPoolCreationState,
+  removeTokenWeightsByIndex,
 } from '..'
 import { PoolSeedToken } from 'pages/DexV2/types'
 import { usePoolCreationState } from '.'
@@ -180,6 +181,10 @@ export const usePoolCreation = () => {
 
   function updateLockedWeight(id: number, isLocked: boolean) {
     dispatch(setTokenLocked({ id, isLocked }))
+  }
+
+  function removeTokenWeights(id: number) {
+    dispatch(removeTokenWeightsByIndex(id))
   }
 
   function proceed() {
@@ -362,7 +367,7 @@ export const usePoolCreation = () => {
     // @ts-ignore
     const receipt: any = await waitForTransactionReceipt(wagmiConfig, { confirmations: 5, hash: txHash })
 
-    debugger;
+    debugger
     if (receipt) {
       retrievePoolAddress(receipt)
     }
@@ -388,5 +393,6 @@ export const usePoolCreation = () => {
     poolTypeString,
     createPool,
     joinPool,
+    removeTokenWeights,
   }
 }
