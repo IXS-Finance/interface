@@ -41,7 +41,7 @@ const TokenInfo: React.FC<TokenInfoProps> = (props) => {
         </Flex>
 
         <div>
-          <Title>{fNum(token?.amount, FNumFormats.token)}</Title>
+          <Title style={{textAlign: 'right'}}>{fNum(token?.amount, FNumFormats.token)}</Title>
           <Description>
             {fNum(bnum(token.amount).times(priceFor(token.tokenAddress)).toString(), FNumFormats.fiat)}
           </Description>
