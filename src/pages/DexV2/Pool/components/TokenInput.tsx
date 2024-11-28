@@ -82,7 +82,6 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
 
   function handleAmountChange(value: string) {
     const safeAmount = overflowProtected(value, decimalLimit)
-    debugger;
     validate(safeAmount)
     setAmountValue(safeAmount)
     updateAmount(safeAmount)
