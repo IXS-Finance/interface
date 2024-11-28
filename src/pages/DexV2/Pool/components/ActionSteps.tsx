@@ -77,7 +77,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
       state.init = true
       state.error = null
       if (actionInfo.label === 'Fund pool') {
-        await joinPool()
+        await joinPool(poolId)
         toast.success('Create pool success')
         return
       } else if (actionInfo.label === 'Create Pool') {
@@ -125,7 +125,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     })
     setActionStates(newActionStates)
     setActions(newActions)
-  }, [JSON.stringify(requiredActions)])
+  }, [JSON.stringify(requiredActions), poolId])
 
   return (
     <div>
