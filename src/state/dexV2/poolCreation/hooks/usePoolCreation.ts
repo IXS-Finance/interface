@@ -1,9 +1,18 @@
 import { useDispatch } from 'react-redux'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { BigNumber as EPBigNumber } from '@ethersproject/bignumber'
 import { simulateContract, waitForTransactionReceipt, writeContract } from '@wagmi/core'
 import { Vault__factory, WeightedPool__factory, WeightedPoolFactory__factory } from '@balancer-labs/typechain'
+import {
+  Address,
+  Hex,
+  TransactionNotFoundError,
+  TransactionReceipt,
+  TransactionReceiptNotFoundError,
+  erc20Abi,
+  parseUnits,
+} from 'viem'
 import { defaultAbiCoder } from '@ethersproject/abi'
 
 import {
@@ -25,10 +34,9 @@ import { wagmiConfig } from 'components/Web3Provider'
 import { useWeb3React } from 'hooks/useWeb3React'
 import config from 'lib/config'
 import WeightedPoolFactoryV4Abi from 'lib/abi/WeightedPoolFactoryV4.json'
-import { Address, parseUnits } from 'viem'
 import { ZERO_ADDRESS } from 'constants/misc'
 import { generateSalt } from 'lib/utils/random'
-import { useAccount } from 'hooks/useAccount'
+import { retry, RetryableError } from 'lib/utils/retry'
 
 export type OptimisedLiquidity = {
   liquidityRequired: string
@@ -267,7 +275,7 @@ export const usePoolCreation = () => {
     return scaledAmounts
   }
 
-  async function joinPool() {
+  async function joinPool(poolID: string) {
     const address = networkConfig.addresses.vault as Address
     const tokenAddresses: string[] = seedTokens.map((token: PoolSeedToken) => {
       return token.tokenAddress
@@ -288,10 +296,9 @@ export const usePoolCreation = () => {
     const sender = account
     const receiver = account
 
-    console.log('poolId', poolId)
-    debugger
+    console.log('poolID', poolID)
 
-    const params = [poolId.toLowerCase(), sender, receiver, joinPoolRequest] as any
+    const params = [poolID.toLowerCase(), sender, receiver, joinPoolRequest] as any
 
     // @ts-ignore
     const { request } = await simulateContract(wagmiConfig, {
@@ -333,12 +340,38 @@ export const usePoolCreation = () => {
     try {
       const pool = WeightedPool__factory.connect(poolAddress, provider as any)
       console.log('poolAddress', poolAddress)
-      debugger
       const poolId = await pool.getPoolId()
       dispatch(setPoolCreationState({ poolId, poolAddress, needsSeeding: true }))
     } catch (error) {
       console.error(error)
     }
+  }
+
+  const retryWaitForTransaction = async ({ hash, confirmations }: { hash?: Hex; confirmations?: number }) => {
+    if (hash && chainId) {
+      let retryTimes = 0
+      const getReceipt = async () => {
+        console.info('retryWaitForTransaction', hash, retryTimes++)
+        try {
+          return await waitForTransactionReceipt(wagmiConfig, {
+            hash,
+            confirmations,
+          })
+        } catch (error) {
+          if (error instanceof TransactionReceiptNotFoundError || error instanceof TransactionNotFoundError) {
+            throw new RetryableError()
+          }
+          throw error
+        }
+      }
+      const { promise } = retry<TransactionReceipt>(getReceipt, {
+        n: 6,
+        minWait: 2000,
+        maxWait: confirmations ? confirmations * 5000 : 5000,
+      })
+      return promise
+    }
+    return undefined
   }
 
   async function createPool() {
@@ -372,10 +405,13 @@ export const usePoolCreation = () => {
     // @ts-ignore
     const txHash = await writeContract(wagmiConfig, request)
 
+    await retryWaitForTransaction({
+      hash: txHash,
+      confirmations: 10,
+    })
     // @ts-ignore
-    const receipt: any = await waitForTransactionReceipt(wagmiConfig, { confirmations: 5, hash: txHash })
+    const receipt: any = await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
 
-    debugger
     if (receipt) {
       retrievePoolAddress(receipt)
     }

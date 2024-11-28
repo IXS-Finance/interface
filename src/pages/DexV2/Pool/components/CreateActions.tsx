@@ -29,14 +29,14 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
       label: 'Create Pool',
       loadingLabel: 'Confirm create in wallet',
       confirmingLabel: 'Confirming...',
-      action: createPool,
+      action: () => {},
       stepTooltip: `Create ${poolTypeString} pool`,
     },
     {
       label: 'Fund pool',
       loadingLabel: 'Confirm funding in wallet',
       confirmingLabel: 'Confirming...',
-      action: joinPool,
+      action: () => {},
       stepTooltip: 'Add the initial liquidity for this pool.',
     },
   ]
