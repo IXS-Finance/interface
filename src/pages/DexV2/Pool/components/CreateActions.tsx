@@ -23,7 +23,6 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
   const { account, chainId } = useWeb3React()
   const { allowanceLoading, allowances } = useTokensState()
 
-
   const initActions: TransactionActionInfo[] = [
     {
       label: 'Create Pool',
@@ -45,6 +44,7 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
 
   const [isRestoredTxConfirmed, setIsRestoredTxConfirmed] = useState(false)
   const [actions, setActions] = useState<TransactionActionInfo[]>(initActions)
+  const [currentActionIndex, setCurrentActionIndex] = useState(0)
 
   const amountsToApprove = amounts.map((amount, index) => {
     return {
@@ -81,7 +81,14 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
 
   return (
     <div>
-      <ActionSteps requiredActions={requiredActions} primaryActionType="createPool" disabled={false} goBack={goBack} />
+      <ActionSteps
+        currentActionIndex={currentActionIndex}
+        requiredActions={requiredActions}
+        primaryActionType="createPool"
+        disabled={false}
+        goBack={goBack}
+        setCurrentActionIndex={setCurrentActionIndex}
+      />
     </div>
   )
 }

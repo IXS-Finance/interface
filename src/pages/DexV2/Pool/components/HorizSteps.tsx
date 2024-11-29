@@ -19,9 +19,9 @@ const HorizSteps: React.FC<HorizStepsProps> = ({ steps }) => {
 
           <MouseoverTooltip text={step.tooltip} placement="top">
             <StepStyled>
-              {step.state === StepState.Success ? <Image src={checkImg}>Check</Image> : null}
+              {/* {step.state === StepState.Success ? <Image src={checkImg}>Check</Image> : null}
               {step.state === StepState.WalletOpen ? <Image src={checkImg}>Check</Image> : null}
-              {step.state === StepState.Pending ? <Image src={checkImg}>Check</Image> : null}
+              {step.state === StepState.Pending ? <Image src={checkImg}>Check</Image> : null} */}
               {![StepState.Success, StepState.WalletOpen, StepState.Pending].includes(step.state) ? (
                 <StepNumber>{i + 1}</StepNumber>
               ) : null}
