@@ -111,8 +111,9 @@ export default function useTokenApprovalActions() {
    * possible amount.
    * @returns {Promise<TransactionResponse>} The transaction response.
    */
-  async function approveToken({ token, normalizedAmount, spender, actionType, forceMax = true }: ApproveTokenParams) {
-    const amount = forceMax ? MaxUint256.toString() : parseUnits(normalizedAmount, token.decimals)
+  async function approveToken({ token, normalizedAmount, spender, actionType, forceMax = false }: ApproveTokenParams) {
+    const amount = forceMax ? MaxUint256.toString() : parseUnits(normalizedAmount, token.decimals).toString()
+    debugger;
     const address = token.address as Address
     const spenderAddress = spender as Address
 
@@ -173,7 +174,7 @@ export default function useTokenApprovalActions() {
     normalizedAmount,
     spender,
     actionType,
-    forceMax = true,
+    forceMax = false,
   }: ApproveTokenParams): TransactionActionInfo {
     return {
       label: actionLabel(actionType, token.symbol),
@@ -217,7 +218,7 @@ export default function useTokenApprovalActions() {
     amountsToApprove,
     spender,
     actionType,
-    forceMax = true,
+    forceMax = false,
     skipAllowanceCheck = false,
   }: Params): Promise<TransactionActionInfo[]> {
     const approvalsRequired = await getApprovalsRequired(amountsToApprove, spender, skipAllowanceCheck)
