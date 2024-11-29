@@ -9,7 +9,7 @@ import { useWeb3React } from 'hooks/useWeb3React'
 import { TokenInfo } from 'types/TokenList'
 import { useTokens } from './useTokens'
 import { TransactionActionInfo } from 'pages/DexV2/types/transactions'
-import { bnum } from 'lib/utils'
+import { bnum, retryWaitForTransaction } from 'lib/utils'
 
 interface Params {
   amountsToApprove: AmountToApprove[]
@@ -129,6 +129,11 @@ export default function useTokenApprovalActions() {
 
     // @ts-ignore
     const txHash = await writeContract(wagmiConfig, request)
+
+    await retryWaitForTransaction({
+      hash: txHash,
+      confirmations: 10,
+    })
 
     await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
 

@@ -10,7 +10,6 @@ import {
   TransactionNotFoundError,
   TransactionReceipt,
   TransactionReceiptNotFoundError,
-  erc20Abi,
   parseUnits,
 } from 'viem'
 import { defaultAbiCoder } from '@ethersproject/abi'
@@ -28,7 +27,7 @@ import {
 } from '..'
 import { PoolSeedToken } from 'pages/DexV2/types'
 import { usePoolCreationState } from '.'
-import { bnum, isSameAddress, scale, toNormalizedWeights, userRejectedError } from 'lib/utils'
+import { bnum, isSameAddress, retryWaitForTransaction, scale, toNormalizedWeights, userRejectedError } from 'lib/utils'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { wagmiConfig } from 'components/Web3Provider'
 import { useWeb3React } from 'hooks/useWeb3React'
@@ -347,33 +346,6 @@ export const usePoolCreation = () => {
     }
   }
 
-  const retryWaitForTransaction = async ({ hash, confirmations }: { hash?: Hex; confirmations?: number }) => {
-    if (hash && chainId) {
-      let retryTimes = 0
-      const getReceipt = async () => {
-        console.info('retryWaitForTransaction', hash, retryTimes++)
-        try {
-          return await waitForTransactionReceipt(wagmiConfig, {
-            hash,
-            confirmations,
-          })
-        } catch (error) {
-          if (error instanceof TransactionReceiptNotFoundError || error instanceof TransactionNotFoundError) {
-            throw new RetryableError()
-          }
-          throw error
-        }
-      }
-      const { promise } = retry<TransactionReceipt>(getReceipt, {
-        n: 6,
-        minWait: 2000,
-        maxWait: confirmations ? confirmations * 5000 : 5000,
-      })
-      return promise
-    }
-    return undefined
-  }
-
   async function createPool() {
     const address = networkConfig.addresses.weightedPoolFactory as Address
     const tokenAddresses: string[] = seedTokens.map((token: PoolSeedToken) => {
@@ -405,13 +377,13 @@ export const usePoolCreation = () => {
     // @ts-ignore
     const txHash = await writeContract(wagmiConfig, request)
 
-    await retryWaitForTransaction({
+   await retryWaitForTransaction({
       hash: txHash,
       confirmations: 10,
     })
     // @ts-ignore
     const receipt: any = await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
-debugger;
+
     if (receipt) {
       retrievePoolAddress(receipt)
     }

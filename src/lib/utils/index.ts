@@ -2,7 +2,19 @@ import BigNumber from 'bignumber.js'
 import { getAddress } from '@ethersproject/address'
 import { BigNumber as EPBigNumber, BigNumberish } from '@ethersproject/bignumber'
 import { Zero, WeiPerEther as ONE } from '@ethersproject/constants'
-import { UserRejectedRequestError, UnknownRpcError } from 'viem'
+import {
+  UserRejectedRequestError,
+  UnknownRpcError,
+  Hex,
+  TransactionNotFoundError,
+  TransactionReceipt,
+  TransactionReceiptNotFoundError,
+
+} from 'viem'
+import { waitForTransactionReceipt } from '@wagmi/core'
+
+import { retry, RetryableError } from 'lib/utils/retry'
+import { wagmiConfig } from 'components/Web3Provider'
 
 export function bnum(val: string | number | BigNumber): BigNumber {
   const number = typeof val === 'string' ? val : val ? val.toString() : '0'
@@ -124,4 +136,31 @@ export const userRejectedError = (error: unknown): boolean => {
     error instanceof TransactionRejectedError ||
     (typeof error !== 'string' && isUserRejected(error))
   )
+}
+
+export const retryWaitForTransaction = async ({ hash, confirmations }: { hash?: Hex; confirmations?: number }) => {
+  if (hash) {
+    let retryTimes = 0
+    const getReceipt = async () => {
+      console.info('retryWaitForTransaction', hash, retryTimes++)
+      try {
+        return await waitForTransactionReceipt(wagmiConfig, {
+          hash,
+          confirmations,
+        })
+      } catch (error) {
+        if (error instanceof TransactionReceiptNotFoundError || error instanceof TransactionNotFoundError) {
+          throw new RetryableError()
+        }
+        throw error
+      }
+    }
+    const { promise } = retry<TransactionReceipt>(getReceipt, {
+      n: 6,
+      minWait: 2000,
+      maxWait: confirmations ? confirmations * 5000 : 5000,
+    })
+    return promise
+  }
+  return undefined
 }
