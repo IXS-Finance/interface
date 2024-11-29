@@ -4,11 +4,11 @@ import { TransactionActionInfo, TransactionActionState } from 'pages/DexV2/types
 import { Step, StepState, TransactionAction } from 'pages/DexV2/types'
 import HorizSteps from './HorizSteps'
 import { BackButton, NavigationButtons, NextButton } from '../Create'
-import { useTokensState } from 'state/dexV2/tokens/hooks'
 import { useErrorMsg } from 'lib/utils/errors'
 import { toast } from 'react-toastify'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
+import Loader from 'components/Loader'
 
 type BalStepAction = {
   label: string
@@ -63,10 +63,10 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   const { hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
   const { needsSeeding, poolId } = usePoolCreationState()
 
-
   const [actionStates, setActionStates] = useState<TransactionActionState[]>(
     requiredActions.map(() => ({ ...defaultActionState }))
   )
+  const [loading, setLoading] = useState(false)
 
   const actions: BalStepAction[] = requiredActions.map((actionInfo, idx) => {
     const actionState = actionStates[idx]
@@ -97,8 +97,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   async function submit(actionInfo: TransactionActionInfo, state: TransactionActionState): Promise<void> {
     const { action, postActionValidation } = actionInfo
     try {
-      state.init = true
-      state.error = null
+      setLoading(true)
       if (actionInfo.label === 'Fund pool') {
         await joinPool(poolId)
         toast.success('Create pool success')
@@ -107,61 +106,30 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
         await createPool()
       } else {
         await action()
-        await postActionValidation?.();
+        await postActionValidation?.()
       }
-      debugger;
       setCurrentActionIndex(currentActionIndex + 1)
-      state.init = false
-      state.confirming = true
-    } catch (error) {
-      console.error('Error submitting action', error)
-      state.init = false
-      state.confirming = false
-      state.error = formatErrorMsg(error)
+    } catch (error: any) {
+      console.error('Error submitting action', error?.message)
+      const errorMsg = formatErrorMsg(error?.message)
+      debugger;
+      if (errorMsg) {
+        toast.error(errorMsg.title)
+      }
+    } finally {
+      setLoading(false)
     }
   }
 
-  async function handleTransaction(
-    // tx: TransactionResponse,
-    state: TransactionActionState,
-    actionInfo: TransactionActionInfo
-  ): Promise<void> {
-    // const { postActionValidation, actionInvalidReason } = actionInfo;
-    // await txListener(tx, {
-    //   onTxConfirmed: async (receipt: TransactionReceipt) => {
-    //     state.receipt = receipt;
-    //     await postConfirmationDelay(tx);
-    //     const isValid = await postActionValidation?.();
-    //     if (isValid || !postActionValidation) {
-    //       const confirmedAt = await getTxConfirmedAt(receipt);
-    //       state.confirmedAt = dateTimeLabelFor(confirmedAt);
-    //       state.confirmed = true;
-    //       if (currentActionIndex.value >= actions.value.length - 1) {
-    //         emit('success', receipt, state.confirmedAt);
-    //       } else {
-    //         currentActionIndex.value += 1;
-    //       }
-    //     } else {
-    //       // post action validation failed, display reason.
-    //       if (actionInvalidReason) state.error = actionInvalidReason;
-    //       state.init = false;
-    //     }
-    //     state.confirming = false;
-    //   },
-    //   onTxFailed: () => {
-    //     state.confirming = false;
-    //     emit('failed');
-    //   },
-    // });
-  }
-
-  console.log('currentActionIndex', currentActionIndex)
   return (
     <div>
       {actions.length > 1 ? <HorizSteps steps={steps} /> : null}
       <NavigationButtons>
         <BackButton onClick={goBack}>Back</BackButton>
-        <NextButton onClick={() => currentAction?.promise()}>{currentAction?.label}</NextButton>
+        <NextButton onClick={() => currentAction?.promise()} disabled={loading}>
+          {loading ? <Loader /> : null}
+          {currentAction?.label}
+        </NextButton>
       </NavigationButtons>
     </div>
   )
