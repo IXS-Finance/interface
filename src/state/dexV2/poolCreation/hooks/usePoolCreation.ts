@@ -411,7 +411,7 @@ export const usePoolCreation = () => {
     })
     // @ts-ignore
     const receipt: any = await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
-
+debugger;
     if (receipt) {
       retrievePoolAddress(receipt)
     }

@@ -60,8 +60,27 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   const { needsSeeding, poolId } = usePoolCreationState()
 
   const [currentActionIndex, setCurrentActionIndex] = useState(0)
-  const [actionStates, setActionStates] = useState<TransactionActionState[]>([])
-  const [actions, setActions] = useState<BalStepAction[]>([])
+  const [actionStates, setActionStates] = useState<TransactionActionState[]>(
+    requiredActions.map(() => ({ ...defaultActionState }))
+  )
+
+  const actions: BalStepAction[] = requiredActions.map((actionInfo, idx) => {
+    const actionState = actionStates[idx]
+    return {
+      label: actionInfo.label,
+      loadingLabel: actionState.init ? actionInfo.loadingLabel : actionInfo.confirmingLabel,
+      pending: actionState.init || actionState.confirming,
+      isSignAction: actionInfo.isSignAction,
+      promise: submit.bind(null, actionInfo, actionState),
+      step: {
+        tooltip: actionInfo.stepTooltip,
+        state: getStepState(actionState, idx),
+      },
+    }
+  })
+  const steps: Step[] = actions.map((action) => action.step)
+
+  const currentAction: BalStepAction | undefined = actions[currentActionIndex]
 
   function getStepState(actionState: TransactionActionState, index: number): StepState {
     if (currentActionIndex < index) return StepState.Todo
@@ -72,7 +91,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   }
 
   async function submit(actionInfo: TransactionActionInfo, state: TransactionActionState): Promise<void> {
-    const { action } = actionInfo
+    const { action, postActionValidation } = actionInfo
     try {
       state.init = true
       state.error = null
@@ -84,6 +103,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
         await createPool()
       } else {
         await action()
+        await postActionValidation?.();
       }
       setCurrentActionIndex(currentActionIndex + 1)
       state.init = false
@@ -96,40 +116,43 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     }
   }
 
-  const steps = useMemo((): Step[] => actions.map((action) => action.step), [JSON.stringify(actions)])
-
-  const currentAction = useMemo(
-    (): BalStepAction | undefined => actions[currentActionIndex],
-    [currentActionIndex, JSON.stringify(actions)]
-  )
-
-  useEffect(() => {
-    const newActionStates = requiredActions.map(() => ({
-      ...defaultActionState,
-    }))
-
-    const newActions = requiredActions.map((actionInfo, idx) => {
-      const actionState = newActionStates[idx]
-
-      return {
-        label: actionInfo.label,
-        loadingLabel: actionState.init ? actionInfo.loadingLabel : actionInfo.confirmingLabel,
-        pending: actionState.init || actionState.confirming,
-        isSignAction: actionInfo.isSignAction,
-        promise: submit.bind(null, actionInfo, actionState),
-        step: {
-          tooltip: actionInfo.stepTooltip,
-          state: getStepState(actionState, idx),
-        },
-      }
-    })
-    setActionStates(newActionStates)
-    setActions(newActions)
-  }, [JSON.stringify(requiredActions), poolId])
+  async function handleTransaction(
+    // tx: TransactionResponse,
+    state: TransactionActionState,
+    actionInfo: TransactionActionInfo
+  ): Promise<void> {
+    // const { postActionValidation, actionInvalidReason } = actionInfo;
+    // await txListener(tx, {
+    //   onTxConfirmed: async (receipt: TransactionReceipt) => {
+    //     state.receipt = receipt;
+    //     await postConfirmationDelay(tx);
+    //     const isValid = await postActionValidation?.();
+    //     if (isValid || !postActionValidation) {
+    //       const confirmedAt = await getTxConfirmedAt(receipt);
+    //       state.confirmedAt = dateTimeLabelFor(confirmedAt);
+    //       state.confirmed = true;
+    //       if (currentActionIndex.value >= actions.value.length - 1) {
+    //         emit('success', receipt, state.confirmedAt);
+    //       } else {
+    //         currentActionIndex.value += 1;
+    //       }
+    //     } else {
+    //       // post action validation failed, display reason.
+    //       if (actionInvalidReason) state.error = actionInvalidReason;
+    //       state.init = false;
+    //     }
+    //     state.confirming = false;
+    //   },
+    //   onTxFailed: () => {
+    //     state.confirming = false;
+    //     emit('failed');
+    //   },
+    // });
+  }
 
   return (
     <div>
-      {actions.length > 1 ? <HorizSteps steps={steps} /> : null}{' '}
+      {actions.length > 1 ? <HorizSteps steps={steps} /> : null}
       <NavigationButtons>
         <BackButton onClick={goBack}>Back</BackButton>
         <NextButton onClick={() => currentAction?.promise()}>{currentAction?.label}</NextButton>
