@@ -20,6 +20,7 @@ type BalStepAction = {
 }
 
 interface ActionStepsProps {
+  currentActionIndex: number
   requiredActions: TransactionActionInfo[]
   primaryActionType: TransactionAction
   disabled?: boolean
@@ -30,6 +31,7 @@ interface ActionStepsProps {
   // for all steps
   loadingLabel?: string
   goBack: () => void
+  setCurrentActionIndex: any
 }
 
 type StepAction = {
@@ -49,17 +51,19 @@ const defaultActionState: TransactionActionState = {
 }
 
 const ActionSteps: React.FC<ActionStepsProps> = ({
+  currentActionIndex,
   disabled = false,
   isLoading = false,
   loadingLabel = '',
   requiredActions,
   goBack,
+  setCurrentActionIndex,
 }) => {
   const { formatErrorMsg } = useErrorMsg()
   const { hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
   const { needsSeeding, poolId } = usePoolCreationState()
 
-  const [currentActionIndex, setCurrentActionIndex] = useState(0)
+
   const [actionStates, setActionStates] = useState<TransactionActionState[]>(
     requiredActions.map(() => ({ ...defaultActionState }))
   )
@@ -105,6 +109,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
         await action()
         await postActionValidation?.();
       }
+      debugger;
       setCurrentActionIndex(currentActionIndex + 1)
       state.init = false
       state.confirming = true
@@ -150,6 +155,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     // });
   }
 
+  console.log('currentActionIndex', currentActionIndex)
   return (
     <div>
       {actions.length > 1 ? <HorizSteps steps={steps} /> : null}
