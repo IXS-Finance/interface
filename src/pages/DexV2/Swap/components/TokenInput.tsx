@@ -1,12 +1,21 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 
+import TokenSelectInput from '../../common/TokenSelectInput'
+import { Flex } from 'rebass'
+
 interface TokenInputProps {}
 
 const TokenInput: React.FC<TokenInputProps> = () => {
+  const [_address, setAddress] = useState<any>('')
+  const [excludedTokens, setExcludedTokens] = useState<string[]>([])
+
+  const updateAddress = (address: string) => {
+    setAddress(address)
+  }
   return (
     <Container>
-      <div>
+      <Flex justifyContent="space-between" alignItems="center">
         <StyledInput
           placeholder="0.00"
           min="0"
@@ -18,7 +27,11 @@ const TokenInput: React.FC<TokenInputProps> = () => {
           value={''}
           onChange={(e) => {}}
         />
-      </div>
+
+        <TokenSelectInput modelValue={_address} excludedTokens={excludedTokens} updateAddress={updateAddress} />
+      </Flex>
+
+      <FiatValue>$0.00</FiatValue>
     </Container>
   )
 }
@@ -31,9 +44,7 @@ const Container = styled.div`
   display: flex;
   padding: 16px;
   flex-direction: column;
-  align-items: center;
   gap: 8px;
-  align-self: stretch;
 `
 
 const StyledInput = styled.input`
@@ -44,9 +55,18 @@ const StyledInput = styled.input`
   font-weight: 600;
   line-height: normal;
   letter-spacing: -0.84px;
-  text-align: right;
+  text-align: left;
   outline: none;
   border: none;
   background: transparent;
   min-width: 50px;
+  max-width: 185px;
+`
+
+const FiatValue = styled.div`
+  color: #b8b8d2;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: -0.42px;
 `

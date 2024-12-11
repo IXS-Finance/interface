@@ -42,7 +42,7 @@ const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue, exclude
             <span>{token.symbol}</span>
           </TokenSelected>
         ) : (
-          <span>Select token</span>
+          <SelectText>Select token</SelectText>
         )}
 
         <ChevDown />
@@ -76,4 +76,13 @@ const TokenSelected = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+`
+
+const SelectText = styled.span`
+  color: rgba(102, 102, 255, 0.9);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
 `
