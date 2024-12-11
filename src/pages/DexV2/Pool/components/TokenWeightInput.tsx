@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import TokenSelectInput from './TokenSelectInput'
+import TokenSelectInput from '../../common/TokenSelectInput'
 
 import { ReactComponent as Lock } from 'assets/images/dex-v2/lock.svg'
 import { ReactComponent as Unlock } from 'assets/images/dex-v2/unlock.svg'
