@@ -1,12 +1,17 @@
 import React, { useState } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
+import { useAccount } from 'wagmi'
 
 import settingIcon from 'assets/images/dex-v2/setting.svg'
 import chainIcon from 'assets/images/dex-v2/chain.svg'
 import NetworkSelect from './components/NetworkSelect'
+import SwapPair from './components/SwapPair'
+import { ButtonPrimary } from '../common'
 
 const Swap: React.FC = () => {
+  const { address: account } = useAccount()
+
   return (
     <Container>
       <Flex justifyContent="space-between" alignItems="center">
@@ -27,6 +32,10 @@ const Swap: React.FC = () => {
       <div>
         <NetworkSelect />
       </div>
+
+      <SwapPair />
+
+      <div>{account ? <ButtonPrimary>Next</ButtonPrimary> : <ButtonPrimary>Connect Wallet</ButtonPrimary>}</div>
     </Container>
   )
 }
