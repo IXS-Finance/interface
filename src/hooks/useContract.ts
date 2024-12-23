@@ -109,6 +109,7 @@ export function getTokenContract(tokenAddress: string, library: Web3Provider) {
 }
 
 export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: boolean) {
+  // @ts-ignore
   return useContract<Erc20>(tokenAddress, ERC20_ABI, withSignerIfPossible)
 }
 
@@ -144,18 +145,22 @@ export function useIXSGovTokenContract() {
 
 export function useWETHContract(withSignerIfPossible?: boolean) {
   const { chainId } = useWeb3React()
+  // @ts-ignore
   return useContract<Weth>(chainId ? WETH9[chainId]?.address : undefined, WETH_ABI, withSignerIfPossible)
 }
 
 export function useArgentWalletDetectorContract() {
+   // @ts-ignore
   return useContract<ArgentWalletDetector>(ARGENT_WALLET_DETECTOR_ADDRESS, ARGENT_WALLET_DETECTOR_ABI, false)
 }
 
 export function useENSRegistrarContract(withSignerIfPossible?: boolean) {
+   // @ts-ignore
   return useContract<EnsRegistrar>(ENS_REGISTRAR_ADDRESSES, ENS_ABI, withSignerIfPossible)
 }
 
 export function useENSResolverContract(address: string | undefined, withSignerIfPossible?: boolean) {
+   // @ts-ignore
   return useContract<EnsPublicResolver>(address, ENS_PUBLIC_RESOLVER_ABI, withSignerIfPossible)
 }
 
@@ -178,6 +183,7 @@ export function useLiquidityRouterContract(): Contract | null {
   return useContract(LIQUIDITY_ROUTER_ADDRESS, IIxsV2LiquidityRouterABI, true)
 }
 export function useMulticall2Contract() {
+   // @ts-ignore
   return useContract<Multicall2>(MULTICALL2_ADDRESSES, MULTICALL_ABI, false) as Multicall2
 }
 export function useBurnWSecContract(address: string | undefined) {

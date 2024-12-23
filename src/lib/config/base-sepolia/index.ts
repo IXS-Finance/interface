@@ -4,6 +4,7 @@ import keys from './keys';
 import tokens from './tokens';
 import pools from './pools';
 import rateProviders from './rateProviders';
+import { getAlchemyUrlFor } from 'components/Web3Provider/constants';
 
 const config: Config = {
   key: '84532',
@@ -19,7 +20,7 @@ const config: Config = {
   unknown: false,
   visibleInUI: true,
   testNetwork: true,
-  rpc: `https://base-sepolia.infura.io/v3/${keys.infura}`,
+  rpc: getAlchemyUrlFor('base-sepolia'),
   ws: ``,
   explorer: 'https://sepolia.etherscan.io',
   explorerName: 'Etherscan',

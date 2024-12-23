@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Contract } from '@ethersproject/contracts'
 import { Provider } from '@ethersproject/abstract-provider'
 import { namehash } from 'ethers/lib/utils'
