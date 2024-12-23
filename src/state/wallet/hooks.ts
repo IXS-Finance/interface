@@ -33,6 +33,7 @@ export function useETHBalances(uncheckedAddresses?: (string | undefined)[]): {
   )
 
   const results = useSingleContractMultipleData(
+     // @ts-ignore
     multicallContract,
     'getEthBalance',
     addresses.map((address) => [address])
@@ -56,6 +57,7 @@ export function useSimpleTokenBalanceWithLoading(
   tokenAddress?: string
 ) {
   const tokenContract = useTokenContract(tokenAddress)
+   // @ts-ignore
   const balance = useSingleCallResult(tokenContract, 'balanceOf', [account ?? undefined])
   const value = balance?.result
   const amount = value && currency ? CurrencyAmount.fromRawAmount(currency, JSBI.BigInt(value.toString())) : undefined

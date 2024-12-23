@@ -42,7 +42,7 @@ export const CONNECTOR_ICON_OVERRIDE_MAP: { [id in string]?: string } = {
   [CONNECTION.SAFE_CONNECTOR_ID]: GNOSIS_ICON,
 }
 
-const getAlchemyUrlFor = (network: string) =>
+export const getAlchemyUrlFor = (network: string) =>
   process.env.REACT_APP_ALCHEMY_KEY ? `https://${network}.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_KEY}` : ''
 
 export const CHAINS: [Chain, ...Chain[]] = isTestnet
