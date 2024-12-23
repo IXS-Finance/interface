@@ -9,7 +9,6 @@ import {
   TransactionNotFoundError,
   TransactionReceipt,
   TransactionReceiptNotFoundError,
-
 } from 'viem'
 import { waitForTransactionReceipt } from '@wagmi/core'
 
@@ -163,4 +162,13 @@ export const retryWaitForTransaction = async ({ hash, confirmations }: { hash?: 
     return promise
   }
   return undefined
+}
+
+export const lsGet = (key: string, defaultValue: string) => {
+  const value = localStorage.getItem(key)
+  return value ? JSON.parse(value) : defaultValue
+}
+
+export const lsSet = (key: string, value: string) => {
+  localStorage.setItem(key, JSON.stringify(value))
 }
