@@ -12,6 +12,7 @@ export const balancer = new BalancerSDK({
 
 export async function fetchPoolsForSor() {
   console.time('fetchPoolsForSor')
-  await balancer.swaps.fetchPools()
+  const result = await balancer.swaps.fetchPools()
   console.timeEnd('fetchPoolsForSor')
+  console.log('fetchPoolsForSor', result)
 }

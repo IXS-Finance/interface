@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Box } from 'rebass'
+import styled from 'styled-components'
 
 import TokenInput from './TokenInput'
 
@@ -11,7 +12,7 @@ const SwapPair: React.FC<SwapPairProps> = () => {
       <div>
         <TokenInput />
       </div>
-
+      <div>Icon Swap</div>
       <Box mt={24}>
         <TokenInput />
       </Box>
@@ -20,3 +21,7 @@ const SwapPair: React.FC<SwapPairProps> = () => {
 }
 
 export default SwapPair
+
+const Container = styled.div`
+  position: relative;
+`

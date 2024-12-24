@@ -12,11 +12,6 @@ import SwapSettingsModal from './components/SwapSettingsModal'
 import { useSwapAssets } from 'state/dexV2/swap/useSwapAssets'
 import useNumbers from 'hooks/dex-v2/useNumbers'
 import { fetchPoolsForSor } from 'lib/balancer.sdk'
-import { getAlchemyUrlFor } from 'components/Web3Provider/constants'
-import { configService } from 'services/config/config.service'
-import { Network } from 'lib/config/types'
-// @ts-ignore
-import { BalancerSDK } from '@ixswap1/dex-v2-sdk'
 
 const Swap: React.FC = () => {
   const { address: account } = useAccount()
@@ -26,16 +21,7 @@ const Swap: React.FC = () => {
   const [isOpenSwapSettings, setOpenSwapSettings] = useState(false)
 
   useEffect(() => {
-    console.log({
-      network: configService.network.chainId as Network,
-      rpcUrl: getAlchemyUrlFor('base-sepolia'),
-    })
-    const balancer = new BalancerSDK({
-      network: configService.network.chainId as Network,
-      rpcUrl: getAlchemyUrlFor('base-sepolia'),
-    })
-   console.log('balancer', balancer)
-    // fetchPoolsForSor()
+    fetchPoolsForSor()
   }, [])
   return (
     <Container>
