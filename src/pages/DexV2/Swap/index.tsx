@@ -12,6 +12,7 @@ import SwapSettingsModal from './components/SwapSettingsModal'
 import { useSwapAssets } from 'state/dexV2/swap/useSwapAssets'
 import useNumbers from 'hooks/dex-v2/useNumbers'
 import { fetchPoolsForSor } from 'lib/balancer.sdk'
+import SwapDetail from './components/SwapDetail'
 
 const Swap: React.FC = () => {
   const { address: account } = useAccount()
@@ -47,6 +48,8 @@ const Swap: React.FC = () => {
       </div>
 
       <SwapPair />
+
+      <SwapDetail />
 
       <div>{account ? <ButtonPrimary>Next</ButtonPrimary> : <ButtonPrimary>Connect Wallet</ButtonPrimary>}</div>
     </Container>
