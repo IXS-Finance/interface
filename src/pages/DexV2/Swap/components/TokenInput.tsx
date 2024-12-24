@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
+import { Flex } from 'rebass'
 
 import TokenSelectInput from '../../common/TokenSelectInput'
-import { Flex } from 'rebass'
+import { ReactComponent as WalletIcon } from 'assets/images/dex-v2/wallet.svg'
 
 interface TokenInputProps {}
 
@@ -31,7 +32,13 @@ const TokenInput: React.FC<TokenInputProps> = () => {
         <TokenSelectInput modelValue={_address} excludedTokens={excludedTokens} updateAddress={updateAddress} />
       </Flex>
 
-      <FiatValue>$0.00</FiatValue>
+      <Flex justifyContent="space-between" alignItems="center">
+        <StyledNumber>$0.00</StyledNumber>
+        <Flex alignItems="center" style={{ gap: 8 }}>
+          <StyledNumber>346.93</StyledNumber>
+          <WalletIcon />
+        </Flex>
+      </Flex>
     </Container>
   )
 }
@@ -63,7 +70,7 @@ const StyledInput = styled.input`
   max-width: 185px;
 `
 
-const FiatValue = styled.div`
+const StyledNumber = styled.div`
   color: #b8b8d2;
   font-size: 14px;
   font-style: normal;

@@ -37,8 +37,9 @@ const SwapIconWrapper = styled.div`
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
+  box-shadow: 0px 0px 64px 0px rgba(102, 102, 255, 0.1);
 `
