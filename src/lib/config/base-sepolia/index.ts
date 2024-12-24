@@ -25,7 +25,7 @@ const config: Config = {
   explorer: 'https://sepolia.etherscan.io',
   explorerName: 'Etherscan',
   subgraph:
-    'https://api.studio.thegraph.com/query/24660/balancer-sepolia-v2/version/latest',
+    'https://api.studio.thegraph.com/query/80624/balancer-sepolia/version/latest',
   poolsUrlV2: '',
   subgraphs: {
     main: [
