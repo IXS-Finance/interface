@@ -196,6 +196,7 @@ export function colors(configColors?: WlColors): Colors {
     blue2: '#5199FF',
     blue3: '#5B7BCF',
     blue4: '#48A1F3',
+    blue5: '#B8B8D2',
 
     orange1: '#FF6D41',
     orange2: '#FFAD31',
