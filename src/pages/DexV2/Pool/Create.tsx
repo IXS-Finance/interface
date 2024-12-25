@@ -15,6 +15,8 @@ import PreviewPool from './Steps/PreviewPool'
 import { useDispatch } from 'react-redux'
 import { useTokensState } from 'state/dexV2/tokens/hooks'
 import { fetchTokensAllowwances } from 'state/dexV2/tokens'
+import PoolSummary from './components/PoolSummary'
+import TokenPrices from './components/TokenPrices'
 
 const Create: React.FC = () => {
   const { chainId, account } = useWeb3React()
@@ -59,7 +61,10 @@ const Create: React.FC = () => {
             {activeStep === StepIds.ConfirmPoolCreation ? <PreviewPool /> : null}
           </Card>
         </CenterContent>
-        <RightContent></RightContent>
+        <RightContent>
+          <PoolSummary />
+          <TokenPrices />
+        </RightContent>
       </LayoutContainer>
     </WidthFull>
   )
