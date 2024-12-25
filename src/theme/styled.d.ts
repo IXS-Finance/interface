@@ -116,6 +116,7 @@ export interface Colors {
   blue2: Color
   blue3: Color
   blue4: Color
+  blue5: Color
 
   // orange
   orange1: Color
