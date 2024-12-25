@@ -42,4 +42,5 @@ const SwapIconWrapper = styled.div`
   justify-content: center;
   align-items: center;
   box-shadow: 0px 0px 64px 0px rgba(102, 102, 255, 0.1);
+  cursor: pointer;
 `
