@@ -69,6 +69,7 @@ const TenantPage = lazy(() => import('./Tenant'))
 const CreateTenantPage = lazy(() => import('./Tenant/TenantForm'))
 
 const DexV2CreatePool = lazy(() => import('pages/DexV2/Pool/Create'))
+const DexV2Pool = lazy(() => import('pages/DexV2/Pool/List'))
 
 export interface RouteMapEntry {
   path: string
@@ -169,6 +170,7 @@ export const routeConfigs: RouteMapEntry[] = [
   { path: '/add/:currencyIdA?/:currencyIdB?', component: RedirectDuplicateTokenIdsV2 },
   { path: '/remove/:currencyIdA/:currencyIdB', component: RemoveLiquidity },
   { path: routes.dexV2CreatePool, component: DexV2CreatePool },
+  { path: routes.dexV2Pools, component: DexV2Pool },
   { path: routes.faucet, component: Faucet },
 
   { path: routes.securityToken(), component: SecTokenDetails },
