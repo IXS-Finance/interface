@@ -126,6 +126,17 @@ const RightContent = styled.div`
   @media (min-width: 1024px) {
     display: block;
   }
+
+  display: flex;
+  width: 334px;
+  padding: 48px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(40px);
 `
 
 const Card = styled.div`
