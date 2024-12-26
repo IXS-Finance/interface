@@ -84,7 +84,6 @@ export class SorManager {
       const v2result = await this.sorV2.fetchPools()
       this.fetchStatus.v2finishedFetch = true
       this.fetchStatus.v2success = v2result
-
       if (!v2result) {
         console.log({
           error: new Error('SOR Fetch pools failed'),

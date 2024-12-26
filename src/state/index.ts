@@ -42,6 +42,7 @@ import jumpTask from './jumpTask'
 import poolCreation from './dexV2/poolCreation'
 import tokenLists from './dexV2/tokenLists'
 import tokens from './dexV2/tokens'
+import swapDexV2 from './dexV2/swap'
 
 const PERSISTED_KEYS: string[] = ['auth', 'lists', 'swap', 'swapHelper', 'transactions', 'user', 'wallet', 'global']
 
@@ -90,6 +91,7 @@ const combinedReducer = combineReducers({
   poolCreation,
   tokenLists,
   tokens,
+  swapDexV2,
 })
 
 const rootReducer = (state: any, action: any) => {

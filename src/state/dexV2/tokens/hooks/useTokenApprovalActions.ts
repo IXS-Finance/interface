@@ -113,7 +113,6 @@ export default function useTokenApprovalActions() {
    */
   async function approveToken({ token, normalizedAmount, spender, actionType, forceMax = false }: ApproveTokenParams) {
     const amount = forceMax ? MaxUint256.toString() : parseUnits(normalizedAmount, token.decimals).toString()
-    debugger;
     const address = token.address as Address
     const spenderAddress = spender as Address
 

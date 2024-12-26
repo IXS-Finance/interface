@@ -112,7 +112,6 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     } catch (error: any) {
       console.error('Error submitting action', error?.message)
       const errorMsg = formatErrorMsg(error?.message)
-      debugger;
       if (errorMsg) {
         toast.error(errorMsg.title)
       }
