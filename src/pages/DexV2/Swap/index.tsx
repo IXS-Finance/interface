@@ -11,18 +11,33 @@ import { ButtonPrimary } from '../common'
 import SwapSettingsModal from './components/SwapSettingsModal'
 import { useSwapAssets } from 'state/dexV2/swap/useSwapAssets'
 import useNumbers from 'hooks/dex-v2/useNumbers'
-import { fetchPoolsForSor } from 'lib/balancer.sdk'
 import SwapDetail from './components/SwapDetail'
+import usePoolFilters from 'state/dexV2/swap/usePoolFilters'
+import { useSwapState } from 'state/dexV2/swap/useSwapState'
+import useSor from 'state/dexV2/swap/useSor'
 
 const Swap: React.FC = () => {
   const { address: account } = useAccount()
   const { inputAsset, outputAsset } = useSwapAssets()
   const { fNum } = useNumbers()
+  const { setSelectedTokens } = usePoolFilters()
+  const {
+    tokenInAddress,
+    tokenOutAddress,
+    tokenInAmount,
+    tokenOutAmount,
+    setTokenInAddress,
+    setTokenOutAddress,
+    setTokenInAmount,
+    setTokenOutAmount,
+    setInitialized,
+  } = useSwapState()
 
   const [isOpenSwapSettings, setOpenSwapSettings] = useState(false)
+  const [exactIn, setExactIn] = useState(true)
 
   useEffect(() => {
-    fetchPoolsForSor()
+    setSelectedTokens([])
   }, [])
   return (
     <Container>
