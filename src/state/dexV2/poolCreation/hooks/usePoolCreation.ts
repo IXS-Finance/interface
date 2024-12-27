@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { BigNumber as EPBigNumber } from '@ethersproject/bignumber'
 import { simulateContract, waitForTransactionReceipt, writeContract } from '@wagmi/core'
@@ -27,7 +27,7 @@ import {
 } from '..'
 import { PoolSeedToken } from 'pages/DexV2/types'
 import { usePoolCreationState } from '.'
-import { bnum, isSameAddress, retryWaitForTransaction, scale, toNormalizedWeights, userRejectedError } from 'lib/utils'
+import { bnum, isSameAddress, retryWaitForTransaction, scale, toNormalizedWeights } from 'lib/utils'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { wagmiConfig } from 'components/Web3Provider'
 import { useWeb3React } from 'hooks/useWeb3React'
@@ -35,7 +35,9 @@ import config from 'lib/config'
 import WeightedPoolFactoryV4Abi from 'lib/abi/WeightedPoolFactoryV4.json'
 import { ZERO_ADDRESS } from 'constants/misc'
 import { generateSalt } from 'lib/utils/random'
-import { retry, RetryableError } from 'lib/utils/retry'
+import { useSubgraphQueryLegacy, useSubgraphQuery } from 'hooks/useSubgraphQuery'
+import { SUBGRAPH_QUERY } from 'constants/subgraph'
+import { isAddress } from 'utils'
 
 export type OptimisedLiquidity = {
   liquidityRequired: string
@@ -217,16 +219,18 @@ export const usePoolCreation = () => {
   function getPoolSymbol() {
     let valid = true
 
-    const tokenSymbols = seedTokens.map((token: PoolSeedToken) => {
-      const weightRounded = Math.round(token.weight)
-      const tokenInfo = getToken(token.tokenAddress)
-      if (!tokenInfo) {
-        valid = false
-      }
-      return tokenInfo ? `${Math.round(weightRounded)}${tokenInfo.symbol}` : ''
-    })
+    const tokenSymbols = seedTokens?.
+      filter(token => isAddress(token.tokenAddress))
+      .map((token: PoolSeedToken) => {
+        const weightRounded = Math.round(token.weight)
+        const tokenInfo = getToken(token.tokenAddress)
+        if (!tokenInfo) {
+          valid = false
+        }
+        return tokenInfo ? `${Math.round(weightRounded)}${tokenInfo.symbol}` : ''
+      })
 
-    return valid ? tokenSymbols.join('-') : ''
+    return valid && tokenSymbols ? tokenSymbols.join('-') : ''
   }
 
   function getAmounts() {
@@ -377,7 +381,7 @@ export const usePoolCreation = () => {
     // @ts-ignore
     const txHash = await writeContract(wagmiConfig, request)
 
-   await retryWaitForTransaction({
+    await retryWaitForTransaction({
       hash: txHash,
       confirmations: 10,
     })
@@ -390,6 +394,37 @@ export const usePoolCreation = () => {
 
     return txHash
   }
+
+  const similarPoolsVariables = useMemo(() => {
+    return {
+      tokensList,
+    }
+  }, [tokensList])
+  const similarPoolsResp = useSubgraphQuery({
+    queryKey: ['GetSimilarPools', SUBGRAPH_QUERY.POOLS, chainId, similarPoolsVariables],
+    feature: SUBGRAPH_QUERY.POOLS,
+    chainId,
+    query: `
+      query GetSimilarPools(
+        $tokensList: [Bytes!],
+      ) {
+        pools(
+          where: {
+            totalLiquidity_gt: "0",
+            tokensList_contains: $tokensList,
+          },
+          first: 1,
+        ) {
+          address
+          id
+          totalSwapVolume
+          totalLiquidity
+        }
+      }
+    `,
+    variables: similarPoolsVariables,
+    enabled: tokensList.filter(address => isAddress(address)).length > 1,
+  })
 
   return {
     hasRestoredFromSavedState,
@@ -411,5 +446,6 @@ export const usePoolCreation = () => {
     joinPool,
     removeTokenWeights,
     tokensList,
+    similarPoolsResp: similarPoolsResp,
   }
 }

@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react"
 import { AbstractOrder } from "state/launchpad/types"
-import { useSubgraphQuery } from "hooks/useSubgraphQuery";
+import { useSubgraphQueryLegacy } from "hooks/useSubgraphQuery";
 import { SUBGRAPH_QUERY } from "constants/subgraph";
 import { usePoolFilter } from "./FilterProvider";
 import { adminOffset } from "state/admin/constants";
@@ -47,7 +47,7 @@ export const usePoolList = () => {
     skip: page * adminOffset,
   }), [orderBy, orderDirection, adminOffset, page])
 
-  const subgraphData = useSubgraphQuery({
+  const subgraphData = useSubgraphQueryLegacy({
     feature: SUBGRAPH_QUERY.POOLS,
     chainId: filters.network,
     query: `

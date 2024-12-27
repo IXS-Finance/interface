@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 import { AreaChart, XAxis, YAxis, Tooltip, DefaultTooltipContent, Area } from 'recharts'
 import styled from 'styled-components'
 import { useWeb3React } from 'hooks/useWeb3React'
-import { useSubgraphQuery } from 'hooks/useSubgraphQuery'
+import { useSubgraphQueryLegacy } from 'hooks/useSubgraphQuery'
 import { unixTimeToFormat } from 'utils/time'
 import { getPrice, getDecayAtStep } from '../utils/calculation'
 import { MEDIA_WIDTHS } from 'theme'
@@ -73,7 +73,7 @@ export default function DetailsChart({
 
   if (!chainId || !account) return null
 
-  const subgraphData = useSubgraphQuery({
+  const subgraphData = useSubgraphQueryLegacy({
     feature: 'LBP',
     chainId,
     query: composeHistoricalPriceQuery(contractAddress?.toLowerCase() || ''),
