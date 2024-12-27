@@ -7,7 +7,7 @@ import { RowBetween as OriginalRowBetween } from 'components/Row'
 import { MEDIA_WIDTHS, TYPE } from 'theme'
 import { LbpFormValues, LbpStatus, MarketData } from '../types'
 import { useFormatNumberWithDecimal } from 'state/lbp/hooks'
-import { useSubgraphQuery } from 'hooks/useSubgraphQuery'
+import { useSubgraphQueryLegacy } from 'hooks/useSubgraphQuery'
 import { useActiveWeb3React } from 'hooks/web3'
 import { isMobile } from 'react-device-detect'
 
@@ -37,7 +37,7 @@ const StatisticData: React.FC<MiddleSectionProps> = ({ statsData, lbpData, isAdm
   if (!chainId || !account) return null
 
   const lbpAddress = _get(lbpData, 'contractAddress', '')
-  const subgraphData = useSubgraphQuery({
+  const subgraphData = useSubgraphQueryLegacy({
     feature: 'LBP',
     chainId,
     query: composeLbpVolumeQuery(lbpAddress?.toLowerCase()),

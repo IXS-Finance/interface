@@ -20,7 +20,7 @@ const BalAlert: React.FC<AlertProps> = ({ type = 'info', title = 'A title messag
   return (
     <Alert type={type}>
       <AlertContainer>
-        <AlertTitle>
+        <AlertTitle style={{ marginBottom: children ? '8px' : '0' }}>
           <Img src={icon[type]} alt="icon" width={16} height={16} /> {title}
         </AlertTitle>
         <AlertDescription>{children}</AlertDescription>
@@ -80,7 +80,6 @@ const AlertTitle = styled.div`
   font-weight: 500;
   line-height: normal;
   letter-spacing: -0.42px;
-  margin-bottom: 8px;
 `
 
 const Img = styled.img`
