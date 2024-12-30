@@ -1,7 +1,8 @@
 import React from 'react'
-import styled, { css } from 'styled-components'
+import styled, { css, useTheme } from 'styled-components'
 
-import warningIcon from 'assets/images/dex-v2/warning.svg'
+import { ReactComponent as warningIcon } from 'assets/images/dex-v2/warning.svg'
+import { Flex } from 'rebass'
 
 interface AlertProps {
   type: 'tip' | 'warning' | 'error' | 'default'
@@ -16,13 +17,18 @@ const BalAlert: React.FC<AlertProps> = ({ type = 'info', title = 'A title messag
     error: '',
     default: '',
   } as any
+  const Icon = icon[type]
+  const theme = useTheme()
 
   return (
     <Alert type={type}>
       <AlertContainer>
-        <AlertTitle style={{ marginBottom: children ? '8px' : '0' }}>
-          <Img src={icon[type]} alt="icon" width={16} height={16} /> {title}
-        </AlertTitle>
+        <Flex alignItems='center' mb={children ? '8px' : '0'} style={{ gap: 4 }}>
+          <Icon width={16} height={16} color={theme.red5} />
+          <AlertTitle>
+            {title}
+          </AlertTitle>
+        </Flex>
         <AlertDescription>{children}</AlertDescription>
       </AlertContainer>
     </Alert>
@@ -80,12 +86,6 @@ const AlertTitle = styled.div`
   font-weight: 500;
   line-height: normal;
   letter-spacing: -0.42px;
-`
-
-const Img = styled.img`
-  width: 16px;
-  height: 16px;
-  margin-bottom: -2px;
 `
 
 const AlertDescription = styled.div`

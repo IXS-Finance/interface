@@ -182,6 +182,7 @@ export function colors(configColors?: WlColors): Colors {
     red4: '#FF9999',
     red41: 'rgba(255, 153, 153, 0.1)',
     red45: 'rgba(255, 153, 153, 0.5)',
+    red5: '#FF8080',
     green1: wlColors.status?.success || '#0ECC88',
     green2: '#9DF9B1B2',
     green3: '#9DF9B1B3',

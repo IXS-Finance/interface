@@ -3,6 +3,8 @@ import { constructSameAddressMap } from '../utils/constructSameAddressMap'
 import { SupportedChainId } from './chains'
 import { isProd } from 'utils/isEnvMode'
 
+type ContractAddressRecord = Record<number, string>
+
 export const MULTICALL2_ADDRESSES = {
   [1]: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   [4]: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
@@ -228,3 +230,7 @@ export const LBP_FACTORY_ADDRESS = {
   [84532]: '0x50629ad11a66Da346364F96695BD5F299a70664B',
   [8453]: isProd ? '' : '0x63872f91dC88E44b61B991c73BEf8cC1672c3614', // TODO: add base chain
 } as Record<number, string>
+
+export const VOTING_ESCROW_ADDRESS = {
+  [84532]: '0x72Dc60450Daf5c72d2b6b9a52f4Db7321Ffdb7Ad', // base sepolia
+} as ContractAddressRecord
