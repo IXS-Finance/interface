@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import styled from 'styled-components'
+import styled, { useTheme } from 'styled-components'
 import { Flex } from 'rebass'
 
 import { ReactComponent as WalletIcon } from 'assets/images/dex-v2/wallet.svg'
@@ -23,6 +23,7 @@ interface TokenInputProps {
 }
 
 const TokenInput: React.FC<TokenInputProps> = (props) => {
+  const theme = useTheme()
   const { getToken, balanceFor } = useTokens()
   const { weight = 0, address = '', rules = [], ignoreWalletBalance = false, amount, updateAmount } = props
 
@@ -121,7 +122,7 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
         {errors.length > 0 ? (
           <FlexBalance>
             <ErrorText>{errors[0]}</ErrorText>
-            <WarningIcon />
+            <WarningIcon color={theme.red5} />
           </FlexBalance>
         ) : null}
       </Flex>
