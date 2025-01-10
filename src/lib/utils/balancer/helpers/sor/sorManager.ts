@@ -1,4 +1,3 @@
-// @ts-ignore
 import { PoolFilter, SOR as SORV2, SubgraphPoolBase, SwapInfo, SwapOptions, SwapTypes } from '@ixswap1/dex-v2-sdk'
 import { BigNumber } from '@ethersproject/bignumber'
 import { AddressZero } from '@ethersproject/constants'

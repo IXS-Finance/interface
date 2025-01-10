@@ -1,5 +1,6 @@
-import BigNumber from 'bignumber.js';
-import { bnum } from 'lib/utils';
+import BigNumber from 'bignumber.js'
+import { bnum } from 'lib/utils'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 export enum FiatCurrency {
   usd = 'usd',
@@ -36,19 +37,19 @@ export const FNumFormats: Record<string, FNumOptions> = {
   fiat: {
     style: 'currency',
   },
-};
+}
 
 /**
  * @summary Returns processed percent, which is > 1000.
  * @example formatBigPercent('1337.23%');  // => '1,337%'
  */
 export function formatBigPercent(percent: string): string {
-  const _percent = Number(percent.replace('%', ''));
+  const _percent = Number(percent.replace('%', ''))
 
   if (_percent >= 1000) {
-    return `${_percent.toFixed().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}%`;
+    return `${_percent.toFixed().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}%`
   }
-  return percent;
+  return percent
 }
 
 export function numF(
@@ -141,10 +142,17 @@ export function numF(
 }
 
 export default function useNumbers() {
+  const { priceFor } = useTokens()
+
+  function toFiat(amount: number | string, tokenAddress: string): string {
+    const price = priceFor(tokenAddress)
+    return bnum(amount).times(price).toString()
+  }
+
   function fNum(number: number | string, options: FNumOptions | undefined = {}): string {
     const _currency = FiatCurrency.usd
     return numF(number, options, _currency)
   }
 
-  return { fNum }
+  return { fNum, toFiat }
 }

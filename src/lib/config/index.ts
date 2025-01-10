@@ -3,7 +3,7 @@ import tokenBaseSepolia from 'assets/data/tokenlists/tokens-84532.json'
 
 import baseSepolia from './base-sepolia'
 
-const config: Record<Network | number, Config> = {
+const config: any = {
   [Network.BASE_SEPOLIA]: baseSepolia,
 }
 

@@ -2,17 +2,24 @@ import { useDispatch } from 'react-redux'
 
 import { getAddress } from '@ethersproject/address'
 import { bnum, getAddressFromPoolId, isSameAddress, selectByAddressFast } from 'lib/utils'
-import { TokenInfo } from 'types/TokenList'
+import { NativeAsset, TokenInfo } from 'types/TokenList'
 import { useTokensState } from '.'
 import { fetchTokensAllowwances, setSpenders } from '..'
 import { useWeb3React } from 'hooks/useWeb3React'
 import BigNumber from 'bignumber.js'
 import { AmountToApprove } from './useTokenApprovalActions'
+import useConfig from 'hooks/dex-v2/useConfig'
 
 export const useTokens = () => {
   const { tokens, balances, prices, spenders, allowances } = useTokensState()
   const dispatch = useDispatch()
   const { account } = useWeb3React()
+  const { networkConfig } = useConfig();
+
+  const nativeAsset: NativeAsset = {
+    ...networkConfig.nativeAsset,
+    chainId: networkConfig.chainId,
+  };
 
   /**
    * Returns the allowance for a token, scaled by token decimals
@@ -101,6 +108,31 @@ export const useTokens = () => {
   }
 
   /**
+   * Get max balance of token
+   * @param tokenAddress
+   * @param disableNativeAssetBuffer Optionally disable native asset buffer
+   */
+  function getMaxBalanceFor(
+    tokenAddress: string,
+    disableNativeAssetBuffer = false
+  ): string {
+    let maxAmount;
+    const tokenBalance = balanceFor(tokenAddress) || '0';
+    const tokenBalanceBN = bnum(tokenBalance);
+
+    if (tokenAddress === nativeAsset.address && !disableNativeAssetBuffer) {
+      // Subtract buffer for gas
+      maxAmount = tokenBalanceBN.gt(nativeAsset.minTransactionBuffer)
+        ? tokenBalanceBN.minus(nativeAsset.minTransactionBuffer).toString()
+        : tokenBalance.toString();
+    } else {
+      maxAmount = tokenBalance;
+    }
+    return maxAmount;
+  }
+
+
+  /**
    * Injects contract addresses that could possibly spend the users tokens into
    * the spenders map. E.g. This is used for injecting gauges into the map as they
    * must be allowed to spend a users BPT in order to stake the BPT in the gauge.
@@ -112,6 +144,9 @@ export const useTokens = () => {
   }
 
   return {
+    balances,
+    nativeAsset,
+    tokens,
     getToken,
     balanceFor,
     priceFor,
@@ -120,5 +155,6 @@ export const useTokens = () => {
     approvalsRequired,
     allowanceFor,
     approvalRequired,
+    getMaxBalanceFor,
   }
 }
