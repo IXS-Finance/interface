@@ -1,4 +1,3 @@
- // @ts-ignore
 import { BalancerSDK } from '@ixswap1/dex-v2-sdk'
 import { getAlchemyUrlFor } from 'components/Web3Provider/constants'
 import { Network } from 'lib/config/types'

@@ -1,4 +1,47 @@
+import debounce from 'lodash/debounce';
 import { TransactionError } from 'pages/DexV2/types/transactions'
+
+// interface Params {
+//   error: Error | unknown;
+//   action?: TransactionAction | 'unknown';
+//   msgPrefix?: string;
+//   context?: Partial<ScopeContext>;
+//   query?: UseQueryReturnType<any, any>;
+// }
+
+export const captureBalancerException = debounce(
+  _captureBalancerException,
+  1000
+);
+
+function _captureBalancerException({
+  error,
+  action = 'unknown',
+  msgPrefix = '',
+  context = {},
+  query,
+}: any): void {
+  // if (!shouldCaptureError(error, query)) return;
+  // console.error(error);
+
+  // const balError = getBalError(error);
+  // const message = formatErrorMsgForSentry(error, balError, msgPrefix);
+  // const metadata = (error as WalletError).metadata || {};
+  // const tags = getTags(action, context, balError, metadata);
+  // const originalError = getOriginalError(error);
+
+  // const _error = constructError(message, action, error);
+  // captureException(_error, {
+  //   ...context,
+  //   extra: {
+  //     ...context?.extra,
+  //     ...metadata,
+  //     balError,
+  //     originalError,
+  //   },
+  //   tags,
+  // });
+}
 
 /**
  * Checks if error is caused by user rejecting/canceling the transaction.
