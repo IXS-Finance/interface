@@ -1,9 +1,7 @@
 version: 0.1
 resources:
   build:
-    spec: {
-      "size": "BUILD_GENERAL1_MEDIUM"
-    }
+    spec: { "size": "BUILD_GENERAL1_MEDIUM" }
 frontend:
   phases:
     preBuild:
@@ -31,12 +29,13 @@ frontend:
         - if [ "${AWS_BRANCH}" = "staging-client-demo" ]; then cp -fv .env.staging-client-demo .env.test; fi
         - if [ "${AWS_BRANCH}" = "upgrade-wallet-connect" ]; then cp -fv .env.staging-client-demo .env.production; fi
         - if [ "${AWS_BRANCH}" = "upgrade-wallet-connect" ]; then cp -fv .env.staging-client-demo .env.test; fi
+        - if [ "${AWS_BRANCH}" = "v2" ]; then cp -fv .env.development .env.production; fi
         - node -v
         - yarn run build
   artifacts:
     baseDirectory: build
     files:
-      - '**/*'
+      - "**/*"
   cache:
     paths:
       - node_modules/**/*
