@@ -5,6 +5,7 @@ export type CommonTokens = {
   nativeAsset: string
   wNativeAsset: string
   WETH: string
+  USDC: string
 }
 
 export type TokenConstants = {

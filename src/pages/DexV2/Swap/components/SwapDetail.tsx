@@ -3,8 +3,13 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 import ChevronDown from 'assets/images/dex-v2/chev-down.svg'
 import InfoIcon from 'assets/images/dex-v2/info.svg'
+import { UseSwapping } from 'state/dexV2/swap/useSwapping'
 
-const SwapDetail: React.FC = () => {
+type Props = {
+  swapping: UseSwapping
+}
+
+const SwapDetail: React.FC<Props> = () => {
   return (
     <Container>
       <Flex justifyContent="space-between" alignItems="center" width="100%">

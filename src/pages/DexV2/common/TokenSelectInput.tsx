@@ -7,7 +7,7 @@ import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 interface TokenSelectInputProps {
   modelValue: string
-  excludedTokens: string[]
+  excludedTokens?: string[]
   updateAddress: (address: string) => void
 }
 

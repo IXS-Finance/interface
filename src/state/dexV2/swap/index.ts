@@ -1,5 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+const defaultSwapDeadlineMinutes = 100;
+
 export interface SwapState {
   inputAsset: any
   outputAsset: any
@@ -14,6 +16,7 @@ export interface SwapState {
   tokenOutAddress: string
   tokenInAmount: string
   tokenOutAmount: string
+  transactionDeadline: number
 }
 
 const initialState: SwapState = {
@@ -30,6 +33,7 @@ const initialState: SwapState = {
   tokenOutAddress: '',
   tokenInAmount: '',
   tokenOutAmount: '',
+  transactionDeadline: defaultSwapDeadlineMinutes,
 }
 
 const swapSlice = createSlice({
