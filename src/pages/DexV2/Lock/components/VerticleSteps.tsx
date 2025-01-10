@@ -1,27 +1,28 @@
 import React from 'react'
 import styled from 'styled-components'
-import { StepIds, StepLabels } from '../types'
+import { createLockSteps } from '../constants/processes'
+import { useLock } from '../LockProvider'
 
 interface VerticleStepsProps {
 }
 
 const VerticleSteps: React.FC<VerticleStepsProps> = () => {
-  const activeStep = StepIds.NotGranted
-  const steps: { [key in StepIds]: StepLabels } = {
-    [StepIds.NotGranted]: StepLabels.NotGranted,
-    [StepIds.Granting]: StepLabels.Granting,
-    [StepIds.Locking]: StepLabels.Locking,
-    [StepIds.Completed]: StepLabels.Completed,
-  }
+  const { step } = useLock()
 
   return (
     <Container>
-      {Object.entries(steps).map(([key, step], index) => (
-        <Step key={key}>
-          <Circle isActive={index === activeStep}>{index + 1}</Circle>
-          <StepLabel isActive={index === activeStep}>{step}</StepLabel>
-        </Step>
-      ))}
+      {createLockSteps.map(({ label, icon }, index) => {
+        const Icon = icon
+        const isActive = step >= index
+        return (
+          <Step key={label}>
+            <Circle isActive={isActive}>
+              <Icon />
+            </Circle>
+            <StepLabel isActive={isActive}>{label}</StepLabel>
+          </Step>
+        )
+      })}
     </Container>
   )
 }
@@ -44,12 +45,18 @@ const Circle = styled.div<{ isActive: boolean }>`
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: ${({ isActive }) => (isActive ? '#007bff' : 'rgba(102, 102, 255, 0.20)')};
+  background-color: ${({ isActive, theme }) => (isActive ? theme.bg26 : theme.white)};
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
+
+  svg {
+    path {
+      stroke: ${({ isActive, theme }) => (isActive ? theme.white : theme.blue5)};
+    }
+  }
 `
 
 const StepLabel = styled.div<{ isActive: boolean }>`

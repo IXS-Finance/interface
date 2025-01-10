@@ -1,13 +1,14 @@
 import { Slider } from "@mui/material"
-import { Box, Button, Flex } from "rebass"
+import { Box, Flex } from "rebass"
 import styled from "styled-components"
 import { TYPE } from "theme"
 import { useLock } from "../LockProvider"
-
-const WEEK = 604800
+import { FOUR_YEARS_IN_SECONDS, WEEK } from "../constants"
+import { formatAmount } from "utils/formatCurrencyAmount"
 
 const DurationSlider: React.FC = () => {
   const {
+    userInput,
     duration,
     setDuration,
   } = useLock()
@@ -34,12 +35,14 @@ const DurationSlider: React.FC = () => {
   }, ]
 
   const weekToShow = Math.round(duration / WEEK)
+  const durationLabel = `${weekToShow} ${weekToShow > 1 ? 'weeks' : 'week'}`
+  const votingPower = +userInput * duration / FOUR_YEARS_IN_SECONDS
 
   return (
     <Box>
       <Flex justifyContent="space-between" alignItems="center" mb={2}>
         <TYPE.subHeader1 color='blue5'>Lock Time</TYPE.subHeader1>
-        <TYPE.label>{weekToShow} {weekToShow > 1 ? 'weeks' : 'week'}</TYPE.label> 
+        <TYPE.label>{durationLabel}</TYPE.label> 
       </Flex>
 
       <StyledSlider
@@ -64,6 +67,12 @@ const DurationSlider: React.FC = () => {
           </TYPE.subHeader1>
         ))}
       </Flex>
+
+      <Box mt={4}>
+        <TYPE.body3>
+          Locking for <strong>{durationLabel}</strong> for {formatAmount(votingPower, 2)} veIXS voting power.
+        </TYPE.body3>
+      </Box>
     </Box>
   )
 }
