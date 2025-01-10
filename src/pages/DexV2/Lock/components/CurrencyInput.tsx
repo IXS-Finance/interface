@@ -6,14 +6,16 @@ import { Input as NumericalInput } from 'components/NumericalInput'
 import { useActiveWeb3React } from 'hooks/web3'
 import { Trans } from '@lingui/macro'
 import useTheme from 'hooks/useTheme'
-import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { formatCurrencySymbol } from 'utils/formatCurrencySymbol'
-import { useCurrencyBalance } from 'state/wallet/hooks'
+import { useCurrencyBalanceV2 } from 'state/wallet/hooks'
 import { TYPE } from 'theme'
 import { AssetLogo } from 'components/CurrencyInputPanel/AssetLogo'
 import { FiatValue } from 'components/CurrencyInputPanel/FiatValue'
 import { Flex } from 'rebass'
 import { Button } from '@mui/material'
+import { IXS_ADDRESS } from 'constants/addresses'
+import { DEFAULT_CHAIN_ID } from 'config'
+import { formatAmount } from 'utils/formatCurrencyAmount'
 
 interface CurrencyInputPanelProps {
   value: string
@@ -33,8 +35,14 @@ export default function CurrencyInputPanel({
   priceImpact,
   ...rest
 }: CurrencyInputPanelProps) {
-  const { account } = useActiveWeb3React()
-  const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+  const { account, chainId } = useActiveWeb3React()
+  const currencyBalance = useCurrencyBalanceV2({
+    account,
+    chainId,
+    currency: IXS_ADDRESS[chainId ?? DEFAULT_CHAIN_ID],
+  })
+  const selectedCurrencyBalance = currencyBalance?.formatted
+  
   const theme = useTheme()
   const decimals = currency?.tokenInfo?.decimals || 18
   const onChangeInput = (val: string) => {
@@ -93,7 +101,7 @@ export default function CurrencyInputPanel({
                     <Trans>
                       Balance:
                       <span style={{ color: '#292933', fontWeight: 600, marginLeft: 4 }}>
-                        {formatCurrencyAmount(selectedCurrencyBalance, decimals)} {currency.symbol}
+                        {formatAmount(+selectedCurrencyBalance)}
                       </span>
                     </Trans>
                   ) : null}

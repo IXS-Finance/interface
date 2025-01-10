@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from 'react'
-import styled from 'styled-components'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
-import { utils } from 'ethers'
 import { Flex } from 'rebass'
 import { Currency, CurrencyAmount } from '@ixswap1/sdk-core'
+import styled from 'styled-components'
 import { Line } from '../../Pool/Create'
 import { useWeb3React } from 'hooks/useWeb3React'
 import CurrencyInput from './CurrencyInput'
@@ -12,51 +11,58 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import DurationSlider from './DurationSlider'
 import LockExplanation from './LockExplanation'
-import { ApprovalState, useAllowance } from 'hooks/useApproveCallback'
-import { IXS_ADDRESS, VOTING_ESCROW_ADDRESS } from 'constants/addresses'
+import { ApprovalState } from 'hooks/useApproveCallback'
 import useIXSCurrency from 'hooks/useIXSCurrency'
+import { PinnedContentButton } from 'components/Button'
+import { ReactComponent as CheckedIcon } from 'assets/images/checked-green.svg'
 
 const LockContent: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false)
   const {
     userInput,
     setUserInput,
+    handleLock,
+    approvalState,
+    approve,
+    locked,
   } = useLock()
   const currency = useIXSCurrency()
-  const { account, chainId } = useWeb3React()
+  const { account } = useWeb3React()
   const { openConnectModal } = useConnectModal()
-  
-  const [approvalState, approve, refreshAllowance] = useAllowance(
-    IXS_ADDRESS[chainId],
-    utils.parseUnits(userInput || '0', currency?.decimals),
-    VOTING_ESCROW_ADDRESS[chainId]
-  )
 
-  const walletLabel = useMemo(() => {
+  const primaryButtonLabel = useMemo(() => {
     if (!account) {
       return 'Connect Wallet'
+    } else if (isLoading) {
+      return 'Processing...'
     } else if (approvalState !== ApprovalState.APPROVED) {
       return 'Allow IXS'
+    } else if (locked) {
+      return (
+        <Flex alignItems='center' style={{ gap: 6 }}>
+          <CheckedIcon />
+          Lock Created
+        </Flex>
+      )
     }
     return 'Lock'
-  }, [account, approvalState])
-
-  function handleLock() {
-
-  }
+  }, [account, approvalState, locked, isLoading])
 
   async function handleProceed() {
-    if (!account) {
-      openConnectModal && openConnectModal()
-    } else if (approvalState === ApprovalState.NOT_APPROVED) {
-      try {
-        setIsLoading(true)
-        await approve()
-        setIsLoading(false)
-        handleLock()
-      } catch (error) {
-        console.error('Error approving', error)
+    try {
+      setIsLoading(true)
+      if (!account) {
+        openConnectModal && openConnectModal()
+      } else if (approvalState === ApprovalState.NOT_APPROVED) {
+          await approve()
+          await handleLock()
+      } else { // token approved
+          await handleLock()
       }
+    } catch (error) {
+      console.error('Error processing', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -79,44 +85,24 @@ const LockContent: React.FC = () => {
 
       <LockExplanation />
 
-      <ButtonPrimary
+      <StyledPrimaryButton
         onClick={() => handleProceed()}
-        disabled={approvalState === ApprovalState.PENDING}
+        type="button"
+        disabled={approvalState === ApprovalState.PENDING || isLoading || !userInput}
+        locked={locked}
       >
-        {walletLabel}
-      </ButtonPrimary>
+        {primaryButtonLabel}
+      </StyledPrimaryButton>
     </Flex>
   )
 }
 
-export default LockContent
-
-const ButtonPrimary = styled.button`
-  display: flex;
-  height: 48px;
-  padding: 12px 16px;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  align-self: stretch;
-  color: #fff;
-  font-family: Inter;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  letter-spacing: -0.28px;
-  border-radius: 8px;
-  background: #66f;
-  border: none;
-  width: 100%;
-  cursor: pointer;
-
-  &:hover {
-    transform: scale(0.99);
-  }
-
-  &:disabled {
-    background: #ececfb;
-  }
+const StyledPrimaryButton = styled(PinnedContentButton)<{ locked: boolean }>`
+  ${({ locked, theme }) => (locked && `
+    background-color: ${ theme.green51 };
+    color: ${ theme.green5 };
+    border: 1px solid ${ theme.green5 };
+  `)}
 `
+
+export default LockContent
