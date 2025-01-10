@@ -36,6 +36,7 @@ import LAUNCHPAD_INVESTMENT_ABI from 'abis/launchpad-investment.json'
 import LBP_ABI from 'abis/LiquiidtyBoostrapPool.json'
 import LBP_FACTORY_ABI from 'abis/LiquidityBoostrapPoolFactory.json'
 import PAYOUT_AIRDROP_ABI from 'abis/payout-airdrop.json'
+import VOTING_ESCROW_ABI from 'abis/voting-escrow.json'
 import {
   ARGENT_WALLET_DETECTOR_ADDRESS,
   ENS_REGISTRAR_ADDRESSES,
@@ -49,6 +50,7 @@ import {
   SWAP_ROUTER_ADDRESS,
   IXSALE_ADDRESS,
   PAYOUT_AIRDROP_PROXY_ADDRESS,
+  VOTING_ESCROW_ADDRESS,
 } from 'constants/addresses'
 import { useMemo } from 'react'
 import { getContract } from 'utils'
@@ -150,17 +152,17 @@ export function useWETHContract(withSignerIfPossible?: boolean) {
 }
 
 export function useArgentWalletDetectorContract() {
-   // @ts-ignore
+  // @ts-ignore
   return useContract<ArgentWalletDetector>(ARGENT_WALLET_DETECTOR_ADDRESS, ARGENT_WALLET_DETECTOR_ABI, false)
 }
 
 export function useENSRegistrarContract(withSignerIfPossible?: boolean) {
-   // @ts-ignore
+  // @ts-ignore
   return useContract<EnsRegistrar>(ENS_REGISTRAR_ADDRESSES, ENS_ABI, withSignerIfPossible)
 }
 
 export function useENSResolverContract(address: string | undefined, withSignerIfPossible?: boolean) {
-   // @ts-ignore
+  // @ts-ignore
   return useContract<EnsPublicResolver>(address, ENS_PUBLIC_RESOLVER_ABI, withSignerIfPossible)
 }
 
@@ -183,7 +185,7 @@ export function useLiquidityRouterContract(): Contract | null {
   return useContract(LIQUIDITY_ROUTER_ADDRESS, IIxsV2LiquidityRouterABI, true)
 }
 export function useMulticall2Contract() {
-   // @ts-ignore
+  // @ts-ignore
   return useContract<Multicall2>(MULTICALL2_ADDRESSES, MULTICALL_ABI, false) as Multicall2
 }
 export function useBurnWSecContract(address: string | undefined) {
@@ -217,4 +219,8 @@ export function useLBPContract(contractAddress: string) {
 
 export function useLBPFactory(contractAddress: string) {
   return useContract(contractAddress, LBP_FACTORY_ABI, true)
+}
+
+export function useVotingEscrowContract() {
+  return useContract(VOTING_ESCROW_ADDRESS, VOTING_ESCROW_ABI, true)
 }

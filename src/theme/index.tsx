@@ -187,6 +187,8 @@ export function colors(configColors?: WlColors): Colors {
     green2: '#9DF9B1B2',
     green3: '#9DF9B1B3',
     green4: '#24E49F',
+    green5: '#1FBA66',
+    green51: '#1FBA661A',
     yellow1: '#e3a507',
     yellow2: '#ff8f00',
     yellow3: '#F3B71E',
