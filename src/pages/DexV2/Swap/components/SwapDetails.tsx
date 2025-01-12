@@ -1,15 +1,35 @@
 import React from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
+import _get from 'lodash/get'
+
 import ChevronDown from 'assets/images/dex-v2/chev-down.svg'
 import InfoIcon from 'assets/images/dex-v2/info.svg'
 import { UseSwapping } from 'state/dexV2/swap/useSwapping'
+import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
+import { bn } from 'lib/balancer/utils/numbers'
+import useUserSettings from 'state/dexV2/userSettings/useUserSettings'
+import { WrapType } from 'lib/utils/balancer/wrapper'
 
 type Props = {
   swapping: UseSwapping
 }
 
-const SwapDetail: React.FC<Props> = () => {
+const SwapDetails: React.FC<Props> = ({ swapping }) => {
+  const { fNum, toFiat } = useNumbers()
+  const { slippage, slippageDecimal } = useUserSettings()
+
+  const wrapType = _get(swapping, 'wrapType', '');
+  const isNativeWrapOrUnwrap = wrapType === WrapType.Wrap || wrapType === WrapType.Unwrap;
+  const priceImpact = _get(swapping, 'sor.priceImpact', 0)
+  const priceImpactDisplay = fNum(priceImpact, FNumFormats.percent)
+  // const _slippage = isNativeWrapOrUnwrap ? 0 : slippage
+  // const _slippageDecimal = isNativeWrapOrUnwrap ? 0 : slippageDecimal
+  // const maxSlippageUsd = bn(slippage).div(100).times(returnAmountUsd)
+
+  console.log('swapping', swapping)
+  console.log('priceImpactDisplay', priceImpactDisplay)
+
   return (
     <Container>
       <Flex justifyContent="space-between" alignItems="center" width="100%">
@@ -25,8 +45,8 @@ const SwapDetail: React.FC<Props> = () => {
       <DetailContainer>
         <Flex justifyContent="space-between" width="100%" alignItems="center">
           <SummaryKey>Price impact</SummaryKey>
-          <SummaryValue isRed>
-            -2.68% <img src={InfoIcon} alt="icon" />
+          <SummaryValue isRed={priceImpact < 0}>
+            {priceImpactDisplay} <img src={InfoIcon} alt="icon" />
           </SummaryValue>
         </Flex>
         <Flex justifyContent="space-between" width="100%" alignItems="center">
@@ -52,7 +72,7 @@ const SwapDetail: React.FC<Props> = () => {
   )
 }
 
-export default SwapDetail
+export default SwapDetails
 
 const Container = styled.div`
   display: flex;
