@@ -9,7 +9,7 @@ import chainIcon from 'assets/images/dex-v2/chain.svg'
 import SwapPair from './SwapPair'
 import { ButtonPrimary } from '../../common'
 import SwapSettingsModal from './SwapSettingsModal'
-import SwapDetail from './SwapDetail'
+import SwapDetails from './SwapDetails'
 import useSwapping from 'state/dexV2/swap/useSwapping'
 import { useSwapState } from 'state/dexV2/swap/useSwapState'
 import { useSwapAssets } from 'state/dexV2/swap/useSwapAssets'
@@ -19,6 +19,7 @@ import useWeb3 from 'hooks/dex-v2/useWeb3'
 import useValidation from 'state/dexV2/swap/useValidation'
 import { WrapType } from 'lib/utils/balancer/wrapper'
 import { SubgraphPoolBase } from '@ixswap1/dex-v2-sdk'
+import SwapPreviewModal from './SwapPreviewModal'
 
 const SwapCard: React.FC = () => {
   const { inputAsset, outputAsset } = useSwapAssets()
@@ -27,6 +28,7 @@ const SwapCard: React.FC = () => {
   const { appNetworkConfig, isMismatchedNetwork } = useWeb3()
 
   const [isOpenSwapSettings, setOpenSwapSettings] = useState(false)
+  const [isOpenSwapPreview, setOpenSwapPreview] = useState(false)
   const [exactIn, setExactIn] = useState(true)
   const [dismissedErrors, setDismissedErrors] = useState({
     highPriceImpact: false,
@@ -190,8 +192,6 @@ const SwapCard: React.FC = () => {
             <img src={settingIcon} alt="Settings" />
           </Flex>
         </Flex>
-
-        {isOpenSwapSettings ? <SwapSettingsModal onClose={() => setOpenSwapSettings(false)} /> : null}
       </Flex>
 
       <SwapPair
@@ -202,11 +202,18 @@ const SwapCard: React.FC = () => {
         setExactIn={setExactIn}
       />
 
-      <SwapDetail swapping={swapping} />
+      <SwapDetails swapping={swapping} />
 
       <div>
-        {account ? <ButtonPrimary onClick={swap}>Next</ButtonPrimary> : <ButtonPrimary>Connect Wallet</ButtonPrimary>}
+        {account ? (
+          <ButtonPrimary onClick={() => setOpenSwapPreview(true)}>Preview</ButtonPrimary>
+        ) : (
+          <ButtonPrimary>Connect Wallet</ButtonPrimary>
+        )}
       </div>
+
+      {isOpenSwapSettings ? <SwapSettingsModal onClose={() => setOpenSwapSettings(false)} /> : null}
+      {isOpenSwapPreview ? <SwapPreviewModal swapping={swapping} onClose={() => setOpenSwapPreview(false)} /> : null}
     </Container>
   )
 }
