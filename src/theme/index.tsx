@@ -194,6 +194,7 @@ export function colors(configColors?: WlColors): Colors {
     yellow3: '#F3B71E',
     yellow4: wlColors.status?.warning || '#D1BF1E',
     yellow5: '#FFD056',
+    yellow69: '#ECBD44E5',
     orange: '#FF6D41',
     blue1: '#2172E5',
     blue2: '#5199FF',
