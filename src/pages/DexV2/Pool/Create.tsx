@@ -8,7 +8,6 @@ import { StepIds, StepLabels } from '../types'
 import ChooseWeights from './Steps/ChooseWeights'
 import SetPoolFees from './Steps/SetPoolFees'
 import InitialLiquidity from './Steps/InitialLiquidity'
-import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 import config from 'lib/config'
 import { useWeb3React } from 'hooks/useWeb3React'
 import PreviewPool from './Steps/PreviewPool'
@@ -17,10 +16,11 @@ import { useTokensState } from 'state/dexV2/tokens/hooks'
 import { fetchTokensAllowwances } from 'state/dexV2/tokens'
 import PoolSummary from './components/PoolSummary'
 import TokenPrices from './components/TokenPrices'
+import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 
 const Create: React.FC = () => {
   const { chainId, account } = useWeb3React()
-  const { activeStep } = usePoolCreationState()
+  const { activeStep } = usePoolCreation()
   const dispatch = useDispatch()
   const { tokens } = useTokensState()
   const networkConfig = config[chainId]

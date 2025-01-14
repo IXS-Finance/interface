@@ -98,6 +98,7 @@ const SwapPair: React.FC<Props> = ({
     <Container>
       <div>
         <TokenInput
+          disabled={swapLoading}
           amount={tokenInAmount}
           address={tokenInAddress}
           name="tokenIn"
@@ -128,6 +129,7 @@ const SwapPair: React.FC<Props> = ({
       </SwapIconWrapper>
       <Box mt={24}>
         <TokenInput
+          disabled={swapLoading}
           amount={tokenOutAmount}
           address={tokenOutAddress}
           name="tokenOut"

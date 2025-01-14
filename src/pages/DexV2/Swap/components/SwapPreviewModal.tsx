@@ -108,7 +108,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = (props) => {
     getActions()
   }, [])
 
-  console.log('actions', actions)
+  console.log('props.swapping', props.swapping)
 
   return (
     <Portal>
