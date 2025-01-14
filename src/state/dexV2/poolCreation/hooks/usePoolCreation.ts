@@ -1,6 +1,7 @@
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useMemo, useState } from 'react'
 import BigNumber from 'bignumber.js'
+import { flatten, sumBy } from 'lodash';
 import { BigNumber as EPBigNumber } from '@ethersproject/bignumber'
 import { simulateContract, waitForTransactionReceipt, writeContract } from '@wagmi/core'
 import { Vault__factory, WeightedPool__factory, WeightedPoolFactory__factory } from '@balancer-labs/typechain'
@@ -38,6 +39,7 @@ import { generateSalt } from 'lib/utils/random'
 import { useSubgraphQueryLegacy, useSubgraphQuery } from 'hooks/useSubgraphQuery'
 import { SUBGRAPH_QUERY } from 'constants/subgraph'
 import { isAddress } from 'utils'
+import { AppState } from 'state'
 
 export type OptimisedLiquidity = {
   liquidityRequired: string
@@ -54,9 +56,9 @@ export interface JoinPoolRequest {
 const JOIN_KIND_INIT = 0
 
 export const usePoolCreation = () => {
+  const poolCreationState = useSelector((state: AppState) => state.poolCreation)
   const dispatch = useDispatch()
-  const poolCreationState = usePoolCreationState()
-  const { name, symbol, activeStep, seedTokens, manuallySetToken, poolType, initialFee, poolId } = poolCreationState
+  const { name, symbol, activeStep, seedTokens, manuallySetToken, initialFee, poolId } = poolCreationState
   const { priceFor, balanceFor, getToken } = useTokens()
   const { account, chainId, provider } = useWeb3React()
 
@@ -78,7 +80,16 @@ export const usePoolCreation = () => {
       sum = sum.plus(bnum(token.amount).times(priceFor(token.tokenAddress)))
     }
     return sum
-  }, [])
+  }, [JSON.stringify(seedTokens)])
+
+  const poolTypeString = useMemo((): string => {
+    switch (poolCreationState.type) {
+      case PoolType.Weighted:
+        return 'weighted'
+      default:
+        return ''
+    }
+  }, [poolCreationState.type])
 
   const totalLiquidity = useMemo(() => {
     let total = bnum(0)
@@ -88,14 +99,12 @@ export const usePoolCreation = () => {
     return total
   }, [JSON.stringify(tokensList)])
 
-  const poolTypeString = useMemo((): string => {
-    switch (poolType) {
-      case PoolType.Weighted:
-        return 'weighted'
-      default:
-        return ''
-    }
-  }, [])
+
+  const tokensWithNoPrice = useMemo(() => {
+    const validTokens = tokensList.filter(t => t !== '');
+    return validTokens.filter(token => priceFor(token) === 0);
+  }, [JSON.stringify(tokensList)]);
+
 
   function getTokensScaledByBIP(bip: BigNumber): Record<string, OptimisedLiquidity> {
     const optimisedLiquidity = {} as any
@@ -219,8 +228,8 @@ export const usePoolCreation = () => {
   function getPoolSymbol() {
     let valid = true
 
-    const tokenSymbols = seedTokens?.
-      filter(token => isAddress(token.tokenAddress))
+    const tokenSymbols = seedTokens
+      ?.filter((token) => isAddress(token.tokenAddress))
       .map((token: PoolSeedToken) => {
         const weightRounded = Math.round(token.weight)
         const tokenInfo = getToken(token.tokenAddress)
@@ -423,10 +432,11 @@ export const usePoolCreation = () => {
       }
     `,
     variables: similarPoolsVariables,
-    enabled: tokensList.filter(address => isAddress(address)).length > 1,
+    enabled: tokensList.filter((address) => isAddress(address)).length > 1,
   })
 
   return {
+    ...poolCreationState,
     hasRestoredFromSavedState,
     totalLiquidity,
     updateTokenWeights,

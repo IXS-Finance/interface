@@ -20,12 +20,14 @@ import useValidation from 'state/dexV2/swap/useValidation'
 import { WrapType } from 'lib/utils/balancer/wrapper'
 import { SubgraphPoolBase } from '@ixswap1/dex-v2-sdk'
 import SwapPreviewModal from './SwapPreviewModal'
+import { useIsMounted } from 'hooks/dex-v2/useIsMounted'
 
 const SwapCard: React.FC = () => {
   const { inputAsset, outputAsset } = useSwapAssets()
   const { nativeAsset } = useTokens()
   const { fNum } = useNumbers()
   const { appNetworkConfig, isMismatchedNetwork } = useWeb3()
+  const isMounted = useIsMounted()
 
   const [isOpenSwapSettings, setOpenSwapSettings] = useState(false)
   const [isOpenSwapPreview, setOpenSwapPreview] = useState(false)
@@ -58,12 +60,11 @@ const SwapCard: React.FC = () => {
   )
   const { errorMessage } = useValidation(tokenInAddress, tokenInAmount, tokenOutAddress, tokenOutAmount)
   const isHighPriceImpact = swapping.sor.validationErrors.highPriceImpact && !dismissedErrors.highPriceImpact
-  const swapDisabled = useMemo(() => {
-    const hasMismatchedNetwork = isMismatchedNetwork
-    const hasAmountsError = !tokenInAmount || !tokenOutAmount
-    const hasBalancerErrors = swapping.isBalancerSwap && isHighPriceImpact
-    return hasAmountsError || hasBalancerErrors || hasMismatchedNetwork
-  }, [isMismatchedNetwork, swapping.isBalancerSwap, isHighPriceImpact])
+  const hasMismatchedNetwork = isMismatchedNetwork
+  const hasAmountsError = !tokenInAmount || !tokenOutAmount
+  const hasBalancerErrors = swapping.isBalancerSwap && isHighPriceImpact
+  const swapDisabled = hasAmountsError || hasBalancerErrors || hasMismatchedNetwork
+
   const title = useMemo(() => {
     if (swapping.wrapType === WrapType.Wrap) {
       return `Wrap ${swapping.tokenIn?.symbol}`
@@ -101,6 +102,10 @@ const SwapCard: React.FC = () => {
     }
     return undefined
   }, [isMismatchedNetwork, swapping.isBalancerSwap, swapping.isLoading, isHighPriceImpact])
+
+  const isLoadingSwaps = swapping.isBalancerSwap ? swapping.isLoading : false
+  const isLoading = isLoadingSwaps || !isMounted
+  const loadingText = isLoading ? 'Fetching swap...' : undefined
 
   // METHODS
   function handleErrorButtonClick() {
@@ -177,6 +182,7 @@ const SwapCard: React.FC = () => {
     setInitialized(true)
   }, [])
 
+  console.log('isLoading', swapping.isLoading)
   return (
     <Container>
       <Flex justifyContent="space-between" alignItems="center">
@@ -206,7 +212,9 @@ const SwapCard: React.FC = () => {
 
       <div>
         {account ? (
-          <ButtonPrimary onClick={() => setOpenSwapPreview(true)}>Preview</ButtonPrimary>
+          <ButtonPrimary disabled={swapDisabled} onClick={() => setOpenSwapPreview(true)}>
+            {loadingText ? 'Fetching swap' : 'Next'}
+          </ButtonPrimary>
         ) : (
           <ButtonPrimary>Connect Wallet</ButtonPrimary>
         )}

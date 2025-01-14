@@ -18,6 +18,7 @@ import { useTokensState } from 'state/dexV2/tokens/hooks'
 type InputValue = string | number
 
 type Props = {
+  disabled?: boolean
   name: string
   amount: InputValue
   address?: string
@@ -87,6 +88,7 @@ const defaultProps: Props = {
 
 const TokenInput: React.FC<Props> = (props = defaultProps) => {
   const {
+    disabled,
     name,
     noMax,
     disableMax,
@@ -216,6 +218,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
     <Container>
       <Flex justifyContent="space-between" alignItems="center">
         <StyledInput
+          disabled={disabled}
           placeholder="0.00"
           min="0"
           step="0.01"

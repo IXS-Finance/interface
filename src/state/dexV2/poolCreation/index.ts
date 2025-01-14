@@ -43,7 +43,7 @@ export interface DexV2State {
   tokensList: string[]
   manuallySetToken: string
   autoOptimiseBalances: boolean
-  poolType: PoolType
+  type: PoolType
   feeManagementType: FeeManagementType
   feeController: FeeController
   thirdPartyFeeController: string
@@ -61,7 +61,7 @@ const initialState: DexV2State = {
   tokensList: [],
   manuallySetToken: '',
   autoOptimiseBalances: false,
-  poolType: PoolType.Weighted,
+  type: PoolType.Weighted,
   feeManagementType: 'governance',
   feeController: 'self',
   thirdPartyFeeController: '',
