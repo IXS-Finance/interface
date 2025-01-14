@@ -10,6 +10,7 @@ import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { bn } from 'lib/balancer/utils/numbers'
 import useUserSettings from 'state/dexV2/userSettings/useUserSettings'
 import { WrapType } from 'lib/utils/balancer/wrapper'
+import SwapRate from './SwapRate'
 
 type Props = {
   swapping: UseSwapping
@@ -19,8 +20,8 @@ const SwapDetails: React.FC<Props> = ({ swapping }) => {
   const { fNum, toFiat } = useNumbers()
   const { slippage, slippageDecimal } = useUserSettings()
 
-  const wrapType = _get(swapping, 'wrapType', '');
-  const isNativeWrapOrUnwrap = wrapType === WrapType.Wrap || wrapType === WrapType.Unwrap;
+  const wrapType = _get(swapping, 'wrapType', '')
+  const isNativeWrapOrUnwrap = wrapType === WrapType.Wrap || wrapType === WrapType.Unwrap
   const priceImpact = _get(swapping, 'sor.priceImpact', 0)
   const priceImpactDisplay = fNum(priceImpact, FNumFormats.percent)
   // const _slippage = isNativeWrapOrUnwrap ? 0 : slippage
@@ -33,7 +34,7 @@ const SwapDetails: React.FC<Props> = ({ swapping }) => {
   return (
     <Container>
       <Flex justifyContent="space-between" alignItems="center" width="100%">
-        <div>1 SFP = 240.23 USDC ($256.98)</div>
+        <SwapRate swapping={swapping} />
         <Flex alignItems="center" style={{ gap: 8, cursor: 'pointer' }}>
           <DetailText>Detail</DetailText>
           <div style={{ width: 8 }}>
