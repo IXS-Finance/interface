@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react'
 import { Flex } from 'rebass'
 import BigNumber from 'bignumber.js'
+import styled from 'styled-components'
 
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
-import styled from 'styled-components'
 import { Line } from '../Create'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { PoolSeedToken } from 'pages/DexV2/types'

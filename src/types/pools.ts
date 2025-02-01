@@ -1,3 +1,16 @@
+import { PoolActivityType } from "services/pool/types";
+
+export type PoolFilterOptions = {
+  poolIds?: string[];
+  tokens?: string[];
+  poolTypes?: PoolActivityType[];
+  poolAttributes?: PoolAttributeFilter[];
+  useExactTokens?: boolean;
+  pageSize?: number;
+  first?: number;
+  sortField?: string;
+};
+
 export enum Protocol {
   Aave = 'aave',
   Agave = 'agave',

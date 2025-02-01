@@ -1,5 +1,5 @@
 import { Pools } from 'types/pools'
-import { Address } from 'viem'
+import { TokenListURLMap } from 'types/TokenList';
 
 export type CommonTokens = {
   nativeAsset: string
@@ -141,5 +141,6 @@ export interface Config {
     type: number
     weight: number
   }
+  tokenlists: TokenListURLMap;
   rateProviders: Record<string, Record<string, boolean>>
 }

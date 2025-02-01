@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import _get from 'lodash/get'
 import { Address } from 'viem'
@@ -17,13 +17,21 @@ import { fetchTokensAllowwances } from 'state/dexV2/tokens'
 import PoolSummary from './components/PoolSummary'
 import TokenPrices from './components/TokenPrices'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
+import UnknownTokenPriceModal from '../common/modals/UnknownTokenPriceModal'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 const Create: React.FC = () => {
   const { chainId, account } = useWeb3React()
-  const { activeStep } = usePoolCreation()
+  const { activeStep, tokensList, hasRestoredFromSavedState } = usePoolCreation()
+  const { priceFor } = useTokens();
   const dispatch = useDispatch()
   const { tokens } = useTokensState()
   const networkConfig = config[chainId]
+
+  const [isUnknownTokenModalVisible, setIsUnknownTokenModalVisible] = useState(false)
+
+  const validTokens = useMemo(() => tokensList.filter((t: string) => t !== ''), [JSON.stringify(tokensList)])
+  const hasUnknownToken = useMemo(() => validTokens.some((t: any) => priceFor(t) === 0), [JSON.stringify(validTokens)])
   const name = _get(networkConfig, 'name', '')
 
   const steps: { [key in StepIds]: StepLabels } = {
@@ -31,6 +39,14 @@ const Create: React.FC = () => {
     [StepIds.SetPoolFees]: StepLabels.SetPoolFees,
     [StepIds.InitialLiquidity]: StepLabels.InitialLiquidity,
     [StepIds.ConfirmPoolCreation]: StepLabels.ConfirmPoolCreation,
+  }
+
+  function handleUnknownModalClose() {
+    setIsUnknownTokenModalVisible(false)
+  }
+
+  function showUnknownTokenModal() {
+    setIsUnknownTokenModalVisible(true)
   }
 
   useEffect(() => {
@@ -44,6 +60,11 @@ const Create: React.FC = () => {
     )
   }, [])
 
+  useEffect(() => {
+    if (hasUnknownToken && !hasRestoredFromSavedState) {
+      showUnknownTokenModal()
+    }
+  }, [activeStep])
   return (
     <WidthFull>
       <LayoutContainer>
@@ -66,6 +87,8 @@ const Create: React.FC = () => {
           <TokenPrices />
         </RightContent>
       </LayoutContainer>
+
+      <UnknownTokenPriceModal visible={true} onClose={() => {}} />
     </WidthFull>
   )
 }

@@ -1,10 +1,11 @@
-import { Config } from '../types';
-import contracts from './contracts';
-import keys from './keys';
-import tokens from './tokens';
-import pools from './pools';
-import rateProviders from './rateProviders';
-import { getAlchemyUrlFor } from 'components/Web3Provider/constants';
+import { Config } from '../types'
+import contracts from './contracts'
+import keys from './keys'
+import tokens from './tokens'
+import pools from './pools'
+import rateProviders from './rateProviders'
+import tokenlists from './tokenlists'
+import { getAlchemyUrlFor } from 'components/Web3Provider/constants'
 
 const config: Config = {
   key: '84532',
@@ -24,16 +25,12 @@ const config: Config = {
   ws: ``,
   explorer: 'https://sepolia.etherscan.io',
   explorerName: 'Etherscan',
-  subgraph:
-    'https://api.studio.thegraph.com/query/80624/balancer-sepolia/version/latest',
+  subgraph: 'https://api.studio.thegraph.com/query/80624/balancer-sepolia/version/latest',
   poolsUrlV2: '',
   subgraphs: {
-    main: [
-      'https://api.studio.thegraph.com/query/24660/balancer-sepolia-v2/version/latest',
-    ],
+    main: ['https://api.studio.thegraph.com/query/24660/balancer-sepolia-v2/version/latest'],
     aave: '',
-    gauge:
-      'https://api.studio.thegraph.com/query/24660/balancer-gauges-sepolia-beta/version/latest',
+    gauge: 'https://api.studio.thegraph.com/query/24660/balancer-gauges-sepolia-beta/version/latest',
     blocks: '',
   },
   bridgeUrl: '',
@@ -65,7 +62,8 @@ const config: Config = {
     type: 2,
     weight: 100,
   },
+  tokenlists,
   rateProviders,
-};
+}
 
-export default config;
+export default config

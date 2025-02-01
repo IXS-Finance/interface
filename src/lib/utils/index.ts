@@ -56,6 +56,12 @@ export function isSameAddress(address1: string, address2: string): boolean {
   return getAddress(address1) === getAddress(address2)
 }
 
+export function includesAddress(addresses: string[], address: string): boolean {
+  if (!address) return false;
+  addresses = addresses.map(a => (a ? getAddress(a) : ''));
+  return addresses.includes(getAddress(address));
+}
+
 // Should match MAX_WEIGHTED_TOKENS from v2-helpers/constants
 // Including would introduce a dependency
 const MaxWeightedTokens = 100
@@ -171,4 +177,8 @@ export const lsGet = (key: string, defaultValue: string) => {
 
 export const lsSet = (key: string, value: string) => {
   localStorage.setItem(key, JSON.stringify(value))
+}
+
+export function removeAddress(address: string, addresses: string[]): string[] {
+  return addresses.filter(a => !isSameAddress(a, address));
 }
