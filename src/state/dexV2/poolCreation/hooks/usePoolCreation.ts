@@ -40,6 +40,7 @@ import { useSubgraphQueryLegacy, useSubgraphQuery } from 'hooks/useSubgraphQuery
 import { SUBGRAPH_QUERY } from 'constants/subgraph'
 import { isAddress } from 'utils'
 import { AppState } from 'state'
+import usePoolsQuery from 'hooks/dex-v2/queries/usePoolsQuery';
 
 export type OptimisedLiquidity = {
   liquidityRequired: string
@@ -61,11 +62,6 @@ export const usePoolCreation = () => {
   const { name, symbol, activeStep, seedTokens, manuallySetToken, initialFee, poolId } = poolCreationState
   const { priceFor, balanceFor, getToken } = useTokens()
   const { account, chainId, provider } = useWeb3React()
-
-  const [hasRestoredFromSavedState, setHasRestoredFromSavedState] = useState<boolean | null>(null)
-
-  const networkConfig = config[chainId]
-
   const tokensList = useMemo(
     () =>
       [...poolCreationState.tokensList].sort((tokenA, tokenB) => {
@@ -73,6 +69,18 @@ export const usePoolCreation = () => {
       }),
     [JSON.stringify(poolCreationState.tokensList)]
   )
+  const filterOptions = useMemo(() => ({
+    tokens: tokensList,
+    useExactTokens: true,
+  }), [JSON.stringify(tokensList)]);
+  const { data: similarPoolsResponse, isLoading: isLoadingSimilarPools } =
+  usePoolsQuery(filterOptions);
+
+  const [hasRestoredFromSavedState, setHasRestoredFromSavedState] = useState<boolean | null>(null)
+
+  const networkConfig = config[chainId]
+
+
 
   const poolLiquidity = useMemo(() => {
     let sum = bnum(0)
@@ -104,6 +112,10 @@ export const usePoolCreation = () => {
     const validTokens = tokensList.filter(t => t !== '');
     return validTokens.filter(token => priceFor(token) === 0);
   }, [JSON.stringify(tokensList)]);
+
+  const similarPools = useMemo(() => {
+    return flatten(similarPoolsResponse?.pages.map((p: any) => p.pools));
+  }, [JSON.stringify(similarPoolsResponse?.pages)]);
 
 
   function getTokensScaledByBIP(bip: BigNumber): Record<string, OptimisedLiquidity> {
@@ -189,6 +201,11 @@ export const usePoolCreation = () => {
     return getTokensScaledByBIP(bip)
   }, [manuallySetToken])
 
+  function resetPoolCreationState() {
+    dispatch(resetPoolCreationState())
+    setRestoredState(false);
+  }
+
   function updateTokenWeights(weights: PoolSeedToken[]) {
     dispatch(setTokenWeights(weights))
   }
@@ -223,6 +240,10 @@ export const usePoolCreation = () => {
       return
     }
     dispatch(setActiveStep(activeStep - 1))
+
+    if (hasRestoredFromSavedState) {
+      setRestoredState(false);
+    }
   }
 
   function getPoolSymbol() {
@@ -330,6 +351,10 @@ export const usePoolCreation = () => {
     await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
 
     return txHash
+  }
+
+  function setRestoredState(value: boolean) {
+    setHasRestoredFromSavedState(value);
   }
 
   async function retrievePoolAddress(receipt: any) {
@@ -457,5 +482,8 @@ export const usePoolCreation = () => {
     removeTokenWeights,
     tokensList,
     similarPoolsResp: similarPoolsResp,
+    setRestoredState,
+    resetPoolCreationState,
+    tokensWithNoPrice
   }
 }

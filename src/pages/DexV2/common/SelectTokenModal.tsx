@@ -38,10 +38,12 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ excludedTokens = []
 
   const tokens = useMemo(() => {
     let tokensWithValues = Object.values(results).map((token) => {
+      // @ts-ignore
       const balance = balances[token.address]
       // const price = priceFor(token.address)
       // const value = Number(balance) * price
       return {
+        // @ts-ignore
         ...token,
         // price,
         balance,
