@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 import _get from 'lodash/get'
@@ -11,6 +11,8 @@ import { bn } from 'lib/balancer/utils/numbers'
 import useUserSettings from 'state/dexV2/userSettings/useUserSettings'
 import { WrapType } from 'lib/utils/balancer/wrapper'
 import SwapRate from './SwapRate'
+import SwapRoute from './SwapRoute'
+import { SubgraphPoolBase } from '@ixswap1/dex-v2-sdk'
 
 type Props = {
   swapping: UseSwapping
@@ -27,9 +29,14 @@ const SwapDetails: React.FC<Props> = ({ swapping }) => {
   // const _slippage = isNativeWrapOrUnwrap ? 0 : slippage
   // const _slippageDecimal = isNativeWrapOrUnwrap ? 0 : slippageDecimal
   // const maxSlippageUsd = bn(slippage).div(100).times(returnAmountUsd)
+  const showSwapRoute = useMemo(() => swapping.isBalancerSwap, [swapping.isBalancerSwap])
+  const pools = useMemo<SubgraphPoolBase[]>(() => {
+    return swapping.sor.pools
+  }, [JSON.stringify(swapping.sor.pools)])
 
   console.log('swapping', swapping)
-  console.log('priceImpactDisplay', priceImpactDisplay)
+  console.log('pools', pools)
+  console.log('showSwapRoute', showSwapRoute)
 
   return (
     <Container>
@@ -50,24 +57,17 @@ const SwapDetails: React.FC<Props> = ({ swapping }) => {
             {priceImpactDisplay} <img src={InfoIcon} alt="icon" />
           </SummaryValue>
         </Flex>
-        <Flex justifyContent="space-between" width="100%" alignItems="center">
-          <SummaryKey>Max slippage</SummaryKey>
-          <SummaryValue>
-            -0.50% <img src={InfoIcon} alt="icon" />
-          </SummaryValue>
-        </Flex>
-        <Flex justifyContent="space-between" width="100%" alignItems="center">
-          <SummaryKey>Max. fees</SummaryKey>
-          <SummaryValue>
-            0.00331 POL <img src={InfoIcon} alt="icon" />
-          </SummaryValue>
-        </Flex>
-        <Flex justifyContent="space-between" width="100%" alignItems="center">
-          <SummaryKey>Order route</SummaryKey>
-          <SummaryValue>
-            BV2: 4 hops <img src={InfoIcon} alt="icon" />
-          </SummaryValue>
-        </Flex>
+
+        {showSwapRoute ? (
+          <SwapRoute
+            addressIn={swapping.tokenIn.address}
+            addressOut={swapping.tokenOut.address}
+            amountIn={swapping.tokenInAmountInput}
+            amountOut={swapping.tokenOutAmountInput}
+            pools={pools}
+            sorReturn={swapping.sor.sorReturn}
+          />
+        ) : null}
       </DetailContainer>
     </Container>
   )

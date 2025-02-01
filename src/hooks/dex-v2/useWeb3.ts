@@ -7,7 +7,7 @@ import { configService } from 'services/config/config.service'
 export default function useWeb3() {
   const appNetworkConfig = configService.network
   const chainId = getChainId(wagmiConfig)
-  const account = getAccount(wagmiConfig)
+  const account = getAccount(wagmiConfig) 
 
   const userNetworkConfig = useMemo(() => {
     try {
@@ -23,5 +23,7 @@ export default function useWeb3() {
     return account && userNetworkConfig?.key !== appNetworkConfig.key
   }, [chainId, account])
 
-  return { appNetworkConfig, isMismatchedNetwork }
+  const isWalletReady = useMemo(() => account !== null, [account])
+
+  return { account, chainId, isWalletReady, appNetworkConfig, isMismatchedNetwork }
 }

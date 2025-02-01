@@ -5,7 +5,7 @@ import { BigNumber } from '@ethersproject/bignumber';
 //   GPv2VaultRelayer,
 // } from '@cowprotocol/contracts/networks.json';
 
-// import { networkId } from '@/composables/useNetwork';
+// import { networkId } from 'hooks/dex-v2/useNetwork';
 
 export const MAX_VALID_TO_EPOCH = BigNumber.from('0xFFFFFFFF').toNumber(); // Max uint32 (Feb 07 2106 07:28:15 GMT+0100)
 

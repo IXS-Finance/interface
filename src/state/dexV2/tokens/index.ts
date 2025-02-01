@@ -33,6 +33,8 @@ interface TokensState {
   spenders: string[]
   balanceLoading: boolean
   allowanceLoading: boolean
+  loading: boolean
+  injectedTokens: TokenInfoMap;
 }
 
 const initialState: TokensState = {
@@ -44,6 +46,8 @@ const initialState: TokensState = {
   spenders: [],
   balanceLoading: false,
   allowanceLoading: false,
+  loading: false,
+  injectedTokens: {},
 }
 
 const chainId = getChainId(wagmiConfig)
@@ -177,6 +181,11 @@ const tokensSlice = createSlice({
     setAllowanceLoading(state, action) {
       state.allowanceLoading = action.payload
     },
+    setTokensState (state, action) {
+      const newState = { ...state, ...action.payload }
+
+      return newState
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(fetchTokensFromListTokens.fulfilled, (state, action) => {
@@ -194,7 +203,7 @@ const tokensSlice = createSlice({
   },
 })
 
-export const { setTokens, setSpenders, setAllowanceLoading, setBalanceLoading } = tokensSlice.actions
+export const { setTokens, setSpenders, setAllowanceLoading, setBalanceLoading, setTokensState } = tokensSlice.actions
 
 export const selectWrappedNativeAsset = (state: { tokens: TokensState }) =>
   state.tokens.tokens[TOKENS.Addresses.wNativeAsset]

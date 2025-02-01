@@ -1,20 +1,29 @@
 import { useDispatch } from 'react-redux'
+import { compact, omit, pick } from 'lodash';
 
 import { getAddress } from '@ethersproject/address'
 import { bnum, getAddressFromPoolId, isSameAddress, selectByAddressFast } from 'lib/utils'
 import { NativeAsset, TokenInfo } from 'types/TokenList'
 import { useTokensState } from '.'
-import { fetchTokensAllowwances, setSpenders } from '..'
+import { fetchTokensAllowwances, setSpenders, setTokensState } from '..'
 import { useWeb3React } from 'hooks/useWeb3React'
 import BigNumber from 'bignumber.js'
 import { AmountToApprove } from './useTokenApprovalActions'
 import useConfig from 'hooks/dex-v2/useConfig'
+import TokenService from 'services/token/token.service';
+import { tokenListService } from 'services/token-list/token-list.service';
+import useTokenLists from 'state/dexV2/tokenLists/hooks';
+
+const { uris: tokenListUris } = tokenListService;
 
 export const useTokens = () => {
   const { tokens, balances, prices, spenders, allowances } = useTokensState()
   const dispatch = useDispatch()
   const { account } = useWeb3React()
   const { networkConfig } = useConfig();
+  const {
+    allTokenLists,
+  } = useTokenLists();
 
   const nativeAsset: NativeAsset = {
     ...networkConfig.nativeAsset,
@@ -101,7 +110,7 @@ export const useTokens = () => {
         return 0
       }
 
-      return price
+      return typeof price === 'number' ? price : 0
     } catch {
       return 0
     }
@@ -141,6 +150,42 @@ export const useTokens = () => {
     addresses = addresses.filter((a) => a).map(getAddress)
 
     dispatch(setSpenders(addresses))
+  }
+
+   /**
+   * Fetches static token metadata for given addresses and injects
+   * tokens into state tokens map.
+   */
+   async function injectTokens(addresses: string[]): Promise<void> {
+    addresses = addresses
+      .filter(a => a)
+      .map(getAddressFromPoolId)
+      .map(getAddress);
+
+    // Remove any duplicates
+    addresses = [...new Set(addresses)];
+
+    const existingAddresses = Object.keys(tokens.value);
+    const existingAddressesMap = Object.fromEntries(
+      existingAddresses.map((address: string) => [getAddress(address), true])
+    );
+
+    // Only inject tokens that aren't already in tokens
+    const injectable = addresses.filter(
+      address => !existingAddressesMap[address]
+    );
+    if (injectable.length === 0) return;
+
+    const newTokens = await new TokenService().metadata.get(
+      injectable,
+      omit(allTokenLists, tokenListUris.Balancer.Allowlisted)
+    );
+
+    dispatch(setTokensState({injectedTokens: newTokens}));
+
+    // Wait for balances/allowances to be fetched for newly injected tokens.
+    // await nextTick();
+    // await forChange(onchainDataLoading, false);
   }
 
   return {
