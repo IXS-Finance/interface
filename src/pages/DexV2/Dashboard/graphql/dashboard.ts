@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers'
 import { Address } from 'viem'
 
 export type TokenType = {
@@ -26,6 +27,28 @@ export type JoinExitsType = {
   }
   type: string
   pool: PoolType
+}
+
+interface LpVotes {
+  lp: string;
+  weight: BigNumber;
+}
+
+export interface VeNFT {
+  id: BigNumber;
+  account: string;
+  decimals: bigint;
+  amount: bigint;
+  voting_amount: BigNumber;
+  governance_amount: BigNumber;
+  rebase_amount: BigNumber;
+  expires_at: BigNumber;
+  voted_at: BigNumber;
+  votes: LpVotes[];
+  token: string;
+  permanent: boolean;
+  delegate_id: BigNumber;
+  managed_id: BigNumber;
 }
 
 export const GET_LIQUIDITY_POSITIONS = `
