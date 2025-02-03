@@ -27,7 +27,7 @@ export default class WalletService {
   ) {
     //@ts-ignore
     this.appProvider = this.rpcProviderService.jsonProvider;
-    this.ensProvider = this.rpcProviderService.getJsonProvider(Network.MAINNET);
+    this.ensProvider = this.rpcProviderService.getJsonProvider(Network.BASE_SEPOLIA);
   }
 
   public setUserProvider(provider: WalletProvider) {
