@@ -4,12 +4,12 @@ import styled from 'styled-components'
 import { ReactComponent as AddIcon } from 'assets/images/plus-blue.svg'
 import { ReactComponent as InfoIcon } from 'assets/images/info.svg'
 
-import { useDashboard } from '../DashProvider'
 import LiquidityRow from './LiquidityRow'
 import { JoinExitsType } from '../graphql/dashboard'
+import useLiquidityPool from '../hooks/useLiquidityPool'
 
 const LiquidityRewards = () => {
-  const { positionsData, stakedBalanceByPool, lpSupplyByPool, unstakedBalanceByPool } = useDashboard()
+  const { positionsData, lpSupplyByPool, stakedBalanceByPool, unstakedBalanceByPool } = useLiquidityPool()
   const liquidityData = (positionsData?.data as { data: { joinExits: JoinExitsType[] } })?.data?.joinExits
 
   return (
