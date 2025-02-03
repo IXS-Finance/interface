@@ -20,6 +20,7 @@ interface Env {
   WALLET_SCREENING: boolean;
 }
 const networkId = getChainId(wagmiConfig)
+console.log('networkId', networkId)
 
 export default class ConfigService {
   public get env(): Env {
@@ -66,6 +67,7 @@ export default class ConfigService {
   }
 
   public getNetworkRpc(network: Network): string {
+    console.log('network', network)
     const networkConfig = this.getNetworkConfig(network);
 
     return template(

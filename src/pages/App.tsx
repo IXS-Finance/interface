@@ -49,6 +49,8 @@ import useQuery from 'hooks/useQuery'
 import { setJumpTaskState } from 'state/jumpTask'
 import { CHAINS } from 'components/Web3Provider/constants'
 import { fetchTokenLists } from 'state/dexV2/tokenLists'
+import ConnectWalletCard from 'components/NotAvailablePage/ConnectWalletCard'
+import { Flex } from 'rebass'
 
 const chains = CHAINS ? CHAINS.map((chain) => chain.id) : []
 const lbpAdminRoutes = [routes.lbpCreate, routes.lbpEdit, routes.lbpDashboard, routes.adminDetails]
@@ -64,7 +66,7 @@ const initSafary = () => {
   document.head.appendChild(script)
 }
 
-BigNumber.config({ DECIMAL_PLACES: DEFAULT_TOKEN_DECIMALS });
+BigNumber.config({ DECIMAL_PLACES: DEFAULT_TOKEN_DECIMALS })
 
 export default function App() {
   const getMe = useGetMe()
@@ -91,6 +93,7 @@ export default function App() {
   const affUnique1 = query.get('aff_unique1')
   const isIxSwap = whiteLabelConfig?.isIxSwap ?? false
   const routeFinalConfig = isAdmin ? routeConfigs : routeConfigs.filter((route) => !lbpAdminRoutes.includes(route.path))
+  const isPublic = ['/launchpad'].includes(pathname)
 
   const canAccessKycForm = (kycType: string) => {
     if (!account) return false
@@ -251,6 +254,7 @@ export default function App() {
     return <LoadingIndicator isLoading />
   }
 
+  console.log('pathname', pathname)
   return (
     <>
       <CustomHeaders />
@@ -271,19 +275,25 @@ export default function App() {
             hideHeader={hideHeader}
           >
             <IXSBalanceModal />
-            <Suspense
-              fallback={
-                <>
-                  <LoadingIndicator isLoading />
-                </>
-              }
-            >
-              <Switch>
-                {routeFinalConfig.map(routeGenerator).filter((route) => !!route)}
+            {!account && !isPublic ? (
+              <Flex justifyContent="center" width="100%" mt="3rem">
+                <ConnectWalletCard />
+              </Flex>
+            ) : (
+              <Suspense
+                fallback={
+                  <>
+                    <LoadingIndicator isLoading />
+                  </>
+                }
+              >
+                <Switch>
+                  {routeFinalConfig.map(routeGenerator).filter((route) => !!route)}
 
-                <Route component={() => <Redirect to={defaultPage ? defaultPage : routes.kyc} />} />
-              </Switch>
-            </Suspense>
+                  <Route component={() => <Redirect to={defaultPage ? defaultPage : routes.kyc} />} />
+                </Switch>
+              </Suspense>
+            )}
           </ToggleableBody>
           {!hideHeader ? <>{isIxSwap ? <DefaultFooter /> : <WhiteLabelFooter />}</> : null}
         </AppWrapper>
