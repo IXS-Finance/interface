@@ -30,6 +30,7 @@ export default class TokenListService {
    * a structured object.
    */
   public get uris(): TokenListUris {
+    console.log('this.appNetwork', this.appNetwork);
     const { Balancer, External } = configService.getNetworkConfig(
       this.appNetwork
     ).tokenlists;

@@ -23,7 +23,7 @@ import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 const Create: React.FC = () => {
   const { chainId, account } = useWeb3React()
   const { activeStep, tokensList, hasRestoredFromSavedState } = usePoolCreation()
-  const { priceFor } = useTokens();
+  const { priceFor } = useTokens()
   const dispatch = useDispatch()
   const { tokens } = useTokensState()
   const networkConfig = config[chainId]
@@ -65,6 +65,7 @@ const Create: React.FC = () => {
       showUnknownTokenModal()
     }
   }, [activeStep])
+
   return (
     <WidthFull>
       <LayoutContainer>
@@ -88,7 +89,7 @@ const Create: React.FC = () => {
         </RightContent>
       </LayoutContainer>
 
-      <UnknownTokenPriceModal visible={true} onClose={() => {}} />
+      <UnknownTokenPriceModal visible={isUnknownTokenModalVisible} onClose={handleUnknownModalClose} />
     </WidthFull>
   )
 }
