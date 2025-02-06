@@ -4,10 +4,21 @@ import styled from 'styled-components'
 
 import InfoIcon from 'assets/images/dex-v2/info.svg'
 import PenIcon from 'assets/images/dex-v2/pen.svg'
+import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import useNumbers from 'hooks/dex-v2/useNumbers'
 
-interface TokenPricesProps {}
+interface TokenPricesProps {
+  toggleUnknownPriceModal?: () => void
+}
 
 const TokenPrices: React.FC<TokenPricesProps> = () => {
+  const { tokensList } = usePoolCreation();
+  const { getToken, priceFor, injectedPrices } = useTokens();
+const { fNum } = useNumbers();
+
+  console.log('tokensList', tokensList);
+
   return (
     <Container>
       <Flex alignItems="center" style={{ gap: 6 }} mb="6px">
