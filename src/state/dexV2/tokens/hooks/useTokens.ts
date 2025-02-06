@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux'
-import { compact, omit, pick } from 'lodash';
+import { compact, omit, pick } from 'lodash'
 
 import { getAddress } from '@ethersproject/address'
 import { bnum, getAddressFromPoolId, isSameAddress, selectByAddressFast } from 'lib/utils'
@@ -10,25 +10,24 @@ import { useWeb3React } from 'hooks/useWeb3React'
 import BigNumber from 'bignumber.js'
 import { AmountToApprove } from './useTokenApprovalActions'
 import useConfig from 'hooks/dex-v2/useConfig'
-import TokenService from 'services/token/token.service';
-import { tokenListService } from 'services/token-list/token-list.service';
-import useTokenLists from 'state/dexV2/tokenLists/hooks';
+import TokenService from 'services/token/token.service'
+import { tokenListService } from 'services/token-list/token-list.service'
+import useTokenLists from 'state/dexV2/tokenLists/hooks'
 
-const { uris: tokenListUris } = tokenListService;
+const { uris: tokenListUris } = tokenListService
 
 export const useTokens = () => {
-  const { tokens, balances, prices, spenders, allowances } = useTokensState()
+  const state = useTokensState()
+  const { tokens, balances, prices, spenders, allowances } = state
   const dispatch = useDispatch()
   const { account } = useWeb3React()
-  const { networkConfig } = useConfig();
-  const {
-    allTokenLists,
-  } = useTokenLists();
+  const { networkConfig } = useConfig()
+  const { allTokenLists } = useTokenLists()
 
   const nativeAsset: NativeAsset = {
     ...networkConfig.nativeAsset,
     chainId: networkConfig.chainId,
-  };
+  }
 
   /**
    * Returns the allowance for a token, scaled by token decimals
@@ -121,25 +120,21 @@ export const useTokens = () => {
    * @param tokenAddress
    * @param disableNativeAssetBuffer Optionally disable native asset buffer
    */
-  function getMaxBalanceFor(
-    tokenAddress: string,
-    disableNativeAssetBuffer = false
-  ): string {
-    let maxAmount;
-    const tokenBalance = balanceFor(tokenAddress) || '0';
-    const tokenBalanceBN = bnum(tokenBalance);
+  function getMaxBalanceFor(tokenAddress: string, disableNativeAssetBuffer = false): string {
+    let maxAmount
+    const tokenBalance = balanceFor(tokenAddress) || '0'
+    const tokenBalanceBN = bnum(tokenBalance)
 
     if (tokenAddress === nativeAsset.address && !disableNativeAssetBuffer) {
       // Subtract buffer for gas
       maxAmount = tokenBalanceBN.gt(nativeAsset.minTransactionBuffer)
         ? tokenBalanceBN.minus(nativeAsset.minTransactionBuffer).toString()
-        : tokenBalance.toString();
+        : tokenBalance.toString()
     } else {
-      maxAmount = tokenBalance;
+      maxAmount = tokenBalance
     }
-    return maxAmount;
+    return maxAmount
   }
-
 
   /**
    * Injects contract addresses that could possibly spend the users tokens into
@@ -152,36 +147,34 @@ export const useTokens = () => {
     dispatch(setSpenders(addresses))
   }
 
-   /**
+  /**
    * Fetches static token metadata for given addresses and injects
    * tokens into state tokens map.
    */
-   async function injectTokens(addresses: string[]): Promise<void> {
+  async function injectTokens(addresses: string[]): Promise<void> {
     addresses = addresses
-      .filter(a => a)
+      .filter((a) => a)
       .map(getAddressFromPoolId)
-      .map(getAddress);
+      .map(getAddress)
 
     // Remove any duplicates
-    addresses = [...new Set(addresses)];
+    addresses = [...new Set(addresses)]
 
-    const existingAddresses = Object.keys(tokens.value);
+    const existingAddresses = Object.keys(tokens.value)
     const existingAddressesMap = Object.fromEntries(
       existingAddresses.map((address: string) => [getAddress(address), true])
-    );
+    )
 
     // Only inject tokens that aren't already in tokens
-    const injectable = addresses.filter(
-      address => !existingAddressesMap[address]
-    );
-    if (injectable.length === 0) return;
+    const injectable = addresses.filter((address) => !existingAddressesMap[address])
+    if (injectable.length === 0) return
 
     const newTokens = await new TokenService().metadata.get(
       injectable,
       omit(allTokenLists, tokenListUris.Balancer.Allowlisted)
-    );
+    )
 
-    dispatch(setTokensState({injectedTokens: newTokens}));
+    dispatch(setTokensState({ injectedTokens: newTokens }))
 
     // Wait for balances/allowances to be fetched for newly injected tokens.
     // await nextTick();
@@ -189,9 +182,8 @@ export const useTokens = () => {
   }
 
   return {
-    balances,
+    ...state,
     nativeAsset,
-    tokens,
     getToken,
     balanceFor,
     priceFor,
