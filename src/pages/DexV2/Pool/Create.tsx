@@ -66,6 +66,8 @@ const Create: React.FC = () => {
     }
   }, [activeStep])
 
+  console.log('validTokens', validTokens)
+
   return (
     <WidthFull>
       <LayoutContainer>
@@ -85,7 +87,8 @@ const Create: React.FC = () => {
         </CenterContent>
         <RightContent>
           <PoolSummary />
-          <TokenPrices />
+
+          {validTokens.length > 0 ? <TokenPrices toggleUnknownPriceModal={showUnknownTokenModal}/> : null}
         </RightContent>
       </LayoutContainer>
 
