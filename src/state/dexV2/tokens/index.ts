@@ -35,6 +35,7 @@ interface TokensState {
   allowanceLoading: boolean
   loading: boolean
   injectedTokens: TokenInfoMap;
+  injectedPrices: TokenPrices;
 }
 
 const initialState: TokensState = {
@@ -48,6 +49,7 @@ const initialState: TokensState = {
   allowanceLoading: false,
   loading: false,
   injectedTokens: {},
+  injectedPrices: {},
 }
 
 const chainId = getChainId(wagmiConfig)
@@ -198,7 +200,8 @@ const tokensSlice = createSlice({
       state.allowances = { ...state.allowances, ...action.payload }
     })
     builder.addCase(fetchTokenPrices.fulfilled, (state, action) => {
-      state.prices = action.payload
+      state.prices = action.payload;
+      state.injectedPrices = {};
     })
   },
 })
