@@ -66,8 +66,6 @@ const Create: React.FC = () => {
     }
   }, [activeStep])
 
-  console.log('validTokens', validTokens)
-
   return (
     <WidthFull>
       <LayoutContainer>
@@ -85,11 +83,13 @@ const Create: React.FC = () => {
             {activeStep === StepIds.ConfirmPoolCreation ? <PreviewPool /> : null}
           </Card>
         </CenterContent>
-        <RightContent>
-          <PoolSummary />
 
-          {validTokens.length > 0 ? <TokenPrices toggleUnknownPriceModal={showUnknownTokenModal}/> : null}
-        </RightContent>
+        {validTokens.length > 0 ? (
+          <RightContent>
+            <PoolSummary />
+            <TokenPrices toggleUnknownPriceModal={showUnknownTokenModal} />
+          </RightContent>
+        ) : null}
       </LayoutContainer>
 
       <UnknownTokenPriceModal visible={isUnknownTokenModalVisible} onClose={handleUnknownModalClose} />
