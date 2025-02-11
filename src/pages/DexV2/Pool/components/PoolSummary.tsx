@@ -49,8 +49,6 @@ const PoolSummary: React.FC<PoolSummaryProps> = () => {
         }
       })
     const _colors = await Promise.all(colorPromises)
-
-    console.log('_colors', _colors)
     setColors(_colors)
 
     return _colors
@@ -60,23 +58,6 @@ const PoolSummary: React.FC<PoolSummaryProps> = () => {
     calculateColors()
   }, [JSON.stringify(seedTokens)])
 
-  console.log('totalLiquidity', totalLiquidity)
-
-  let data = [
-    {
-      label: 'SFP',
-      value: 50,
-      color: '#6666FF',
-      cutout: '50%',
-    },
-    {
-      label: 'USDT',
-      value: 50,
-      color: '#11D8B3',
-      cutout: '50%',
-    },
-  ]
-
   const chartData = useMemo(() => {
     const validTokens = tokensList.filter((t) => t !== '')
 
@@ -84,10 +65,10 @@ const PoolSummary: React.FC<PoolSummaryProps> = () => {
       labels: validTokens.map((token) => getToken(token)?.symbol),
       datasets: [
         {
-          data: data.map((item) => Math.round(item.value)),
-          backgroundColor: colors,
-          borderColor: colors,
-          borderWidth: 1,
+          data: seedTokens.length > 0 ? seedTokens.map((t) => t.weight) : [],
+          backgroundColor: colors.length > 0 ? colors : ['#D3D3D3'],
+          borderColor: colors.length > 0 ? colors : ['#D3D3D3'],
+          borderWidth: 0,
         },
       ],
     }
