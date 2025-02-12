@@ -24,13 +24,13 @@ export class PoolDecorator {
       return poolService.pool;
     });
 
+
     const poolMulticaller = new PoolMulticaller(processedPools);
 
     const [poolSnapshots, rawOnchainDataMap] = await Promise.all([
       fullDecoration ? this.getSnapshots() : [],
       poolMulticaller.fetch(),
     ]);
-
     const promises = processedPools.map(async pool => {
       const poolService = new this.poolServiceClass(pool);
 

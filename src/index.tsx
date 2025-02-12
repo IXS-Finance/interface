@@ -25,10 +25,13 @@ import TransactionUpdater from './state/transactions/updater'
 import UserUpdater from './state/user/updater'
 import ThemeProvider, { ThemedGlobalStyle } from './theme'
 import Web3Provider from 'components/Web3Provider'
+import { initDependencies } from 'dependencies'
 
 import 'react-toastify/dist/ReactToastify.css'
 import 'react-phone-input-2/lib/bootstrap.css'
 import './index.css'
+
+initDependencies();
 
 if (!!window.ethereum) {
   window.ethereum.autoRefreshOnNetworkChange = false
