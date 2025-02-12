@@ -1,17 +1,17 @@
-import { getChainId } from '@wagmi/core';
-import { wagmiConfig } from 'components/Web3Provider';
-import { Network } from 'lib/config/types';
-import { configService } from 'services/config/config.service';
+import { getChainId } from '@wagmi/core'
+import { wagmiConfig } from 'components/Web3Provider'
+import { Network } from 'lib/config/types'
+import { useMemo } from 'react'
+import { configService } from 'services/config/config.service'
 
-const chainId = getChainId(wagmiConfig);
-export const networkId = chainId as Network;
+const chainId = getChainId(wagmiConfig)
+export const networkId = chainId as Network
 
-export const isPolygon =  networkId === Network.POLYGON;
+export const isPolygon = networkId === Network.POLYGON
+export const isMainnet = networkId === Network.MAINNET
 
 export default function useNetwork() {
-  const appNetworkConfig = configService.network;
-
-
+  const appNetworkConfig = configService.network
 
   return {
     // appUrl,
@@ -22,5 +22,5 @@ export default function useNetwork() {
     // getSubdomain,
     // handleNetworkSlug,
     appNetworkConfig,
-  };
+  }
 }

@@ -22,13 +22,14 @@ import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 const Create: React.FC = () => {
   const { chainId, account } = useWeb3React()
-  const { activeStep, tokensList, hasRestoredFromSavedState } = usePoolCreation()
-  const { priceFor } = useTokens()
+  const { activeStep, tokensList, seedTokens, hasRestoredFromSavedState } = usePoolCreation()
+  const { priceFor, getToken, injectTokens } = useTokens()
   const dispatch = useDispatch()
   const { tokens } = useTokensState()
   const networkConfig = config[chainId]
 
   const [isUnknownTokenModalVisible, setIsUnknownTokenModalVisible] = useState(false)
+  const [isLoading, setLoading] = useState(true)
 
   const validTokens = useMemo(() => tokensList.filter((t: string) => t !== ''), [JSON.stringify(tokensList)])
   const hasUnknownToken = useMemo(() => validTokens.some((t: any) => priceFor(t) === 0), [JSON.stringify(validTokens)])
@@ -47,6 +48,14 @@ const Create: React.FC = () => {
 
   function showUnknownTokenModal() {
     setIsUnknownTokenModalVisible(true)
+  }
+
+  async function injectUnknownPoolTokens() {
+    const uninjectedTokens = seedTokens
+      .filter((seedToken) => getToken(seedToken.tokenAddress) === undefined)
+      .map((seedToken) => seedToken.tokenAddress)
+      .filter((token) => token !== '')
+    await injectTokens(uninjectedTokens)
   }
 
   useEffect(() => {

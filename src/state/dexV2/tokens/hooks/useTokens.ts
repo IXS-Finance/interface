@@ -160,7 +160,7 @@ export const useTokens = () => {
     // Remove any duplicates
     addresses = [...new Set(addresses)]
 
-    const existingAddresses = Object.keys(tokens.value)
+    const existingAddresses = Object.keys(tokens)
     const existingAddressesMap = Object.fromEntries(
       existingAddresses.map((address: string) => [getAddress(address), true])
     )
@@ -188,6 +188,7 @@ export const useTokens = () => {
     balanceFor,
     priceFor,
     injectSpenders,
+    injectTokens,
     refetchAllowances,
     approvalsRequired,
     allowanceFor,
