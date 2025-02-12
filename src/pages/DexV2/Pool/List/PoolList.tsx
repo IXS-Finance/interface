@@ -18,6 +18,7 @@ import { useSafeCurrency } from "hooks/Tokens";
 import { usePoolFilter } from "./FilterProvider";
 import { adminOffset } from "state/admin/constants";
 import { LoadingIndicator } from "components/LoadingIndicator";
+import { useHistory } from "react-router-dom";
 
 export default function PoolList() {
   const { pools } = usePoolList()
@@ -34,7 +35,7 @@ export default function PoolList() {
         <LoadingIndicator noOverlay={true} isLoading /> :
         <Table header={<Header />} body={<Body items={pools} />} />
       }
-      
+
       <Pagination
         totalPages={null}
         page={page + 1}
@@ -64,7 +65,7 @@ const Body = ({ items }: IBody) => {
 
 const Header = () => {
   const { order, setOrder } = usePoolFilter()
-  
+
   const onChangeOrder = useOnChangeOrder(order as AbstractOrder, setOrder)
   return (
     <StyledHeaderRow>
@@ -105,9 +106,10 @@ const MemoTokenIcon = memo(TokenIcon, (prevProps: TokenIconProps, nextProps: Tok
 const Row = ({ pool }: { pool: any }) => {
   const theme = useTheme()
   const { toCurrency } = useCurrency()
+  const history = useHistory()
 
   return (
-    <StyledBodyRow>
+    <StyledBodyRow onClick={() => history.push(`/dex-v2/pool/${pool.id}`)}>
       <Flex flexWrap='wrap'>
         {pool?.tokens?.map((token: any) => (
           <Flex key={token.ticker} alignItems="center" className="token">
@@ -153,6 +155,11 @@ const StyledBodyRow = styled(BodyRow)`
   margin-bottom: 0px;
   border: none;
   font-size: 14px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgb(248 250 252);
+  }
 
   > div:last-child {
     padding: 0;

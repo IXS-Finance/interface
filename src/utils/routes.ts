@@ -82,6 +82,7 @@ export const routes = {
   dexV2Pools: '/dex-v2/pools',
   dexV2Swap: '/dex-v2/swap',
   dexV2Lock: '/dex-v2/lock',
+  dexV2PoolDetail: '/dex-v2/pool/:id',
 }
 
 export function checkAllowed(path: string, allowedPages: string[] | null | undefined): boolean {

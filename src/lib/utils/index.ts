@@ -200,5 +200,6 @@ export const lsSet = (key: string, value: string) => {
 }
 
 export function removeAddress(address: string, addresses: string[]): string[] {
+  if (!address) return addresses;
   return addresses.filter(a => !isSameAddress(a, address));
 }
