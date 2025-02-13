@@ -9,6 +9,7 @@ type Props = {
   darker?: boolean;
   square?: boolean;
   rounded?: RoundedOpts;
+  className?: string; // Add className prop
 };
 
 // Keyframes for shimmer animation
@@ -41,6 +42,7 @@ const LoadingBlock: React.FC<Props> = ({
   darker = false,
   square = false,
   rounded = 'lg',
+  className, // Add className prop
 }) => {
   // COMPUTED
   const bgClass = useMemo(() => {
@@ -96,6 +98,7 @@ const LoadingBlock: React.FC<Props> = ({
       rounded={rounded}
       square={square}
       bgClass={bgClass}
+      className={className} // Pass className to the styled component
     />
   );
 };
