@@ -5,10 +5,14 @@ import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers from 'hooks/dex-v2/useNumbers'
 import PoolActionsCard from './PoolActionsCard'
+import { Pool } from 'services/pool/types'
 
-// import PoolActionsCard from './PoolActionsCard.vue';
+interface MyPoolBalancesCardProps {
+  pool: Pool | undefined
+  missingPrices: boolean
+}
 
-const MyPoolBalancesCard: React.FC = () => {
+const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = ({ pool, missingPrices }) => {
   const { balanceFor } = useTokens()
   const { fNum } = useNumbers()
   const { isWalletReady } = useWeb3()
@@ -23,7 +27,7 @@ const MyPoolBalancesCard: React.FC = () => {
         <Button>Migrate Liquidity</Button>
       </ButtonWrapper> */}
       <Footer>
-        <PoolActionsCard />
+        <PoolActionsCard pool={pool} missingPrices={missingPrices} />
       </Footer>
     </Card>
   )

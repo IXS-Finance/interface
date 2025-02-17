@@ -1,16 +1,16 @@
-import React, { useMemo } from 'react';
-import styled, { css, keyframes } from 'styled-components';
+import React, { useMemo } from 'react'
+import styled, { css, keyframes } from 'styled-components'
 
 // TYPES
-type RoundedOpts = 'sm' | 'md' | 'lg';
+type RoundedOpts = 'sm' | 'md' | 'lg'
 
 type Props = {
-  white?: boolean;
-  darker?: boolean;
-  square?: boolean;
-  rounded?: RoundedOpts;
-  className?: string; // Add className prop
-};
+  white?: boolean
+  darker?: boolean
+  square?: boolean
+  rounded?: RoundedOpts
+  className?: string // Add className prop
+}
 
 // Keyframes for shimmer animation
 const shimmerBackground = keyframes`
@@ -20,22 +20,19 @@ const shimmerBackground = keyframes`
   100% {
     background-position: 5000px 0;
   }
-`;
+`
 
 // Styled component for the loading block
-const LoadingBlockComponent = styled.div<{ rounded?: RoundedOpts; square?: boolean; bgClass: any }>`
+const LoadingBlockComponent = styled.div<{ rounded?: RoundedOpts; square?: boolean; bgClass: any}>`
   min-height: 5px;
   ${({ rounded, square }) =>
     !square &&
     css`
-      border-radius: ${rounded === 'sm'
-        ? '0.125rem'
-        : rounded === 'md'
-        ? '0.375rem'
-        : '0.5rem'};
+      border-radius: ${rounded === 'sm' ? '0.125rem' : rounded === 'md' ? '0.375rem' : '0.5rem'};
     `}
   ${({ bgClass }) => bgClass}
-`;
+  ${({ bgClass }) => bgClass}
+`
 
 const LoadingBlock: React.FC<Props> = ({
   white = false,
@@ -53,14 +50,9 @@ const LoadingBlock: React.FC<Props> = ({
         --end-color: rgb(255 255 255 / 10%);
 
         animation: ${shimmerBackground} 10s infinite;
-        background: linear-gradient(
-          to right,
-          var(--start-color) 4%,
-          var(--mid-color) 25%,
-          var(--end-color) 36%
-        );
+        background: linear-gradient(to right, var(--start-color) 4%, var(--mid-color) 25%, var(--end-color) 36%);
         background-size: 1000px 100%;
-      `;
+      `
     }
     return darker
       ? css`
@@ -69,12 +61,7 @@ const LoadingBlock: React.FC<Props> = ({
           --end-color: #f3f4f6; /* gray.100 */
 
           animation: ${shimmerBackground} 10s infinite;
-          background: linear-gradient(
-            to right,
-            var(--start-color) 4%,
-            var(--mid-color) 25%,
-            var(--end-color) 36%
-          );
+          background: linear-gradient(to right, var(--start-color) 4%, var(--mid-color) 25%, var(--end-color) 36%);
           background-size: 1000px 100%;
         `
       : css`
@@ -83,15 +70,10 @@ const LoadingBlock: React.FC<Props> = ({
           --end-color: #f9fafb; /* gray.50 */
 
           animation: ${shimmerBackground} 10s infinite;
-          background: linear-gradient(
-            to right,
-            var(--start-color) 4%,
-            var(--mid-color) 25%,
-            var(--end-color) 36%
-          );
+          background: linear-gradient(to right, var(--start-color) 4%, var(--mid-color) 25%, var(--end-color) 36%);
           background-size: 1000px 100%;
-        `;
-  }, [white, darker]);
+        `
+  }, [white, darker])
 
   return (
     <LoadingBlockComponent
@@ -100,7 +82,7 @@ const LoadingBlock: React.FC<Props> = ({
       bgClass={bgClass}
       className={className} // Pass className to the styled component
     />
-  );
-};
+  )
+}
 
-export default LoadingBlock;
+export default LoadingBlock

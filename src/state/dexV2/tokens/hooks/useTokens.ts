@@ -1,9 +1,10 @@
 import { useDispatch } from 'react-redux'
 import { compact, omit, pick } from 'lodash'
+import { useMemo, useState } from 'react'
 
 import { getAddress } from '@ethersproject/address'
 import { bnum, getAddressFromPoolId, isSameAddress, selectByAddressFast } from 'lib/utils'
-import { NativeAsset, TokenInfo } from 'types/TokenList'
+import { NativeAsset, TokenInfo, TokenInfoMap, TokenListMap } from 'types/TokenList'
 import { useTokensState } from '.'
 import { fetchTokensAllowwances, setSpenders, setTokensState } from '..'
 import { useWeb3React } from 'hooks/useWeb3React'
@@ -12,21 +13,83 @@ import { AmountToApprove } from './useTokenApprovalActions'
 import useConfig from 'hooks/dex-v2/useConfig'
 import TokenService from 'services/token/token.service'
 import { tokenListService } from 'services/token-list/token-list.service'
-import useTokenLists from 'state/dexV2/tokenLists/hooks'
+import useTokenLists from 'state/dexV2/tokenLists/useTokenLists'
 
 const { uris: tokenListUris } = tokenListService
 
 export const useTokens = () => {
   const state = useTokensState()
   const { tokens, balances, prices, spenders, allowances } = state
+
   const dispatch = useDispatch()
   const { account } = useWeb3React()
   const { networkConfig } = useConfig()
-  const { allTokenLists } = useTokenLists()
+  const { allTokenLists, activeTokenLists } = useTokenLists()
+
+  const [queriesEnabled, setQueriesEnabled] = useState(false)
+
+  /**
+   * METHODS
+   */
+  /**
+   * Create token map from a token list tokens array.const isEmpty = Object.keys(person).length === 0;
+   */
+  function mapTokenListTokens(tokenListMap: TokenListMap): TokenInfoMap {
+    const isEmpty = Object.keys(tokenListMap).length === 0
+    if (isEmpty) return {}
+
+    const tokens = [...Object.values(tokenListMap)].map((list) => list.tokens).flat()
+
+    const tokensMap = tokens.reduce<TokenInfoMap>((acc, token) => {
+      const address: string = getAddress(token.address)
+
+      // Don't include if already included
+      if (acc[address]) return acc
+
+      // Don't include if not on app network
+      if (token.chainId !== networkConfig.chainId) return acc
+
+      acc[address] = token
+      return acc
+    }, {})
+
+    return tokensMap
+  }
 
   const nativeAsset: NativeAsset = {
     ...networkConfig.nativeAsset,
     chainId: networkConfig.chainId,
+  }
+
+  /**
+   * COMPUTED
+   */
+
+  /**
+   * All tokens from all token lists.
+   */
+  const allTokenListTokens = useMemo(
+    (): TokenInfoMap => ({
+      [networkConfig.nativeAsset.address]: nativeAsset,
+      ...mapTokenListTokens(allTokenLists),
+      ...state.injectedTokens,
+    }),
+    [JSON.stringify(allTokenLists), state.injectedTokens]
+  )
+
+   /**
+   * All tokens from token lists that are toggled on.
+   */
+   const activeTokenListTokens = useMemo(
+    (): TokenInfoMap => mapTokenListTokens(activeTokenLists)
+  , [JSON.stringify(activeTokenLists)]);
+
+
+  /**
+   * Checks if token has a balance
+   */
+  function hasBalance(address: string): boolean {
+    return Number(selectByAddressFast(balances, getAddress(address)) || '0') > 0
   }
 
   /**
@@ -194,5 +257,6 @@ export const useTokens = () => {
     allowanceFor,
     approvalRequired,
     getMaxBalanceFor,
+    hasBalance,
   }
 }

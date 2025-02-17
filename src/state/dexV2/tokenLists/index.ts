@@ -5,10 +5,12 @@ import { getChainId } from '@wagmi/core'
 import { TokenListMap } from 'types/TokenList'
 import { wagmiConfig } from 'components/Web3Provider'
 import { fetchTokensFromListTokens } from '../tokens'
+import { tokenListService } from 'services/token-list/token-list.service'
 
 interface TokenListsState {
   allTokenLists: TokenListMap
   isTestMode: boolean
+  activeListKeys: string[]
 }
 
 const chainId = getChainId(wagmiConfig)
@@ -25,9 +27,12 @@ function filterTokensList(tokensList: TokenListMap, networkId: any): TokenListMa
   }, {})
 }
 
+const { uris } = tokenListService
+
 const initialState: TokenListsState = {
   allTokenLists: {},
   isTestMode: process.env.NODE_ENV === 'test',
+  activeListKeys: [uris.Balancer.Allowlisted],
 }
 
 export const fetchTokenLists = createAsyncThunk('tokenLists/fetchTokenLists', async (_, thunkAPI) => {

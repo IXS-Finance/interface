@@ -71,6 +71,8 @@ const CreateTenantPage = lazy(() => import('./Tenant/TenantForm'))
 const DexV2CreatePool = lazy(() => import('pages/DexV2/Pool/Create'))
 const DexV2Pool = lazy(() => import('pages/DexV2/Pool/List'))
 const DexV2PoolDetail = lazy(() => import('pages/DexV2/Pool/Detail'))
+const DexV2PoolAddLiquidty = lazy(() => import('pages/DexV2/Pool/AddLiquidity'))
+const DexV2PoolWithdraw = lazy(() => import('pages/DexV2/Pool/Withdraw'))
 const DexV2Swap = lazy(() => import('pages/DexV2/Swap'))
 const DexV2Lock = lazy(() => import('pages/DexV2/Lock'))
 
@@ -175,6 +177,8 @@ export const routeConfigs: RouteMapEntry[] = [
   { path: routes.dexV2CreatePool, component: DexV2CreatePool },
   { path: routes.dexV2Pools, component: DexV2Pool },
   { path: routes.dexV2PoolDetail, component: DexV2PoolDetail },
+  { path: routes.dexV2PoolAddLiquidity, component: DexV2PoolAddLiquidty },
+  { path: routes.dexV2PoolWithdraw, component: DexV2PoolWithdraw },
   { path: routes.dexV2Swap, component: DexV2Swap },
   { path: routes.dexV2Lock, component: DexV2Lock },
   { path: routes.faucet, component: Faucet },
