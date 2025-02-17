@@ -58,12 +58,12 @@ const SwapDetails: React.FC<Props> = ({ swapping }) => {
           </SummaryValue>
         </Flex>
 
-        {showSwapRoute ? (
+        {showSwapRoute && swapping?.tokenIn && swapping?.tokenOut ? (
           <SwapRoute
-            addressIn={swapping.tokenIn.address}
-            addressOut={swapping.tokenOut.address}
-            amountIn={swapping.tokenInAmountInput}
-            amountOut={swapping.tokenOutAmountInput}
+            addressIn={swapping?.tokenIn?.address}
+            addressOut={swapping?.tokenOut?.address}
+            amountIn={swapping?.tokenInAmountInput}
+            amountOut={swapping?.tokenOutAmountInput}
             pools={pools}
             sorReturn={swapping.sor.sorReturn}
           />
