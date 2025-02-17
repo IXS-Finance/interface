@@ -21,7 +21,7 @@ const MyWallet: FC = () => {
   } = useUserTokens()
   const { hasNativeBalance, nativeBalance, nativeCurrency } = useNativeBalance()
 
-  console.log('nativeBalance', nativeBalance)
+  console.log('tokensWithBalance', tokensWithBalance)
   return (
     <div>
       <BalCard noPad shadow="none" growContent>

@@ -1,8 +1,8 @@
-// import { initApi } from './balancer-api';
+import { initApi } from './balancer-api';
 // import { initEthersContract } from './EthersContract';
-// import { initMulticall } from './multicall';
-import { initMulticaller } from './Multicaller';
-// import { initOldMulticaller } from './OldMulticaller';
+import { initMulticall } from './multicall'
+import { initMulticaller } from './Multicaller'
+import { initOldMulticaller } from './OldMulticaller'
 // import { initRpcProviderService } from './rpc-provider.service';
 // import { initWalletConnectors } from './wallets';
 // import { initWeb3Provider } from './wallets/Web3Provider';
@@ -13,11 +13,11 @@ export function initDependencies() {
   // - initBalancerSDK
   // - initPoolsFallbackRepository
   // that are explicitly initialized the first time they are accessed via getter
-  // initMulticall();
-  // initApi();
+  initMulticall()
+  initApi();
   // initRpcProviderService();
-  initMulticaller();
-  // initOldMulticaller();
+  initMulticaller()
+  initOldMulticaller()
   // initEthersContract();
   // initWeb3Provider();
   // initWalletConnectors();

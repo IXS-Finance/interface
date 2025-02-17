@@ -11,6 +11,7 @@ import {
   TransactionReceiptNotFoundError,
 } from 'viem'
 import { waitForTransactionReceipt } from '@wagmi/core'
+import pkg from '../../../package.json';
 
 import { retry, RetryableError } from 'lib/utils/retry'
 import { wagmiConfig } from 'components/Web3Provider'
@@ -190,9 +191,31 @@ export const retryWaitForTransaction = async ({ hash, confirmations }: { hash?: 
   return undefined
 }
 
-export const lsGet = (key: string, defaultValue: string) => {
-  const value = localStorage.getItem(key)
-  return value ? JSON.parse(value) : defaultValue
+
+function lsGetKey(key: string) {
+  return `${pkg.name}.${key}`;
+}
+
+export function lsGet<T = any>(
+  key: string,
+  defaultValue: any = null,
+  version?: string
+): T {
+  const rawValue = localStorage.getItem(lsGetKey(key));
+
+  if (rawValue != null) {
+    try {
+      const value = JSON.parse(rawValue);
+      if (version != null) {
+        return value._version === version ? value.data : defaultValue;
+      }
+      return value;
+    } catch (e) {
+      return defaultValue;
+    }
+  }
+
+  return defaultValue;
 }
 
 export const lsSet = (key: string, value: string) => {
