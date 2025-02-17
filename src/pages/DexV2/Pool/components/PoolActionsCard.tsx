@@ -1,14 +1,33 @@
-import useWeb3 from 'hooks/dex-v2/useWeb3'
-import React from 'react'
+import React, { useMemo } from 'react'
+import { useHistory, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { routes } from 'utils/routes'
+import useWeb3 from 'hooks/dex-v2/useWeb3'
+import { Pool } from 'services/pool/types'
+
+
+
 export interface PoolActionsCardProps {
-  // Define component props here, e.g.,
-  // actions?: Array<{ label: string; onClick: () => void }>;
+  pool: Pool | undefined
+  missingPrices: boolean
 }
 
-const PoolActionsCard: React.FC<PoolActionsCardProps> = (props) => {
+const PoolActionsCard: React.FC<PoolActionsCardProps> = ({ pool, missingPrices }) => {
   const { isWalletReady } = useWeb3()
+  const history = useHistory()
+  const params = useParams<any>()
+  const poolId = (params.id as string).toLowerCase()
+
+  const handleAddLiquidity = () => {
+    const path = routes.dexV2PoolAddLiquidity.replace(':id', poolId)
+    history.push(path)
+  }
+
+  const handleWithdraw = () => {
+    const path = routes.dexV2PoolAddLiquidity.replace(':id', poolId)
+    history.push(path)
+  }
 
   return (
     <Container>
@@ -19,8 +38,12 @@ const PoolActionsCard: React.FC<PoolActionsCardProps> = (props) => {
       ) : (
         <div>
           <Grid>
-            <Button color="gradient">Add Liquidity</Button>
-            <Button color="blue">Withdraw</Button>
+            <Button color="gradient" onClick={handleAddLiquidity}>
+              Add Liquidity
+            </Button>
+            <Button color="blue" onClick={handleWithdraw}>
+              Withdraw
+            </Button>
           </Grid>
           <Text>
             Liquidity Providers encounter risks when using DeFi and Balancer pools. Before proceeding, view this

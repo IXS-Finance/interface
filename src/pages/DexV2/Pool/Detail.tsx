@@ -60,7 +60,6 @@ const PoolDetail: React.FC = () => {
     [poolId]
   )
 
-  console.log('missingPrices', missingPrices)
   return (
     <Container>
       <GridContainer>
@@ -75,7 +74,7 @@ const PoolDetail: React.FC = () => {
         <div className="order-2 lg:order-1 col-span-2"></div>
         <Order2LgOrder1ColSpan2>Chart</Order2LgOrder1ColSpan2>
         <Order1LgOrder2Px4LgPx0>
-          <MyPoolBalancesCard />
+          <MyPoolBalancesCard pool={pool} missingPrices={missingPrices} />
         </Order1LgOrder2Px4LgPx0>
       </GridContainer>
     </Container>
