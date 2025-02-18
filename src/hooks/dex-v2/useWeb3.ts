@@ -25,21 +25,9 @@ export default function useWeb3() {
   // METHODS
   const getSigner = () => getEthersSigner(wagmiConfig)
 
-  const userNetworkConfig = useMemo(() => {
-    try {
-      if (chainId) return configService.getNetworkConfig(chainId)
-      return null
-    } catch (error) {
-      console.error(error)
-      return null
-    }
-  }, [chainId])
-
-  const isMismatchedNetwork = useMemo(() => {
-    return account && userNetworkConfig?.key !== appNetworkConfig.key
-  }, [chainId, account])
-
-  const isWalletReady = useMemo(() => account !== null, [account])
+  const userNetworkConfig = configService.getNetworkConfig(chainId)
+  const isMismatchedNetwork = account && userNetworkConfig?.key !== appNetworkConfig.key
+  const isWalletReady = account !== null
 
   return {
     account,

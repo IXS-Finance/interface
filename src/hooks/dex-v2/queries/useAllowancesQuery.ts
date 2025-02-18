@@ -30,8 +30,8 @@ export default function useAllowancesQuery({ tokens, contractAddresses, isEnable
   /**
    * COMPUTED
    */
-  const enabled = useMemo(() => isWalletReady && isEnabled, [isWalletReady, isEnabled])
-  const tokenAddresses = useMemo(() => Object.keys(tokens), [JSON.stringify(tokens)])
+  const enabled: boolean = isWalletReady && isEnabled
+  const tokenAddresses: string[] = Object.keys(tokens)
 
   /**
    * QUERY INPUTS

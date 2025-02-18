@@ -1,11 +1,10 @@
 import { cloneDeep } from 'lodash'
 
-import { useQuery, UseQueryOptions } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Pool } from 'services/pool/types'
 import QUERY_KEYS from 'constants/dexV2/queryKeys'
 import { PoolDecorator } from 'services/pool/decorators/pool.decorator'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
-import { useMemo } from 'react'
 
 /**
  * TYPES
@@ -26,11 +25,9 @@ export default function usePoolDecorationQuery(pool: Pool | undefined, options: 
   /**
    * COMPUTED
    */
-  const poolId = useMemo((): string | undefined => pool?.id, [JSON.stringify(pool)])
-
+  const poolId: string | undefined = pool?.id
   const queryKey = QUERY_KEYS.Pool.Decorated(poolId)
-
-  const enabled = useMemo((): boolean => !!pool, [JSON.stringify(pool)])
+  const enabled: boolean = !!pool
 
   /**
    * QUERY FUNCTION

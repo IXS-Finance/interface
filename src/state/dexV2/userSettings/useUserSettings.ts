@@ -1,20 +1,42 @@
 import { bn } from 'lib/balancer/utils/numbers'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppState } from 'state'
-import { setUserSettingsState } from '.'
+import { EthereumTxType, setUserSettingsState } from '.'
 
 const useUserSettings = () => {
-  const { slippage } = useSelector((state: AppState) => state.userSettings)
+  const state = useSelector((state: AppState) => state.userSettings)
   const dispatch = useDispatch()
 
-  const slippageDecimal = bn(slippage).div(100).toString()
-  const slippageBps = bn(slippage).times(100).toString()
+  const slippageDecimal = bn(state.slippage).div(100).toString()
+  const slippageBps = bn(state.slippage).times(100).toString()
+  const slippageBsp: number = parseFloat(state.slippage) * 10000
 
   const setSlippage = (newSlippage: string) => {
     dispatch(setUserSettingsState({ slippage: newSlippage }))
   }
 
-  return { slippage, slippageDecimal, slippageBps, setSlippage }
+  function setSupportSignatures(newValue: boolean): void {
+    dispatch(setUserSettingsState({ supportSignatures: newValue }))
+  }
+
+  function setEthereumTxType(txType: EthereumTxType): void {
+    dispatch(setUserSettingsState({ ethereumTxType: txType }))
+  }
+
+  function setTransactionDeadline(newTransactionDeadline: number) {
+    dispatch(setUserSettingsState({ transactionDeadline: newTransactionDeadline }))
+  }
+
+  return {
+    ...state,
+    slippageDecimal,
+    slippageBps,
+    slippageBsp,
+    setSlippage,
+    setSupportSignatures,
+    setEthereumTxType,
+    setTransactionDeadline,
+  }
 }
 
 export default useUserSettings

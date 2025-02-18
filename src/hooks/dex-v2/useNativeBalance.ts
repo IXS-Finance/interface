@@ -10,12 +10,8 @@ export default function useNativeBalance() {
 
   const { appNetworkConfig, isWalletReady } = useWeb3()
 
-  const nativeBalance = useMemo(() => {
-    if (!isWalletReady) return '-'
-    return Number(balanceFor(appNetworkConfig.nativeAsset.address)).toFixed(4)
-  }, [isWalletReady, appNetworkConfig.nativeAsset.address])
-
-  const hasNativeBalance = useMemo(() => hasBalance(nativeAsset.address), [nativeAsset.address])
+  const nativeBalance = isWalletReady ? Number(balanceFor(appNetworkConfig.nativeAsset.address)).toFixed(4) : ''
+  const hasNativeBalance = hasBalance(nativeAsset.address)
 
   return {
     hasNativeBalance,

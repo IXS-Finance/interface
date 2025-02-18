@@ -1,5 +1,3 @@
-import { useMemo } from 'react'
-
 import { isSameAddress } from 'lib/utils'
 // import useAddLiquidityTabs, { Tab, tabs } from '@/composables/pools/useAddLiquidityTabs'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
@@ -11,16 +9,14 @@ export function useMyWallet(poolId: string) {
    * COMPOSABLES
    */
   const { pool, isLoadingPool } = usePool(poolId)
-  const { setAmountsIn, setJoinWithNativeAsset, isSingleAssetJoin, amountsIn } = useJoinPool()
+  const { setAmountsIn, setJoinWithNativeAsset, isSingleAssetJoin, amountsIn } = useJoinPool(pool)
   const { nativeAsset, wrappedNativeAsset, getMaxBalanceFor } = useTokens()
   // const { activeTab } = useAddLiquidityTabs()
 
   /**
    * COMPUTED
    */
-  const excludedTokens = useMemo<string[]>(() => {
-    return pool?.address ? [pool.address] : []
-  }, [JSON.stringify(pool)])
+  const excludedTokens: string[] = pool?.address ? [pool.address] : []
 
   /**
    * METHODS

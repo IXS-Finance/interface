@@ -156,6 +156,26 @@ export function isDeep(pool: Pool): boolean {
 }
 
 /**
+ * Gets weight of token in pool if relevant, e.g if it's a weighted pool.
+ * If not, returns 0.
+ *
+ * @param {Pool} pool - The pool to check
+ * @param {string} tokenAddress - The address of the token to check
+ * @returns {number} The weight of the token in the pool
+ */
+export function tokenWeight(pool: Pool, tokenAddress: string): number {
+  if (isStableLike(pool.poolType)) return 0
+  if (!pool?.onchain?.tokens) return 0
+
+  const { nativeAsset, wNativeAsset } = configService.network.tokens.Addresses
+
+  if (isSameAddress(tokenAddress, nativeAsset)) {
+    return selectByAddress(pool.onchain.tokens, wNativeAsset)?.weight || 1
+  }
+  return selectByAddress(pool.onchain.tokens, tokenAddress)?.weight || 1
+}
+
+/**
  * Gets all pool token addresses that can possibly be used to join a pool.
  *
  * @param {Pool} pool - The pool to check
@@ -211,6 +231,16 @@ export function flatTokenTree(
 }
 
 /**
+ * Removes pre-minted pool token from tokensList.
+ *
+ * @param {Pool} pool - Pool to get tokensList from.
+ * @returns tokensList excluding pre-minted BPT address.
+ */
+export function tokensListExclBpt(pool: Pool): string[] {
+  return removeAddress(pool.address, pool.tokensList)
+}
+
+/**
  * @summary Orders pool tokens by weight if weighted pool
  */
 export function orderedPoolTokens(pool: Pool, tokens: PoolToken[]): PoolToken[] {
@@ -230,12 +260,12 @@ export function orderedPoolTokens(pool: Pool, tokens: PoolToken[]): PoolToken[] 
  * @returns Array of checksum addresses
  */
 export function orderedTokenAddresses(pool: AnyPool): string[] {
-  const sortedTokens = orderedPoolTokens(pool, pool.tokens);
-  return sortedTokens.map(token => getAddress(token?.address || ''));
+  const sortedTokens = orderedPoolTokens(pool, pool.tokens)
+  return sortedTokens.map((token) => getAddress(token?.address || ''))
 }
 
 export function isMigratablePool(pool: AnyPool) {
-  return !!POOLS.Migrations?.[pool.id];
+  return !!POOLS.Migrations?.[pool.id]
 }
 
 export function noInitLiquidity(pool: AnyPool): boolean {
@@ -245,7 +275,7 @@ export function noInitLiquidity(pool: AnyPool): boolean {
   //   '0x5c6ee304399dbdb9c8ef030ab642b10820db8f56000200000000000000000014'
   // )
   //   return true;
-  return bnum(pool?.totalShares || '0').eq(0);
+  return bnum(pool?.totalShares || '0').eq(0)
 }
 
 /**
@@ -255,7 +285,7 @@ export function noInitLiquidity(pool: AnyPool): boolean {
  * @returns USD value of 1 BPT
  */
 export function bptPriceFor(pool: Pool): string {
-  return bnum(pool.totalLiquidity).div(pool.totalShares).toString();
+  return bnum(pool.totalLiquidity).div(pool.totalShares).toString()
 }
 
 /**
@@ -264,9 +294,8 @@ export function bptPriceFor(pool: Pool): string {
  * @returns USD value of shares.
  */
 export function fiatValueOf(pool: Pool, shares: string): string {
-  return bnum(shares).times(bptPriceFor(pool)).toString();
+  return bnum(shares).times(bptPriceFor(pool)).toString()
 }
-
 
 export function usePoolHelpers(pool: AnyPool | undefined) {
   const { fNum } = useNumbers()
@@ -297,58 +326,32 @@ export function usePoolHelpers(pool: AnyPool | undefined) {
   /**
    * COMPUTED
    */
-  const isStablePool = useMemo((): boolean => !!pool && isStable(pool.poolType), [JSON.stringify(pool)])
-  const isMetaStablePool = useMemo((): boolean => !!pool && isMetaStable(pool.poolType), [JSON.stringify(pool)])
-  const isStablePhantomPool = useMemo((): boolean => !!pool && isStablePhantom(pool.poolType), [JSON.stringify(pool)])
-  const isComposableStablePool = useMemo(
-    (): boolean => !!pool && isComposableStable(pool.poolType),
-    [JSON.stringify(pool)]
-  )
-  const isDeepPool = useMemo((): boolean => !!pool && isDeep(pool), [JSON.stringify(pool)])
-  const isShallowComposableStablePool = useMemo(
-    (): boolean => isComposableStablePool && !isDeepPool,
-    [isComposableStablePool, isDeepPool]
-  )
-  const isStableLikePool = useMemo((): boolean => !!pool && isStableLike(pool.poolType), [JSON.stringify(pool)])
-  const isComposableStableLikePool = useMemo(
-    (): boolean => !!pool && isComposableStableLike(pool.poolType),
-    [JSON.stringify(pool)]
-  )
-  const isPreMintedBptPool = useMemo((): boolean => !!pool && isPreMintedBptType(pool.poolType), [JSON.stringify(pool)])
-  const isWeightedPool = useMemo((): boolean => !!pool && isWeighted(pool.poolType), [JSON.stringify(pool)])
-  const isWeightedLikePool = useMemo((): boolean => !!pool && isWeightedLike(pool.poolType), [JSON.stringify(pool)])
-  const isManagedPool = useMemo((): boolean => !!pool && isManaged(pool.poolType), [JSON.stringify(pool)])
-  const isLiquidityBootstrappingPool = useMemo(
-    (): boolean => !!pool && isLiquidityBootstrapping(pool.poolType),
-    [JSON.stringify(pool)]
-  )
-  const managedPoolWithSwappingHalted = useMemo(
-    (): boolean => !!pool && isManagedPool && !pool.onchain?.swapEnabled,
-    [JSON.stringify(pool)]
-  )
-  const isWrappedNativeAssetPool = useMemo((): boolean => !!pool && isWrappedNativeAsset(pool), [JSON.stringify(pool)])
-  const poolJoinTokens = useMemo((): string[] => (pool ? joinTokens(pool) : []), [JSON.stringify(pool)])
-
-  // pool is "Weighted" and some of the rate providers are not on our approved list
-  const hasNonApprovedRateProviders = useMemo(
-    () =>
-      pool &&
-      isWeighted(pool.poolType) &&
-      !pool?.priceRateProviders?.every(
-        (provider) =>
-          configService.network.rateProviders['*'][provider.address] ||
-          configService.network.rateProviders[provider.token?.address]?.[provider.address]
-      ),
-    [JSON.stringify(pool)]
-  )
-
-  const isDeprecatedPool = useMemo(() => {
-    return !!pool && !!POOLS.Deprecated?.[pool.id]
-  }, [JSON.stringify(pool)])
-
-  const isNewPoolAvailable = useMemo(() => {
-    return !!pool && !!POOLS.NewVersionAvailable?.[pool.id]
-  }, [JSON.stringify(pool)])
+  const isStablePool: boolean = !!pool && isStable(pool.poolType)
+  const isMetaStablePool: boolean = !!pool && isMetaStable(pool.poolType)
+  const isStablePhantomPool: boolean = !!pool && isStablePhantom(pool.poolType)
+  const isComposableStablePool: boolean = !!pool && isComposableStable(pool.poolType)
+  const isDeepPool: boolean = !!pool && isDeep(pool)
+  const isShallowComposableStablePool: boolean = isComposableStablePool && !isDeepPool
+  const isStableLikePool: boolean = !!pool && isStableLike(pool.poolType)
+  const isComposableStableLikePool: boolean = !!pool && isComposableStableLike(pool.poolType)
+  const isPreMintedBptPool: boolean = !!pool && isPreMintedBptType(pool.poolType)
+  const isWeightedPool: boolean = !!pool && isWeighted(pool.poolType)
+  const isWeightedLikePool: boolean = !!pool && isWeightedLike(pool.poolType)
+  const isManagedPool: boolean = !!pool && isManaged(pool.poolType)
+  const isLiquidityBootstrappingPool: boolean = !!pool && isLiquidityBootstrapping(pool.poolType)
+  const managedPoolWithSwappingHalted: boolean = !!pool && isManagedPool && !pool.onchain?.swapEnabled
+  const isWrappedNativeAssetPool: boolean = !!pool && isWrappedNativeAsset(pool)
+  const poolJoinTokens: string[] = pool ? joinTokens(pool) : []
+  const hasNonApprovedRateProviders: boolean =
+    !!pool &&
+    isWeighted(pool.poolType) &&
+    !pool?.priceRateProviders?.every(
+      (provider) =>
+        configService.network.rateProviders['*'][provider.address] ||
+        configService.network.rateProviders[provider.token?.address]?.[provider.address]
+    )
+  const isDeprecatedPool: boolean = !!pool && !!POOLS.Deprecated?.[pool.id]
+  const isNewPoolAvailable: boolean = !!pool && !!POOLS.NewVersionAvailable?.[pool.id]
 
   return {
     // computed
