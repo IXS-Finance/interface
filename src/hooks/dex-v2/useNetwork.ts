@@ -9,6 +9,7 @@ export const networkId = chainId as Network
 
 export const isPolygon = networkId === Network.POLYGON
 export const isMainnet = networkId === Network.MAINNET
+export const isEIP1559SupportedNetwork = configService.network.supportsEIP1559
 
 export default function useNetwork() {
   const appNetworkConfig = configService.network

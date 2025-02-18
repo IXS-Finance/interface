@@ -1,6 +1,5 @@
 import { bnum, includesAddress } from 'lib/utils'
 import { useTokens } from '../tokens/hooks/useTokens'
-import { useMemo } from 'react'
 
 /**
  * Provides access to functionality related to tokens in a user's connected
@@ -16,11 +15,9 @@ export function useUserTokens() {
    * COMPUTED
    */
   // Array of token addresses that have a balance in the user's wallet.
-  const tokensWithBalance = useMemo<string[]>(() => {
-    return Object.keys(balances).filter((tokenAddress) => {
-      return bnum(balanceFor(tokenAddress)).gt(0)
-    })
-  }, [JSON.stringify(balances)])
+  const tokensWithBalance: string[] = Object.keys(balances).filter((tokenAddress) => {
+    return bnum(balanceFor(tokenAddress)).gt(0)
+  })
 
   /**
    * METHODS
@@ -33,6 +30,7 @@ export function useUserTokens() {
    * @returns Array of token addresses that are included in the provided array of addresses.
    */
   function tokensWithBalanceFrom(addresses: string[]): string[] {
+    if (!addresses) return []
     return addresses.filter((address) => includesAddress(tokensWithBalance, address))
   }
 
@@ -53,6 +51,7 @@ export function useUserTokens() {
    * @returns Array of token addresses without a balance in the user's wallet.
    */
   function tokensWithoutBalanceFrom(addresses: string[]): string[] {
+    if (!addresses) return []
     return addresses.filter((address) => !includesAddress(tokensWithBalance, address))
   }
 

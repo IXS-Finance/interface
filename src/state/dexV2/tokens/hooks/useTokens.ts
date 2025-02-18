@@ -29,7 +29,7 @@ export const useTokens = () => {
 
   const dispatch = useDispatch()
   const { networkConfig } = useConfig()
-  const { isWalletReady } = useWeb3();
+  const { isWalletReady } = useWeb3()
   const { allTokenLists, activeTokenLists, balancerTokenLists } = useTokenLists()
 
   /**
@@ -79,14 +79,11 @@ export const useTokens = () => {
    * and any injected tokens. Static and dynamic
    * meta data should be available for these tokens.
    */
-  const tokens = useMemo(
-    (): TokenInfoMap => ({
-      [networkConfig.nativeAsset.address]: nativeAsset,
-      ...allTokenListTokens,
-      ...state.injectedTokens,
-    }),
-    [JSON.stringify(allTokenListTokens), JSON.stringify(state.injectedTokens)]
-  )
+  const tokens: TokenInfoMap = {
+    [networkConfig.nativeAsset.address]: nativeAsset,
+    ...allTokenListTokens,
+    ...state.injectedTokens,
+  }
 
   const wrappedNativeAsset = useMemo((): TokenInfo => getToken(TOKENS.Addresses.wNativeAsset), [JSON.stringify(tokens)])
 
@@ -103,7 +100,7 @@ export const useTokens = () => {
     isRefetching: priceQueryRefetching,
     isError: priceQueryError,
     refetch: refetchPrices,
-  } = useTokenPricesQuery(state.injectedPrices)
+  } = useTokenPricesQuery(state.injectedPrices, false)
 
   const {
     data: balanceData,
@@ -129,24 +126,27 @@ export const useTokens = () => {
 
   const prices = useMemo((): TokenPrices => (priceData ? priceData : {}), [JSON.stringify(priceData)])
   const balances = useMemo((): BalanceMap => (balanceData ? balanceData : {}), [JSON.stringify(balanceData)])
-  const allowances = useMemo((): ContractAllowancesMap => (allowanceData ? allowanceData : {}), [JSON.stringify(allowanceData)])
+  const allowances = useMemo(
+    (): ContractAllowancesMap => (allowanceData ? allowanceData : {}),
+    [JSON.stringify(allowanceData)]
+  )
 
   const onchainDataLoading = useMemo(
     (): boolean =>
       isWalletReady &&
-      (balanceQueryLoading ||
-        balanceQueryRefetching ||
-        allowanceQueryLoading ||
-        allowanceQueryRefetching)
-  , [balanceQueryLoading, balanceQueryRefetching, allowanceQueryLoading, allowanceQueryRefetching])
+      (balanceQueryLoading || balanceQueryRefetching || allowanceQueryLoading || allowanceQueryRefetching),
+    [balanceQueryLoading, balanceQueryRefetching, allowanceQueryLoading, allowanceQueryRefetching]
+  )
 
   const dynamicDataLoaded = useMemo(
-    (): boolean => priceQuerySuccess && balanceQuerySuccess && allowanceQuerySuccess
-  , [priceQuerySuccess, balanceQuerySuccess, allowanceQuerySuccess])
+    (): boolean => priceQuerySuccess && balanceQuerySuccess && allowanceQuerySuccess,
+    [priceQuerySuccess, balanceQuerySuccess, allowanceQuerySuccess]
+  )
 
   const dynamicDataLoading = useMemo(
-    (): boolean => priceQueryLoading || priceQueryRefetching || onchainDataLoading
-  , [priceQueryLoading, priceQueryRefetching, onchainDataLoading])
+    (): boolean => priceQueryLoading || priceQueryRefetching || onchainDataLoading,
+    [priceQueryLoading, priceQueryRefetching, onchainDataLoading]
+  )
 
   /**
    * METHODS

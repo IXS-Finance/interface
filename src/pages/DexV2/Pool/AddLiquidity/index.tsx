@@ -15,10 +15,9 @@ interface AddLiquidityProps {
 const AddLiquidity: React.FC<AddLiquidityProps> = (props) => {
   const params = useParams<any>()
   const poolId = (params.id as string).toLowerCase()
-  const { pool, isLoadingPool, refetchOnchainPoolData } = usePool(poolId)
-  const isLoading = useMemo((): boolean => isLoadingPool, [isLoadingPool])
+  const { pool, isLoadingPool } = usePool(poolId)
+  const isLoading: boolean = isLoadingPool
 
-  console.log('pool', pool)
   return (
     <Container>
       {isLoading || !pool ? (

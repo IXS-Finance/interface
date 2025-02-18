@@ -190,15 +190,15 @@ const tokensSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchTokensFromListTokens.fulfilled, (state, action) => {
-      state.tokens = action.payload
-    })
-    builder.addCase(fetchTokensBalances.fulfilled, (state, action) => {
-      state.balances = action.payload
-    })
-    builder.addCase(fetchTokensAllowwances.fulfilled, (state, action) => {
-      state.allowances = { ...state.allowances, ...action.payload }
-    })
+    // builder.addCase(fetchTokensFromListTokens.fulfilled, (state, action) => {
+    //   state.tokens = action.payload
+    // })
+    // builder.addCase(fetchTokensBalances.fulfilled, (state, action) => {
+    //   state.balances = action.payload
+    // })
+    // builder.addCase(fetchTokensAllowwances.fulfilled, (state, action) => {
+    //   state.allowances = { ...state.allowances, ...action.payload }
+    // })
     builder.addCase(fetchTokenPrices.fulfilled, (state, action) => {
       state.prices = action.payload;
       state.injectedPrices = {};

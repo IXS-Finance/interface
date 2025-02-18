@@ -1,25 +1,35 @@
 import React from 'react'
+import { Box, Flex } from 'rebass'
 
-interface AddLiquidityCardProps {
-  title?: string
-}
+import { configService } from 'services/config/config.service'
+import BalCard from 'pages/DexV2/common/Card'
+import SwapSettingsPopover from 'pages/DexV2/common/SwapSettingsPopover'
 
-const AddLiquidityCard: React.FC<AddLiquidityCardProps> = ({ title = 'Add Liquidity' }) => {
+interface AddLiquidityCardProps {}
+
+const AddLiquidityCard: React.FC<AddLiquidityCardProps> = () => {
+  const { network } = configService
+
   return (
-    <div className="add-liquidity-card">
-      <h2>{title}</h2>
-      <form>
-        <div>
-          <label htmlFor="tokenA">Token A:</label>
-          <input type="text" id="tokenA" name="tokenA" placeholder="Enter token A" />
-        </div>
-        <div>
-          <label htmlFor="tokenB">Token B:</label>
-          <input type="text" id="tokenB" name="tokenB" placeholder="Enter token B" />
-        </div>
-        <button type="submit">Add Liquidity</button>
-      </form>
-    </div>
+    <BalCard noBorder shadow="xl" exposeOverflow>
+      <Box width="100%">
+        <Box
+          fontSize="0.75rem" // equivalent to text-xs
+          lineHeight="1" // equivalent to leading-none
+          sx={{
+            color: 'secondary', // ensure your theme defines "secondary" or use a hex value like "#6b7280"
+          }}
+        >
+          {network.chainName}
+        </Box>
+        <Flex alignItems="center" justifyContent="space-between">
+          <Box as="h4" css={{ lineHeight: 1.75 }}>
+            Add liquidity
+          </Box>
+          <SwapSettingsPopover />
+        </Flex>
+      </Box>
+    </BalCard>
   )
 }
 
