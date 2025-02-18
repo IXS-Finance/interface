@@ -11,10 +11,12 @@ import {
   TransactionReceiptNotFoundError,
 } from 'viem'
 import { waitForTransactionReceipt } from '@wagmi/core'
-import pkg from '../../../package.json';
+import pkg from '../../../package.json'
 
 import { retry, RetryableError } from 'lib/utils/retry'
 import { wagmiConfig } from 'components/Web3Provider'
+import { NATIVE_ASSET_ADDRESS } from 'constants/dexV2/tokens'
+import { POOLS } from 'constants/dexV2/pools'
 
 export function bnum(val: string | number | BigNumber): BigNumber {
   const number = typeof val === 'string' ? val : val ? val.toString() : '0'
@@ -43,18 +45,21 @@ export function shortenLabel(str: string, segLength = 4) {
  * @param address An address to find in the map
  * @returns Item from map or undefined
  */
-export function selectByAddress<T>(
-  map: Record<string, T>,
-  address: string
-): T | undefined {
-  const foundAddress = Object.keys(map).find(itemAddress => {
+export function selectByAddress<T>(map: Record<string, T>, address: string): T | undefined {
+  const foundAddress = Object.keys(map).find((itemAddress) => {
     if (isSameAddress(itemAddress, address)) {
-      return true;
+      return true
     }
-  });
-  if (foundAddress) return map[foundAddress];
+  })
+  if (foundAddress) return map[foundAddress]
 }
 
+/**
+ * Sums and array of string numbers and returns as BigNumber
+ */
+export function bnSum(amounts: string[]): BigNumber {
+  return amounts.reduce((a, b) => bnum(a).plus(b), bnum(0))
+}
 
 /**
  * Select an Address using a hashmap
@@ -78,9 +83,9 @@ export function isSameAddress(address1: string, address2: string): boolean {
 }
 
 export function includesAddress(addresses: string[], address: string): boolean {
-  if (!address) return false;
-  addresses = addresses.map(a => (a ? getAddress(a) : ''));
-  return addresses.includes(getAddress(address));
+  if (!address) return false
+  addresses = addresses.map((a) => (a ? getAddress(a) : ''))
+  return addresses.includes(getAddress(address))
 }
 
 // Should match MAX_WEIGHTED_TOKENS from v2-helpers/constants
@@ -191,38 +196,42 @@ export const retryWaitForTransaction = async ({ hash, confirmations }: { hash?: 
   return undefined
 }
 
-
 function lsGetKey(key: string) {
-  return `${pkg.name}.${key}`;
+  return `${pkg.name}.${key}`
 }
 
-export function lsGet<T = any>(
-  key: string,
-  defaultValue: any = null,
-  version?: string
-): T {
-  const rawValue = localStorage.getItem(lsGetKey(key));
+export function lsGet<T = any>(key: string, defaultValue: any = null, version?: string): T {
+  const rawValue = localStorage.getItem(lsGetKey(key))
 
   if (rawValue != null) {
     try {
-      const value = JSON.parse(rawValue);
+      const value = JSON.parse(rawValue)
       if (version != null) {
-        return value._version === version ? value.data : defaultValue;
+        return value._version === version ? value.data : defaultValue
       }
-      return value;
+      return value
     } catch (e) {
-      return defaultValue;
+      return defaultValue
     }
   }
 
-  return defaultValue;
+  return defaultValue
 }
 
 export const lsSet = (key: string, value: string) => {
   localStorage.setItem(key, JSON.stringify(value))
 }
 
+export function findByAddress(items: any, address: string, key = 'address'): any {
+  return items.find((item: any) => isSameAddress(item[key], address))
+}
+
 export function removeAddress(address: string, addresses: string[]): string[] {
-  if (!address) return addresses;
-  return addresses.filter(a => !isSameAddress(a, address));
+  if (!address) return addresses
+  return addresses.filter((a) => !isSameAddress(a, address))
+}
+
+// If given address is the native asset address, return the zero address
+export function formatAddressForSor(address: string): string {
+  return isSameAddress(address, NATIVE_ASSET_ADDRESS) ? POOLS.ZeroAddress : address
 }

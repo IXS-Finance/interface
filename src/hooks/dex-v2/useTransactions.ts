@@ -79,20 +79,15 @@ export type TransactionState = {
 export const transactionsState = lsGet(LS_KEYS.Transactions, {}, TRANSACTIONS_SCHEMA_VERSION)
 
 // COMPUTED
-const transactions = useMemo(() =>
-  orderBy(Object.values(getTransactions()), 'addedTime', 'desc').filter(isTransactionRecent)
-, [transactionsState])
+const transactions = orderBy(Object.values(getTransactions()), 'addedTime', 'desc').filter(isTransactionRecent)
 
-const pendingTransactions = useMemo(() =>
-  transactions.filter((transaction: any) => isPendingTransactionStatus(transaction.status))
-, [transactions])
+const pendingTransactions = transactions.filter((transaction: any) => isPendingTransactionStatus(transaction.status))
 
-const finalizedTransactions = useMemo(() =>
-  transactions.filter((transaction: any) => isFinalizedTransactionStatus(transaction.status))
-, [transactions])
+const finalizedTransactions = transactions.filter((transaction: any) =>
+  isFinalizedTransactionStatus(transaction.status)
+)
 
-const pendingTxActivity = useMemo(() => pendingTransactions.filter(({ type }) => type === 'tx'), [pendingTransactions])
-
+const pendingTxActivity = pendingTransactions.filter(({ type }) => type === 'tx')
 // METHODS
 function normalizeTxReceipt(receipt: TransactionReceipt) {
   return {

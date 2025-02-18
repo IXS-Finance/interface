@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { GraphQLArgs } from '@ixswap1/dex-v2-sdk'
-import { useMemo } from 'react'
 
 import { poolsStoreService } from 'services/pool/pools-store.service'
 import { Pool } from 'services/pool/types'
@@ -29,7 +28,7 @@ export default function usePoolQuery(id: string, isEnabled: boolean = true, opti
   /**
    * COMPUTED
    */
-  const enabled = useMemo(() => isEnabled, [isEnabled])
+  const enabled = isEnabled
 
   /**
    * METHODS

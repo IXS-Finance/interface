@@ -1,18 +1,32 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { FiatCurrency } from 'constants/dexV2/currency'
 
 export type YesNo = 'yes' | 'no'
 
 const DEFAULT_SLIPPAGE = '0.5' // 0.5%
 const DEFAULT_ENABLE_SIGNATURES: YesNo = 'yes'
+export enum EthereumTxType {
+  LEGACY = 'Legacy',
+  EIP1559 = 'EIP1559',
+}
+const defaultSwapDeadlineMinutes = 100
 
 export interface UserSettingsState {
+  currency: FiatCurrency
   slippage: string
   enableSignatures: YesNo
+  supportSignatures: boolean
+  ethereumTxType: EthereumTxType
+  transactionDeadline: number
 }
 
 const initialState: UserSettingsState = {
+  currency: FiatCurrency.usd,
   slippage: DEFAULT_SLIPPAGE,
   enableSignatures: DEFAULT_ENABLE_SIGNATURES,
+  supportSignatures: true,
+  ethereumTxType: EthereumTxType.EIP1559,
+  transactionDeadline: defaultSwapDeadlineMinutes,
 }
 
 const userSettingsSlice = createSlice({
