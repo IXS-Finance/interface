@@ -44,4 +44,5 @@ const StyledInput = styled.input`
   letter-spacing: -0.42px;
   width: 100%;
   box-sizing: border-box;
+  outline: none;
 `

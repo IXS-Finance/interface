@@ -5,11 +5,9 @@ import { multicall } from '@wagmi/core'
 import { formatUnits } from 'viem'
 import { orderBy } from 'lodash'
 
-import TextInput from './TextInput'
+import TextInput from '../TextInput'
 import { CenteredFixed } from 'components/LaunchpadMisc/styled'
 import { ReactComponent as CloseIcon } from 'assets/images/dex-v2/close.svg'
-import EthIcon from 'assets/images/dex-v2/eth.svg'
-import PolIcon from 'assets/images/dex-v2/pol.svg'
 import { useWeb3React } from 'hooks/useWeb3React'
 import config, { tokenLists } from 'lib/config'
 import { default as erc20Abi } from 'lib/abi/ERC20.json'
@@ -18,11 +16,15 @@ import { useTokensState } from 'state/dexV2/tokens/hooks'
 import { useDispatch } from 'react-redux'
 import { fetchTokensBalances, fetchTokenPrices } from 'state/dexV2/tokens'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import { Box } from 'rebass'
+import LoadingIcon from '../LoadingIcon'
+import TokenListItem from './TokenListItem'
 
 interface SelectTokenModalProps {
   excludedTokens: string[]
   includeEther?: boolean
   disableInjection?: boolean
+  ignoreBalances?: boolean
   subset?: string[]
   updateAddress: (address: string) => void
   onClose: () => void
@@ -36,8 +38,16 @@ export function formatAmount(amount: number, maximumFractionDigits = 10) {
 }
 
 const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
-  const { tokens, getToken, searchTokens, priceFor, balanceFor, dynamicDataLoading, nativeAsset, injectTokens } =
-    useTokens()
+  const {
+    tokens: tokensRaw,
+    getToken,
+    searchTokens,
+    priceFor,
+    balanceFor,
+    dynamicDataLoading,
+    nativeAsset,
+    injectTokens,
+  } = useTokens()
 
   const { chainId, provider, account } = useWeb3React()
   const { balances } = useTokensState()
@@ -45,33 +55,27 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
 
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<any>([])
+  const [loading, setLoading] = useState(false)
 
   const excludedTokens = [...props.excludedTokens, ...(props.includeEther ? [] : [nativeAsset.address])]
 
-  const tokensFinal = useMemo(() => {
-    let tokensWithValues = Object.values(results).map((token) => {
-      // @ts-ignore
-      const balance = balances[token.address]
-      // const price = priceFor(token.address)
-      // const value = Number(balance) * price
-      return {
-        // @ts-ignore
-        ...token,
-        // price,
-        balance,
-        // value,
-      }
-    })
+  const tokensWithValues = Object.values(results).map((token: any) => {
+    const balance = balanceFor(token.address)
+    const price = priceFor(token.address)
+    const value = Number(balance) * price
+    return {
+      ...token,
+      price,
+      balance,
+      value,
+    }
+  })
 
-    tokensWithValues = tokensWithValues.filter((token) => !excludedTokens.includes(token.address))
+  const tokens = props.ignoreBalances
+    ? tokensWithValues
+    : orderBy(tokensWithValues, ['value', 'balance'], ['desc', 'desc'])
 
-    // if (ignoreBalances) return tokensWithValues
-    // else return orderBy(tokensWithValues, ['value', 'balance'], ['desc', 'desc'])
-
-    // return orderBy(tokensWithValues, ['value', 'balance'], ['desc', 'desc'])
-
-    return tokensWithValues
-  }, [results, balances])
+  console.log('tokens', tokens)
 
   async function onSelectToken(token: string): Promise<void> {
     // Todo: Implement onSelectToken
@@ -97,19 +101,19 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
 
   useEffect(() => {
     async function queryTokens(newQuery: string) {
+      setLoading(true)
       const results = await searchTokens(newQuery, {
         excluded: excludedTokens,
         disableInjection: props.disableInjection ? props.disableInjection : false,
         subset: props.subset ? props.subset : [],
       }).finally(() => {
-        // state.loading = false;
+        setLoading(false)
       })
-      debugger
       setResults(results)
     }
 
     queryTokens(query)
-  }, [query, JSON.stringify(tokens)])
+  }, [query, JSON.stringify(tokensRaw)])
 
   return (
     <Portal>
@@ -122,28 +126,48 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
                 <CloseIcon />
               </CloseButton>
             </TitleWrapper>
-            <TextInput placeholder="Search by name, symbol or address" />
+            <TextInput
+              placeholder="Search by name, symbol or address"
+              value={query}
+              autoFocus
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
+            />
           </HeaderModal>
 
           <BodyModal>
-            <TokenList>
-              {tokensFinal.map((token: any) => {
-                const balance = token?.balance ? formatAmount(+token?.balance, 2) : ''
+            {tokens.length ? (
+              <TokenList>
+                {tokens.map((token: any) => {
+                  // const balance = token?.balance ? formatAmount(+token?.balance, 2) : ''
 
-                return (
-                  <TokenItem key={token.name} onClick={() => onSelectToken(token.address)}>
-                    <TokenInfoWrap>
-                      <img src={token.logoURI} alt="ETH" width={20} height={20} />
-                      <TokenDetails>
-                        <TokenSymbol>{token.symbol}</TokenSymbol>
-                        <TokenName>{token.name}</TokenName>
-                      </TokenDetails>
-                    </TokenInfoWrap>
-                    <TokenBalance>{balance}</TokenBalance>
-                  </TokenItem>
-                )
-              })}
-            </TokenList>
+                  return (
+                    <div onClick={() => onSelectToken(token.address)}>
+                      <TokenListItem
+                        key={token.name}
+                        token={token}
+                        balanceLoading={false}
+                        hideBalance={false}
+                      />
+                    </div>
+
+                    // <TokenItem key={token.name} onClick={() => onSelectToken(token.address)}>
+                    //   <TokenInfoWrap>
+                    //     <img src={token.logoURI} alt="ETH" width={20} height={20} />
+                    //     <TokenDetails>
+                    //       <TokenSymbol>{token.symbol}</TokenSymbol>
+                    //       <TokenName>{token.name}</TokenName>
+                    //     </TokenDetails>
+                    //   </TokenInfoWrap>
+                    //   <TokenBalance>{balance}</TokenBalance>
+                    // </TokenItem>
+                  )
+                })}
+              </TokenList>
+            ) : (
+              <Box display="flex" justifyContent="center" alignItems="center" height="24rem">
+                <LoadingIcon />
+              </Box>
+            )}
           </BodyModal>
         </ModalContent>
       </CenteredFixed>
@@ -164,6 +188,7 @@ const TokenItem = styled.div`
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #e6e6ff;
+  padding: 0 16px;
   cursor: pointer;
 
   &:hover {
@@ -247,7 +272,7 @@ const BodyModal = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 16px 32px;
+  padding: 16px 0;
   height: 560px;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
