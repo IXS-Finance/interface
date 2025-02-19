@@ -28,7 +28,7 @@ const AddLiquidity: React.FC<AddLiquidityProps> = (props) => {
           right={<LoadingBlock className="h-96" />}
         />
       ) : (
-        <Col2Layout leftSpan="5" rightSpan="7" left={<MyWallet />} right={<AddLiquidityCard />} />
+        <Col2Layout leftSpan="5" rightSpan="7" left={<MyWallet />} right={<AddLiquidityCard pool={pool} />} />
       )}
     </Container>
   )

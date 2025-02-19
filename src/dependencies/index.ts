@@ -1,12 +1,12 @@
 import { initApi } from './balancer-api';
-// import { initEthersContract } from './EthersContract';
+import { initEthersContract } from './EthersContract';
 import { initMulticall } from './multicall'
 import { initMulticaller } from './Multicaller'
 import { initOldMulticaller } from './OldMulticaller'
 // import { initRpcProviderService } from './rpc-provider.service';
 // import { initWalletConnectors } from './wallets';
 // import { initWeb3Provider } from './wallets/Web3Provider';
-// import { initContractConcern } from './contract.concern';
+import { initContractConcern } from './contract.concern';
 
 export function initDependencies() {
   // We exclude the heavy dependencies to save bundle size:
@@ -18,10 +18,10 @@ export function initDependencies() {
   // initRpcProviderService();
   initMulticaller()
   initOldMulticaller()
-  // initEthersContract();
+  initEthersContract();
   // initWeb3Provider();
   // initWalletConnectors();
-  // initContractConcern();
+  initContractConcern();
 }
 
 export function handleDependencyError(dependencyName: string): never {
