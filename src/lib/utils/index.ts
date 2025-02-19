@@ -82,6 +82,12 @@ export function isSameAddress(address1: string, address2: string): boolean {
   return getAddress(address1) === getAddress(address2)
 }
 
+export function indexOfAddress(addresses: string[], address: string): number {
+  if (!address) return -1
+  addresses = addresses.map((a) => (a ? getAddress(a) : ''))
+  return addresses.indexOf(getAddress(address))
+}
+
 export function includesAddress(addresses: string[], address: string): boolean {
   if (!address) return false
   addresses = addresses.map((a) => (a ? getAddress(a) : ''))
