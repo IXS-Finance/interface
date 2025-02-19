@@ -6,7 +6,7 @@ import TokenListService, { tokenListService } from 'services/token-list/token-li
 import { TokenList, TokenListMap } from 'types/TokenList'
 import useNetwork from 'hooks/dex-v2/useNetwork'
 import { useTokenListsState } from './hooks'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 /** TYPES */
 export interface TokenListsState {
@@ -28,37 +28,24 @@ const useTokenLists = () => {
   /**
    * All active (toggled) tokenlists
    */
-  const activeTokenLists = useMemo(
-    (): TokenListMap => pick(allTokenLists, state.activeListKeys),
-    [JSON.stringify(allTokenLists), JSON.stringify(state.activeListKeys)]
-  )
+  const activeTokenLists: TokenListMap = pick(allTokenLists, state.activeListKeys)
 
   /**
    * All allowlisted tokens from tokenlists repo
    */
-  const balancerTokenList = useMemo(
-    (): TokenList => allTokenLists[uris.Balancer.Allowlisted],
-    [JSON.stringify(allTokenLists)]
-  )
+  const balancerTokenList: TokenList = allTokenLists[uris.Balancer.Allowlisted]
 
   /**
    * All Balancer token lists mapped by URI.
    */
-  const balancerTokenLists = useMemo(
-    (): TokenListMap => pick(allTokenLists, uris.Balancer.All),
-    [JSON.stringify(allTokenLists), JSON.stringify(uris.Balancer.All)]
-  )
+  const balancerTokenLists: TokenListMap = pick(allTokenLists, uris.Balancer.All)
 
   /**
    * Approved token lists mapped by URI.
    * Approved means tokens are compliant and can be presented in the UI.
    * This excludes lists like the Balancer vetted list.
    */
-  const approvedTokenLists = useMemo(
-    (): TokenListMap => pick(allTokenLists, uris.Approved),
-    [JSON.stringify(allTokenLists)]
-  )
-
+  const approvedTokenLists: TokenListMap = pick(allTokenLists, uris.Approved)
   /**
    * Adds a token list to the active lists which
    * makes additonal tokens available in the token search modal.

@@ -90,7 +90,7 @@ const ChooseWeights: React.FC = () => {
 
   const isProceedDisabled = useMemo(() => {
     if (!account) return false
-    if (similarPoolsLoading || isPoolExisting) return true // validating or pool is existing
+    // if (similarPoolsLoading || isPoolExisting) return true // validating or pool is existing
     if (Number(totalAllocatedWeight) !== 100) return true
     if (seedTokens.length < 2) return true
     if (zeroWeightToken) return true
@@ -216,7 +216,7 @@ const ChooseWeights: React.FC = () => {
           {`All tokens in a pool must have a weighting greater than zero. Either remove or replace {0} or set it above 0.01%.`}
         </BalAlert>
       ) : null}
-      
+
       {isPoolExisting ? (
         <BalAlert title={`Pair ${ getPoolSymbol() } already exists!`} type="warning" />
       ) : null}

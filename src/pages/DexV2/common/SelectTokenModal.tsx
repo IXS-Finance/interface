@@ -17,9 +17,13 @@ import { wagmiConfig } from 'components/Web3Provider'
 import { useTokensState } from 'state/dexV2/tokens/hooks'
 import { useDispatch } from 'react-redux'
 import { fetchTokensBalances, fetchTokenPrices } from 'state/dexV2/tokens'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 interface SelectTokenModalProps {
   excludedTokens: string[]
+  includeEther?: boolean
+  disableInjection?: boolean
+  subset?: string[]
   updateAddress: (address: string) => void
   onClose: () => void
 }
@@ -31,12 +35,20 @@ export function formatAmount(amount: number, maximumFractionDigits = 10) {
   })
 }
 
-const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ excludedTokens = [], updateAddress, onClose }) => {
+const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
+  const { tokens, getToken, searchTokens, priceFor, balanceFor, dynamicDataLoading, nativeAsset, injectTokens } =
+    useTokens()
+
   const { chainId, provider, account } = useWeb3React()
-  const { tokens: results, balances } = useTokensState()
+  const { balances } = useTokensState()
   const dispatch = useDispatch()
 
-  const tokens = useMemo(() => {
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<any>([])
+
+  const excludedTokens = [...props.excludedTokens, ...(props.includeEther ? [] : [nativeAsset.address])]
+
+  const tokensFinal = useMemo(() => {
     let tokensWithValues = Object.values(results).map((token) => {
       // @ts-ignore
       const balance = balances[token.address]
@@ -61,16 +73,14 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ excludedTokens = []
     return tokensWithValues
   }, [results, balances])
 
-  console.log('results', results)
-
   async function onSelectToken(token: string): Promise<void> {
     // Todo: Implement onSelectToken
     // if (!getToken(token)) {
     //   await injectTokens([token]);
     // }
 
-    updateAddress(token)
-    onClose()
+    props.updateAddress(token)
+    props.onClose()
   }
 
   useEffect(() => {
@@ -85,6 +95,22 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ excludedTokens = []
     }
   }, [chainId, provider, account])
 
+  useEffect(() => {
+    async function queryTokens(newQuery: string) {
+      const results = await searchTokens(newQuery, {
+        excluded: excludedTokens,
+        disableInjection: props.disableInjection ? props.disableInjection : false,
+        subset: props.subset ? props.subset : [],
+      }).finally(() => {
+        // state.loading = false;
+      })
+      debugger
+      setResults(results)
+    }
+
+    queryTokens(query)
+  }, [query, JSON.stringify(tokens)])
+
   return (
     <Portal>
       <CenteredFixed width="100vw" height="100vh">
@@ -92,7 +118,7 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ excludedTokens = []
           <HeaderModal>
             <TitleWrapper>
               <Title>Select a token</Title>
-              <CloseButton onClick={onClose}>
+              <CloseButton onClick={props.onClose}>
                 <CloseIcon />
               </CloseButton>
             </TitleWrapper>
@@ -101,7 +127,7 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = ({ excludedTokens = []
 
           <BodyModal>
             <TokenList>
-              {tokens.map((token: any) => {
+              {tokensFinal.map((token: any) => {
                 const balance = token?.balance ? formatAmount(+token?.balance, 2) : ''
 
                 return (
