@@ -35,7 +35,7 @@ export enum PoolType {
 }
 
 export interface DexV2State {
-  activeStep: StepIds
+  activeStep: number
   seedTokens: PoolSeedToken[]
   initialFee: string
   name: string

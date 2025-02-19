@@ -1,8 +1,8 @@
 import { getChainId } from '@wagmi/core'
 import { wagmiConfig } from 'components/Web3Provider'
 import { Network } from 'lib/config/types'
-import { useMemo } from 'react'
 import { configService } from 'services/config/config.service'
+import config from 'lib/config'
 
 const chainId = getChainId(wagmiConfig)
 export const networkId = chainId as Network
@@ -10,6 +10,8 @@ export const networkId = chainId as Network
 export const isPolygon = networkId === Network.POLYGON
 export const isMainnet = networkId === Network.MAINNET
 export const isEIP1559SupportedNetwork = configService.network.supportsEIP1559
+export const networkConfig = config[networkId]
+export const isTestnet = !!config[networkId].testNetwork
 
 export default function useNetwork() {
   const appNetworkConfig = configService.network
@@ -17,7 +19,7 @@ export default function useNetwork() {
   return {
     // appUrl,
     networkId,
-    // networkConfig,
+    networkConfig,
     // networkSlug,
     // getNetworkSlug,
     // getSubdomain,

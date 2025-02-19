@@ -5,9 +5,7 @@ import { getAddress, isAddress } from '@ethersproject/address'
 import { bnum, getAddressFromPoolId, includesAddress, isSameAddress, selectByAddressFast } from 'lib/utils'
 import { NativeAsset, TokenInfo, TokenInfoMap, TokenListMap } from 'types/TokenList'
 import { useTokensState } from '.'
-import { fetchTokensAllowwances, setSpenders, setTokensState } from '..'
-import { useWeb3React } from 'hooks/useWeb3React'
-import BigNumber from 'bignumber.js'
+import { setSpenders, setTokensState } from '..'
 import { AmountToApprove } from './useTokenApprovalActions'
 import useConfig from 'hooks/dex-v2/useConfig'
 import TokenService from 'services/token/token.service'
@@ -90,7 +88,7 @@ export const useTokens = () => {
     isRefetching: priceQueryRefetching,
     isError: priceQueryError,
     refetch: refetchPrices,
-  } = useTokenPricesQuery(state.injectedPrices, false)
+  } = useTokenPricesQuery(state.injectedPrices)
 
   const {
     data: balanceData,

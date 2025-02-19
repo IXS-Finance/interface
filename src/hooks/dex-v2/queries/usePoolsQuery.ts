@@ -19,7 +19,7 @@ import { bnum } from 'lib/utils'
 import { PoolAttributeFilter, PoolFilterOptions } from 'types/pools'
 import { weeksAgoInSecs } from '../useTime'
 import { useEffect } from 'react'
-import { useTokensState } from 'state/dexV2/tokens/hooks'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 type PoolsQueryResponse = {
   pools: Pool[]
@@ -36,7 +36,7 @@ export default function usePoolsQuery(
   /**
    * COMPOSABLES
    */
-  const { injectTokens, tokens: tokenMeta } = useTokensState()
+  const { injectTokens, tokens: tokenMeta } = useTokens()
   const { networkId } = useNetwork()
   let poolsRepository = initializePoolsRepository()
 

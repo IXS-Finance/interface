@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { useMemo, useState } from 'react'
 import BigNumber from 'bignumber.js'
-import { flatten, sumBy } from 'lodash';
+import { flatten, sumBy } from 'lodash'
 import { BigNumber as EPBigNumber } from '@ethersproject/bignumber'
 import { simulateContract, waitForTransactionReceipt, writeContract } from '@wagmi/core'
 import { Vault__factory, WeightedPool__factory, WeightedPoolFactory__factory } from '@balancer-labs/typechain'
@@ -40,7 +40,7 @@ import { useSubgraphQueryLegacy, useSubgraphQuery } from 'hooks/useSubgraphQuery
 import { SUBGRAPH_QUERY } from 'constants/subgraph'
 import { isAddress } from 'utils'
 import { AppState } from 'state'
-import usePoolsQuery from 'hooks/dex-v2/queries/usePoolsQuery';
+import usePoolsQuery from 'hooks/dex-v2/queries/usePoolsQuery'
 
 export type OptimisedLiquidity = {
   liquidityRequired: string
@@ -69,18 +69,20 @@ export const usePoolCreation = () => {
       }),
     [JSON.stringify(poolCreationState.tokensList)]
   )
-  const filterOptions = useMemo(() => ({
-    tokens: tokensList,
-    useExactTokens: true,
-  }), [JSON.stringify(tokensList)]);
-  const { data: similarPoolsResponse, isLoading: isLoadingSimilarPools } =
-  usePoolsQuery(filterOptions);
+  const filterOptions = useMemo(
+    () => ({
+      tokens: tokensList,
+      useExactTokens: true,
+    }),
+    [JSON.stringify(tokensList)]
+  )
+  const { data: similarPoolsResponse, isLoading: isLoadingSimilarPools } = usePoolsQuery(filterOptions)
 
   const [hasRestoredFromSavedState, setHasRestoredFromSavedState] = useState<boolean | null>(null)
 
   const networkConfig = config[chainId]
 
-
+  const similarPools = flatten(similarPoolsResponse?.pages?.map((p: any) => p.pools) || [])
 
   const poolLiquidity = useMemo(() => {
     let sum = bnum(0)
@@ -107,16 +109,10 @@ export const usePoolCreation = () => {
     return total
   }, [JSON.stringify(tokensList)])
 
-
   const tokensWithNoPrice = useMemo(() => {
-    const validTokens = tokensList.filter(t => t !== '');
-    return validTokens.filter(token => priceFor(token) === 0);
-  }, [JSON.stringify(tokensList)]);
-
-  const similarPools = useMemo(() => {
-    return flatten(similarPoolsResponse?.pages.map((p: any) => p.pools));
-  }, [JSON.stringify(similarPoolsResponse?.pages)]);
-
+    const validTokens = tokensList.filter((t) => t !== '')
+    return validTokens.filter((token) => priceFor(token) === 0)
+  }, [JSON.stringify(tokensList)])
 
   function getTokensScaledByBIP(bip: BigNumber): Record<string, OptimisedLiquidity> {
     const optimisedLiquidity = {} as any
@@ -203,7 +199,7 @@ export const usePoolCreation = () => {
 
   function resetPoolCreationState() {
     dispatch(resetPoolCreationState())
-    setRestoredState(false);
+    setRestoredState(false)
   }
 
   function updateTokenWeights(weights: PoolSeedToken[]) {
@@ -231,18 +227,21 @@ export const usePoolCreation = () => {
   }
 
   function proceed() {
-    dispatch(setActiveStep(activeStep + 1))
+    if (!similarPools.length && poolCreationState.activeStep === 1) {
+      dispatch(setActiveStep(activeStep + 2))
+    } else {
+      dispatch(setActiveStep(activeStep + 1))
+    }
   }
 
   function goBack() {
-    if (activeStep === 3) {
-      dispatch(setActiveStep(1))
+    if (!similarPools.length && poolCreationState.activeStep === 3) {
+      dispatch(setActiveStep(activeStep - 2))
       return
     }
     dispatch(setActiveStep(activeStep - 1))
-
     if (hasRestoredFromSavedState) {
-      setRestoredState(false);
+      setRestoredState(false)
     }
   }
 
@@ -354,7 +353,7 @@ export const usePoolCreation = () => {
   }
 
   function setRestoredState(value: boolean) {
-    setHasRestoredFromSavedState(value);
+    setHasRestoredFromSavedState(value)
   }
 
   async function retrievePoolAddress(receipt: any) {
@@ -484,6 +483,7 @@ export const usePoolCreation = () => {
     similarPoolsResp: similarPoolsResp,
     setRestoredState,
     resetPoolCreationState,
-    tokensWithNoPrice
+    tokensWithNoPrice,
+    similarPools,
   }
 }

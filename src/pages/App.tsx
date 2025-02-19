@@ -48,7 +48,6 @@ import SignMessageModal from 'components/SignMessageModal'
 import useQuery from 'hooks/useQuery'
 import { setJumpTaskState } from 'state/jumpTask'
 import { CHAINS } from 'components/Web3Provider/constants'
-import { fetchTokenLists } from 'state/dexV2/tokenLists'
 import ConnectWalletCard from 'components/NotAvailablePage/ConnectWalletCard'
 import { Flex } from 'rebass'
 
@@ -245,10 +244,6 @@ export default function App() {
       dispatch(setJumpTaskState({ affUnique1 }))
     }
   }, [transactionId, affUnique1])
-
-  useEffect(() => {
-    dispatch(fetchTokenLists())
-  }, [])
 
   if (!config) {
     return <LoadingIndicator isLoading />

@@ -1,21 +1,23 @@
 import React from 'react'
 import styled from 'styled-components'
-import { StepLabels } from '../../types'
+import { StepState } from 'types'
 
 interface VerticleStepsProps {
   activeStep: number
-  steps: { [key: number]: StepLabels }
+  steps: any
 }
 
 const VerticleSteps: React.FC<VerticleStepsProps> = ({ activeStep, steps }) => {
   return (
     <Container>
-      {Object.entries(steps).map(([key, step], index) => (
-        <Step key={key}>
-          <Circle isActive={index === activeStep}>{index + 1}</Circle>
-          <StepLabel isActive={index === activeStep}>{step}</StepLabel>
-        </Step>
-      ))}
+      {steps.map((step: any, index: number) =>
+        step.isVisible ? (
+          <Step key={step.id}>
+            <Circle isActive={step.state === StepState.Active}>{index + 1}</Circle>
+            <StepLabel isActive={step.state === StepState.Active}>{step.tooltip}</StepLabel>
+          </Step>
+        ) : null
+      )}
     </Container>
   )
 }
