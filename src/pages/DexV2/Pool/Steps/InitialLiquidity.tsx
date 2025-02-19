@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useDispatch } from 'react-redux'
 
-import EthIcon from 'assets/images/dex-v2/eth.svg'
-import PolIcon from 'assets/images/dex-v2/pol.svg'
 import { ReactComponent as WalletIcon } from 'assets/images/dex-v2/wallet.svg'
 import { ReactComponent as WarningIcon } from 'assets/images/dex-v2/warning.svg'
 import { Flex } from 'rebass'
