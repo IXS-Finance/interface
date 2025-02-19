@@ -19,12 +19,16 @@ import TokenInput from '../../components/TokenInput'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { useJoinPool } from 'state/dexV2/pool/useJoinPool'
+import ActionSteps from '../../components/ActionSteps'
 
 interface AddLiquidityFormProps {
   pool: Pool
 }
 
 const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
+  const { join, setAmountsIn, queryJoinQuery } = useJoinPool(pool)
+
+  const [currentActionIndex, setCurrentActionIndex] = useState(0)
   // STATE
   const [showPreview, setShowPreview] = useState(false)
   const [showStakeModal, setShowStakeModal] = useState(false)
@@ -80,6 +84,18 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
       amountsIn[0].value = ''
     }
   }
+
+  const onSubmit = async () => {
+    const finalAmountsIn = amountsIn.map((amountIn: any) => {
+      return { address: amountIn.address, value: '1', valid: true }
+    })
+
+    setAmountsIn(finalAmountsIn)
+
+    await join()
+  }
+
+  console.log('amountsIn', amountsIn)
 
   // ON MOUNT: Initialize the tokens form.
   useEffect(() => {
@@ -172,7 +188,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
       <div className="mt-4">
         <ButtonPrimary
           // disabled={!hasAmountsIn || !hasValidInputs || isMismatchedNetwork || isLoadingQuery || Boolean(queryError)}
-          onClick={() => setShowPreview(true)}
+          onClick={onSubmit}
         >
           Preview
         </ButtonPrimary>
