@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { ReactComponent as ChevDown } from 'assets/images/dex-v2/chev-down.svg'
-import SelectTokenModal from './SelectTokenModal'
+import SelectTokenModal from './modals/SelectTokenModal'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 interface TokenSelectInputProps {
