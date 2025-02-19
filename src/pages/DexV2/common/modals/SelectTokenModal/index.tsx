@@ -1,11 +1,9 @@
 import Portal from '@reach/portal'
 import React, { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
-import { multicall } from '@wagmi/core'
-import { formatUnits } from 'viem'
 import { orderBy } from 'lodash'
 
-import TextInput from '../TextInput'
+import TextInput from '../../TextInput'
 import { CenteredFixed } from 'components/LaunchpadMisc/styled'
 import { ReactComponent as CloseIcon } from 'assets/images/dex-v2/close.svg'
 import { useWeb3React } from 'hooks/useWeb3React'
@@ -17,7 +15,7 @@ import { useDispatch } from 'react-redux'
 import { fetchTokensBalances, fetchTokenPrices } from 'state/dexV2/tokens'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { Box } from 'rebass'
-import LoadingIcon from '../LoadingIcon'
+import LoadingIcon from '../../LoadingIcon'
 import TokenListItem from './TokenListItem'
 
 interface SelectTokenModalProps {
@@ -142,12 +140,7 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
 
                   return (
                     <div onClick={() => onSelectToken(token.address)}>
-                      <TokenListItem
-                        key={token.name}
-                        token={token}
-                        balanceLoading={false}
-                        hideBalance={false}
-                      />
+                      <TokenListItem key={token.name} token={token} balanceLoading={false} hideBalance={false} />
                     </div>
 
                     // <TokenItem key={token.name} onClick={() => onSelectToken(token.address)}>
