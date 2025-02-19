@@ -1,6 +1,5 @@
 import { useDispatch } from 'react-redux'
 import { compact, omit, pick } from 'lodash'
-import { useMemo, useState } from 'react'
 import { getAddress, isAddress } from '@ethersproject/address'
 
 import { bnum, getAddressFromPoolId, includesAddress, isSameAddress, selectByAddressFast } from 'lib/utils'
@@ -48,30 +47,21 @@ export const useTokens = () => {
   /**
    * All tokens from all token lists.
    */
-  const allTokenListTokens = useMemo(
-    (): TokenInfoMap => ({
-      [networkConfig.nativeAsset.address]: nativeAsset,
-      ...mapTokenListTokens(allTokenLists),
-      ...state.injectedTokens,
-    }),
-    [JSON.stringify(allTokenLists), JSON.stringify(state.injectedTokens)]
-  )
+  const allTokenListTokens: TokenInfoMap = {
+    [networkConfig.nativeAsset.address]: nativeAsset,
+    ...mapTokenListTokens(allTokenLists),
+    ...state.injectedTokens,
+  }
 
   /**
    * All tokens from token lists that are toggled on.
    */
-  const activeTokenListTokens = useMemo(
-    (): TokenInfoMap => mapTokenListTokens(activeTokenLists),
-    [JSON.stringify(activeTokenLists)]
-  )
+  const activeTokenListTokens: TokenInfoMap = mapTokenListTokens(activeTokenLists)
 
   /**
    * All tokens from Balancer token lists, e.g. 'listed' and 'vetted'.
    */
-  const balancerTokenListTokens = useMemo(
-    (): TokenInfoMap => mapTokenListTokens(balancerTokenLists),
-    [JSON.stringify(balancerTokenLists)]
-  )
+  const balancerTokenListTokens: TokenInfoMap = mapTokenListTokens(balancerTokenLists)
 
   /**
    * The main tokens map
@@ -85,7 +75,7 @@ export const useTokens = () => {
     ...state.injectedTokens,
   }
 
-  const wrappedNativeAsset = useMemo((): TokenInfo => getToken(TOKENS.Addresses.wNativeAsset), [JSON.stringify(tokens)])
+  const wrappedNativeAsset: TokenInfo = getToken(TOKENS.Addresses.wNativeAsset)
 
   /****************************************************************
    * Dynamic metadata
@@ -124,29 +114,17 @@ export const useTokens = () => {
     isEnabled: true,
   })
 
-  const prices = useMemo((): TokenPrices => (priceData ? priceData : {}), [JSON.stringify(priceData)])
-  const balances = useMemo((): BalanceMap => (balanceData ? balanceData : {}), [JSON.stringify(balanceData)])
-  const allowances = useMemo(
-    (): ContractAllowancesMap => (allowanceData ? allowanceData : {}),
-    [JSON.stringify(allowanceData)]
-  )
+  const prices: TokenPrices = priceData ? priceData : {}
+  const balances: BalanceMap = balanceData ? balanceData : {}
+  const allowances: ContractAllowancesMap = allowanceData ? allowanceData : {}
 
-  const onchainDataLoading = useMemo(
-    (): boolean =>
-      isWalletReady &&
-      (balanceQueryLoading || balanceQueryRefetching || allowanceQueryLoading || allowanceQueryRefetching),
-    [balanceQueryLoading, balanceQueryRefetching, allowanceQueryLoading, allowanceQueryRefetching]
-  )
+  const onchainDataLoading: boolean =
+    isWalletReady &&
+    (balanceQueryLoading || balanceQueryRefetching || allowanceQueryLoading || allowanceQueryRefetching)
 
-  const dynamicDataLoaded = useMemo(
-    (): boolean => priceQuerySuccess && balanceQuerySuccess && allowanceQuerySuccess,
-    [priceQuerySuccess, balanceQuerySuccess, allowanceQuerySuccess]
-  )
+  const dynamicDataLoaded: boolean = priceQuerySuccess && balanceQuerySuccess && allowanceQuerySuccess
 
-  const dynamicDataLoading = useMemo(
-    (): boolean => priceQueryLoading || priceQueryRefetching || onchainDataLoading,
-    [priceQueryLoading, priceQueryRefetching, onchainDataLoading]
-  )
+  const dynamicDataLoading: boolean = priceQueryLoading || priceQueryRefetching || onchainDataLoading
 
   /**
    * METHODS
@@ -229,17 +207,13 @@ export const useTokens = () => {
       subset = [],
     }: { excluded?: string[]; disableInjection?: boolean; subset?: string[] }
   ): Promise<TokenInfoMap> {
-    console.log('nativeAsset', nativeAsset)
-    console.log('allTokenListTokens', allTokenListTokens)
-    console.log('injectedTokens', state.injectedTokens)
-    debugger
     let tokensToSearch = subset.length > 0 ? getTokens(subset) : tokens
+
     if (!query) return removeExcluded(tokensToSearch, excluded)
 
     tokensToSearch = subset.length > 0 ? tokensToSearch : allTokenListTokens
 
     const potentialAddress = getAddressFromPoolId(query)
-
     if (isAddress(potentialAddress)) {
       const address = getAddress(potentialAddress)
       const token = tokensToSearch[address]
