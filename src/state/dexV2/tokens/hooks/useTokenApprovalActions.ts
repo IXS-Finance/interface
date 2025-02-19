@@ -81,7 +81,6 @@ export default function useTokenApprovalActions() {
 
   async function updateAllowancesFor(spender: string): Promise<void> {
     injectSpenders([spender])
-    refetchAllowances(spender)
   }
 
   async function getApprovalsRequired(

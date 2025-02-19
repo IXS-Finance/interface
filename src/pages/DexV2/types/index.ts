@@ -1,15 +1,17 @@
 export enum StepIds {
   ChooseWeights = 0,
   SetPoolFees = 1,
-  InitialLiquidity = 2,
-  ConfirmPoolCreation = 3,
+  // SimilarPool = 2,
+  InitialLiquidity = 3,
+  ConfirmPoolCreation = 4,
 }
 
 export enum StepLabels {
   ChooseWeights = 'Tokens and weights',
   SetPoolFees = 'Set pool fees',
+  // SimilarPool = 'Similar pools',
   InitialLiquidity = 'Set initial liquidity',
-  ConfirmPoolCreation = 'Preview New weighted Pool',
+  ConfirmPoolCreation = 'Confirm pool creation',
 }
 
 export type PoolSeedToken = {

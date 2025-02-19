@@ -1,4 +1,4 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import QUERY_KEYS from 'constants/dexV2/queryKeys'
 import useNetwork from '../useNetwork'
 import { getApi } from 'dependencies/balancer-api'
@@ -11,7 +11,6 @@ import { getAddress } from '@ethersproject/address'
  */
 export type TokenPrices = { [address: string]: number }
 type QueryResponse = TokenPrices
-type QueryOptions = UseQueryOptions<QueryResponse>
 
 /**
  * Fetches token prices for all provided addresses.
@@ -33,12 +32,11 @@ export default function useTokenPricesQuery(pricesToInject: TokenPrices = {}, op
 
   const api = getApi()
   const queryFn = async () => {
-    const { prices } = await api.GetCurrentTokenPrices()
-
+    // const { prices } = await api.GetCurrentTokenPrices()
+    const prices: any = []
     let pricesMap = priceArrayToMap(prices as GqlTokenPrice[])
     pricesMap = injectCustomTokens(pricesMap, pricesToInject)
     console.log('Fetching', Object.values(prices).length, 'prices')
-
     return pricesMap
   }
 

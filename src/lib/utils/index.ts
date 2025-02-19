@@ -241,3 +241,9 @@ export function removeAddress(address: string, addresses: string[]): string[] {
 export function formatAddressForSor(address: string): string {
   return isSameAddress(address, NATIVE_ASSET_ADDRESS) ? POOLS.ZeroAddress : address
 }
+
+export async function sleep(time: any) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, time)
+  })
+}
