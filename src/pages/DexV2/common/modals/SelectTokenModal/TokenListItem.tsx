@@ -1,8 +1,8 @@
-import React, { useRef, useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import styled from 'styled-components'
 
-import Asset from '../Asset'
-import BalLoadingBlock from '../LoadingBlock'
+import Asset from '../../Asset'
+import BalLoadingBlock from '../../LoadingBlock'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { TokenInfo } from 'types/TokenList'
