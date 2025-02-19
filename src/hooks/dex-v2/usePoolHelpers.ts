@@ -4,10 +4,10 @@ import { cloneDeep, uniq, uniqWith } from 'lodash'
 
 import { PoolToken, allLinearTypes, AnyPool, Pool, SubPool } from 'services/pool/types'
 import useNumbers from './useNumbers'
-import { useMemo } from 'react'
 import { configService } from 'services/config/config.service'
-import { isMainnet } from './useNetwork'
 import { bnum, includesAddress, isSameAddress, removeAddress, selectByAddress } from 'lib/utils'
+import { usePoolWarning } from './usePoolWarning'
+import { PoolWarning } from 'types/pools'
 
 const POOLS = configService.network.pools
 
@@ -136,6 +136,10 @@ export function isStableLike(poolType: PoolType): boolean {
     isComposableStable(poolType) ||
     isFx(poolType)
   )
+}
+
+export function isComposableStableV1(pool: Pool): boolean {
+  return isComposableStable(pool.poolType) && pool.poolTypeVersion === 1;
 }
 
 export function isComposableStableLike(poolType: PoolType): boolean {
@@ -295,6 +299,26 @@ export function bptPriceFor(pool: Pool): string {
  */
 export function fiatValueOf(pool: Pool, shares: string): string {
   return bnum(shares).times(bptPriceFor(pool)).toString()
+}
+
+/**
+ * Should recovery exits be the only option for this pool?
+ *
+ * @param {Pool} pool - The pool to check
+ */
+export function isRecoveryExitsOnly(pool: Pool): boolean {
+  const isInRecoveryAndPausedMode = !!pool.isInRecoveryMode && !!pool.isPaused;
+  const isVulnCsPoolAndInRecoveryMode =
+    usePoolWarning(pool.id).isAffectedBy(
+      PoolWarning.CspPoolVulnWarning
+    ) && !!pool.isInRecoveryMode;
+  const isNotDeepAndCsV1 = !isDeep(pool) && isComposableStableV1(pool);
+
+  return (
+    isInRecoveryAndPausedMode ||
+    isVulnCsPoolAndInRecoveryMode ||
+    isNotDeepAndCsV1
+  );
 }
 
 export function usePoolHelpers(pool: AnyPool | undefined) {
