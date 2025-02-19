@@ -5,7 +5,7 @@ import { initMulticaller } from './Multicaller'
 import { initOldMulticaller } from './OldMulticaller'
 // import { initRpcProviderService } from './rpc-provider.service';
 // import { initWalletConnectors } from './wallets';
-// import { initWeb3Provider } from './wallets/Web3Provider';
+import { initWeb3Provider } from './wallets/Web3Provider';
 import { initContractConcern } from './contract.concern';
 
 export function initDependencies() {
@@ -19,7 +19,7 @@ export function initDependencies() {
   initMulticaller()
   initOldMulticaller()
   initEthersContract();
-  // initWeb3Provider();
+  initWeb3Provider();
   // initWalletConnectors();
   initContractConcern();
 }

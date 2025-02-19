@@ -3,8 +3,6 @@ import styled from 'styled-components'
 import _get from 'lodash/get'
 import { Address } from 'viem'
 
-import VerticleSteps from './components/VerticleSteps'
-import { StepIds, StepLabels } from '../types'
 import ChooseWeights from './Steps/ChooseWeights'
 import SetPoolFees from './Steps/SetPoolFees'
 import InitialLiquidity from './Steps/InitialLiquidity'
@@ -13,16 +11,21 @@ import { useWeb3React } from 'hooks/useWeb3React'
 import PreviewPool from './Steps/PreviewPool'
 import { useDispatch } from 'react-redux'
 import { useTokensState } from 'state/dexV2/tokens/hooks'
-import { fetchTokensAllowwances } from 'state/dexV2/tokens'
 import PoolSummary from './components/PoolSummary'
 import TokenPrices from './components/TokenPrices'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import UnknownTokenPriceModal from '../common/modals/UnknownTokenPriceModal'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import { StepState } from 'types'
+import VerticleSteps from './components/VerticleSteps'
 
+const SimilarPool = () => {
+  return <div>SimilarPool</div>
+}
 const Create: React.FC = () => {
   const { chainId, account } = useWeb3React()
-  const { activeStep, tokensList, seedTokens, hasRestoredFromSavedState } = usePoolCreation()
+  const { activeStep, similarPools, tokensList, seedTokens, hasRestoredFromSavedState, resetPoolCreationState } =
+    usePoolCreation()
   const { priceFor, getToken, injectTokens } = useTokens()
   const dispatch = useDispatch()
   const { tokens } = useTokensState()
@@ -31,16 +34,65 @@ const Create: React.FC = () => {
   const [isUnknownTokenModalVisible, setIsUnknownTokenModalVisible] = useState(false)
   const [isLoading, setLoading] = useState(true)
 
-  const validTokens = useMemo(() => tokensList.filter((t: string) => t !== ''), [JSON.stringify(tokensList)])
-  const hasUnknownToken = useMemo(() => validTokens.some((t: any) => priceFor(t) === 0), [JSON.stringify(validTokens)])
+  const validTokens = tokensList.filter((t: string) => t !== '')
+  const doSimilarPoolsExist = similarPools.length > 0
+  const hasUnknownToken = validTokens.some((t: any) => priceFor(t) === 0)
   const name = _get(networkConfig, 'name', '')
 
-  const steps: { [key in StepIds]: StepLabels } = {
-    [StepIds.ChooseWeights]: StepLabels.ChooseWeights,
-    [StepIds.SetPoolFees]: StepLabels.SetPoolFees,
-    [StepIds.InitialLiquidity]: StepLabels.InitialLiquidity,
-    [StepIds.ConfirmPoolCreation]: StepLabels.ConfirmPoolCreation,
+  /**
+   * FUNCTIONS
+   */
+  function getStepState(idx: number) {
+    if (activeStep === idx) {
+      return StepState.Active
+    } else {
+      if (activeStep > idx) {
+        return StepState.Completed
+      } else {
+        return StepState.Todo
+      }
+    }
   }
+
+  const steps = [
+    {
+      tooltip: 'Choose tokens & weights',
+      state: getStepState(0),
+      id: 0,
+      isVisible: true,
+      component: ChooseWeights,
+    },
+    {
+      tooltip: 'Set pool fees',
+      state: getStepState(1),
+      id: 1,
+      isVisible: true,
+      component: SetPoolFees,
+    },
+    {
+      tooltip: 'Similar pools',
+      state: StepState.Warning,
+      id: 2,
+      isVisible: doSimilarPoolsExist && activeStep === 2,
+      component: SimilarPool,
+    },
+    {
+      tooltip: 'Set initial liquidity',
+      state: getStepState(3),
+      id: 3,
+      isVisible: true,
+      component: InitialLiquidity,
+    },
+    {
+      tooltip: 'Confirm pool creation',
+      state: getStepState(4),
+      id: 4,
+      isVisible: true,
+      component: PreviewPool,
+    },
+  ]
+  const currentStep = steps[activeStep]
+  const CurrentStepComponent = steps[activeStep].component
 
   function handleUnknownModalClose() {
     setIsUnknownTokenModalVisible(false)
@@ -59,17 +111,6 @@ const Create: React.FC = () => {
   }
 
   useEffect(() => {
-    const accountAddress = account as Address
-    dispatch(
-      fetchTokensAllowwances({
-        tokens,
-        account: accountAddress,
-        contractAddress: networkConfig.addresses.vault,
-      })
-    )
-  }, [])
-
-  useEffect(() => {
     if (hasUnknownToken && !hasRestoredFromSavedState) {
       showUnknownTokenModal()
     }
@@ -84,12 +125,8 @@ const Create: React.FC = () => {
         <CenterContent>
           <Card>
             <NetworkText>{name}</NetworkText>
-            <Title>{steps[activeStep]}</Title>
-
-            {activeStep === StepIds.ChooseWeights ? <ChooseWeights /> : null}
-            {activeStep === StepIds.SetPoolFees ? <SetPoolFees /> : null}
-            {activeStep === StepIds.InitialLiquidity ? <InitialLiquidity /> : null}
-            {activeStep === StepIds.ConfirmPoolCreation ? <PreviewPool /> : null}
+            <Title>{steps[activeStep].tooltip}</Title>
+            {steps[activeStep].isVisible ? <CurrentStepComponent /> : null}
           </Card>
         </CenterContent>
 

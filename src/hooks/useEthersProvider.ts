@@ -70,3 +70,11 @@ export async function getEthersSigner(
   const client = await getConnectorClient(config, { chainId })
   return clientToSigner(client)
 }
+
+export async function getEthersProvider(
+  config: Config,
+  { chainId }: { chainId?: number } = {},
+) {
+  const client = await getConnectorClient(config, { chainId })
+  return clientToProvider(client, chainId)
+}

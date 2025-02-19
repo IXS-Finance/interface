@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import { wagmiConfig } from 'components/Web3Provider'
 import { configService } from 'services/config/config.service'
 import { rpcProviderService } from 'services/rpc-provider/rpc-provider.service'
-import { getEthersSigner } from 'hooks/useEthersProvider'
+import { getEthersProvider, getEthersSigner } from 'hooks/useEthersProvider'
 
 export default function useWeb3() {
   const appNetworkConfig = configService.network
@@ -24,6 +24,7 @@ export default function useWeb3() {
 
   // METHODS
   const getSigner = () => getEthersSigner(wagmiConfig)
+  const getProvider = () => getEthersProvider(wagmiConfig)
 
   const userNetworkConfig = configService.getNetworkConfig(chainId)
   const isMismatchedNetwork = account && userNetworkConfig?.key !== appNetworkConfig.key
@@ -38,5 +39,6 @@ export default function useWeb3() {
     isMismatchedNetwork,
     explorerLinks,
     getSigner,
+    getProvider,
   }
 }

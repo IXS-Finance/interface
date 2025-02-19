@@ -12,7 +12,6 @@ import { default as erc20Abi } from 'lib/abi/ERC20.json'
 import { wagmiConfig } from 'components/Web3Provider'
 import { useTokensState } from 'state/dexV2/tokens/hooks'
 import { useDispatch } from 'react-redux'
-import { fetchTokensBalances, fetchTokenPrices } from 'state/dexV2/tokens'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { Box } from 'rebass'
 import LoadingIcon from '../../LoadingIcon'
@@ -84,18 +83,6 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
     props.updateAddress(token)
     props.onClose()
   }
-
-  useEffect(() => {
-    if (account) {
-      dispatch(
-        fetchTokensBalances({
-          tokens: results,
-          account,
-        })
-      )
-      dispatch(fetchTokenPrices(results))
-    }
-  }, [chainId, provider, account])
 
   useEffect(() => {
     async function queryTokens(newQuery: string) {

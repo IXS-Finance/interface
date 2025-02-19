@@ -32,8 +32,6 @@ const TokenPrices: React.FC<TokenPricesProps> = () => {
     [JSON.stringify(validTokens)]
   )
 
-  console.log('knownTokens', knownTokens)
-
   return (
     <Container>
       <Flex alignItems="center" style={{ gap: 6 }} mb="6px">
