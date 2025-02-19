@@ -4,10 +4,13 @@ import { Box, Flex } from 'rebass'
 import { configService } from 'services/config/config.service'
 import BalCard from 'pages/DexV2/common/Card'
 import SwapSettingsPopover from 'pages/DexV2/common/SwapSettingsPopover'
+import AddLiquidityForm from './AddLiquidityForm'
 
-interface AddLiquidityCardProps {}
+interface AddLiquidityCardProps {
+  pool: any
+}
 
-const AddLiquidityCard: React.FC<AddLiquidityCardProps> = () => {
+const AddLiquidityCard: React.FC<AddLiquidityCardProps> = ({ pool }) => {
   const { network } = configService
 
   return (
@@ -29,6 +32,8 @@ const AddLiquidityCard: React.FC<AddLiquidityCardProps> = () => {
           <SwapSettingsPopover />
         </Flex>
       </Box>
+
+      <AddLiquidityForm pool={pool} />
     </BalCard>
   )
 }
