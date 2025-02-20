@@ -18,19 +18,10 @@ const TokenPrices: React.FC<TokenPricesProps> = () => {
   const { getToken, priceFor, injectedPrices } = useTokens()
   const { fNum } = useNumbers()
 
-  const validTokens = useMemo(() => tokensList.filter((t) => t !== ''), [JSON.stringify(tokensList)])
-  const knownTokens = useMemo(
-    () => validTokens.filter((token) => priceFor(token) !== 0 && !selectByAddress(injectedPrices, token)),
-    [JSON.stringify(validTokens), JSON.stringify(injectedPrices)]
-  )
-  const unknownTokens = useMemo(
-    () => validTokens.filter((token) => priceFor(token) === 0 || selectByAddress(injectedPrices, token)),
-    [JSON.stringify(validTokens), JSON.stringify(injectedPrices)]
-  )
-  const hasUnknownPrice = useMemo(
-    () => validTokens.some((token) => priceFor(token) === 0),
-    [JSON.stringify(validTokens)]
-  )
+  const validTokens = tokensList.filter((t) => t !== '')
+  const knownTokens = validTokens.filter((token) => priceFor(token) !== 0 && !selectByAddress(injectedPrices, token))
+  const unknownTokens = validTokens.filter((token) => priceFor(token) === 0 || selectByAddress(injectedPrices, token))
+  const hasUnknownPrice = validTokens.some((token) => priceFor(token) === 0)
 
   return (
     <Container>
@@ -41,7 +32,7 @@ const TokenPrices: React.FC<TokenPricesProps> = () => {
         <img src={InfoIcon} alt="info" />
       </Flex>
 
-      {knownTokens.map((token) => (
+      {unknownTokens.map((token) => (
         <Flex
           fontSize={14}
           fontWeight={500}
@@ -53,11 +44,7 @@ const TokenPrices: React.FC<TokenPricesProps> = () => {
           key={`tokenPrice-known-${token}`}
         >
           <Flex alignItems="center" style={{ gap: 6 }}>
-            <img
-              src={getToken(token)?.logoURI}
-              width={20}
-              height={20}
-            />
+            <img src={getToken(token)?.logoURI} width={20} height={20} />
             <Text>{getToken(token)?.symbol}</Text>
           </Flex>
           <Flex alignItems="center" style={{ gap: 6 }}>

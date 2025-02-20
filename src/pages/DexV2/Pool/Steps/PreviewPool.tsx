@@ -5,7 +5,6 @@ import { Flex } from 'rebass'
 import { useDispatch } from 'react-redux'
 
 import { BackButton, Line, NavigationButtons, NextButton } from '../Create'
-import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 import TokenInfo from '../components/TokenInfo'
 import CreateActions from '../components/CreateActions'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
@@ -26,29 +25,24 @@ const PreviewPool: React.FC = () => {
     feeManagementType,
     feeController,
     thirdPartyFeeController,
-  } = usePoolCreationState()
-  const { getAmounts, goBack, poolLiquidity, poolTypeString } = usePoolCreation()
+    getAmounts,
+    goBack,
+    poolLiquidity,
+    poolTypeString,
+  } = usePoolCreation()
   const { priceFor } = useTokens()
   const { fNum } = useNumbers()
   const dispatch = useDispatch()
 
-  const tokenAddresses = useMemo(() => {
-    return seedTokens.map((token) => token.tokenAddress)
-  }, [])
+  const tokenAddresses = seedTokens.map((token) => token.tokenAddress)
 
-  const tokensAmounts = useMemo(() => {
-    return getAmounts()
-  }, [])
+  const tokensAmounts = getAmounts()
 
-  const hasMissingPoolNameOrSymbol = useMemo(() => {
-    return poolSymbol === '' || poolName === ''
-  }, [])
+  const hasMissingPoolNameOrSymbol = poolSymbol === '' || poolName === ''
 
-  const actionsDisabled = useMemo(() => {
-    return hasMissingPoolNameOrSymbol
-  }, [])
+  const actionsDisabled = hasMissingPoolNameOrSymbol
 
-  const initialWeights = useMemo(() => {
+  const initialWeights: Record<string, BigNumber> = (() => {
     const _initialWeights: Record<string, BigNumber> = {}
     for (const seedToken of seedTokens) {
       _initialWeights[seedToken.tokenAddress] = bnum(seedToken.amount)
@@ -56,13 +50,9 @@ const PreviewPool: React.FC = () => {
         .div(poolLiquidity)
     }
     return _initialWeights
-  }, [])
+  })()
 
-  // an invalid initial weight is one where the the weight
-  // is less than 1% of the pools value
-  const hasInvalidInitialWeight = useMemo(() => {
-    return Object.values(initialWeights).some((initialWeight) => initialWeight.lt(0.01))
-  }, [])
+  const hasInvalidInitialWeight = Object.values(initialWeights).some((initialWeight) => initialWeight.lt(0.01))
 
   function handleSuccess() {
     console.log('success')
@@ -80,11 +70,6 @@ const PreviewPool: React.FC = () => {
     }
   }
 
-  useEffect(() => {
-    dispatch(sortSeedTokens())
-  }, [])
-
-  console.log('seedTokens', seedTokens)
   return (
     <div>
       <SubTitle>Tokens and initial seed liquidity</SubTitle>
@@ -96,7 +81,7 @@ const PreviewPool: React.FC = () => {
             return (
               <TokenInfo
                 key={`token-${i}`}
-                address={token.tokenAddress}
+                address={token?.tokenAddress}
                 initialWeights={initialWeights}
                 token={token}
               />

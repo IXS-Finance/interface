@@ -8,7 +8,7 @@ import {
 export class TransactionBuilder {
   contract!: ContractConcernType;
   constructor(
-    public readonly signer: JsonRpcSigner,
+    public readonly signer: any,
     public readonly raw = new RawConcern(signer)
   ) {
     const ContractConcernConstructor = getContractConcern();
