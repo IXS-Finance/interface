@@ -9,6 +9,7 @@ import { formatAmount } from '../../common/modals/SelectTokenModal'
 import { RuleFunction, Rules } from '../../types'
 import { isLessThanOrEqualTo, isPositive } from 'lib/utils/validations'
 import { overflowProtected } from './helpers'
+import Asset from 'pages/DexV2/common/Asset'
 
 type InputValue = string | number
 
@@ -83,7 +84,7 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
     <LiquidityContainer className="token-input">
       <FlexContainer>
         <TokenWrap>
-          <img src={token?.logoURI} alt={token?.symbol} width={20} height={20} />
+          <Asset address={token?.address} iconURI={token?.logoURI} size={20} />
           <TokenSymbol>{token?.symbol}</TokenSymbol>
           <PercentText>{weight}%</PercentText>
         </TokenWrap>

@@ -8,6 +8,7 @@ import { Line } from '../Create'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { PoolSeedToken } from 'pages/DexV2/types'
 import { bnum } from 'lib/utils'
+import Asset from 'pages/DexV2/common/Asset'
 
 interface TokenInfoProps {
   address: string
@@ -27,7 +28,7 @@ const TokenInfo: React.FC<TokenInfoProps> = (props) => {
     <div>
       <Flex justifyContent="space-between">
         <Flex alignItems="center">
-          <img src={tokenInfo?.logoURI} alt={tokenInfo?.name} width={40} height={40} />
+          <Asset address={tokenInfo?.address} iconURI={tokenInfo?.logoURI} size={40} />
           <div style={{ marginLeft: 12 }}>
             <Title>{tokenInfo?.name}</Title>
             <Description>Initial weight: {fNum(initialWeights[address].toString(), FNumFormats.percent)}</Description>
