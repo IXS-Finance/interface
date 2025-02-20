@@ -50,6 +50,7 @@ export interface DexV2State {
   needsSeeding: boolean
   poolId: string
   createPoolTxHash: string
+  useNativeAsset: boolean
 }
 
 const initialState: DexV2State = {
@@ -68,6 +69,7 @@ const initialState: DexV2State = {
   needsSeeding: false,
   poolId: '',
   createPoolTxHash: '',
+  useNativeAsset: false,
 }
 
 function handleDistributeWeights(seedTokens: PoolSeedToken[]) {

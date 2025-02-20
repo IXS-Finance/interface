@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useDispatch } from 'react-redux'
 
-import { ReactComponent as WalletIcon } from 'assets/images/dex-v2/wallet.svg'
-import { ReactComponent as WarningIcon } from 'assets/images/dex-v2/warning.svg'
 import { Flex } from 'rebass'
 import Switch from '../components/Switch'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
@@ -12,10 +10,13 @@ import { isGreaterThan } from 'lib/utils/validations'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { setPoolCreationState, setTokenAmount } from 'state/dexV2/poolCreation'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import useNumbers from 'hooks/dex-v2/useNumbers'
+import { bnum, isSameAddress } from 'lib/utils'
 
 interface SetPoolFeesProps {}
 
 const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
+  const { balanceFor, priceFor, nativeAsset, wrappedNativeAsset, dynamicDataLoading } = useTokens()
   const {
     seedTokens,
     manuallySetToken,
@@ -25,17 +26,13 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
     getOptimisedLiquidity,
     proceed,
     goBack,
+    useNativeAsset,
   } = usePoolCreation()
-  const {
-    balanceFor,
-    priceFor,
-    nativeAsset,
-    wrappedNativeAsset,
-    dynamicDataLoading,
-  } = useTokens();
+  const { fNum } = useNumbers()
   const dispatch = useDispatch()
 
   const [isOptimised, setIsOptimised] = useState(false)
+  const tokenAddresses = [...seedTokens.map((token) => token.tokenAddress)]
 
   const handleAmountChange = (idx: number, amount: string) => {
     dispatch(setTokenAmount({ id: idx, amount }))
@@ -66,11 +63,27 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
     proceed()
   }
 
-  useEffect(() => {
-    optimiseLiquidity()
-    scaleLiquidity()
-  }, [manuallySetToken, autoOptimiseBalances])
+  // If native asset conditions are met, update the token addresses accordingly.
+  const setNativeAssetIfRequired = () => {
+    const nativeAssetBalance = balanceFor(nativeAsset.address)
+    const wrappedNativeAssetBalance = balanceFor(wrappedNativeAsset.address)
+    if (useNativeAsset || bnum(nativeAssetBalance).gt(wrappedNativeAssetBalance)) {
+      dispatch(
+        setPoolCreationState({
+          useNativeAsset: true,
+        })
+      )
+    }
+  }
 
+  // Watch dynamicDataLoading; when pricing data becomes available, update values.
+  useEffect(() => {
+    if (!dynamicDataLoading) {
+      setNativeAssetIfRequired()
+      optimiseLiquidity()
+      scaleLiquidity()
+    }
+  }, [dynamicDataLoading])
 
   return (
     <div>

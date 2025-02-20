@@ -121,23 +121,10 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
             {tokens.length ? (
               <TokenList>
                 {tokens.map((token: any) => {
-                  // const balance = token?.balance ? formatAmount(+token?.balance, 2) : ''
-
                   return (
-                    <div onClick={() => onSelectToken(token.address)}>
+                    <div key={token.address} onClick={() => onSelectToken(token.address)}>
                       <TokenListItem key={token.name} token={token} balanceLoading={false} hideBalance={false} />
                     </div>
-
-                    // <TokenItem key={token.name} onClick={() => onSelectToken(token.address)}>
-                    //   <TokenInfoWrap>
-                    //     <img src={token.logoURI} alt="ETH" width={20} height={20} />
-                    //     <TokenDetails>
-                    //       <TokenSymbol>{token.symbol}</TokenSymbol>
-                    //       <TokenName>{token.name}</TokenName>
-                    //     </TokenDetails>
-                    //   </TokenInfoWrap>
-                    //   <TokenBalance>{balance}</TokenBalance>
-                    // </TokenItem>
                   )
                 })}
               </TokenList>
