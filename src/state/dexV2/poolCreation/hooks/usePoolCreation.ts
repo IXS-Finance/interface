@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { flatten, sumBy } from 'lodash'
 import { BigNumber as EPBigNumber } from '@ethersproject/bignumber'
+import { TransactionResponse } from '@ethersproject/providers'
 import { simulateContract, waitForTransactionReceipt, writeContract } from '@wagmi/core'
 import { Vault__factory, WeightedPool__factory, WeightedPoolFactory__factory } from '@balancer-labs/typechain'
 import {
@@ -41,6 +42,11 @@ import { SUBGRAPH_QUERY } from 'constants/subgraph'
 import { isAddress } from 'utils'
 import { AppState } from 'state'
 import usePoolsQuery from 'hooks/dex-v2/queries/usePoolsQuery'
+import useWeb3 from 'hooks/dex-v2/useWeb3'
+import { balancerService } from 'services/balancer/balancer.service'
+import { isTestnet } from 'hooks/dex-v2/useNetwork'
+import useEthers from 'hooks/dex-v2/useEthers'
+import { POOLS } from 'constants/dexV2/pools'
 
 export type OptimisedLiquidity = {
   liquidityRequired: string
@@ -58,61 +64,68 @@ const JOIN_KIND_INIT = 0
 
 export const usePoolCreation = () => {
   const poolCreationState = useSelector((state: AppState) => state.poolCreation)
+  const { account, getProvider } = useWeb3()
+  const { txListener } = useEthers()
+
   const dispatch = useDispatch()
   const { name, symbol, activeStep, seedTokens, manuallySetToken, initialFee, poolId } = poolCreationState
-  const { priceFor, balanceFor, getToken } = useTokens()
-  const { account, chainId, provider } = useWeb3React()
-  const tokensList = useMemo(
-    () =>
-      [...poolCreationState.tokensList].sort((tokenA, tokenB) => {
-        return tokenA > tokenB ? 1 : -1
-      }),
-    [JSON.stringify(poolCreationState.tokensList)]
-  )
-  const filterOptions = useMemo(
-    () => ({
-      tokens: tokensList,
-      useExactTokens: true,
-    }),
-    [JSON.stringify(tokensList)]
-  )
+  const { priceFor, balanceFor, getToken, balancerTokenListTokens } = useTokens()
+  // const { account, chainId, provider } = useWeb3React()
+
+  const tokensList = [...poolCreationState.tokensList].sort((tokenA, tokenB) => (tokenA > tokenB ? 1 : -1))
+
+  const isUnlistedToken = (tokenAddress: string) => {
+    return tokenAddress !== '' && !balancerTokenListTokens[tokenAddress]
+  }
+
+  const hasUnlistedToken = tokensList.some((tokenAddress) => tokenAddress && isUnlistedToken(tokenAddress))
+  const filterOptions = {
+    tokens: tokensList,
+    useExactTokens: true,
+  }
   const { data: similarPoolsResponse, isLoading: isLoadingSimilarPools } = usePoolsQuery(filterOptions)
 
   const [hasRestoredFromSavedState, setHasRestoredFromSavedState] = useState<boolean | null>(null)
 
-  const networkConfig = config[chainId]
-
   const similarPools = flatten(similarPoolsResponse?.pages?.map((p: any) => p.pools) || [])
 
-  const poolLiquidity = useMemo(() => {
+  const poolLiquidity = (() => {
     let sum = bnum(0)
-    for (const token of seedTokens) {
+    for (const token of poolCreationState.seedTokens) {
       sum = sum.plus(bnum(token.amount).times(priceFor(token.tokenAddress)))
     }
     return sum
-  }, [JSON.stringify(seedTokens)])
+  })()
 
-  const poolTypeString = useMemo((): string => {
+  const poolTypeString: string = (() => {
     switch (poolCreationState.type) {
       case PoolType.Weighted:
         return 'weighted'
       default:
         return ''
     }
-  }, [poolCreationState.type])
+  })()
 
-  const totalLiquidity = useMemo(() => {
+  const totalLiquidity = (() => {
     let total = bnum(0)
     for (const token of tokensList) {
       total = total.plus(bnum(priceFor(token)).times(balanceFor(token)))
     }
     return total
-  }, [JSON.stringify(tokensList)])
+  })()
 
-  const tokensWithNoPrice = useMemo(() => {
+  const poolOwner: string = (() => {
+    if (poolCreationState.feeManagementType === 'governance') {
+      return POOLS.DelegateOwner
+    } else {
+      return poolCreationState.feeController === 'self' ? account : poolCreationState.thirdPartyFeeController
+    }
+  })()
+
+  const tokensWithNoPrice = (() => {
     const validTokens = tokensList.filter((t) => t !== '')
     return validTokens.filter((token) => priceFor(token) === 0)
-  }, [JSON.stringify(tokensList)])
+  })()
 
   function getTokensScaledByBIP(bip: BigNumber): Record<string, OptimisedLiquidity> {
     const optimisedLiquidity = {} as any
@@ -227,18 +240,19 @@ export const usePoolCreation = () => {
   }
 
   function proceed() {
-    if (!similarPools.length && poolCreationState.activeStep === 1) {
-      dispatch(setActiveStep(activeStep + 2))
-    } else {
-      dispatch(setActiveStep(activeStep + 1))
-    }
+    dispatch(setActiveStep(activeStep + 1))
+    // if (!similarPools.length && poolCreationState.activeStep === 1) {
+    //   dispatch(setActiveStep(activeStep + 2))
+    // } else {
+    //   dispatch(setActiveStep(activeStep + 1))
+    // }
   }
 
   function goBack() {
-    if (!similarPools.length && poolCreationState.activeStep === 3) {
-      dispatch(setActiveStep(activeStep - 2))
-      return
-    }
+    // if (!similarPools.length && poolCreationState.activeStep === 3) {
+    //   dispatch(setActiveStep(activeStep - 2))
+    //   return
+    // }
     dispatch(setActiveStep(activeStep - 1))
     if (hasRestoredFromSavedState) {
       setRestoredState(false)
@@ -307,157 +321,142 @@ export const usePoolCreation = () => {
     return scaledAmounts
   }
 
-  async function joinPool(poolID: string) {
-    const address = networkConfig.addresses.vault as Address
-    const tokenAddresses: string[] = seedTokens.map((token: PoolSeedToken) => {
-      return token.tokenAddress
-    })
+  // async function joinPool(poolID: string) {
+  //   const address = networkConfig.addresses.vault as Address
+  //   const tokenAddresses: string[] = seedTokens.map((token: PoolSeedToken) => {
+  //     return token.tokenAddress
+  //   })
 
-    const tokenBalances = getScaledAmounts()
+  //   const tokenBalances = getScaledAmounts()
 
-    const initUserData = defaultAbiCoder.encode(['uint256', 'uint256[]'], [JOIN_KIND_INIT, tokenBalances])
+  //   const initUserData = defaultAbiCoder.encode(['uint256', 'uint256[]'], [JOIN_KIND_INIT, tokenBalances])
 
-    const joinPoolRequest: JoinPoolRequest = {
-      // @ts-ignore
-      assets: tokenAddresses,
-      maxAmountsIn: tokenBalances,
-      userData: initUserData,
-      fromInternalBalance: false,
-    }
+  //   const joinPoolRequest: JoinPoolRequest = {
+  //     // @ts-ignore
+  //     assets: tokenAddresses,
+  //     maxAmountsIn: tokenBalances,
+  //     userData: initUserData,
+  //     fromInternalBalance: false,
+  //   }
 
-    const sender = account
-    const receiver = account
+  //   const sender = account
+  //   const receiver = account
 
-    console.log('poolID', poolID)
+  //   console.log('poolID', poolID)
 
-    const params = [poolID.toLowerCase(), sender, receiver, joinPoolRequest] as any
+  //   const params = [poolID.toLowerCase(), sender, receiver, joinPoolRequest] as any
 
-    // @ts-ignore
-    const { request } = await simulateContract(wagmiConfig, {
-      account,
-      address,
-      abi: Vault__factory.abi,
-      args: params,
-      functionName: 'joinPool',
-      // @ts-ignore
-      value: parseValue(tokenBalances, tokenAddresses),
-    })
+  //   // @ts-ignore
+  //   const { request } = await simulateContract(wagmiConfig, {
+  //     account,
+  //     address,
+  //     abi: Vault__factory.abi,
+  //     args: params,
+  //     functionName: 'joinPool',
+  //     // @ts-ignore
+  //     value: parseValue(tokenBalances, tokenAddresses),
+  //   })
 
-    // @ts-ignore
-    const txHash = await writeContract(wagmiConfig, request)
+  //   // @ts-ignore
+  //   const txHash = await writeContract(wagmiConfig, request)
 
-    // @ts-ignore
-    await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
+  //   // @ts-ignore
+  //   await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
 
-    return txHash
-  }
+  //   return txHash
+  // }
 
   function setRestoredState(value: boolean) {
     setHasRestoredFromSavedState(value)
   }
 
-  async function retrievePoolAddress(receipt: any) {
-    const weightedPoolFactoryInterface = WeightedPoolFactory__factory.createInterface()
-
-    const poolCreationEvent = receipt.logs
-      .filter((log: any) => log.address === networkConfig.addresses.weightedPoolFactory.toLowerCase())
-      .map((log: any) => {
-        try {
-          return weightedPoolFactoryInterface.parseLog(log)
-        } catch {
-          return null
-        }
-      })
-      .find((parsedLog: any) => parsedLog?.name === 'PoolCreated')
-
-    if (!poolCreationEvent) return null
-    const poolAddress = poolCreationEvent.args.pool
-
-    try {
-      const pool = WeightedPool__factory.connect(poolAddress, provider as any)
-      console.log('poolAddress', poolAddress)
-      const poolId = await pool.getPoolId()
-      dispatch(setPoolCreationState({ poolId, poolAddress, needsSeeding: true }))
-    } catch (error) {
-      console.error(error)
+  async function retrievePoolAddress(hash: string) {
+    const provider = await getProvider()
+    const response = await balancerService.pools.weighted.retrievePoolIdAndAddress(provider, hash)
+    if (response !== null) {
+      // updatePoolCreationState((prev) => ({
+      //   ...prev,
+      //   poolId: response.id,
+      //   poolAddress: response.address,
+      //   needsSeeding: true,
+      // }))
+      // saveState()
     }
   }
 
-  async function createPool() {
-    const address = networkConfig.addresses.weightedPoolFactory as Address
-    const tokenAddresses: string[] = seedTokens.map((token: PoolSeedToken) => {
-      return token.tokenAddress
-    })
-    const weights = calculateTokenWeights(seedTokens)
-    const params = [
-      name,
-      symbol,
-      tokenAddresses,
-      weights,
-      [ZERO_ADDRESS, ZERO_ADDRESS],
-      parseUnits(initialFee, 18).toString(),
-      account,
-      generateSalt(),
-    ] as any
-
-    console.log('params', params)
-
-    // @ts-ignore
-    const { request } = await simulateContract(wagmiConfig, {
-      account,
-      address,
-      abi: WeightedPoolFactoryV4Abi,
-      args: params,
-      functionName: 'create',
-    })
-
-    // @ts-ignore
-    const txHash = await writeContract(wagmiConfig, request)
-
-    await retryWaitForTransaction({
-      hash: txHash,
-      confirmations: 10,
-    })
-    // @ts-ignore
-    const receipt: any = await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
-
-    if (receipt) {
-      retrievePoolAddress(receipt)
+  async function createPool(): Promise<TransactionResponse> {
+    if (hasUnlistedToken && !isTestnet) {
+      throw new Error('Invalid pool creation due to unlisted tokens.')
     }
+    const provider = await getProvider()
+    const tx = await balancerService.pools.weighted.create(
+      provider,
+      poolCreationState.name,
+      poolCreationState.symbol,
+      poolCreationState.initialFee,
+      poolCreationState.seedTokens,
+      poolOwner
+    )
+    debugger;
+    // updatePoolCreationState((prev) => ({ ...prev, createPoolTxHash: tx.hash }))
+    // saveState()
 
-    return txHash
+    // addTransaction({
+    //   id: tx.hash,
+    //   type: 'tx',
+    //   action: 'createPool',
+    //   summary: poolCreationState.name,
+    //   details: { name: poolCreationState.name },
+    // })
+
+    txListener(tx, {
+      onTxConfirmed: async () => {
+        await retrievePoolAddress(tx.hash)
+      },
+      onTxFailed: () => {
+        console.log('Create failed')
+      },
+    })
+
+    return tx
   }
 
-  const similarPoolsVariables = useMemo(() => {
-    return {
-      tokensList,
-    }
-  }, [tokensList])
-  const similarPoolsResp = useSubgraphQuery({
-    queryKey: ['GetSimilarPools', SUBGRAPH_QUERY.POOLS, chainId, similarPoolsVariables],
-    feature: SUBGRAPH_QUERY.POOLS,
-    chainId,
-    query: `
-      query GetSimilarPools(
-        $tokensList: [Bytes!],
-      ) {
-        pools(
-          where: {
-            totalLiquidity_gt: "0",
-            tokensList_contains: $tokensList,
-          },
-          first: 1,
-        ) {
-          address
-          id
-          totalSwapVolume
-          totalLiquidity
-        }
-      }
-    `,
-    variables: similarPoolsVariables,
-    enabled: tokensList.filter((address) => isAddress(address)).length > 1,
-  })
+  async function joinPool() {
+    // const provider = await getProvider()
+    // const tokenAddresses: string[] = poolCreationState.seedTokens.map((token) => {
+    //   if (isSameAddress(token.tokenAddress, wrappedNativeAsset.address) && poolCreationState.useNativeAsset) {
+    //     return nativeAsset.address
+    //   }
+    //   return token.tokenAddress
+    // })
+    // const tx = await balancerService.pools.weighted.initJoin(
+    //   provider,
+    //   poolCreationState.poolId,
+    //   account,
+    //   account,
+    //   tokenAddresses,
+    //   getScaledAmounts()
+    // )
+
+    // addTransaction({
+    //   id: tx.hash,
+    //   type: 'tx',
+    //   action: 'fundPool',
+    //   summary: poolCreationState.name,
+    // })
+
+    // txListener(tx, {
+    //   onTxConfirmed: async () => {
+    //     resetState()
+    //   },
+    //   onTxFailed: () => {
+    //     console.log('Seed failed')
+    //   },
+    // })
+
+    // return tx
+  }
+
 
   return {
     ...poolCreationState,
@@ -480,7 +479,6 @@ export const usePoolCreation = () => {
     joinPool,
     removeTokenWeights,
     tokensList,
-    similarPoolsResp: similarPoolsResp,
     setRestoredState,
     resetPoolCreationState,
     tokensWithNoPrice,

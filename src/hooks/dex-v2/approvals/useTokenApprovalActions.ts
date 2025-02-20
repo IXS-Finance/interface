@@ -130,9 +130,8 @@ export default function useTokenApprovalActions() {
   }: ApproveTokenParams): Promise<TransactionResponse> {
     const amount = forceMax ? MaxUint256.toString() : parseUnits(normalizedAmount, token.decimals).toString()
 
-    // @ts-ignore
-    const txBuilder = new TransactionBuilder(getSigner())
-    debugger
+    const signer = await getSigner();
+    const txBuilder = new TransactionBuilder(signer)
     const tx = await txBuilder.contract.sendTransaction({
       contractAddress: token.address,
       abi: ['function approve(address spender, uint256 amount) public returns (bool)'],

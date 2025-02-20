@@ -11,12 +11,28 @@ import TokenInput from '../components/TokenInput'
 import { isGreaterThan } from 'lib/utils/validations'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { setPoolCreationState, setTokenAmount } from 'state/dexV2/poolCreation'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 interface SetPoolFeesProps {}
 
 const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
-  const { seedTokens, manuallySetToken, autoOptimiseBalances } = usePoolCreationState()
-  const { tokensList, scaledLiquidity, getOptimisedLiquidity, proceed, goBack } = usePoolCreation()
+  const {
+    seedTokens,
+    manuallySetToken,
+    autoOptimiseBalances,
+    tokensList,
+    scaledLiquidity,
+    getOptimisedLiquidity,
+    proceed,
+    goBack,
+  } = usePoolCreation()
+  const {
+    balanceFor,
+    priceFor,
+    nativeAsset,
+    wrappedNativeAsset,
+    dynamicDataLoading,
+  } = useTokens();
   const dispatch = useDispatch()
 
   const [isOptimised, setIsOptimised] = useState(false)
@@ -54,6 +70,7 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
     optimiseLiquidity()
     scaleLiquidity()
   }, [manuallySetToken, autoOptimiseBalances])
+
 
   return (
     <div>

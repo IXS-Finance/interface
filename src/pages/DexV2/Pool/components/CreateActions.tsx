@@ -2,11 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { TransactionActionInfo } from 'pages/DexV2/types/transactions'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
-import useTokenApprovalActions, { ApprovalAction } from 'state/dexV2/tokens/hooks/useTokenApprovalActions'
+import useTokenApprovalActions from 'hooks/dex-v2/approvals/useTokenApprovalActions'
 import { useWeb3React } from 'hooks/useWeb3React'
 import config from 'lib/config'
 import ActionSteps from './ActionSteps'
 import { useTokensState } from 'state/dexV2/tokens/hooks'
+import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
 
 interface Props {
   tokenAddresses: string[]
@@ -17,8 +18,7 @@ interface Props {
 }
 
 const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => {
-  const { hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
-  const { needsSeeding, poolId } = usePoolCreationState()
+  const {  needsSeeding, poolId, hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
   const { getTokenApprovalActions } = useTokenApprovalActions()
   const { account, chainId } = useWeb3React()
   const { allowanceLoading, allowances } = useTokensState()
@@ -28,14 +28,14 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
       label: 'Create Pool',
       loadingLabel: 'Confirm create in wallet',
       confirmingLabel: 'Confirming...',
-      action: () => {},
+      action: createPool,
       stepTooltip: `Create ${poolTypeString} pool`,
     },
     {
       label: 'Fund pool',
       loadingLabel: 'Confirm funding in wallet',
       confirmingLabel: 'Confirming...',
-      action: () => {},
+      action: joinPool,
       stepTooltip: 'Add the initial liquidity for this pool.',
     },
   ]
@@ -53,13 +53,12 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
     }
   })
 
-  const requiredActions = useMemo(() => {
+  const requiredActions = (() => {
     if ((hasRestoredFromSavedState && needsSeeding) || isRestoredTxConfirmed) {
       return actions.filter((action) => action.label === 'Fund pool')
     }
-
     return actions
-  }, [JSON.stringify(actions)])
+  })();
 
   const getActions = async () => {
     const approvalActions = await getTokenApprovalActions({
@@ -68,6 +67,7 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
       actionType: ApprovalAction.AddLiquidity,
     })
 
+    debugger;
     setActions([...approvalActions, ...initActions])
   }
 
@@ -78,6 +78,8 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
   if (allowanceLoading) {
     return <div>Loading...</div>
   }
+
+  console.log('requiredActions', requiredActions)
 
   return (
     <div>

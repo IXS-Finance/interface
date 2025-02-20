@@ -72,8 +72,6 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
     ? tokensWithValues
     : orderBy(tokensWithValues, ['value', 'balance'], ['desc', 'desc'])
 
-  console.log('tokens', tokens)
-
   async function onSelectToken(token: string): Promise<void> {
     // Todo: Implement onSelectToken
     // if (!getToken(token)) {

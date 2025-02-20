@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider'
 
 import { TransactionActionInfo, TransactionActionState } from 'pages/DexV2/types/transactions'
-import { Step, StepState, TransactionAction } from 'pages/DexV2/types'
+import { Step, StepState } from 'pages/DexV2/types'
 import HorizSteps from './HorizSteps'
 import { BackButton, NavigationButtons, NextButton } from '../Create'
 import { useErrorMsg } from 'lib/utils/errors'
@@ -9,6 +10,9 @@ import { toast } from 'react-toastify'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 import Loader from 'components/Loader'
+import useEthers from 'hooks/dex-v2/useEthers'
+import { TransactionAction, postConfirmationDelay } from 'hooks/dex-v2/useTransactions'
+import { dateTimeLabelFor } from 'hooks/dex-v2/useTime'
 
 type BalStepAction = {
   label: string
@@ -59,18 +63,24 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   goBack,
   setCurrentActionIndex,
 }) => {
+  const { txListener, getTxConfirmedAt } = useEthers()
   const { formatErrorMsg } = useErrorMsg()
   const { hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
   const { needsSeeding, poolId } = usePoolCreationState()
 
-  const [actionStates, setActionStates] = useState<TransactionActionState[]>(
-    requiredActions.map(() => ({ ...defaultActionState }))
-  )
   const [loading, setLoading] = useState(false)
 
-  const actions: BalStepAction[] = requiredActions.map((actionInfo, idx) => {
+  const actions: BalStepAction[] = []
+
+  const actionStates = requiredActions.map(() => ({ ...defaultActionState }))
+
+  requiredActions.forEach((actionInfo, idx) => {
     const actionState = actionStates[idx]
-    return {
+    if (!actionState) {
+      return
+    }
+
+    actions.push({
       label: actionInfo.label,
       loadingLabel: actionState.init ? actionInfo.loadingLabel : actionInfo.confirmingLabel,
       pending: actionState.init || actionState.confirming,
@@ -80,11 +90,15 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
         tooltip: actionInfo.stepTooltip,
         state: getStepState(actionState, idx),
       },
-    }
+    })
   })
-  const steps: Step[] = actions.map((action) => action.step)
 
   const currentAction: BalStepAction | undefined = actions[currentActionIndex]
+  const currentActionState: TransactionActionState = actionStates[currentActionIndex]
+  const lastActionState: TransactionActionState = actionStates[actionStates.length - 1]
+  const steps: Step[] = actions.map((action) => action.step)
+
+  const _loadingLabel: string = currentAction?.pending ? currentAction.loadingLabel : loadingLabel || 'Loading...'
 
   function getStepState(actionState: TransactionActionState, index: number): StepState {
     if (currentActionIndex < index) return StepState.Todo
@@ -94,31 +108,105 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     return StepState.Active
   }
 
+  function handleSignAction(state: TransactionActionState) {
+    setCurrentActionIndex((prevIndex: any) => prevIndex + 1)
+    state.confirming = false
+    state.confirmed = true
+  }
+
+  async function handleTransaction(
+    tx: TransactionResponse,
+    state: TransactionActionState,
+    actionInfo: TransactionActionInfo
+  ): Promise<void> {
+    const { postActionValidation, actionInvalidReason } = actionInfo;
+
+    await txListener(tx, {
+      onTxConfirmed: async (receipt: TransactionReceipt) => {
+        state.receipt = receipt;
+
+        await postConfirmationDelay(tx);
+
+        const isValid = await postActionValidation?.();
+        if (isValid || !postActionValidation) {
+          const confirmedAt = await getTxConfirmedAt(receipt);
+          state.confirmedAt = dateTimeLabelFor(confirmedAt);
+          state.confirmed = true;
+          if (currentActionIndex >= actions.length - 1) {
+            debugger;
+            // emit('success', receipt, state.confirmedAt);
+          } else {
+            setCurrentActionIndex((prevIndex: any) => prevIndex + 1);
+          }
+        } else {
+          // post action validation failed, display reason.
+          if (actionInvalidReason) state.error = actionInvalidReason;
+          state.init = false;
+        }
+        state.confirming = false;
+      },
+      onTxFailed: () => {
+        state.confirming = false;
+        debugger;
+        // emit('failed');
+      },
+    });
+  }
+
   async function submit(actionInfo: TransactionActionInfo, state: TransactionActionState): Promise<void> {
-    const { action, postActionValidation } = actionInfo
+    const { action } = actionInfo
     try {
-      setLoading(true)
-      if (actionInfo.label === 'Fund pool') {
-        await joinPool(poolId)
-        toast.success('Create pool success')
+      state.init = true
+      state.error = null
+
+      const tx = await action()
+
+      state.init = false
+      state.confirming = true
+
+      if (currentAction?.isSignAction) {
+        handleSignAction(state)
         return
-      } else if (actionInfo.label === 'Create Pool') {
-        await createPool()
-      } else {
-        await action()
-        await postActionValidation?.()
       }
-      setCurrentActionIndex(currentActionIndex + 1)
-    } catch (error: any) {
-      console.error('Error submitting action', error?.message)
-      const errorMsg = formatErrorMsg(error?.message)
-      if (errorMsg) {
-        toast.error(errorMsg.title)
-      }
-    } finally {
-      setLoading(false)
+
+      if (tx) handleTransaction(tx, state, actionInfo)
+    } catch (error) {
+      state.init = false
+      state.confirming = false
+      state.error = formatErrorMsg(error)
+      // captureBalancerException({
+      //   error: (error as Error)?.cause || error,
+      //   action: props.primaryActionType,
+      //   context: { level: 'fatal' },
+      // });
     }
   }
+
+  // async function submit(actionInfo: TransactionActionInfo, state: TransactionActionState): Promise<void> {
+  //   const { action, postActionValidation } = actionInfo
+  //   // try {
+  //   //   setLoading(true)
+  //   //   if (actionInfo.label === 'Fund pool') {
+  //   //     await joinPool(poolId)
+  //   //     toast.success('Create pool success')
+  //   //     return
+  //   //   } else if (actionInfo.label === 'Create Pool') {
+  //   //     await createPool()
+  //   //   } else {
+  //   //     await action()
+  //   //     await postActionValidation?.()
+  //   //   }
+  //   //   setCurrentActionIndex(currentActionIndex + 1)
+  //   // } catch (error: any) {
+  //   //   console.error('Error submitting action', error?.message)
+  //   //   const errorMsg = formatErrorMsg(error?.message)
+  //   //   if (errorMsg) {
+  //   //     toast.error(errorMsg.title)
+  //   //   }
+  //   // } finally {
+  //   //   setLoading(false)
+  //   // }
+  // }
 
   return (
     <div>

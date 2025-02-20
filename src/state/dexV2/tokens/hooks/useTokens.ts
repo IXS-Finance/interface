@@ -6,7 +6,6 @@ import { bnum, getAddressFromPoolId, includesAddress, isSameAddress, selectByAdd
 import { NativeAsset, TokenInfo, TokenInfoMap, TokenListMap } from 'types/TokenList'
 import { useTokensState } from '.'
 import { setSpenders, setTokensState } from '..'
-import { AmountToApprove } from './useTokenApprovalActions'
 import useConfig from 'hooks/dex-v2/useConfig'
 import TokenService from 'services/token/token.service'
 import { tokenListService } from 'services/token-list/token-list.service'
@@ -18,6 +17,7 @@ import useTokenPricesQuery, { TokenPrices } from 'hooks/dex-v2/queries/useTokenP
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { BalanceMap } from 'services/token/concerns/balances.concern'
 import { ContractAllowancesMap } from 'services/token/concerns/allowances.concern'
+import { AmountToApprove } from 'hooks/dex-v2/approvals/useTokenApprovalActions'
 
 const { uris: tokenListUris } = tokenListService
 
