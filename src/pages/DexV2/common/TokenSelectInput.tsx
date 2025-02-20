@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { ReactComponent as ChevDown } from 'assets/images/dex-v2/chev-down.svg'
 import SelectTokenModal from './modals/SelectTokenModal'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import Asset from './Asset'
 
 interface TokenSelectInputProps {
   modelValue: string
@@ -38,7 +39,7 @@ const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue, exclude
       <TokenSelectInputWrapper onClick={toggleModal}>
         {token ? (
           <TokenSelected>
-            <img src={token.logoURI} alt={token.symbol} width={20} height={20} />
+            <Asset address={token.address} iconURI={token.logoURI} size={20} />
             <span>{token.symbol}</span>
           </TokenSelected>
         ) : (

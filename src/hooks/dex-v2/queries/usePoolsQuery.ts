@@ -31,7 +31,7 @@ export default function usePoolsQuery(
   options: UseInfiniteQueryOptions<PoolsQueryResponse> = {
     enabled: true,
   } as UseInfiniteQueryOptions<PoolsQueryResponse>,
-  shouldInjectTokens = true
+  shouldInjectTokens = false
 ) {
   /**
    * COMPOSABLES

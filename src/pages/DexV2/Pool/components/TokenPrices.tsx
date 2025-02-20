@@ -8,6 +8,7 @@ import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { selectByAddress } from 'lib/utils'
+import Asset from 'pages/DexV2/common/Asset'
 
 interface TokenPricesProps {
   toggleUnknownPriceModal?: () => void
@@ -22,7 +23,6 @@ const TokenPrices: React.FC<TokenPricesProps> = () => {
   const knownTokens = validTokens.filter((token) => priceFor(token) !== 0 && !selectByAddress(injectedPrices, token))
   const unknownTokens = validTokens.filter((token) => priceFor(token) === 0 || selectByAddress(injectedPrices, token))
   const hasUnknownPrice = validTokens.some((token) => priceFor(token) === 0)
-
   return (
     <Container>
       <Flex alignItems="center" style={{ gap: 6 }} mb="6px">
@@ -32,27 +32,30 @@ const TokenPrices: React.FC<TokenPricesProps> = () => {
         <img src={InfoIcon} alt="info" />
       </Flex>
 
-      {unknownTokens.map((token) => (
-        <Flex
-          fontSize={14}
-          fontWeight={500}
-          justifyContent="space-between"
-          width="100%"
-          alignItems="center"
-          color="rgba(41, 41, 51, 0.90)"
-          py="12px"
-          key={`tokenPrice-known-${token}`}
-        >
-          <Flex alignItems="center" style={{ gap: 6 }}>
-            <img src={getToken(token)?.logoURI} width={20} height={20} />
-            <Text>{getToken(token)?.symbol}</Text>
+      {unknownTokens.map((token) => {
+        const tokenInfo = getToken(token)
+        console.log('tokenInfo', tokenInfo)
+        return (
+          <Flex
+            fontSize={14}
+            fontWeight={500}
+            justifyContent="space-between"
+            width="100%"
+            alignItems="center"
+            color="rgba(41, 41, 51, 0.90)"
+            py="12px"
+            key={`tokenPrice-known-${token}`}
+          >
+            <Flex alignItems="center" style={{ gap: 6 }}>
+              <Asset address={token} iconURI={tokenInfo?.logoURI} size={20} />
+              <Text>{tokenInfo?.symbol}</Text>
+            </Flex>
+            <Flex alignItems="center" style={{ gap: 6 }}>
+              <Text>{`${fNum(priceFor(token), FNumFormats.fiat)}`}</Text>
+            </Flex>
           </Flex>
-          <Flex alignItems="center" style={{ gap: 6 }}>
-            <Text>{`${fNum(priceFor(token), FNumFormats.fiat)}`}</Text>
-            {/* <img src={PenIcon} alt="edit" /> */}
-          </Flex>
-        </Flex>
-      ))}
+        )
+      })}
 
       {/* <Flex
         fontSize={14}
