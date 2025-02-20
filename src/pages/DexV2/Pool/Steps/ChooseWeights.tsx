@@ -45,7 +45,6 @@ const ChooseWeights: React.FC = () => {
     addTokenWeightToPool,
     proceed,
     removeTokenWeights,
-    similarPoolsResp,
     getPoolSymbol,
   } = usePoolCreation()
   const { seedTokens } = usePoolCreationState()
@@ -55,8 +54,6 @@ const ChooseWeights: React.FC = () => {
   const { getToken } = useTokens()
   const { data: hash, writeContract } = useWriteContract()
   const { fNum } = useNumbers()
-  const { data: similarPoolsData, isLoading: similarPoolsLoading } = similarPoolsResp
-  const isPoolExisting = !similarPoolsLoading && similarPoolsData?.data?.pools?.length > 0
 
   const networkConfig = config[chainId]
 
@@ -90,12 +87,11 @@ const ChooseWeights: React.FC = () => {
 
   const isProceedDisabled = useMemo(() => {
     if (!account) return false
-    // if (similarPoolsLoading || isPoolExisting) return true // validating or pool is existing
     if (Number(totalAllocatedWeight) !== 100) return true
     if (seedTokens.length < 2) return true
     if (zeroWeightToken) return true
     return false
-  }, [account, JSON.stringify(seedTokens), similarPoolsLoading, isPoolExisting])
+  }, [account, JSON.stringify(seedTokens)])
 
   const showLiquidityAlert = useMemo(() => {
     const validTokens = seedTokens.filter((t) => t.tokenAddress !== '')
@@ -217,9 +213,7 @@ const ChooseWeights: React.FC = () => {
         </BalAlert>
       ) : null}
 
-      {isPoolExisting ? (
-        <BalAlert title={`Pair ${ getPoolSymbol() } already exists!`} type="warning" />
-      ) : null}
+      {/* {isPoolExisting ? <BalAlert title={`Pair ${getPoolSymbol()} already exists!`} type="warning" /> : null} */}
 
       <ButtonPrimary onClick={handleProceed} disabled={isProceedDisabled}>
         {walletLabel}

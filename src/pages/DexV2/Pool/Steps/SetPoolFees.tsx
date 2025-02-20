@@ -15,8 +15,10 @@ const SetPoolFees: React.FC<SetPoolFeesProps> = () => {
   const dispatch = useDispatch()
 
   const [fee, setFee] = useState((Number(initialFee) * 100).toString())
-  const [name, setName] = useState(getPoolSymbol())
+  const [name, setName] = useState('')
   const [isInvalidFee, setIsInvalidFee] = useState(false)
+
+  const poolSymbol = getPoolSymbol()
 
   const isProceedDisabled = useMemo(() => {
     if (isInvalidFee) return true
@@ -53,8 +55,9 @@ const SetPoolFees: React.FC<SetPoolFeesProps> = () => {
   }
 
   useEffect(() => {
-    dispatch(setPoolCreationState({ symbol: getPoolSymbol(), name: getPoolSymbol() }))
-  }, [])
+    setName(poolSymbol)
+    dispatch(setPoolCreationState({ symbol: poolSymbol, name: poolSymbol }))
+  }, [poolSymbol])
 
   return (
     <div>

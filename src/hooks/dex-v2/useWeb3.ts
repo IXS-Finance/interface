@@ -1,5 +1,6 @@
 import { getChainId, getAccount } from '@wagmi/core'
 import { useMemo, useState } from 'react'
+import { useConnectModal } from '@rainbow-me/rainbowkit'
 
 import { wagmiConfig } from 'components/Web3Provider'
 import { configService } from 'services/config/config.service'
@@ -7,6 +8,7 @@ import { rpcProviderService } from 'services/rpc-provider/rpc-provider.service'
 import { getEthersProvider, getEthersSigner } from 'hooks/useEthersProvider'
 
 export default function useWeb3() {
+  const { openConnectModal } = useConnectModal()
   const appNetworkConfig = configService.network
   const chainId = getChainId(wagmiConfig)
   const { address } = getAccount(wagmiConfig)
@@ -20,7 +22,7 @@ export default function useWeb3() {
   const [blockNumber, setBlockNumber] = useState<number>(0)
 
   /** INIT STATE */
-  rpcProviderService.initBlockListener(setBlockNumber)
+  // rpcProviderService.initBlockListener(setBlockNumber)
 
   // METHODS
   const getSigner = () => getEthersSigner(wagmiConfig)
@@ -29,6 +31,10 @@ export default function useWeb3() {
   const userNetworkConfig = configService.getNetworkConfig(chainId)
   const isMismatchedNetwork = account && userNetworkConfig?.key !== appNetworkConfig.key
   const isWalletReady = account !== null
+
+  function startConnectWithInjectedProvider(): void {
+    openConnectModal && openConnectModal()
+  }
 
   return {
     account,
@@ -40,5 +46,6 @@ export default function useWeb3() {
     explorerLinks,
     getSigner,
     getProvider,
+    startConnectWithInjectedProvider,
   }
 }

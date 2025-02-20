@@ -21,13 +21,7 @@ const TokenInfo: React.FC<TokenInfoProps> = (props) => {
   const { fNum } = useNumbers()
   const { getToken, priceFor } = useTokens()
 
-  const tokenInfo = useMemo(() => {
-    if (!address) {
-      return null
-    }
-
-    return getToken(address)
-  }, [address])
+  const tokenInfo = address ? getToken(address) : null
 
   return (
     <div>
@@ -41,7 +35,7 @@ const TokenInfo: React.FC<TokenInfoProps> = (props) => {
         </Flex>
 
         <div>
-          <Title style={{textAlign: 'right'}}>{fNum(token?.amount, FNumFormats.token)}</Title>
+          <Title style={{ textAlign: 'right' }}>{fNum(token?.amount, FNumFormats.token)}</Title>
           <Description>
             {fNum(bnum(token.amount).times(priceFor(token.tokenAddress)).toString(), FNumFormats.fiat)}
           </Description>

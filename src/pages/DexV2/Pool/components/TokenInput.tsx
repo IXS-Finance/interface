@@ -30,23 +30,10 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
   const [errors, setErrors] = useState<string[]>([])
   const [amountValue, setAmountValue] = useState<string>('')
 
-  const token = useMemo(() => {
-    if (!address) {
-      return null
-    }
-
-    return getToken(address)
-  }, [address])
-  const hasToken = useMemo(() => !!address, [address])
+  const token = address ? getToken(address) : null
+  const hasToken = !!address
   const decimalLimit = useMemo<number>(() => token?.decimals || 18, [token])
-
-  const balance = useMemo(() => {
-    if (!address) {
-      return '0'
-    }
-
-    return balanceFor(address)
-  }, [address])
+  const balance = !address ? '0' : balanceFor(address)
 
   const inputRules = useMemo(() => {
     if (!hasToken) {
@@ -89,7 +76,7 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
   }
 
   useEffect(() => {
-    setAmountValue(formatAmount(+amount, 2));
+    setAmountValue(formatAmount(+amount, 2))
   }, [amount])
 
   return (

@@ -3,7 +3,7 @@ import { getAddress } from '@ethersproject/address'
 import { TransactionResponse } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { flatten, sumBy } from 'lodash'
-import { useMemo, useState, useCallback } from 'react'
+import { useState } from 'react'
 import { PoolType } from '@ixswap1/dex-v2-sdk'
 
 // Hooks & utilities – adjust paths as needed
@@ -100,29 +100,36 @@ function usePoolCreation() {
   const { addTransaction } = useTransactions()
 
   // Local state
-  const [poolCreationState, setPoolCreationState] = useState<PoolCreationState>({
-    ...emptyPoolCreationState,
-  })
+  const [poolCreationStateString, setPoolCreationStateString] = useState<string>(
+    JSON.stringify({
+      ...emptyPoolCreationState,
+    })
+  )
+
+  console.log('poolCreationStateString', poolCreationStateString)
+  const poolCreationState: PoolCreationState = JSON.parse(poolCreationStateString)
+
+  function updatePoolCreationState(updater: (prev: PoolCreationState) => PoolCreationState) {
+    setPoolCreationStateString((prevString) => {
+      const prev = JSON.parse(prevString) as PoolCreationState
+      const next = updater(prev)
+      return JSON.stringify(next)
+    })
+  }
+
   const [tokenColors, setTokenColors] = useState<string[]>([])
   const [hasRestoredFromSavedState, setHasRestoredFromSavedState] = useState<boolean | null>(null)
 
   // --- Computed values ---
 
-  const tokensList = useMemo(() => {
-    return [...poolCreationState.tokensList].sort((a, b) => (a > b ? 1 : -1))
-  }, [poolCreationState.tokensList])
+  const tokensList = [...poolCreationState.tokensList].sort((a, b) => (a > b ? 1 : -1))
 
   // isUnlistedToken – a helper function
-  const isUnlistedToken = useCallback(
-    (tokenAddress: string) => {
-      return tokenAddress !== '' && !balancerTokenListTokens[tokenAddress]
-    },
-    [balancerTokenListTokens]
-  )
+  const isUnlistedToken = (tokenAddress: string) => {
+    return tokenAddress !== '' && !balancerTokenListTokens[tokenAddress]
+  }
 
-  const hasUnlistedToken = useMemo(() => {
-    return tokensList.some((tokenAddress) => tokenAddress && isUnlistedToken(tokenAddress))
-  }, [tokensList, isUnlistedToken])
+  const hasUnlistedToken = tokensList.some((tokenAddress) => tokenAddress && isUnlistedToken(tokenAddress))
 
   function getOptimisedLiquidity(): Record<string, OptimisedLiquidity> {
     const validTokens = tokensList.filter((t) => t !== '')
@@ -156,7 +163,7 @@ function usePoolCreation() {
     return getTokensScaledByBIP(bip)
   }
 
-  const scaledLiquidity = useMemo((): Record<string, OptimisedLiquidity> => {
+  const scaledLiquidity: Record<string, OptimisedLiquidity> = (() => {
     const result: Record<string, OptimisedLiquidity> = {}
     const manuallySetToken =
       poolCreationState.manuallySetToken === nativeAsset.address
@@ -168,66 +175,60 @@ function usePoolCreation() {
       .times(modifiedToken.amount)
       .div(modifiedToken.weight)
     return getTokensScaledByBIP(bip)
-  }, [
-    poolCreationState.manuallySetToken,
-    poolCreationState.seedTokens,
-    nativeAsset.address,
-    wrappedNativeAsset.address,
-    priceFor,
-  ])
+  })()
 
-  const maxInitialLiquidity = useMemo(() => {
+  const maxInitialLiquidity: number = (() => {
     const liquidityObj = getOptimisedLiquidity()
     return sumBy(Object.values(liquidityObj), (liq: any) => Number(liq.liquidityRequired))
-  }, [poolCreationState, tokensList, dynamicDataLoading])
+  })()
 
-  const totalLiquidity = useMemo(() => {
+  const totalLiquidity = (() => {
     let total = bnum(0)
     for (const token of tokensList) {
       total = total.plus(bnum(priceFor(token)).times(balanceFor(token)))
     }
     return total
-  }, [tokensList, priceFor, balanceFor])
+  })()
 
-  const currentLiquidity = useMemo(() => {
+  const currentLiquidity = (() => {
     let total = bnum(0)
     for (const token of poolCreationState.seedTokens) {
       total = total.plus(bnum(token.amount).times(priceFor(token.tokenAddress)))
     }
     return total
-  }, [poolCreationState.seedTokens, priceFor])
+  })()
 
-  const poolLiquidity = useMemo(() => {
+  const poolLiquidity = (() => {
     let sum = bnum(0)
     for (const token of poolCreationState.seedTokens) {
       sum = sum.plus(bnum(token.amount).times(priceFor(token.tokenAddress)))
     }
     return sum
-  }, [poolCreationState.seedTokens, priceFor])
+  })()
 
-  const poolTypeString = useMemo((): string => {
+  const poolTypeString: string = (() => {
     switch (poolCreationState.type) {
       case PoolType.Weighted:
         return 'weighted'
       default:
         return ''
     }
-  }, [poolCreationState.type])
+  })()
 
-  const tokensWithNoPrice = useMemo(() => {
+  const tokensWithNoPrice = (() => {
     const validTokens = tokensList.filter((t) => t !== '')
     return validTokens.filter((token) => priceFor(token) === 0)
-  }, [tokensList, priceFor])
+  })()
 
-  // usePoolsQuery returns pages of similar pools (if any)
-  const filterOptions = useMemo(() => ({ tokens: tokensList, useExactTokens: true }), [tokensList])
+  const filterOptions = { tokens: tokensList, useExactTokens: true }
+
   const { data: similarPoolsResponse, isLoading: isLoadingSimilarPools } = usePoolsQuery(filterOptions)
 
-  const similarPools = useMemo(() => {
+  const similarPools = (() => {
     return flatten(similarPoolsResponse?.pages.map((p: any) => p.pools) || [])
-  }, [similarPoolsResponse])
+  })()
 
-  const existingPool = useMemo(() => {
+  const existingPool = (() => {
     if (!similarPools.length) return null
     const similarPool = similarPools.find((pool: any) => {
       if (pool.swapFee === poolCreationState.initialFee) {
@@ -245,39 +246,32 @@ function usePoolCreation() {
       return false
     })
     return similarPool
-  }, [similarPools, poolCreationState.initialFee, poolCreationState.seedTokens])
+  })()
 
-  const isWrappedNativeAssetPool = useMemo((): boolean => {
-    return includesAddress(tokensList, wNativeAssetAddress())
-  }, [tokensList])
+  const isWrappedNativeAssetPool: boolean = includesAddress(tokensList, wNativeAssetAddress())
 
-  const poolOwner = useMemo(() => {
+  const poolOwner: string = (() => {
     if (poolCreationState.feeManagementType === 'governance') {
       return POOLS.DelegateOwner
     } else {
       return poolCreationState.feeController === 'self' ? account : poolCreationState.thirdPartyFeeController
     }
-  }, [
-    poolCreationState.feeManagementType,
-    poolCreationState.feeController,
-    poolCreationState.thirdPartyFeeController,
-    account,
-  ])
+  })()
 
   // --- Functions that update state ---
 
   function resetPoolCreationState() {
-    setPoolCreationState({ ...emptyPoolCreationState })
+    updatePoolCreationState(() => ({ ...emptyPoolCreationState }))
     setRestoredState(false)
     resetState()
   }
 
   function updateTokenWeights(weights: PoolSeedToken[]) {
-    setPoolCreationState((prev) => ({ ...prev, seedTokens: weights }))
+    updatePoolCreationState((prev) => ({ ...prev, seedTokens: weights }))
   }
 
   function sortSeedTokens() {
-    setPoolCreationState((prev) => ({
+    updatePoolCreationState((prev) => ({
       ...prev,
       seedTokens: [...prev.seedTokens].sort((a, b) =>
         a.tokenAddress.toLowerCase() > b.tokenAddress.toLowerCase() ? 1 : -1
@@ -286,7 +280,7 @@ function usePoolCreation() {
   }
 
   function proceed() {
-    setPoolCreationState((prev) => {
+    updatePoolCreationState((prev) => {
       const newStep = !similarPools.length && prev.activeStep === 1 ? prev.activeStep + 2 : prev.activeStep + 1
       const newState = { ...prev, activeStep: newStep }
       saveState(newState)
@@ -295,7 +289,7 @@ function usePoolCreation() {
   }
 
   function goBack() {
-    setPoolCreationState((prev) => {
+    updatePoolCreationState((prev) => {
       const newStep = !similarPools.length && prev.activeStep === 3 ? prev.activeStep - 2 : prev.activeStep - 1
       return { ...prev, activeStep: newStep }
     })
@@ -309,23 +303,23 @@ function usePoolCreation() {
   }
 
   function setFeeManagement(type: FeeManagementType) {
-    setPoolCreationState((prev) => ({ ...prev, feeManagementType: type }))
+    updatePoolCreationState((prev) => ({ ...prev, feeManagementType: type }))
   }
 
   function setFeeType(type: FeeType) {
-    setPoolCreationState((prev) => ({ ...prev, feeType: type }))
+    updatePoolCreationState((prev) => ({ ...prev, feeType: type }))
   }
 
   function setStep(step: number) {
-    setPoolCreationState((prev) => ({ ...prev, activeStep: step }))
+    updatePoolCreationState((prev) => ({ ...prev, activeStep: step }))
   }
 
   function setFeeController(controller: FeeController) {
-    setPoolCreationState((prev) => ({ ...prev, feeController: controller }))
+    updatePoolCreationState((prev) => ({ ...prev, feeController: controller }))
   }
 
   function setTrpController(address: string) {
-    setPoolCreationState((prev) => ({ ...prev, thirdPartyFeeController: address }))
+    updatePoolCreationState((prev) => ({ ...prev, thirdPartyFeeController: address }))
   }
 
   function updateTokenColors(colors: string[]) {
@@ -333,18 +327,18 @@ function usePoolCreation() {
   }
 
   function updateManuallySetToken(address: string) {
-    setPoolCreationState((prev) => ({ ...prev, manuallySetToken: address }))
+    updatePoolCreationState((prev) => ({ ...prev, manuallySetToken: address }))
   }
 
   function clearAmounts() {
-    setPoolCreationState((prev) => ({
+    updatePoolCreationState((prev) => ({
       ...prev,
       seedTokens: prev.seedTokens.map((token) => ({ ...token, amount: '0' })),
     }))
   }
 
   function setAmountsToMaxBalances() {
-    setPoolCreationState((prev) => ({
+    updatePoolCreationState((prev) => ({
       ...prev,
       seedTokens: prev.seedTokens.map((token) => ({
         ...token,
@@ -354,7 +348,7 @@ function usePoolCreation() {
   }
 
   function setTokensList(newList: string[]) {
-    setPoolCreationState((prev) => ({ ...prev, tokensList: newList }))
+    updatePoolCreationState((prev) => ({ ...prev, tokensList: newList }))
   }
 
   function getTokensScaledByBIP(bip: BigNumber): Record<string, OptimisedLiquidity> {
@@ -411,7 +405,7 @@ function usePoolCreation() {
       poolCreationState.seedTokens,
       poolOwner
     )
-    setPoolCreationState((prev) => ({ ...prev, createPoolTxHash: tx.hash }))
+    updatePoolCreationState((prev) => ({ ...prev, createPoolTxHash: tx.hash }))
     saveState()
 
     addTransaction({
@@ -471,7 +465,7 @@ function usePoolCreation() {
   }
 
   function setActiveStep(step: number) {
-    setPoolCreationState((prev) => ({ ...prev, activeStep: step }))
+    updatePoolCreationState((prev) => ({ ...prev, activeStep: step }))
   }
 
   function saveState(stateToSave: PoolCreationState = poolCreationState) {
@@ -483,7 +477,7 @@ function usePoolCreation() {
   }
 
   function importState(state: any) {
-    setPoolCreationState((prev) => {
+    updatePoolCreationState((prev) => {
       const newState: any = { ...prev }
       for (const key of Object.keys(newState)) {
         if (key === 'activeStep') continue
@@ -505,7 +499,7 @@ function usePoolCreation() {
     const provider = await getProvider()
     const response = await balancerService.pools.weighted.retrievePoolIdAndAddress(provider, hash)
     if (response !== null) {
-      setPoolCreationState((prev) => ({
+      updatePoolCreationState((prev) => ({
         ...prev,
         poolId: response.id,
         poolAddress: response.address,
@@ -528,7 +522,7 @@ function usePoolCreation() {
         id: i.toString(),
       }))
       .filter((token: any) => !!token.tokenAddress)
-    setPoolCreationState((prev) => ({
+    updatePoolCreationState((prev) => ({
       ...prev,
       seedTokens,
       tokensList: details.tokens,
@@ -541,7 +535,7 @@ function usePoolCreation() {
 
   // --- Return public API ---
   return {
-    poolCreationState,
+    ...poolCreationState,
     tokenColors,
     hasRestoredFromSavedState,
     updateTokenWeights,

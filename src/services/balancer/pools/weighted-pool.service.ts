@@ -7,7 +7,6 @@ import { TransactionResponse } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { formatUnits } from '@ethersproject/units'
 
-import { PoolSeedToken } from 'hooks/dex-v2/pools/usePoolCreation'
 import { isSameAddress, scale } from 'lib/utils'
 import { configService } from 'services/config/config.service'
 import { TransactionBuilder } from 'services/web3/transactions/transaction.builder'
@@ -15,6 +14,7 @@ import { getOldMulticaller } from 'dependencies/OldMulticaller'
 import { POOLS } from 'constants/dexV2/pools'
 import WeightedPoolFactoryV4Abi from 'lib/abi/WeightedPoolFactoryV4.json'
 import { generateSalt } from 'lib/utils/random'
+import { PoolSeedToken } from 'pages/DexV2/types'
 
 type Address = string
 

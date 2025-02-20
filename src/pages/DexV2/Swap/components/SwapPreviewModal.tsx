@@ -4,13 +4,14 @@ import styled from 'styled-components'
 
 import { CenteredFixed } from 'components/LaunchpadMisc/styled'
 import { ReactComponent as CloseIcon } from 'assets/images/dex-v2/close.svg'
-import useTokenApprovalActions, { ApprovalAction } from 'state/dexV2/tokens/hooks/useTokenApprovalActions'
+import useTokenApprovalActions from 'hooks/dex-v2/approvals/useTokenApprovalActions'
 import { UseSwapping } from 'state/dexV2/swap/useSwapping'
 import { configService } from 'services/config/config.service'
 import { TransactionActionInfo, TransactionActionState } from 'pages/DexV2/types/transactions'
 import Loader from 'components/Loader'
 import { useErrorMsg } from 'lib/utils/errors'
 import { toast } from 'react-toastify'
+import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
 
 interface SwapSettingsModalProps {
   swapping: UseSwapping
