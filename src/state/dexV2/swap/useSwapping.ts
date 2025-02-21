@@ -6,7 +6,6 @@ import LS_KEYS from 'constants/local-storage.keys'
 import { bnum, lsSet } from 'lib/utils'
 import { getWrapAction, WrapType } from 'lib/utils/balancer/wrapper'
 
-// import useWeb3 from '@/services/web3/useWeb3'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 // import { useUserSettings } from '@/providers/user-settings.provider'
 import useSor from './useSor'
@@ -15,6 +14,7 @@ import { useSwapAssets } from './useSwapAssets'
 import { NATIVE_ASSET_ADDRESS } from 'constants/dexV2/tokens'
 import { useTokens } from '../tokens/hooks/useTokens'
 import { TokenInfo } from 'types/TokenList'
+import useWeb3 from 'hooks/dex-v2/useWeb3'
 
 export type SwapRoute = 'wrapUnwrap' | 'balancer' | 'joinExit'
 
@@ -42,7 +42,7 @@ export default function useSwapping(
 
   const { fNum } = useNumbers()
   const { getToken, tokens } = useTokens()
-  // const { blockNumber } = useWeb3()
+  const { blockNumber } = useWeb3()
   // const { slippage } = useUserSettings()
   const slippage = '0.005' // Defaults to 0.5%
   const { setInputAsset, setOutputAsset } = useSwapAssets()
@@ -271,6 +271,16 @@ export default function useSwapping(
   //     sor.updateSwapAmounts()
   //   }
   // })
+
+  useEffect(() => {
+    if (isJoinExitSwap) {
+      if (!joinExit.hasValidationError) {
+        joinExit.handleAmountChange();
+      }
+    } else if (isBalancerSwap) {
+      sor.updateSwapAmounts();
+    }
+  }, [blockNumber]);
 
   useEffect(() => {
     handleAmountChange()

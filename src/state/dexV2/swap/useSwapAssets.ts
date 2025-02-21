@@ -1,40 +1,22 @@
-import { useAccount } from 'wagmi'
-import { useEffect, useState } from 'react'
-
-import { lsGet, lsSet } from 'lib/utils'
-import config from 'lib/config'
+import { useDispatch, useSelector } from 'react-redux'
+import { setSwapState } from '.'
+import { AppState } from 'state'
 
 export function useSwapAssets() {
-  const { chainId } = useAccount()
-  const networkId: any = chainId
-  const configService = config[networkId]
-
-  const [inputAsset, setInputAssetState] = useState<string>(
-    lsGet(`inputAsset.${networkId}`, configService.tokens.InitialSwapTokens.input)
-  )
-  const [outputAsset, setOutputAssetState] = useState<string>(
-    lsGet(`outputAsset.${networkId}`, configService.tokens.InitialSwapTokens.output)
-  )
-
-  useEffect(() => {
-    lsSet(`inputAsset.${networkId}`, inputAsset)
-  }, [inputAsset])
-
-  useEffect(() => {
-    lsSet(`outputAsset.${networkId}`, outputAsset)
-  }, [outputAsset])
+  const dispatch = useDispatch()
+  const state = useSelector((state: AppState) => state.swapDexV2)
 
   const setInputAsset = (asset: string): void => {
-    setInputAssetState(asset)
+    dispatch(setSwapState({ inputAsset: asset }))
   }
 
   const setOutputAsset = (asset: string): void => {
-    setOutputAssetState(asset)
+    dispatch(setSwapState({ outputAsset: asset }))
   }
 
   return {
-    inputAsset,
-    outputAsset,
+    inputAsset: state.inputAsset,
+    outputAsset: state.outputAsset,
     setInputAsset,
     setOutputAsset,
   }

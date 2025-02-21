@@ -20,22 +20,15 @@ const Asset: React.FC<Props> = (props) => {
 
   const [error, setError] = useState(false)
 
-  const token = useMemo<TokenInfo | undefined>(() => (address ? getToken(address) : undefined), [address])
+  const token = address ? getToken(address) : undefined
+  console.log('token: ', token, 'address: ', address)
 
-  const iconSRC = useMemo(() => {
-    if (iconURI) return resolve(iconURI)
+  const iconSRC = iconURI ? resolve(iconURI) : token?.logoURI ? resolve(token.logoURI) : ''
 
-    if (!token?.logoURI) return ''
-    return resolve(token.logoURI)
-  }, [iconURI, token?.logoURI])
-
-  const rootElementAttrs = useMemo(
-    () => ({
-      'aria-label': token?.symbol,
-      disabled: props.disabled,
-    }),
-    [token?.symbol, props.disabled]
-  )
+  const rootElementAttrs = {
+    'aria-label': token?.symbol,
+    disabled: props.disabled,
+  };
 
   return (
     <div>
