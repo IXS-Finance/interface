@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider'
+import { useDispatch } from 'react-redux'
 
 import { TransactionActionInfo, TransactionActionState } from 'pages/DexV2/types/transactions'
-import { Step, StepState } from 'pages/DexV2/types'
-import HorizSteps from './HorizSteps'
+import HorizSteps, { Step, StepState } from './HorizSteps'
 import { BackButton, NavigationButtons, NextButton } from '../Create'
 import { useErrorMsg } from 'lib/utils/errors'
 import { toast } from 'react-toastify'
@@ -13,8 +13,9 @@ import Loader from 'components/Loader'
 import useEthers from 'hooks/dex-v2/useEthers'
 import { TransactionAction, postConfirmationDelay } from 'hooks/dex-v2/useTransactions'
 import { dateTimeLabelFor } from 'hooks/dex-v2/useTime'
+import { setActionStates } from 'state/dexV2/poolCreation'
 
-type BalStepAction = {
+export type BalStepAction = {
   label: string
   loadingLabel: string
   pending: boolean
@@ -63,19 +64,19 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   goBack,
   setCurrentActionIndex,
 }) => {
+  const dispatch = useDispatch()
   const { txListener, getTxConfirmedAt } = useEthers()
   const { formatErrorMsg } = useErrorMsg()
-  const { hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
-  const { needsSeeding, poolId } = usePoolCreationState()
+  const { actionStates, hasRestoredFromSavedState, poolTypeString, createPool, joinPool, updateActionState } =
+    usePoolCreation()
 
   const [loading, setLoading] = useState(false)
 
   const actions: BalStepAction[] = []
 
-  const actionStates = requiredActions.map(() => ({ ...defaultActionState }))
-
   requiredActions.forEach((actionInfo, idx) => {
     const actionState = actionStates[idx]
+    console.log('actionState', actionState)
     if (!actionState) {
       return
     }
@@ -85,13 +86,15 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
       loadingLabel: actionState.init ? actionInfo.loadingLabel : actionInfo.confirmingLabel,
       pending: actionState.init || actionState.confirming,
       isSignAction: actionInfo.isSignAction,
-      promise: submit.bind(null, actionInfo, actionState),
+      promise: submit.bind(null, actionInfo, actionState, idx),
       step: {
         tooltip: actionInfo.stepTooltip,
         state: getStepState(actionState, idx),
       },
     })
   })
+
+  console.log('actions', actions)
 
   const currentAction: BalStepAction | undefined = actions[currentActionIndex]
   const currentActionState: TransactionActionState = actionStates[currentActionIndex]
@@ -117,69 +120,74 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   async function handleTransaction(
     tx: TransactionResponse,
     state: TransactionActionState,
-    actionInfo: TransactionActionInfo
+    actionInfo: TransactionActionInfo,
+    actionIndex: number
   ): Promise<void> {
-    const { postActionValidation, actionInvalidReason } = actionInfo;
+    const { postActionValidation, actionInvalidReason } = actionInfo
 
     await txListener(tx, {
       onTxConfirmed: async (receipt: TransactionReceipt) => {
-        state.receipt = receipt;
+        updateActionState(actionIndex, { receipt })
 
-        await postConfirmationDelay(tx);
+        await postConfirmationDelay(tx)
 
-        const isValid = await postActionValidation?.();
+        const isValid = await postActionValidation?.()
         if (isValid || !postActionValidation) {
-          const confirmedAt = await getTxConfirmedAt(receipt);
-          state.confirmedAt = dateTimeLabelFor(confirmedAt);
-          state.confirmed = true;
+          const confirmedAt = await getTxConfirmedAt(receipt)
+          updateActionState(actionIndex, { confirmedAt: dateTimeLabelFor(confirmedAt), confirmed: true })
+
           if (currentActionIndex >= actions.length - 1) {
-            debugger;
+            debugger
             // emit('success', receipt, state.confirmedAt);
           } else {
-            setCurrentActionIndex((prevIndex: any) => prevIndex + 1);
+            setCurrentActionIndex((prevIndex: any) => prevIndex + 1)
           }
         } else {
           // post action validation failed, display reason.
-          if (actionInvalidReason) state.error = actionInvalidReason;
-          state.init = false;
+          if (actionInvalidReason) {
+            updateActionState(actionIndex, { error: actionInvalidReason })
+          }
+          updateActionState(actionIndex, { init: false })
         }
-        state.confirming = false;
+        updateActionState(actionIndex, { confirming: false })
       },
       onTxFailed: () => {
-        state.confirming = false;
-        debugger;
+        updateActionState(actionIndex, { confirming: false })
+        debugger
         // emit('failed');
       },
-    });
+    })
   }
 
-  async function submit(actionInfo: TransactionActionInfo, state: TransactionActionState): Promise<void> {
+  async function submit(
+    actionInfo: TransactionActionInfo,
+    state: TransactionActionState,
+    actionIndex: number
+  ): Promise<void> {
     const { action } = actionInfo
     try {
-      state.init = true
-      state.error = null
+      updateActionState(actionIndex, { init: true, error: null })
 
       const tx = await action()
 
-      state.init = false
-      state.confirming = true
+      updateActionState(actionIndex, { init: false, confirming: true })
 
       if (currentAction?.isSignAction) {
         handleSignAction(state)
         return
       }
 
-      if (tx) handleTransaction(tx, state, actionInfo)
+      if (tx) handleTransaction(tx, state, actionInfo, actionIndex)
     } catch (error) {
-      state.init = false
-      state.confirming = false
-      state.error = formatErrorMsg(error)
+      updateActionState(actionIndex, { init: false, confirming: false, error: formatErrorMsg(error) })
       // captureBalancerException({
       //   error: (error as Error)?.cause || error,
       //   action: props.primaryActionType,
       //   context: { level: 'fatal' },
       // });
     }
+
+    console.log('state', state)
   }
 
   // async function submit(actionInfo: TransactionActionInfo, state: TransactionActionState): Promise<void> {
@@ -208,9 +216,13 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   //   // }
   // }
 
+  useEffect(() => {
+    const actionStatesData = requiredActions.map(() => ({ ...defaultActionState }))
+    dispatch(setActionStates(actionStatesData))
+  }, [JSON.stringify(requiredActions)])
   return (
     <div>
-      {actions.length > 1 ? <HorizSteps steps={steps} /> : null}
+      {actions.length > 1 && !lastActionState?.confirmed ? <HorizSteps steps={steps} /> : null}
       <NavigationButtons>
         <BackButton onClick={goBack}>Back</BackButton>
         <NextButton onClick={() => currentAction?.promise()} disabled={loading}>

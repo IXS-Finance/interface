@@ -8,6 +8,7 @@ import config from 'lib/config'
 import ActionSteps from './ActionSteps'
 import { useTokensState } from 'state/dexV2/tokens/hooks'
 import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 interface Props {
   tokenAddresses: string[]
@@ -18,10 +19,12 @@ interface Props {
 }
 
 const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => {
-  const {  needsSeeding, poolId, hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
+  const { needsSeeding, poolId, hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
   const { getTokenApprovalActions } = useTokenApprovalActions()
   const { account, chainId } = useWeb3React()
   const { allowanceLoading, allowances } = useTokensState()
+  const { tokens } = useTokens()
+  const [loading, setLoading] = useState(false)
 
   const initActions: TransactionActionInfo[] = [
     {
@@ -58,28 +61,36 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
       return actions.filter((action) => action.label === 'Fund pool')
     }
     return actions
-  })();
+  })()
 
   const getActions = async () => {
+    setLoading(true)
     const approvalActions = await getTokenApprovalActions({
       amountsToApprove,
       spender: networkConfig.addresses.vault,
       actionType: ApprovalAction.AddLiquidity,
+      forceMax: false,
     })
-
-    debugger;
+    setLoading(false)
     setActions([...approvalActions, ...initActions])
   }
 
   useEffect(() => {
-    getActions()
-  }, [])
+    const numberOfTokens = Object.keys(tokens).length
+    if (amountsToApprove.length && numberOfTokens >= amountsToApprove.length) {
+      getActions()
+    }
+  }, [JSON.stringify(amountsToApprove), JSON.stringify(tokens)])
 
   if (allowanceLoading) {
     return <div>Loading...</div>
   }
 
   console.log('requiredActions', requiredActions)
+
+  if (loading) {
+    return <div>Loading check for approvals...</div>
+  }
 
   return (
     <div>

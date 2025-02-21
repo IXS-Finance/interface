@@ -112,6 +112,7 @@ export const useTokens = () => {
     isEnabled: true,
   })
 
+  console.log('allowanceData', allowanceData)
   const prices: TokenPrices = priceData ? priceData : {}
   const balances: BalanceMap = balanceData ? balanceData : {}
   const allowances: ContractAllowancesMap = allowanceData ? allowanceData : {}
@@ -273,6 +274,7 @@ export const useTokens = () => {
    * @returns a subset of the amountsToApprove array.
    */
   function approvalsRequired(amountsToApprove: AmountToApprove[], spender: string): AmountToApprove[] {
+    debugger;
     return amountsToApprove.filter(({ address, amount }) => {
       if (!spender) return false
       return approvalRequired(address, amount, spender)
