@@ -40,7 +40,8 @@ export default function useTokenApprovalActions() {
   /**
    * COMPOSABLES
    */
-  const { refetchAllowances, approvalsRequired, approvalRequired, getToken, injectSpenders, allowanceFor } = useTokens()
+  const { tokens, refetchAllowances, approvalsRequired, approvalRequired, getToken, injectSpenders, allowanceFor } =
+    useTokens()
   const { getSigner } = useWeb3()
   const { addTransaction } = useTransactions()
 
@@ -99,6 +100,7 @@ export default function useTokenApprovalActions() {
   }
 
   async function isApprovalValid(amountToApprove: AmountToApprove, spender: string): Promise<boolean> {
+    debugger;
     if (bnum(amountToApprove.amount).eq(0)) return true
 
     await updateAllowancesFor(spender)
@@ -130,7 +132,7 @@ export default function useTokenApprovalActions() {
   }: ApproveTokenParams): Promise<TransactionResponse> {
     const amount = forceMax ? MaxUint256.toString() : parseUnits(normalizedAmount, token.decimals).toString()
 
-    const signer = await getSigner();
+    const signer = await getSigner()
     const txBuilder = new TransactionBuilder(signer)
     const tx = await txBuilder.contract.sendTransaction({
       contractAddress: token.address,
@@ -186,7 +188,7 @@ export default function useTokenApprovalActions() {
     forceMax = true,
   }: ApproveTokenParams): TransactionActionInfo {
     return {
-      label: actionLabel(actionType, token.symbol),
+      label: actionLabel(actionType, token?.symbol),
       loadingLabel: 'Confirm approval in wallet',
       confirmingLabel: 'Confirming...',
       stepTooltip: actionTooltip(actionType, token.symbol),
@@ -235,6 +237,8 @@ export default function useTokenApprovalActions() {
     return flatten(
       approvalsRequired.map((amountToApprove) => {
         const token = getToken(amountToApprove.address)
+        console.log('tokens', tokens)
+
         const actions: TransactionActionInfo[] = []
 
         /**
