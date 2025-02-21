@@ -321,51 +321,6 @@ export const usePoolCreation = () => {
     })
   }
 
-  // async function joinPool(poolID: string) {
-  //   const address = networkConfig.addresses.vault as Address
-  //   const tokenAddresses: string[] = seedTokens.map((token: PoolSeedToken) => {
-  //     return token.tokenAddress
-  //   })
-
-  //   const tokenBalances = getScaledAmounts()
-
-  //   const initUserData = defaultAbiCoder.encode(['uint256', 'uint256[]'], [JOIN_KIND_INIT, tokenBalances])
-
-  //   const joinPoolRequest: JoinPoolRequest = {
-  //     // @ts-ignore
-  //     assets: tokenAddresses,
-  //     maxAmountsIn: tokenBalances,
-  //     userData: initUserData,
-  //     fromInternalBalance: false,
-  //   }
-
-  //   const sender = account
-  //   const receiver = account
-
-  //   console.log('poolID', poolID)
-
-  //   const params = [poolID.toLowerCase(), sender, receiver, joinPoolRequest] as any
-
-  //   // @ts-ignore
-  //   const { request } = await simulateContract(wagmiConfig, {
-  //     account,
-  //     address,
-  //     abi: Vault__factory.abi,
-  //     args: params,
-  //     functionName: 'joinPool',
-  //     // @ts-ignore
-  //     value: parseValue(tokenBalances, tokenAddresses),
-  //   })
-
-  //   // @ts-ignore
-  //   const txHash = await writeContract(wagmiConfig, request)
-
-  //   // @ts-ignore
-  //   await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
-
-  //   return txHash
-  // }
-
   function setRestoredState(value: boolean) {
     setHasRestoredFromSavedState(value)
   }

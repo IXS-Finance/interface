@@ -304,11 +304,7 @@ export const useTokens = () => {
    */
   function getToken(address: string): TokenInfo {
     address = getAddressFromPoolId(address) // In case pool ID has been passed
-    console.log('debug')
-    console.log('address', address)
-    console.log('tokens', tokens)
-    console.log('getAddress(address)', getAddress(address))
-    console.log('selectByAddressFast(tokens, getAddress(address))', selectByAddressFast(tokens, getAddress(address)))
+
     return selectByAddressFast(tokens, getAddress(address)) as TokenInfo
   }
 

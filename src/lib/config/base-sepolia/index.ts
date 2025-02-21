@@ -43,7 +43,7 @@ const config: Config = {
     symbol: 'ETH',
     decimals: 18,
     deeplinkId: 'ether',
-    logoURI: 'tokens/eth.png',
+    logoURI: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
     minTransactionBuffer: '0.05',
   },
   thirdParty: {
