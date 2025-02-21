@@ -238,8 +238,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 200px;
-  margin-bottom: 200px;
 `
 
 const Title = styled.div`

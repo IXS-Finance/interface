@@ -13,6 +13,8 @@ export const isEIP1559SupportedNetwork = configService.network.supportsEIP1559
 export const networkConfig = config[networkId]
 export const isTestnet = !!config[networkId].testNetwork
 
+export const hasBridge = !!config[networkId].bridgeUrl
+
 export default function useNetwork() {
   const appNetworkConfig = configService.network
 
