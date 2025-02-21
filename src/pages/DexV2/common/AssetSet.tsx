@@ -113,6 +113,7 @@ const AssetSet: React.FC<AssetSetProps> = ({
     }
   }
 
+  console.log('assetChunks', assetChunks)
   return (
     <>
       {assetChunks.map((assetChunk, assetChunkIndex) => (

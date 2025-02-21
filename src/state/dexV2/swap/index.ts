@@ -1,10 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { networkConfig } from 'hooks/dex-v2/useNetwork'
+import config from 'lib/config'
 
-const defaultSwapDeadlineMinutes = 100;
+const defaultSwapDeadlineMinutes = 100
 
 export interface SwapState {
-  inputAsset: any
-  outputAsset: any
+  inputAsset: string
+  outputAsset: string
   validationErrors: {
     highPriceImpact: boolean
     noSwaps: boolean
@@ -20,8 +22,8 @@ export interface SwapState {
 }
 
 const initialState: SwapState = {
-  inputAsset: null,
-  outputAsset: null,
+  inputAsset: networkConfig.tokens.InitialSwapTokens.input,
+  outputAsset: networkConfig.tokens.InitialSwapTokens.output,
   validationErrors: {
     highPriceImpact: false,
     noSwaps: false,

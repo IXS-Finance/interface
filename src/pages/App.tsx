@@ -249,7 +249,6 @@ export default function App() {
     return <LoadingIndicator isLoading />
   }
 
-  console.log('pathname', pathname)
   return (
     <>
       <CustomHeaders />
