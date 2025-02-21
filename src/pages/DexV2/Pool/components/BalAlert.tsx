@@ -12,10 +12,10 @@ interface AlertProps {
 
 const BalAlert: React.FC<AlertProps> = ({ type = 'info', title = 'A title message', children }) => {
   const icon = {
-    tip: '',
+    tip: warningIcon,
     warning: warningIcon,
-    error: '',
-    default: '',
+    error: warningIcon,
+    default: warningIcon,
   } as any
   const Icon = icon[type]
   const theme = useTheme()

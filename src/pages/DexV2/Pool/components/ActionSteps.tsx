@@ -14,6 +14,7 @@ import useEthers from 'hooks/dex-v2/useEthers'
 import { TransactionAction, postConfirmationDelay } from 'hooks/dex-v2/useTransactions'
 import { dateTimeLabelFor } from 'hooks/dex-v2/useTime'
 import { setActionStates } from 'state/dexV2/poolCreation'
+import BalAlert from './BalAlert'
 
 export type BalStepAction = {
   label: string
@@ -25,7 +26,6 @@ export type BalStepAction = {
 }
 
 interface ActionStepsProps {
-  currentActionIndex: number
   requiredActions: TransactionActionInfo[]
   primaryActionType: TransactionAction
   disabled?: boolean
@@ -36,7 +36,6 @@ interface ActionStepsProps {
   // for all steps
   loadingLabel?: string
   goBack: () => void
-  setCurrentActionIndex: any
 }
 
 type StepAction = {
@@ -56,13 +55,11 @@ const defaultActionState: TransactionActionState = {
 }
 
 const ActionSteps: React.FC<ActionStepsProps> = ({
-  currentActionIndex,
   disabled = false,
   isLoading = false,
   loadingLabel = '',
   requiredActions,
   goBack,
-  setCurrentActionIndex,
 }) => {
   const dispatch = useDispatch()
   const { txListener, getTxConfirmedAt } = useEthers()
@@ -71,6 +68,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     usePoolCreation()
 
   const [loading, setLoading] = useState(false)
+  const [currentActionIndex, setCurrentActionIndex] = useState(0)
 
   const actions: BalStepAction[] = []
 
@@ -137,8 +135,8 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
           updateActionState(actionIndex, { confirmedAt: dateTimeLabelFor(confirmedAt), confirmed: true })
 
           if (currentActionIndex >= actions.length - 1) {
-            debugger
-            // emit('success', receipt, state.confirmedAt);
+            toast.success(`Pool created successfully `)
+            console.log('success', receipt, state.confirmedAt);
           } else {
             setCurrentActionIndex((prevIndex: any) => prevIndex + 1)
           }
@@ -168,7 +166,12 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     try {
       updateActionState(actionIndex, { init: true, error: null })
 
-      const tx = await action()
+      let tx: any;
+      if (actionInfo.label === 'Fund pool') {
+        tx = await joinPool() // Because joinPool is async
+      } else {
+        tx = await action()
+      }
 
       updateActionState(actionIndex, { init: false, confirming: true })
 
@@ -179,6 +182,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
 
       if (tx) handleTransaction(tx, state, actionInfo, actionIndex)
     } catch (error) {
+      console.log(error)
       updateActionState(actionIndex, { init: false, confirming: false, error: formatErrorMsg(error) })
       // captureBalancerException({
       //   error: (error as Error)?.cause || error,
@@ -186,8 +190,6 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
       //   context: { level: 'fatal' },
       // });
     }
-
-    console.log('state', state)
   }
 
   // async function submit(actionInfo: TransactionActionInfo, state: TransactionActionState): Promise<void> {
@@ -220,16 +222,27 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     const actionStatesData = requiredActions.map(() => ({ ...defaultActionState }))
     dispatch(setActionStates(actionStatesData))
   }, [JSON.stringify(requiredActions)])
+
+  console.log('currentActionState', currentActionState)
+  console.log('test', lastActionState)
   return (
     <div>
+      {currentActionState && currentActionState?.error && !isLoading ? (
+        <BalAlert type="error" title={currentActionState?.error?.title ?? 'Error'}>
+          {currentActionState?.error?.description ?? 'An error occurred'}
+        </BalAlert>
+      ) : null}
+
       {actions.length > 1 && !lastActionState?.confirmed ? <HorizSteps steps={steps} /> : null}
-      <NavigationButtons>
-        <BackButton onClick={goBack}>Back</BackButton>
-        <NextButton onClick={() => currentAction?.promise()} disabled={loading}>
-          {loading ? <Loader /> : null}
-          {currentAction?.label}
-        </NextButton>
-      </NavigationButtons>
+      {!lastActionState?.confirmed ? (
+        <NavigationButtons>
+          <BackButton onClick={goBack}>Back</BackButton>
+          <NextButton onClick={() => currentAction?.promise()} disabled={currentAction?.pending || loading}>
+            {loading ? <Loader /> : null}
+            {currentAction?.label}
+          </NextButton>
+        </NavigationButtons>
+      ) : null}
     </div>
   )
 }

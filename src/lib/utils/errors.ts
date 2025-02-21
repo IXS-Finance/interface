@@ -169,7 +169,7 @@ export function useErrorMsg() {
 
   function defaultError(message = ''): TransactionError {
     return {
-      title: 'transactionErrors.default.title',
+      title: 'Transaction failed',
       description: message.trim(),
     }
   }

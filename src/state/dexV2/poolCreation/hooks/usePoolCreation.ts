@@ -48,6 +48,7 @@ import { balancerService } from 'services/balancer/balancer.service'
 import { isTestnet } from 'hooks/dex-v2/useNetwork'
 import useEthers from 'hooks/dex-v2/useEthers'
 import { POOLS } from 'constants/dexV2/pools'
+import useTransactions from 'hooks/dex-v2/useTransactions'
 
 export type OptimisedLiquidity = {
   liquidityRequired: string
@@ -67,10 +68,10 @@ export const usePoolCreation = () => {
   const poolCreationState = useSelector((state: AppState) => state.poolCreation)
   const { account, getProvider } = useWeb3()
   const { txListener } = useEthers()
-
+  const { addTransaction } = useTransactions()
   const dispatch = useDispatch()
   const { name, symbol, activeStep, seedTokens, manuallySetToken, initialFee, poolId } = poolCreationState
-  const { priceFor, balanceFor, getToken, balancerTokenListTokens } = useTokens()
+  const { priceFor, balanceFor, getToken, nativeAsset, wrappedNativeAsset, balancerTokenListTokens } = useTokens()
   // const { account, chainId, provider } = useWeb3React()
 
   const tokensList = [...poolCreationState.tokensList].sort((tokenA, tokenB) => (tokenA > tokenB ? 1 : -1))
@@ -311,15 +312,13 @@ export const usePoolCreation = () => {
   }
 
   function getScaledAmounts() {
-    const scaledAmounts: string[] = seedTokens.map((token: PoolSeedToken) => {
+    return poolCreationState.seedTokens.map((token) => {
       const tokenInfo = getToken(token.tokenAddress)
       if (!tokenInfo) return '0'
       const amount = new BigNumber(token.amount)
       const scaledAmount = scale(amount, tokenInfo.decimals)
-      const scaledRoundedAmount = scaledAmount.toFixed(0, BigNumber.ROUND_FLOOR)
-      return scaledRoundedAmount
+      return scaledAmount.toFixed(0, BigNumber.ROUND_FLOOR)
     })
-    return scaledAmounts
   }
 
   // async function joinPool(poolID: string) {
@@ -375,13 +374,7 @@ export const usePoolCreation = () => {
     const provider = await getProvider()
     const response = await balancerService.pools.weighted.retrievePoolIdAndAddress(provider, hash)
     if (response !== null) {
-      // updatePoolCreationState((prev) => ({
-      //   ...prev,
-      //   poolId: response.id,
-      //   poolAddress: response.address,
-      //   needsSeeding: true,
-      // }))
-      // saveState()
+      dispatch(setPoolCreationState({ poolId: response.id, poolAddress: response.address, needsSeeding: true }))
     }
   }
 
@@ -398,17 +391,14 @@ export const usePoolCreation = () => {
       poolCreationState.seedTokens,
       poolOwner
     )
-    debugger
-    // updatePoolCreationState((prev) => ({ ...prev, createPoolTxHash: tx.hash }))
-    // saveState()
-
-    // addTransaction({
-    //   id: tx.hash,
-    //   type: 'tx',
-    //   action: 'createPool',
-    //   summary: poolCreationState.name,
-    //   details: { name: poolCreationState.name },
-    // })
+    dispatch(setPoolCreationState({ createPoolTxHash: tx.hash }))
+    addTransaction({
+      id: tx.hash,
+      type: 'tx',
+      action: 'createPool',
+      summary: poolCreationState.name,
+      details: { name: poolCreationState.name },
+    })
 
     txListener(tx, {
       onTxConfirmed: async () => {
@@ -423,36 +413,45 @@ export const usePoolCreation = () => {
   }
 
   async function joinPool() {
-    // const provider = await getProvider()
-    // const tokenAddresses: string[] = poolCreationState.seedTokens.map((token) => {
-    //   if (isSameAddress(token.tokenAddress, wrappedNativeAsset.address) && poolCreationState.useNativeAsset) {
-    //     return nativeAsset.address
-    //   }
-    //   return token.tokenAddress
-    // })
-    // const tx = await balancerService.pools.weighted.initJoin(
-    //   provider,
-    //   poolCreationState.poolId,
-    //   account,
-    //   account,
-    //   tokenAddresses,
-    //   getScaledAmounts()
-    // )
-    // addTransaction({
-    //   id: tx.hash,
-    //   type: 'tx',
-    //   action: 'fundPool',
-    //   summary: poolCreationState.name,
-    // })
-    // txListener(tx, {
-    //   onTxConfirmed: async () => {
-    //     resetState()
-    //   },
-    //   onTxFailed: () => {
-    //     console.log('Seed failed')
-    //   },
-    // })
-    // return tx
+    const provider = await getProvider()
+    const tokenAddresses: string[] = poolCreationState.seedTokens.map((token) => {
+      // if (isSameAddress(token.tokenAddress, wrappedNativeAsset.address) && poolCreationState.useNativeAsset) {
+      //   return nativeAsset.address
+      // }
+      return token.tokenAddress
+    })
+    console.log(
+      provider,
+      poolCreationState.poolId,
+      account,
+      account,
+      tokenAddresses,
+      getScaledAmounts()
+    )
+    debugger
+    const tx = await balancerService.pools.weighted.initJoin(
+      provider,
+      poolCreationState.poolId,
+      account,
+      account,
+      tokenAddresses,
+      getScaledAmounts()
+    )
+    addTransaction({
+      id: tx.hash,
+      type: 'tx',
+      action: 'fundPool',
+      summary: poolCreationState.name,
+    })
+    txListener(tx, {
+      onTxConfirmed: async () => {
+        console.log('Tx confirmed', tx)
+      },
+      onTxFailed: () => {
+        console.log('Seed failed')
+      },
+    })
+    return tx
   }
 
   const updateActionState = (actionIndex: number, value: any) => {
