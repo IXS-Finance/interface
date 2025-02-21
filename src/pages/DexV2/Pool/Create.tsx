@@ -18,6 +18,7 @@ import UnknownTokenPriceModal from '../common/modals/UnknownTokenPriceModal'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { StepState } from 'types'
 import VerticleSteps from './components/VerticleSteps'
+import useWeb3 from 'hooks/dex-v2/useWeb3'
 
 const SimilarPool = () => {
   return <div>SimilarPool</div>
@@ -26,10 +27,10 @@ const Create: React.FC = () => {
   const { chainId, account } = useWeb3React()
   const { activeStep, similarPools, tokensList, seedTokens, hasRestoredFromSavedState, resetPoolCreationState } =
     usePoolCreation()
-  const { priceFor, getToken, injectTokens } = useTokens()
+  const { tokens, priceFor, getToken, injectTokens, injectSpenders } = useTokens()
   const dispatch = useDispatch()
-  const { tokens } = useTokensState()
   const networkConfig = config[chainId]
+  const { appNetworkConfig, isWalletReady } = useWeb3()
 
   const [isUnknownTokenModalVisible, setIsUnknownTokenModalVisible] = useState(false)
   const [isLoading, setLoading] = useState(true)
@@ -116,6 +117,9 @@ const Create: React.FC = () => {
     }
   }, [activeStep])
 
+  useEffect(() => {
+    injectSpenders([appNetworkConfig.addresses.vault])
+  }, [isWalletReady])
   return (
     <WidthFull>
       <LayoutContainer>

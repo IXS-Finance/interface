@@ -274,7 +274,6 @@ export const useTokens = () => {
    * @returns a subset of the amountsToApprove array.
    */
   function approvalsRequired(amountsToApprove: AmountToApprove[], spender: string): AmountToApprove[] {
-    debugger;
     return amountsToApprove.filter(({ address, amount }) => {
       if (!spender) return false
       return approvalRequired(address, amount, spender)
@@ -305,7 +304,11 @@ export const useTokens = () => {
    */
   function getToken(address: string): TokenInfo {
     address = getAddressFromPoolId(address) // In case pool ID has been passed
-
+    console.log('debug')
+    console.log('address', address)
+    console.log('tokens', tokens)
+    console.log('getAddress(address)', getAddress(address))
+    console.log('selectByAddressFast(tokens, getAddress(address))', selectByAddressFast(tokens, getAddress(address)))
     return selectByAddressFast(tokens, getAddress(address)) as TokenInfo
   }
 

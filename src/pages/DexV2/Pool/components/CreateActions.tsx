@@ -47,7 +47,6 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
 
   const [isRestoredTxConfirmed, setIsRestoredTxConfirmed] = useState(false)
   const [actions, setActions] = useState<TransactionActionInfo[]>(initActions)
-  const [currentActionIndex, setCurrentActionIndex] = useState(0)
 
   const amountsToApprove = amounts.map((amount, index) => {
     return {
@@ -94,14 +93,7 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
 
   return (
     <div>
-      <ActionSteps
-        currentActionIndex={currentActionIndex}
-        requiredActions={requiredActions}
-        primaryActionType="createPool"
-        disabled={false}
-        goBack={goBack}
-        setCurrentActionIndex={setCurrentActionIndex}
-      />
+      <ActionSteps requiredActions={requiredActions} primaryActionType="createPool" disabled={false} goBack={goBack} />
     </div>
   )
 }

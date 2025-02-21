@@ -7,6 +7,8 @@ import { TokenList, TokenListMap } from 'types/TokenList'
 import useNetwork from 'hooks/dex-v2/useNetwork'
 import { useTokenListsState } from './hooks'
 import { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { setTokenListsState } from '.'
 
 /** TYPES */
 export interface TokenListsState {
@@ -16,36 +18,36 @@ export interface TokenListsState {
 const useTokenLists = () => {
   const { uris } = tokenListService
   const { networkId } = useNetwork()
+  const dispatch = useDispatch()
 
   /**
    * STATE
    */
   const state = useTokenListsState()
-  const [allTokenLists, setAllTokenLists] = useState<any>({})
 
   const tokensListPromise = import(`assets/data/tokenlists/tokens-${networkId}.json`)
 
   /**
    * All active (toggled) tokenlists
    */
-  const activeTokenLists: TokenListMap = pick(allTokenLists, state.activeListKeys)
+  const activeTokenLists: TokenListMap = pick(state.allTokenLists, state.activeListKeys)
 
   /**
    * All allowlisted tokens from tokenlists repo
    */
-  const balancerTokenList: TokenList = allTokenLists[uris.Balancer.Allowlisted]
+  const balancerTokenList: TokenList = state.allTokenLists[uris.Balancer.Allowlisted]
 
   /**
    * All Balancer token lists mapped by URI.
    */
-  const balancerTokenLists: TokenListMap = pick(allTokenLists, uris.Balancer.All)
+  const balancerTokenLists: TokenListMap = pick(state.allTokenLists, uris.Balancer.All)
 
   /**
    * Approved token lists mapped by URI.
    * Approved means tokens are compliant and can be presented in the UI.
    * This excludes lists like the Balancer vetted list.
    */
-  const approvedTokenLists: TokenListMap = pick(allTokenLists, uris.Approved)
+  const approvedTokenLists: TokenListMap = pick(state.allTokenLists, uris.Approved)
   /**
    * Adds a token list to the active lists which
    * makes additonal tokens available in the token search modal.
@@ -78,7 +80,7 @@ const useTokenLists = () => {
       const tokenLists = module.default as TokenListMap
 
       // filter token lists by network id
-      setAllTokenLists(TokenListService.filterTokensList(tokenLists, networkId))
+      dispatch(setTokenListsState({ allTokenLists: TokenListService.filterTokensList(tokenLists, networkId) }))
     }
 
     if (networkId) {
@@ -91,7 +93,6 @@ const useTokenLists = () => {
     ...state,
     tokensListPromise,
     // computed
-    allTokenLists,
     activeTokenLists,
     balancerTokenLists,
     approvedTokenLists,
