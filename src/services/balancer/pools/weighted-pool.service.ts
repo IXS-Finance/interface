@@ -154,7 +154,7 @@ export default class WeightedPoolService {
     }
 
     const vaultAddress = configService.network.addresses.vault
-
+debugger;
     const txBuilder = new TransactionBuilder(provider.getSigner())
     return await txBuilder.contract.sendTransaction({
       contractAddress: vaultAddress,

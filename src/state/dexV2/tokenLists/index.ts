@@ -23,9 +23,15 @@ const initialState: TokenListsState = {
 const tokenListsSlice = createSlice({
   name: 'tokenLists',
   initialState,
-  reducers: {},
+  reducers: {
+    setTokenListsState(state, action) {
+      return { ...state, ...action.payload }
+    }
+  },
 })
 
-export const {} = tokenListsSlice.actions
+export const {
+  setTokenListsState,
+} = tokenListsSlice.actions
 
 export default tokenListsSlice.reducer

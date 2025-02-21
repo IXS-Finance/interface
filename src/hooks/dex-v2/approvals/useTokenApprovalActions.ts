@@ -100,7 +100,6 @@ export default function useTokenApprovalActions() {
   }
 
   async function isApprovalValid(amountToApprove: AmountToApprove, spender: string): Promise<boolean> {
-    debugger;
     if (bnum(amountToApprove.amount).eq(0)) return true
 
     await updateAllowancesFor(spender)
