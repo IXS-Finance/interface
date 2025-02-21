@@ -26,6 +26,7 @@ import {
   PoolType,
   setPoolCreationState,
   removeTokenWeightsByIndex,
+  setValueOfActionState,
 } from '..'
 import { PoolSeedToken } from 'pages/DexV2/types'
 import { usePoolCreationState } from '.'
@@ -397,7 +398,7 @@ export const usePoolCreation = () => {
       poolCreationState.seedTokens,
       poolOwner
     )
-    debugger;
+    debugger
     // updatePoolCreationState((prev) => ({ ...prev, createPoolTxHash: tx.hash }))
     // saveState()
 
@@ -437,14 +438,12 @@ export const usePoolCreation = () => {
     //   tokenAddresses,
     //   getScaledAmounts()
     // )
-
     // addTransaction({
     //   id: tx.hash,
     //   type: 'tx',
     //   action: 'fundPool',
     //   summary: poolCreationState.name,
     // })
-
     // txListener(tx, {
     //   onTxConfirmed: async () => {
     //     resetState()
@@ -453,10 +452,12 @@ export const usePoolCreation = () => {
     //     console.log('Seed failed')
     //   },
     // })
-
     // return tx
   }
 
+  const updateActionState = (actionIndex: number, value: any) => {
+    dispatch(setValueOfActionState({ actionIndex, value }))
+  }
 
   return {
     ...poolCreationState,
@@ -483,5 +484,6 @@ export const usePoolCreation = () => {
     resetPoolCreationState,
     tokensWithNoPrice,
     similarPools,
+    updateActionState,
   }
 }

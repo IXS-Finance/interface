@@ -1,11 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { set, sum } from 'lodash'
+import { sum } from 'lodash'
 
 import { bnum } from 'lib/utils'
 import { PoolSeedToken, StepIds } from 'pages/DexV2/types'
+import { TransactionActionState } from 'types/transactions'
 
-type FeeManagementType = 'governance' | 'self';
-type FeeController = 'self' | 'other';
+type FeeManagementType = 'governance' | 'self'
+type FeeController = 'self' | 'other'
 
 export enum PoolType {
   Weighted = 'Weighted',
@@ -51,6 +52,7 @@ export interface DexV2State {
   poolId: string
   createPoolTxHash: string
   useNativeAsset: boolean
+  actionStates: TransactionActionState[]
 }
 
 const initialState: DexV2State = {
@@ -70,6 +72,7 @@ const initialState: DexV2State = {
   poolId: '',
   createPoolTxHash: '',
   useNativeAsset: false,
+  actionStates: [],
 }
 
 function handleDistributeWeights(seedTokens: PoolSeedToken[]) {
@@ -158,11 +161,19 @@ const poolCreationSlice = createSlice({
     },
     sortSeedTokens(state) {
       state.seedTokens.sort((tokenA, tokenB) => {
-        return tokenA.tokenAddress.toLowerCase() >
-          tokenB.tokenAddress.toLowerCase()
-          ? 1
-          : -1;
-      });
+        return tokenA.tokenAddress.toLowerCase() > tokenB.tokenAddress.toLowerCase() ? 1 : -1
+      })
+    },
+    setActionStates(state, action) {
+      state.actionStates = action.payload
+    },
+    setValueOfActionState(state, action) {
+      const { actionIndex, value } = action.payload;
+      const currentState = state.actionStates[actionIndex] as any;
+      state.actionStates[actionIndex] = {
+        ...currentState,
+        ...value,
+      };
     },
     resetPoolCreationState: () => initialState,
   },
@@ -182,5 +193,7 @@ export const {
   setTokenAmount,
   removeTokenWeightsByIndex,
   sortSeedTokens,
+  setActionStates,
+  setValueOfActionState,
 } = poolCreationSlice.actions
 export default poolCreationSlice.reducer
