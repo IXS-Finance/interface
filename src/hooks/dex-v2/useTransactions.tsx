@@ -8,6 +8,8 @@ import useNumbers, { FNumFormats } from './useNumbers'
 import { isPolygon } from './useNetwork'
 import useWeb3 from './useWeb3'
 import { useMemo } from 'react'
+import { toast } from 'react-toastify'
+import { getWeb3Provider } from 'dependencies/wallets/Web3Provider'
 
 const WEEK_MS = 86_400_000 * 7
 // Please update the schema version when making changes to the transaction structure.
@@ -218,6 +220,7 @@ export default function useTransactions() {
   const { account, explorerLinks, blockNumber } = useWeb3()
   // const { addNotification } = useNotifications()
   const { fNum } = useNumbers()
+  const provider: any = getWeb3Provider()
 
   // COMPUTED
 
@@ -277,43 +280,92 @@ export default function useTransactions() {
     return false
   }
 
+  function addTransactionNotification(transaction: any) {
+    const transactionAction: any = {
+      stake: 'Stake',
+      unstake: 'Unstake',
+      approve: 'Approve',
+      claim: 'Claim',
+      createPool: 'Create pool',
+      drip: 'Drip',
+      fundPool: 'Fund pool',
+      migratePool: 'Migrate pool',
+      invest: 'Add liquidity',
+      swap: 'Swap',
+      unwrap: 'Unwrap',
+      voteForGauge: 'Vote',
+      withdraw: 'Withdraw',
+      wrap: 'Wrap',
+      createLock: 'Lock',
+      extendLock: 'Extend lock',
+      increaseLock: 'Increase lock',
+      unlock: 'Unlock',
+      sync: 'Sync',
+      userGaugeCheckpoint: 'Pool gauge veBAL update',
+      claimSubmission: 'Claim submission',
+    }
+    const transactionStatus: any = {
+      cancelled: 'Cancelled',
+      cancelling: 'Cancelling',
+      expired: 'Expired',
+      failed: 'Failed',
+      fulfilled: 'Confirmed',
+      pending: 'Pending',
+    }
+
+    // Determine notification type based on transaction status.
+    const type = isFinalizedTransactionStatus(transaction.status)
+      ? isSuccessfulTransaction(transaction)
+        ? 'success'
+        : 'error'
+      : 'info'
+
+    const title = `${transactionAction[transaction.action]} ${transactionStatus[transaction.status]}`
+    const message = transaction.summary
+    const explorerLink = getExplorerLink(transaction.id, transaction.type)
+
+    // Create the content to display. Here we add an onClick handler to open the explorer link.
+    const content = (
+      <div onClick={() => window.open(explorerLink, '_blank')} style={{ cursor: 'pointer' }}>
+        <strong>{title}</strong>
+        <div>{message}</div>
+      </div>
+    )
+
+    // Show the toast based on the type.
+    if (type === 'success') {
+      toast.success(content)
+    } else if (type === 'error') {
+      toast.error(content)
+    } else {
+      toast.info(content)
+    }
+  }
+
   function addNotificationForTransaction(id: string, type: TransactionType) {
     const transaction = getTransaction(id, type)
 
     if (transaction != null) {
-      // addNotification({
-      //   type: isFinalizedTransactionStatus(transaction.status)
-      //     ? isSuccessfulTransaction(transaction: any)
-      //       ? 'success'
-      //       : 'error'
-      //     : 'info',
-      //   title: `${t(`transactionAction.${transaction.action}`)} ${t(`transactionStatus.${transaction.status}`)}`,
-      //   message: transaction.summary,
-      //   transactionMetadata: {
-      //     id: transaction.id,
-      //     status: transaction.status,
-      //     explorerLink: getExplorerLink(transaction.id, transaction.type),
-      //   },
-      // })
+      addTransactionNotification(transaction)
     }
   }
 
   function checkTxActivity(transaction: Transaction) {
-    // if (provider != null) {
-    //   provider
-    //     .getTransactionReceipt(transaction.id)
-    //     .then((tx) => {
-    //       if (tx != null) {
-    //         finalizeTransaction(transaction.id, 'tx', tx)
-    //       }
-    //     })
-    //     .catch((e) => console.log('[Transactions]: Failed to fetch tx information', transaction, e))
-    //     .finally(() =>
-    //       updateTransaction(transaction.id, 'tx', {
-    //         lastCheckedBlockNumber: blockNumber,
-    //       })
-    //     )
-    // }
+    if (provider != null) {
+      provider
+        .getTransactionReceipt(transaction.id)
+        .then((tx: any) => {
+          if (tx != null) {
+            finalizeTransaction(transaction.id, 'tx', tx)
+          }
+        })
+        .catch((e: any) => console.log('[Transactions]: Failed to fetch tx information', transaction, e))
+        .finally(() =>
+          updateTransaction(transaction.id, 'tx', {
+            lastCheckedBlockNumber: blockNumber,
+          })
+        )
+    }
   }
 
   async function handlePendingTransactions() {

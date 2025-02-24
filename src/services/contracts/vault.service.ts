@@ -1,22 +1,33 @@
-import { FundManagement, SingleSwap, SwapType, SwapV2 } from '@ixswap1/dex-v2-sdk'
-import { Vault__factory } from '@balancer-labs/typechain'
-import { TransactionResponse } from '@ethersproject/abstract-provider'
-import { ContractInterface } from '@ethersproject/contracts'
-import { readContract, writeContract, simulateContract } from '@wagmi/core'
+import {
+  FundManagement,
+  SingleSwap,
+  SwapType,
+  SwapV2,
+} from '@ixswap1/dex-v2-sdk';
+import { Vault__factory } from '@balancer-labs/typechain';
+import { TransactionResponse } from '@ethersproject/abstract-provider';
+import { ContractInterface } from '@ethersproject/contracts';
 
-import { calculateValidTo } from '../cowswap/utils'
-import ConfigService, { configService } from 'services/config/config.service'
-import { wagmiConfig } from 'components/Web3Provider'
+import { calculateValidTo } from '../cowswap/utils';
+
+import ConfigService, { configService } from 'services/config/config.service';
+
+import WalletService, {
+  walletService as walletServiceInstance,
+} from 'services/web3/wallet.service';
 
 export default class VaultService {
-  abi: ContractInterface
+  abi: ContractInterface;
 
-  constructor(protected readonly config: ConfigService = configService) {
-    this.abi = Vault__factory.abi
+  constructor(
+    protected readonly config: ConfigService = configService,
+    private readonly walletService: WalletService = walletServiceInstance
+  ) {
+    this.abi = Vault__factory.abi;
   }
 
   get address() {
-    return this.config.network.addresses.vault
+    return this.config.network.addresses.vault;
   }
 
   public swap(
@@ -26,21 +37,17 @@ export default class VaultService {
     transactionDeadline: number,
     options: Record<string, any> = {}
   ): Promise<TransactionResponse> {
-    const deadline = calculateValidTo(transactionDeadline)
-
-    // @ts-ignore
-    return writeContract(wagmiConfig, {
-      // @ts-ignore
-      address: this.address,
-      // @ts-ignore
+    const deadline = calculateValidTo(transactionDeadline);
+    return this.walletService.txBuilder.contract.sendTransaction({
+      contractAddress: this.address,
       abi: this.abi,
-      functionName: 'swap',
-      args: [single, funds, tokenOutAmount, deadline],
+      action: 'swap',
+      params: [single, funds, tokenOutAmount, deadline],
       options,
-    })
+    });
   }
 
-  public async batchSwap(
+  public batchSwap(
     swapKind: SwapType,
     swaps: SwapV2[],
     tokenAddresses: string[],
@@ -49,33 +56,26 @@ export default class VaultService {
     transactionDeadline: number,
     options: Record<string, any> = {}
   ): Promise<TransactionResponse> {
-    const deadline = calculateValidTo(transactionDeadline)
-
-    // @ts-ignore
-    const { request } = await simulateContract(wagmiConfig, {
-      // @ts-ignore
+    const deadline = calculateValidTo(transactionDeadline);
+    return this.walletService.txBuilder.contract.sendTransaction({
+      contractAddress: this.address,
       abi: this.abi,
-      // @ts-ignore
-      address: this.address,
-      functionName: 'batchSwap',
-      args: [swapKind, swaps, tokenAddresses, funds, limits, deadline],
-      // options,
-    })
-
-    // @ts-ignore
-    return writeContract(wagmiConfig, request)
+      action: 'batchSwap',
+      params: [swapKind, swaps, tokenAddresses, funds, limits, deadline],
+      options,
+    });
   }
 
-  public getInternalBalance(account: string, tokens: string[]): Promise<string[]> {
-    // @ts-ignore
-    return readContract(wagmiConfig, {
-      // @ts-ignore
+  public getInternalBalance(
+    account: string,
+    tokens: string[]
+  ): Promise<string[]> {
+    return this.walletService.txBuilder.contract.callStatic({
+      contractAddress: this.address,
       abi: this.abi,
-      // @ts-ignore
-      address: this.address,
-      functionName: 'getInternalBalance',
-      args: [account, tokens],
-    })
+      action: 'getInternalBalance',
+      params: [account, tokens],
+    });
   }
 
   public manageUserBalance({
@@ -85,22 +85,19 @@ export default class VaultService {
     sender,
     recipient,
   }: {
-    kind: number
-    asset: string
-    amount: string
-    sender: string
-    recipient: string
+    kind: number;
+    asset: string;
+    amount: string;
+    sender: string;
+    recipient: string;
   }): Promise<TransactionResponse> {
-    // @ts-ignore
-    return writeContract(wagmiConfig, {
-      // @ts-ignore
-      address: this.address,
-      // @ts-ignore
+    return this.walletService.txBuilder.contract.sendTransaction({
+      contractAddress: this.address,
       abi: this.abi,
       action: 'manageUserBalance',
-      args: [[{ kind, asset, amount, sender, recipient }]],
-    })
+      params: [[{ kind, asset, amount, sender, recipient }]],
+    });
   }
 }
 
-export const vaultService = new VaultService()
+export const vaultService = new VaultService();

@@ -5,7 +5,7 @@ import { getAddress, isAddress } from '@ethersproject/address'
 import { bnum, getAddressFromPoolId, includesAddress, isSameAddress, selectByAddressFast } from 'lib/utils'
 import { NativeAsset, TokenInfo, TokenInfoMap, TokenListMap } from 'types/TokenList'
 import { useTokensState } from '.'
-import { setSpenders, setTokensState } from '..'
+import { setTokensState } from '..'
 import useConfig from 'hooks/dex-v2/useConfig'
 import TokenService from 'services/token/token.service'
 import { tokenListService } from 'services/token-list/token-list.service'
@@ -18,6 +18,7 @@ import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { BalanceMap } from 'services/token/concerns/balances.concern'
 import { ContractAllowancesMap } from 'services/token/concerns/allowances.concern'
 import { AmountToApprove } from 'hooks/dex-v2/approvals/useTokenApprovalActions'
+import { useState } from 'react'
 
 const { uris: tokenListUris } = tokenListService
 
@@ -32,7 +33,7 @@ export const useTokens = () => {
   /**
    * STATE
    */
-
+  const [spenders, setSpenders] = useState<string[]>([networkConfig.addresses.vault])
   const nativeAsset: NativeAsset = {
     ...networkConfig.nativeAsset,
     chainId: networkConfig.chainId,
@@ -108,7 +109,7 @@ export const useTokens = () => {
     refetch: refetchAllowances,
   } = useAllowancesQuery({
     tokens,
-    contractAddresses: state.spenders,
+    contractAddresses: spenders,
     isEnabled: true,
   })
 
@@ -190,7 +191,7 @@ export const useTokens = () => {
   async function injectSpenders(addresses: string[]): Promise<void> {
     addresses = addresses.filter((a) => a).map(getAddress)
 
-    dispatch(setSpenders(addresses))
+    setSpenders(addresses)
   }
 
   /**
