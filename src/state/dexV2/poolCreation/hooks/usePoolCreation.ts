@@ -71,7 +71,15 @@ export const usePoolCreation = () => {
   const { addTransaction } = useTransactions()
   const dispatch = useDispatch()
   const { name, symbol, activeStep, seedTokens, manuallySetToken, initialFee, poolId } = poolCreationState
-  const { priceFor, balanceFor, getToken, nativeAsset, wrappedNativeAsset, balancerTokenListTokens } = useTokens()
+  const {
+    dynamicDataLoading,
+    priceFor,
+    balanceFor,
+    getToken,
+    nativeAsset,
+    wrappedNativeAsset,
+    balancerTokenListTokens,
+  } = useTokens()
   // const { account, chainId, provider } = useWeb3React()
 
   const tokensList = [...poolCreationState.tokensList].sort((tokenA, tokenB) => (tokenA > tokenB ? 1 : -1))
@@ -146,19 +154,13 @@ export const usePoolCreation = () => {
   }
 
   function getOptimisedLiquidity(): Record<string, OptimisedLiquidity> {
-    // need to filter out the empty tokens just in case
-    const validTokens = tokensList.filter((t: any) => t !== '')
-    const optimisedLiquidity = {}
+    const validTokens = tokensList.filter((t) => t !== '')
+    const optimisedLiquidity: Record<string, OptimisedLiquidity> = {}
+    if (dynamicDataLoading) return optimisedLiquidity
 
-    // TODO: implement dynamic data loading
-    // if (dynamicDataLoading.value) return optimisedLiquidity;
-
-    // token with the lowest balance is the bottleneck
+    // Find the bottleneck token (i.e. the one with the lowest USD value)
     let bottleneckToken = validTokens[0]
-    // keeping track of the lowest amt
     let currentMin = bnum(balanceFor(validTokens[0])).times(priceFor(validTokens[0]))
-
-    // find the bottleneck token
     for (const token of validTokens) {
       const value = bnum(balanceFor(token)).times(priceFor(token))
       if (value.lt(currentMin)) {
@@ -166,31 +168,20 @@ export const usePoolCreation = () => {
         bottleneckToken = token
       }
     }
-    let bottleneckWeight = seedTokens.find((t) => isSameAddress(t.tokenAddress, bottleneckToken))?.weight || 0
+    let bottleneckWeight =
+      poolCreationState.seedTokens.find((t) => isSameAddress(t.tokenAddress, bottleneckToken))?.weight || 0
     let bottleneckPrice = priceFor(bottleneckToken || '0')
 
-    // make sure that once we recognise that we are
-    // using the nativeAsset for optimisation of liquidity
-    // that we use the appropriate weights and balances
-    // since we do not want to change the original seedTokens array
-    // as the wrapped native asset there is what will
-    // be sent to the contract for creation
-    // TODO: implement wrapped native asset
-    // if (
-    //   poolCreationState.useNativeAsset &&
-    //   bottleneckToken === wrappedNativeAsset.value.address
-    // ) {
-    //   bottleneckToken = nativeAsset.address;
-    //   bottleneckWeight =
-    //     poolCreationState.seedTokens.find(t =>
-    //       isSameAddress(t.tokenAddress, wrappedNativeAsset.value.address)
-    //     )?.weight || 0;
-    //   bottleneckPrice = priceFor(wrappedNativeAsset.value.address);
-    // }
+    // If using the native asset, use the appropriate token addresses and weights
+    if (poolCreationState.useNativeAsset && bottleneckToken === wrappedNativeAsset.address) {
+      bottleneckToken = nativeAsset.address
+      bottleneckWeight =
+        poolCreationState.seedTokens.find((t) => isSameAddress(t.tokenAddress, wrappedNativeAsset.address))?.weight || 0
+      bottleneckPrice = priceFor(wrappedNativeAsset.address)
+    }
     if (!bottleneckToken) return optimisedLiquidity
 
     const bip = bnum(bottleneckPrice).times(balanceFor(bottleneckToken)).div(bottleneckWeight)
-
     return getTokensScaledByBIP(bip)
   }
 
@@ -375,14 +366,7 @@ export const usePoolCreation = () => {
       // }
       return token.tokenAddress
     })
-    console.log(
-      provider,
-      poolCreationState.poolId,
-      account,
-      account,
-      tokenAddresses,
-      getScaledAmounts()
-    )
+    console.log(provider, poolCreationState.poolId, account, account, tokenAddresses, getScaledAmounts())
     debugger
     const tx = await balancerService.pools.weighted.initJoin(
       provider,
