@@ -9,38 +9,21 @@ export function buildNetworkIconURL(network: Network | string): string {
   const networkName =
     typeof network === 'string' ? network : getNetworkIconName(network);
 
-  const result = new URL(
-    // https://vitejs.dev/guide/assets.html#new-url-url-import-meta-url
-    // Warning: Don't extract this template into a variable or it will stop working in production builds
-    `/src/assets/images/icons/networks/${networkName}.svg`,
-    import.meta.url
-  ).href;
-  return result;
+  // Assumes your icons are in public/assets/images/icons/networks/
+  return `/images/icons/networks/${networkName}.svg`;
 }
 
 export function buildServiceIconURL(service: string): string {
-  return new URL(
-    // https://vitejs.dev/guide/assets.html#new-url-url-import-meta-url
-    // Warning: Don't extract this template into a variable or it will stop working in production builds
-    `/src/assets/images/services/${service}.svg`,
-    import.meta.url
-  ).href;
+  // Assumes your service icons are in public/assets/images/services/
+  return `/images/services/${service}.svg`;
 }
 
 export function buildConnectorIconURL(wallet: any): string {
-  return new URL(
-    // https://vitejs.dev/guide/assets.html#new-url-url-import-meta-url
-    // Warning: Don't extract this template into a variable or it will stop working in production builds
-    `/src/assets/images/connectors/${wallet}.svg`,
-    import.meta.url
-  ).href;
+  // Assumes your connector icons are in public/assets/images/connectors/
+  return `/images/connectors/${wallet}.svg`;
 }
 
 export function buildProtocolIconURL(protocol: string): string {
-  return new URL(
-    // https://vitejs.dev/guide/assets.html#new-url-url-import-meta-url
-    // Warning: Don't extract this template into a variable or it will stop working in production builds
-    `/src/assets/images/icons/protocols/${protocol}.svg`,
-    import.meta.url
-  ).href;
+  // Assumes your protocol icons are in public/assets/images/icons/protocols/
+  return `/images/icons/protocols/${protocol}.svg`;
 }
