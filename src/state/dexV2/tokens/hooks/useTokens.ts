@@ -112,7 +112,6 @@ export const useTokens = () => {
     isEnabled: true,
   })
 
-  console.log('allowanceData', allowanceData)
   const prices: TokenPrices = priceData ? priceData : {}
   const balances: BalanceMap = balanceData ? balanceData : {}
   const allowances: ContractAllowancesMap = allowanceData ? allowanceData : {}

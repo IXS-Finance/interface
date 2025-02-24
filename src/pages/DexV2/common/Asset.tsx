@@ -21,7 +21,6 @@ const Asset: React.FC<Props> = (props) => {
   const [error, setError] = useState(false)
 
   const token = address ? getToken(address) : undefined
-  console.log('token: ', token, 'address: ', address)
 
   const iconSRC = iconURI ? resolve(iconURI) : token?.logoURI ? resolve(token.logoURI) : ''
 

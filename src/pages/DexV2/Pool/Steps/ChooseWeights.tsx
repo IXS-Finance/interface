@@ -25,6 +25,8 @@ import { useDispatch } from 'react-redux'
 import BalAlert from '../components/BalAlert'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
+import useWeb3 from 'hooks/dex-v2/useWeb3'
+import { Flex } from 'rebass'
 
 const emptyTokenWeight: PoolSeedToken = {
   tokenAddress: '',
@@ -54,6 +56,7 @@ const ChooseWeights: React.FC = () => {
   const { getToken } = useTokens()
   const { data: hash, writeContract } = useWriteContract()
   const { fNum } = useNumbers()
+  const { isWalletReady } = useWeb3()
 
   const networkConfig = config[chainId]
 
@@ -198,20 +201,22 @@ const ChooseWeights: React.FC = () => {
 
       <Line />
 
-      {account && showLiquidityAlert ? (
-        <BalAlert title="It’s recommended to provide new pools with at least $20,000 in initial funds" type="warning">
-          {`Based on your wallet balances for these tokens, the maximum amount you can fund this pool with is ~${fNum(
-            totalLiquidity.toString(),
-            FNumFormats.fiat
-          )}.`}
-        </BalAlert>
-      ) : null}
+      <Flex direction="column" gap="16px" mb="16px">
+        {showLiquidityAlert && isWalletReady ? (
+          <BalAlert title="It’s recommended to provide new pools with at least $20,000 in initial funds" type="warning">
+            {`Based on your wallet balances for these tokens, the maximum amount you can fund this pool with is ~${fNum(
+              totalLiquidity.toString(),
+              FNumFormats.fiat
+            )}.`}
+          </BalAlert>
+        ) : null}
 
-      {!!zeroWeightToken ? (
-        <BalAlert title="You’ve included a token with zero weight" type="warning">
-          {`All tokens in a pool must have a weighting greater than zero. Either remove or replace {0} or set it above 0.01%.`}
-        </BalAlert>
-      ) : null}
+        {!!zeroWeightToken ? (
+          <BalAlert title="You’ve included a token with zero weight" type="warning">
+            {`All tokens in a pool must have a weighting greater than zero. Either remove or replace ${zeroWeightToken?.symbol} or set it above 0.01%.`}
+          </BalAlert>
+        ) : null}
+      </Flex>
 
       {/* {isPoolExisting ? <BalAlert title={`Pair ${getPoolSymbol()} already exists!`} type="warning" /> : null} */}
 

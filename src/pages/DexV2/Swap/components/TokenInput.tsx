@@ -116,9 +116,6 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
     return balanceFor(_get(props, 'address', ''))
   }, [props.address, customBalance, JSON.stringify(balances)])
 
-  console.log('tokenBalance', tokenBalance)
-  console.log('props.address', props.address)
-
   const hasToken = !!props.address
   const amountBN = bnum(props.amount)
   const tokenBalanceBN = bnum(tokenBalance)
