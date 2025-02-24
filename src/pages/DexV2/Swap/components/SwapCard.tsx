@@ -25,9 +25,9 @@ import BalAlert from 'pages/DexV2/Pool/components/BalAlert'
 
 const SwapCard: React.FC = () => {
   const { inputAsset, outputAsset } = useSwapAssets()
-  const { nativeAsset } = useTokens()
   const { fNum } = useNumbers()
   const { account, appNetworkConfig, isMismatchedNetwork } = useWeb3()
+  const { nativeAsset } = useTokens()
   const isMounted = useIsMounted()
 
   const [isOpenSwapSettings, setOpenSwapSettings] = useState(false)
@@ -36,7 +36,7 @@ const SwapCard: React.FC = () => {
   const [dismissedErrors, setDismissedErrors] = useState({
     highPriceImpact: false,
   })
-
+  const alwaysShowRoutes = false // TODO: Review UX
   const {
     tokenInAddress,
     tokenOutAddress,
@@ -64,52 +64,41 @@ const SwapCard: React.FC = () => {
   const hasBalancerErrors = swapping.isBalancerSwap && isHighPriceImpact
   const swapDisabled = hasAmountsError || hasBalancerErrors || hasMismatchedNetwork
 
-  const title = useMemo(() => {
-    if (swapping.wrapType === WrapType.Wrap) {
-      return `Wrap ${swapping.tokenIn?.symbol}`
-    }
-    if (swapping.wrapType === WrapType.Unwrap) {
-      return `Unwrap ${swapping.tokenOut?.symbol}`
-    }
-    return 'Swap'
-  }, [swapping.wrapType, swapping.tokenIn?.symbol, swapping.tokenOut?.symbol])
+  console.log('errorMessage', errorMessage)
+  const title =
+    swapping.wrapType === WrapType.Wrap
+      ? `Wrap ${swapping.tokenIn?.symbol}`
+      : swapping.wrapType === WrapType.Unwrap
+      ? `Unwrap ${swapping.tokenOut?.symbol}`
+      : 'Swap'
   const pools: SubgraphPoolBase[] = swapping.sor.pools
-  console.log('pools', pools)
-  const error = useMemo(() => {
-    if (isMismatchedNetwork) {
-      return {
-        header: 'switchNetwork',
-        body: 'networkMismatch appNetworkConfig.name',
-      }
-    }
-    if (swapping.isBalancerSwap && !swapping.isLoading) {
-      if (swapping.sor.validationErrors.noSwaps) {
-        return {
-          header: 'insufficientLiquidity',
-          body: 'insufficientLiquidityDetailed',
-        }
-      }
-    }
-    if (swapping.isBalancerSwap) {
-      if (isHighPriceImpact) {
-        return {
-          header: 'highPriceImpact',
-          body: 'highPriceImpactDetailed',
-          label: 'accept',
-        }
-      }
-    }
-    return undefined
-  }, [isMismatchedNetwork, swapping.isBalancerSwap, swapping.isLoading, isHighPriceImpact])
 
-  const isLoadingSwaps = swapping.isBalancerSwap ? swapping.isLoading : false
-  const isLoading = isLoadingSwaps || !isMounted
-  const loadingText = isLoading ? 'Fetching swap...' : undefined
+  console.log('swapping', swapping.sor.validationErrors.noSwaps)
+  let error
+  if (isMismatchedNetwork) {
+    error = {
+      header: 'Switch network',
+      body: `Please switch to ${appNetworkConfig.name}`,
+    }
+  } else if (swapping.isBalancerSwap && !swapping.isLoading && swapping.sor.validationErrors.noSwaps) {
+    error = {
+      header: 'Not enough liquidity',
+      body: 'Try swapping with a smaller amount or check back when liquidity for this pool has increased.',
+    }
+  } else if (swapping.isBalancerSwap && isHighPriceImpact) {
+    error = {
+      header: 'High price impact',
+      body: 'This swap is significantly moving the market price.',
+      label: 'accept',
+    }
+  } else {
+    error = undefined
+  }
 
   // METHODS
   function handleErrorButtonClick() {
     if (swapping.sor.validationErrors.highPriceImpact) {
-      // dismissedErrors.highPriceImpact = true; // TODO: Move to global state
+      setDismissedErrors({ ...dismissedErrors, highPriceImpact: true })
     }
   }
 
@@ -161,19 +150,12 @@ const SwapCard: React.FC = () => {
 
   function handlePreviewButton() {
     swapping.resetSubmissionError()
-    // modalSwapPreviewIsOpen.value = true; TODO: Review UX
+    setOpenSwapPreview(true)
   }
 
   function handlePreviewModalClose() {
     swapping.resetSubmissionError()
-    // modalSwapPreviewIsOpen.value = false;  TODO: Review UX
-  }
-
-  async function swap() {
-    return swapping.swap(() => {
-      swapping.resetAmounts()
-      // emit('close');
-    })
+    setOpenSwapPreview(false)
   }
 
   useEffect(() => {
@@ -181,10 +163,14 @@ const SwapCard: React.FC = () => {
     setInitialized(true)
   }, [])
 
+  const isLoadingSwaps = swapping.isBalancerSwap ? swapping.isLoading : false
+  const isLoading = isLoadingSwaps || !isMounted
+  const loadingText = isLoading ? 'Fetching swap...' : undefined
+
   return (
     <Container>
       <Flex justifyContent="space-between" alignItems="center">
-        <Title>Swap</Title>
+        <Title>{title}</Title>
 
         <Flex alignItems="center">
           <Flex alignItems="center">
@@ -206,37 +192,25 @@ const SwapCard: React.FC = () => {
         setExactIn={setExactIn}
       />
 
-      <SwapDetails swapping={swapping} />
-
-      {error ? <BalAlert
-        className="p-3 mb-4"
-        type="error"
-        size="sm"
-        title={error.header}
-        description={error.body}
-        block
-        onActionClick={handleErrorButtonClick}
-      /> : null}
-
-      {/* {warning ? <BalAlert
-        className="p-3 mb-4"
-        type="warning"
-        size="sm"
-        title="warning.header"
-        description="warning.body"
-        block
-      /> : null} */}
-
+      {/* {error ? (
+        <BalAlert
+          className="p-3 mb-4"
+          type="error"
+          size="sm"
+          title={error.header}
+          description={error.body}
+          block
+          onActionClick={handleErrorButtonClick}
+        />
+      ) : null} */}
 
       <div>
-        {account ? (
-          <ButtonPrimary disabled={swapDisabled} onClick={() => setOpenSwapPreview(true)}>
-            {loadingText ? 'Fetching swap' : 'Next'}
-          </ButtonPrimary>
-        ) : (
-          <ButtonPrimary>Connect Wallet</ButtonPrimary>
-        )}
+        <ButtonPrimary disabled={swapDisabled} onClick={handlePreviewButton}>
+          {swapping.isLoading ? 'Fetching swap' : 'Preview'}
+        </ButtonPrimary>
       </div>
+
+      <SwapDetails pools={pools} swapping={swapping} />
 
       {isOpenSwapSettings ? <SwapSettingsModal onClose={() => setOpenSwapSettings(false)} /> : null}
       {isOpenSwapPreview ? <SwapPreviewModal swapping={swapping} onClose={() => setOpenSwapPreview(false)} /> : null}
