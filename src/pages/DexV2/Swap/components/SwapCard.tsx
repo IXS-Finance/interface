@@ -21,12 +21,13 @@ import { WrapType } from 'lib/utils/balancer/wrapper'
 import { SubgraphPoolBase } from '@ixswap1/dex-v2-sdk'
 import SwapPreviewModal from './SwapPreviewModal'
 import { useIsMounted } from 'hooks/dex-v2/useIsMounted'
+import BalAlert from 'pages/DexV2/Pool/components/BalAlert'
 
 const SwapCard: React.FC = () => {
   const { inputAsset, outputAsset } = useSwapAssets()
   const { nativeAsset } = useTokens()
   const { fNum } = useNumbers()
-  const { appNetworkConfig, isMismatchedNetwork } = useWeb3()
+  const { account, appNetworkConfig, isMismatchedNetwork } = useWeb3()
   const isMounted = useIsMounted()
 
   const [isOpenSwapSettings, setOpenSwapSettings] = useState(false)
@@ -47,8 +48,6 @@ const SwapCard: React.FC = () => {
     setTokenOutAmount,
     setInitialized,
   } = useSwapState()
-
-  const { address: account } = useAccount()
   const swapping = useSwapping(
     exactIn,
     tokenInAddress,
@@ -182,7 +181,6 @@ const SwapCard: React.FC = () => {
     setInitialized(true)
   }, [])
 
-  console.log('isLoading', swapping.isLoading)
   return (
     <Container>
       <Flex justifyContent="space-between" alignItems="center">
@@ -209,6 +207,26 @@ const SwapCard: React.FC = () => {
       />
 
       <SwapDetails swapping={swapping} />
+
+      {error ? <BalAlert
+        className="p-3 mb-4"
+        type="error"
+        size="sm"
+        title={error.header}
+        description={error.body}
+        block
+        onActionClick={handleErrorButtonClick}
+      /> : null}
+
+      {/* {warning ? <BalAlert
+        className="p-3 mb-4"
+        type="warning"
+        size="sm"
+        title="warning.header"
+        description="warning.body"
+        block
+      /> : null} */}
+
 
       <div>
         {account ? (
@@ -238,6 +256,14 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  .p-3 {
+    padding: 12px;
+  }
+
+  .mb-4 {
+    margin-bottom: 16px;
+  }
 `
 
 const Title = styled.div`

@@ -34,10 +34,6 @@ const SwapDetails: React.FC<Props> = ({ swapping }) => {
     return swapping.sor.pools
   }, [JSON.stringify(swapping.sor.pools)])
 
-  console.log('swapping', swapping)
-  console.log('pools', pools)
-  console.log('showSwapRoute', showSwapRoute)
-
   return (
     <Container>
       <Flex justifyContent="space-between" alignItems="center" width="100%">
