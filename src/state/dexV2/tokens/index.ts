@@ -45,23 +45,23 @@ interface TokensState {
   injectedPrices: TokenPrices
 }
 
+const chainId = getChainId(wagmiConfig)
+const networkConfig = config[chainId]
+const TOKENS = networkConfig.tokens
+
 const initialState: TokensState = {
   balances: {},
   allowances: {},
   tokens: {},
   prices: {},
   wrappedNativeAsset: null,
-  spenders: [],
+  spenders: [networkConfig.addresses.vault],
   balanceLoading: false,
   allowanceLoading: false,
   loading: false,
   injectedTokens: {},
   injectedPrices: initTokenPrices,
 }
-
-const chainId = getChainId(wagmiConfig)
-const networkConfig = config[chainId]
-const TOKENS = networkConfig.tokens
 
 const tokensSlice = createSlice({
   name: 'tokens',

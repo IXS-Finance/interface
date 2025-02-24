@@ -16,9 +16,10 @@ import { SubgraphPoolBase } from '@ixswap1/dex-v2-sdk'
 
 type Props = {
   swapping: UseSwapping
+  pools: SubgraphPoolBase[]
 }
 
-const SwapDetails: React.FC<Props> = ({ swapping }) => {
+const SwapDetails: React.FC<Props> = ({ swapping, pools }) => {
   const { fNum, toFiat } = useNumbers()
   const { slippage, slippageDecimal } = useUserSettings()
 
@@ -30,9 +31,6 @@ const SwapDetails: React.FC<Props> = ({ swapping }) => {
   // const _slippageDecimal = isNativeWrapOrUnwrap ? 0 : slippageDecimal
   // const maxSlippageUsd = bn(slippage).div(100).times(returnAmountUsd)
   const showSwapRoute = useMemo(() => swapping.isBalancerSwap, [swapping.isBalancerSwap])
-  const pools = useMemo<SubgraphPoolBase[]>(() => {
-    return swapping.sor.pools
-  }, [JSON.stringify(swapping.sor.pools)])
 
   return (
     <Container>
