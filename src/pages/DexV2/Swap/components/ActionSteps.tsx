@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux'
 
 import { TransactionActionInfo, TransactionActionState } from 'pages/DexV2/types/transactions'
 import HorizSteps, { Step, StepState } from 'pages/DexV2/Pool/components/HorizSteps'
-import { BackButton, NavigationButtons, NextButton } from 'pages/DexV2/Pool/Create'
+import { NavigationButtons, NextButton } from 'pages/DexV2/Pool/Create'
 import { captureBalancerException, useErrorMsg } from 'lib/utils/errors'
 import { toast } from 'react-toastify'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'

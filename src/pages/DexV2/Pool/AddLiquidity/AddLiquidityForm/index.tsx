@@ -20,22 +20,24 @@ import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { useJoinPool } from 'state/dexV2/pool/useJoinPool'
 import ActionSteps from '../../components/ActionSteps'
+import StakePreviewModal from './components/StakePreviewModal'
+import AddLiquidityPreview from './components/AddLiquidityPreview'
+import { useDispatch } from 'react-redux'
+import { setValueOfAmountIn } from 'state/dexV2/pool'
 
 interface AddLiquidityFormProps {
   pool: Pool
 }
 
 const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
-  const { join, setAmountsIn, queryJoinQuery } = useJoinPool(pool)
-
-  const [currentActionIndex, setCurrentActionIndex] = useState(0)
-  // STATE
+  const dispatch = useDispatch()
+  // Local state
   const [showPreview, setShowPreview] = useState(false)
   const [showStakeModal, setShowStakeModal] = useState(false)
 
-  // CUSTOM HOOKS / COMPOSABLES
+  // Get composables / hooks
   const { managedPoolWithSwappingHalted, poolJoinTokens } = usePoolHelpers(pool)
-  const { isMismatchedNetwork } = useWeb3()
+  const { isWalletReady, startConnectWithInjectedProvider, isMismatchedNetwork } = useWeb3()
   const { wrappedNativeAsset, nativeAsset, getToken } = useTokens()
   const {
     isLoadingQuery,
@@ -47,83 +49,72 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
     hasAmountsIn,
     queryError,
     setTokensIn,
+    setAmountsIn,
   } = useJoinPool(pool)
 
   // COMPUTED (recalculated on every render)
-  const forceProportionalInputs = managedPoolWithSwappingHalted
-  const poolHasLowLiquidity = bnum(pool.totalLiquidity).lt(LOW_LIQUIDITY_THRESHOLD)
+  const forceProportionalInputs: boolean = !!managedPoolWithSwappingHalted
+  const poolHasLowLiquidity: boolean = bnum(pool.totalLiquidity).lt(LOW_LIQUIDITY_THRESHOLD)
+  const excludedTokens: string[] = (() => {
+    const tokens = [pool.address]
 
-  let excludedTokens: string[] = [pool.address]
+    return tokens
+  })()
 
-  // FUNCTIONS
-  async function initializeTokensForm(isSingleAsset: boolean) {
-    if (isSingleAsset) {
-      // For single asset joins, default to the wrapped native asset.
+  // Initialize token inputs based on join type
+  function initializeTokensForm(isSingle: boolean) {
+    if (isSingle) {
+      // For single asset joins, default to wrapped native asset
       setTokensIn([wrappedNativeAsset.address])
     } else {
       setTokensIn(poolJoinTokens)
     }
   }
 
+  // Return the token symbol for a given address.
   function getTokenInputLabel(address: string): string | undefined {
     const token = getToken(address)
-    return token ? token.symbol : undefined
+    return token?.symbol
   }
 
+  // If the address is the wrapped native asset, give an option for the native asset.
   function tokenOptions(address: string): string[] {
     if (isSingleAssetJoin) return []
-    if (includesAddress([wrappedNativeAsset.address, nativeAsset.address], address)) {
-      return [wrappedNativeAsset.address, nativeAsset.address]
-    }
-    return []
+    return includesAddress([wrappedNativeAsset.address, nativeAsset.address], address)
+      ? [wrappedNativeAsset.address, nativeAsset.address]
+      : []
   }
 
+  // Clear amount when the token changes.
   function onTokenChange() {
     if (isSingleAssetJoin && amountsIn.length > 0) {
-      // Clear the amount value for single asset joins.
       amountsIn[0].value = ''
     }
   }
 
-  const onSubmit = async () => {
-    const finalAmountsIn = amountsIn.map((amountIn: any) => {
-      return { address: amountIn.address, value: '1', valid: true }
-    })
-
-    setAmountsIn(finalAmountsIn)
-
-    await join()
+  function setAmount(index: number, value: string) {
+    dispatch(setValueOfAmountIn({ index, value }))
   }
 
-  console.log('amountsIn', amountsIn)
-
-  // ON MOUNT: Initialize the tokens form.
+  // On mount, initialize tokens.
   useEffect(() => {
     initializeTokensForm(isSingleAssetJoin)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [JSON.stringify(poolJoinTokens), isSingleAssetJoin])
 
-  // WATCH: When isSingleAssetJoin or poolJoinTokens change, reinitialize the tokens form
-  // if the preview modal is not open.
-  const prevIsSingleAssetRef = useRef(isSingleAssetJoin)
-  const prevJoinTokensRef = useRef(poolJoinTokens)
+  // When isSingleAssetJoin or poolJoinTokens change (simulate Vue watcher)
+  // useEffect(() => {
+  //   // In Vue, we compared previous values; here we simply reinitialize if preview is not open.
+  //   if (!showPreview) {
+  //     initializeTokensForm(isSingleAssetJoin)
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [isSingleAssetJoin, poolJoinTokens])
 
-  useEffect(() => {
-    if (!showPreview) {
-      const prevIsSingleAsset = prevIsSingleAssetRef.current
-      const prevJoinTokens = prevJoinTokensRef.current
-      const hasTabChanged = prevIsSingleAsset !== isSingleAssetJoin
-      const hasUserTokensChanged = !isEqual(prevJoinTokens, poolJoinTokens)
-      if (hasTabChanged || hasUserTokensChanged) {
-        initializeTokensForm(isSingleAssetJoin)
-      }
-      prevIsSingleAssetRef.current = isSingleAssetJoin
-      prevJoinTokensRef.current = poolJoinTokens
-    }
-  }, [isSingleAssetJoin, poolJoinTokens, showPreview])
+  const disabled = !hasAmountsIn || !hasValidInputs || isMismatchedNetwork || isLoadingQuery || !!queryError
 
   return (
-    <div data-testid="add-liquidity-form">
+    <Container>
       {forceProportionalInputs && (
         <BalAlert type="warning" title="Swapping halted - proportional liquidity provision only">
           A swapping halt has been issued by the manager of this pool. For your safety, while the swapping halt is in
@@ -138,23 +129,16 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
         </BalAlert>
       )}
 
-      {amountsIn.map((amountIn: any) => (
+      {amountsIn.map((amountIn: any, index: number) => (
         <TokenInput
           key={amountIn.address}
-          // isValid={amountIn.valid}
           address={amountIn.address}
           amount={amountIn.value}
           name={amountIn.address}
           weight={tokenWeight(pool, amountIn.address)}
           updateAmount={(value: string) => {
-            // Update the amount value
-            // (Assuming the join pool provider has a method or state setter for this.)
+            setAmount(index, value)
           }}
-          // options={tokenOptions(amountIn.address)}
-          // aria-label={`Amount of: ${getTokenInputLabel(amountIn.address)}`}
-          // fixedToken={!isSingleAssetJoin}
-          // excludedTokens={excludedTokens}
-          // onUpdateAddress={onTokenChange}
         />
       ))}
 
@@ -186,13 +170,20 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
       )}
 
       <div className="mt-4">
-        <ButtonPrimary
-          // disabled={!hasAmountsIn || !hasValidInputs || isMismatchedNetwork || isLoadingQuery || Boolean(queryError)}
-          onClick={onSubmit}
-        >
+        <ButtonPrimary disabled={!!disabled} onClick={() => setShowPreview(true)}>
           Preview
         </ButtonPrimary>
       </div>
+
+      {pool && showPreview ? (
+        <AddLiquidityPreview
+          pool={pool}
+          onClose={() => setShowPreview(false)}
+          onShowStakeModal={() => setShowStakeModal(true)}
+        />
+      ) : null}
+
+      {/* <StakePreviewModal onClose={() => setShowStakeModal(false)} /> */}
 
       {/* Render modals (using React portals or an equivalent modal manager) */}
       {/* {showPreview && (
@@ -210,12 +201,19 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
           onClose={() => setShowStakeModal(false)}
         />
       )} */}
-    </div>
+    </Container>
   )
 }
 
 export default AddLiquidityForm
 
+const Container = styled.div`
+  width: 100%;
+
+  .mt-4 {
+    margin-top: 1rem;
+  }
+`
 /* Styled component for the high price impact container */
 const HighPriceImpactContainer = styled.div`
   /* If the container has a descendant with an error (for example, a checkbox error),
