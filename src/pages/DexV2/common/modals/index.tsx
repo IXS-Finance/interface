@@ -12,34 +12,34 @@ interface ModalProps {
 const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
   return (
     <Portal>
-      <ModalWrapper width="100vw" height="100vh">
-        <ModalContent>
+      <ModalBackdrop>
+        <ModalContainer>
           <ExitIconContainer onClick={onClose}>
             <CrossIcon />
           </ExitIconContainer>
           {children}
-        </ModalContent>
-      </ModalWrapper>
+        </ModalContainer>
+      </ModalBackdrop>
     </Portal>
   )
 }
 
 export default Modal
 
-const ModalWrapper = styled.div<{ width?: string; height?: string }>`
+const ModalBackdrop = styled.div<{ width?: string; height?: string }>`
   display: grid;
   place-content: center;
-  ${(props) => props.width && `width: ${props.width};`}
-  ${(props) => props.height && `height: ${props.height};`}
+  width: 100vw;
+  height: 100vh;
   background: rgba(143, 143, 204, 0.2);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(5px);
   position: fixed;
   top: 0;
   left: 0;
   z-index: 10;
 `
 
-const ModalContent = styled.div`
+const ModalContainer = styled.div`
   display: flex;
   flex-flow: column nowrap;
   align-items: center;

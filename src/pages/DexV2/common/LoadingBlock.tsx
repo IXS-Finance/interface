@@ -4,7 +4,7 @@ import styled, { css, keyframes } from 'styled-components'
 // TYPES
 type RoundedOpts = 'sm' | 'md' | 'lg'
 
-type Props = {
+interface Props extends React.HTMLAttributes<HTMLDivElement> {
   white?: boolean
   darker?: boolean
   square?: boolean
@@ -23,7 +23,7 @@ const shimmerBackground = keyframes`
 `
 
 // Styled component for the loading block
-const LoadingBlockComponent = styled.div<{ rounded?: RoundedOpts; square?: boolean; bgClass: any}>`
+const LoadingBlockComponent = styled.div<{ rounded?: RoundedOpts; square?: boolean; bgClass: any }>`
   min-height: 5px;
   ${({ rounded, square }) =>
     !square &&

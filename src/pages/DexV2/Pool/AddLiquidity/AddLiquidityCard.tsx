@@ -5,6 +5,7 @@ import { configService } from 'services/config/config.service'
 import BalCard from 'pages/DexV2/common/Card'
 import SwapSettingsPopover from 'pages/DexV2/common/SwapSettingsPopover'
 import AddLiquidityForm from './AddLiquidityForm'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 interface AddLiquidityCardProps {
   pool: any
@@ -12,6 +13,7 @@ interface AddLiquidityCardProps {
 
 const AddLiquidityCard: React.FC<AddLiquidityCardProps> = ({ pool }) => {
   const { network } = configService
+  const { tokens } = useTokens()
 
   return (
     <BalCard noBorder shadow="xl" exposeOverflow>
@@ -33,7 +35,7 @@ const AddLiquidityCard: React.FC<AddLiquidityCardProps> = ({ pool }) => {
         </Flex>
       </Box>
 
-      <AddLiquidityForm pool={pool} />
+      {pool && pool.address && tokens && Object.keys(tokens).length > 0 ? <AddLiquidityForm pool={pool} /> : null}
     </BalCard>
   )
 }
