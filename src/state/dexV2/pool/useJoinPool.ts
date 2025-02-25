@@ -20,6 +20,8 @@ import useTokenApprovalActions from 'hooks/dex-v2/approvals/useTokenApprovalActi
 import { useTokens } from '../tokens/hooks/useTokens'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import useUserSettings from '../userSettings/useUserSettings'
+import { useDispatch, useSelector } from 'react-redux'
+import { setPoolState } from '.'
 
 // --- Types ---
 export type AmountIn = {
@@ -30,9 +32,11 @@ export type AmountIn = {
 
 // --- Hook ---
 export const useJoinPool = (pool: any, queryJoinDebounceMillis = 1000) => {
+  const dispatch = useDispatch()
+  const state = useSelector((state: any) => state.dexV2Pool)
+  const { amountsIn } = state
   // STATE
   const [isMounted, setIsMounted] = useState(false)
-  const [amountsIn, setAmountsIn] = useState<AmountIn[]>([])
   const [bptOut, setBptOut] = useState<string>('0')
   const [priceImpact, setPriceImpact] = useState<number>(0)
   const [highPriceImpactAccepted, setHighPriceImpactAccepted] = useState<boolean>(false)
@@ -57,18 +61,18 @@ export const useJoinPool = (pool: any, queryJoinDebounceMillis = 1000) => {
   // --- Derived values (computed inline) ---
   const isDeepPool = isDeep(pool)
   const poolJoinTokens = joinTokens(pool)
-  const tokensIn: TokenInfoMap = getTokens(amountsIn.map((a) => a.address))
+  const tokensIn: TokenInfoMap = getTokens(amountsIn.map((a: any) => a.address))
   const highPriceImpactFlag = bnum(priceImpact).isGreaterThanOrEqualTo(HIGH_PRICE_IMPACT)
   const rektPriceImpactFlag = bnum(priceImpact).isGreaterThanOrEqualTo(REKT_PRICE_IMPACT)
   const hasAcceptedHighPriceImpact = highPriceImpactFlag ? highPriceImpactAccepted : true
-  const hasValidInputs = amountsIn.every((a) => a.valid) && hasAcceptedHighPriceImpact
-  const hasAmountsIn = amountsIn.some((a) => bnum(a.value).gt(0))
-  const amountsInWithValue = amountsIn.filter((a) => bnum(a.value).gt(0))
-  const missingPricesIn = !amountsInWithValue.every((a) => bnum(priceFor(a.address)).gt(0))
-  const fiatValueIn = bnSum(amountsIn.map((a) => toFiat(a.value || 0, a.address))).toString()
+  const hasValidInputs = amountsIn.every((a: any) => a.valid) && hasAcceptedHighPriceImpact
+  const hasAmountsIn = amountsIn.some((a: any) => bnum(a.value).gt(0))
+  const amountsInWithValue = amountsIn.filter((a: any) => bnum(a.value).gt(0))
+  const missingPricesIn = !amountsInWithValue.every((a: any) => bnum(priceFor(a.address)).gt(0))
+  const fiatValueIn = bnSum(amountsIn.map((a: any) => toFiat(a.value || 0, a.address))).toString()
   const fiatValueOut = fiatValueOf(pool, bptOut)
 
-  const amountsToApprove = amountsIn.map((amountIn) => ({
+  const amountsToApprove = amountsIn.map((amountIn: any) => ({
     address: amountIn.address,
     amount: amountIn.value,
     spender: appNetworkConfig.addresses.vault,
@@ -85,11 +89,11 @@ export const useJoinPool = (pool: any, queryJoinDebounceMillis = 1000) => {
   // --- Methods ---
 
   const setTokensIn = (tokens: string[]) => {
-    setAmountsIn(tokens.map((address) => ({ address, value: '', valid: true })))
+    dispatch(setPoolState({ amountsIn: tokens.map((address) => ({ address, value: '', valid: true })) }))
   }
 
   const resetAmounts = () => {
-    setAmountsIn((prev) => prev.map((a) => ({ ...a, value: '' })))
+    dispatch(setPoolState({ amountsIn: amountsIn.map((a: any) => ({ ...a, value: '' })) }))
   }
 
   const resetQueryJoinState = () => {
@@ -187,8 +191,13 @@ export const useJoinPool = (pool: any, queryJoinDebounceMillis = 1000) => {
   const setJoinWithNativeAsset = (joinWithNativeAsset: boolean): void => {
     const newAddress = joinWithNativeAsset ? nativeAsset.address : wrappedNativeAsset.address
     const prevAddress = joinWithNativeAsset ? wrappedNativeAsset.address : nativeAsset.address
-    setAmountsIn((prev) =>
-      prev.map((item) => (isSameAddress(prevAddress, item.address) ? { ...item, address: newAddress } : item))
+
+    dispatch(
+      setPoolState({
+        amountsIn: amountsIn.map((item: any) =>
+          isSameAddress(prevAddress, item.address) ? { ...item, address: newAddress } : item
+        ),
+      })
     )
   }
 
@@ -219,6 +228,10 @@ export const useJoinPool = (pool: any, queryJoinDebounceMillis = 1000) => {
         },
       },
     })
+  }
+
+  const setAmountsIn = (amountsInParam: AmountIn[]) => {
+    dispatch(setPoolState({ amountsIn: amountsInParam }))
   }
 
   // When isSingleAssetJoin changes, reset query state and update join handler.

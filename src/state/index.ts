@@ -44,6 +44,7 @@ import tokenLists from './dexV2/tokenLists'
 import tokens from './dexV2/tokens'
 import swapDexV2 from './dexV2/swap'
 import userSettings from './dexV2/userSettings'
+import dexV2Pool from './dexV2/pool'
 
 const PERSISTED_KEYS: string[] = ['auth', 'lists', 'swap', 'swapHelper', 'transactions', 'user', 'wallet', 'global']
 
@@ -94,6 +95,7 @@ const combinedReducer = combineReducers({
   tokens,
   swapDexV2,
   userSettings,
+  dexV2Pool,
 })
 
 const rootReducer = (state: any, action: any) => {

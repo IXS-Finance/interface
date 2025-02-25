@@ -40,7 +40,7 @@ export function useMyWallet(poolId: string) {
         setJoinWithNativeAsset(isNativeAsset)
       }
       // Find the token in the amounts array
-      const amountIn: AmountIn | undefined = amountsIn.find((item) => isSameAddress(address, item.address))
+      const amountIn: AmountIn | undefined = amountsIn.find((item: any) => isSameAddress(address, item.address))
 
       // Update the amount in values
       if (amountIn) {
