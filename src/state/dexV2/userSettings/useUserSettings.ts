@@ -19,11 +19,11 @@ const useUserSettings = () => {
     dispatch(setUserSettingsState({ supportSignatures: newValue }))
   }
 
-  function setEthereumTxType(txType: EthereumTxType): void {
+  function setEthereumTxType(txType: any): void {
     dispatch(setUserSettingsState({ ethereumTxType: txType }))
   }
 
-  function setTransactionDeadline(newTransactionDeadline: number) {
+  function setTransactionDeadline(newTransactionDeadline: any) {
     dispatch(setUserSettingsState({ transactionDeadline: newTransactionDeadline }))
   }
 

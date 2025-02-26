@@ -16,7 +16,7 @@ export interface UserSettingsState {
   slippage: string
   enableSignatures: YesNo
   supportSignatures: boolean
-  ethereumTxType: EthereumTxType
+  ethereumTxType: any
   transactionDeadline: number
 }
 

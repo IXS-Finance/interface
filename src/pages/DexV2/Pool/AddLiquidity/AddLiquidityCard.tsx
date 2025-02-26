@@ -3,9 +3,9 @@ import { Box, Flex } from 'rebass'
 
 import { configService } from 'services/config/config.service'
 import BalCard from 'pages/DexV2/common/Card'
-import SwapSettingsPopover from 'pages/DexV2/common/SwapSettingsPopover'
 import AddLiquidityForm from './AddLiquidityForm'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import SwapSettingsPopover, { SwapSettingsContext } from 'pages/DexV2/common/popovers/SwapSettingsPopover'
 
 interface AddLiquidityCardProps {
   pool: any
@@ -31,7 +31,7 @@ const AddLiquidityCard: React.FC<AddLiquidityCardProps> = ({ pool }) => {
           <Box as="h4" css={{ lineHeight: 1.75 }}>
             Add liquidity
           </Box>
-          <SwapSettingsPopover />
+          <SwapSettingsPopover context={SwapSettingsContext.invest} />
         </Flex>
       </Box>
 
