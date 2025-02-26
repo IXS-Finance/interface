@@ -27,5 +27,6 @@ export default function useNetwork() {
     // getSubdomain,
     // handleNetworkSlug,
     appNetworkConfig,
+    isEIP1559SupportedNetwork,
   }
 }
