@@ -16,6 +16,8 @@ import WithdrawForm from './components/WithdrawForm'
 import { isRecoveryExitsOnly } from 'hooks/dex-v2/usePoolHelpers'
 import WithdrawTabs from './components/WithdrawTabs'
 import useWithdrawPageTabs from 'state/dexV2/pool/useWithdrawPageTabs'
+import { setPoolState } from 'state/dexV2/pool'
+import { useDispatch } from 'react-redux'
 
 function useInterval(callback: () => void, delay: number | null) {
   useEffect(() => {
@@ -32,6 +34,7 @@ const Withdraw: FC = () => {
   useInterval(refetchOnchainPoolData, oneSecondInMs * 20)
   const { tokens, balanceQueryLoading } = useTokens()
   const { resetTabs } = useWithdrawPageTabs()
+  const dispatch = useDispatch()
 
   const { network } = configService
 
@@ -40,6 +43,7 @@ const Withdraw: FC = () => {
 
   useEffect(() => {
     resetTabs()
+    dispatch(setPoolState({ bptIn: '' }))
   }, [isLoading])
 
   return (

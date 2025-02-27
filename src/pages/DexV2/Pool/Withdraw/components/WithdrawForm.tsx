@@ -15,8 +15,11 @@ import useNetwork from 'hooks/dex-v2/useNetwork'
 import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
 import BalAlert from '../../components/BalAlert'
 import WithdrawTotals from './WithdrawTotals'
-import TokenInput from 'pages/DexV2/Swap/components/TokenInput'
 import WithdrawPreviewModal from './WithdrawPreviewModal'
+import TokenInput from './TokenInput'
+import { overflowProtected } from '../../components/helpers'
+import { useDispatch } from 'react-redux'
+import { setDataForSingleAmountOut } from 'state/dexV2/pool'
 
 type WithdrawFormProps = {
   pool: Pool
@@ -26,6 +29,7 @@ const WithdrawForm: React.FC<WithdrawFormProps> = ({ pool }) => {
   const { networkSlug } = useNetwork()
   const { isWalletReady, startConnectWithInjectedProvider, isMismatchedNetwork } = useWeb3()
   const { wrappedNativeAsset, nativeAsset } = useTokens()
+  const dispatch = useDispatch()
 
   // Exit pool hook provides state and methods for handling the exit.
   const {
@@ -73,6 +77,14 @@ const WithdrawForm: React.FC<WithdrawFormProps> = ({ pool }) => {
     return tokens
   })()
 
+  const handleAmountChange = (value: string): void => {
+    if (!value) return
+
+    const safeAmount = overflowProtected(value, pool.onchain?.decimals || 18)
+
+    dispatch(setDataForSingleAmountOut({ key: 'value', value: safeAmount }))
+  }
+
   // On mount, check if the user holds BPT. If not, redirect back to pool page.
   // Also, initialize the single asset exit input.
   useEffect(() => {
@@ -80,17 +92,15 @@ const WithdrawForm: React.FC<WithdrawFormProps> = ({ pool }) => {
     //   router.push({ name: 'pool', params: { networkSlug, id: pool.id } })
     // }
     // If subsetTokens is empty, default to wrappedNativeAsset; otherwise, use the first token in tokensList.
-    singleAmountOut.address = subsetTokens.length === 0 ? wrappedNativeAsset.address : tokensList[0]
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    dispatch(
+      setDataForSingleAmountOut({
+        key: 'address',
+        value: subsetTokens.length === 0 ? wrappedNativeAsset.address : tokensList[0],
+      })
+    )
   }, [hasBpt, networkSlug, pool.id])
 
-  console.log('hasAmountsOut', hasAmountsOut)
-  console.log('validAmounts', validAmounts)
-  console.log('hasAcceptedHighPriceImpact', hasAcceptedHighPriceImpact)
-  console.log('isMismatchedNetwork', isMismatchedNetwork)
-  console.log('isLoadingQuery', isLoadingQuery)
-  console.log('isLoadingMax', isLoadingMax)
-  console.log('disabled', disabled)
+  console.log('singleAmountOut', singleAmountOut)
   return (
     <div data-testid="withdraw-form">
       {!isSingleAssetExit ? (
@@ -111,7 +121,7 @@ const WithdrawForm: React.FC<WithdrawFormProps> = ({ pool }) => {
           excludedTokens={excludedTokens}
           // tokenSelectProps={{ ignoreBalances: true, subsetTokens }}
           ignoreWalletBalance
-          updateAmount={() => {}}
+          updateAmount={handleAmountChange}
           updateAddress={() => {}}
         />
       )}
@@ -152,13 +162,7 @@ const WithdrawForm: React.FC<WithdrawFormProps> = ({ pool }) => {
         {!isWalletReady ? (
           <BalBtn label="Connect Wallet" color="gradient" block onClick={startConnectWithInjectedProvider} />
         ) : (
-          <BalBtn
-            label="Preview"
-            color="gradient"
-            disabled={!!disabled}
-            block
-            onClick={() => setShowPreview(true)}
-          />
+          <BalBtn label="Preview" color="gradient" disabled={!!disabled} block onClick={() => setShowPreview(true)} />
         )}
       </div>
 
