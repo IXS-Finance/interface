@@ -6,7 +6,7 @@ import { createPopper, Instance as PopperInstance } from '@popperjs/core'
 export type Placement = 'top' | 'left' | 'bottom' | 'right'
 export type TextAlign = 'left' | 'center' | 'right' | ''
 
-export interface TooltipProps {
+interface TooltipProps extends React.HTMLAttributes<HTMLDivElement> {
   text?: string
   placement?: Placement
   onShow?: () => void

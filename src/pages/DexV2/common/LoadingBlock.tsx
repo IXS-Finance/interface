@@ -40,6 +40,7 @@ const LoadingBlock: React.FC<Props> = ({
   square = false,
   rounded = 'lg',
   className, // Add className prop
+  ...rest
 }) => {
   // COMPUTED
   const bgClass = useMemo(() => {
@@ -81,6 +82,7 @@ const LoadingBlock: React.FC<Props> = ({
       square={square}
       bgClass={bgClass}
       className={className} // Pass className to the styled component
+      {...rest}
     />
   )
 }

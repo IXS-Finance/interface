@@ -25,7 +25,7 @@ const PoolActionsCard: React.FC<PoolActionsCardProps> = ({ pool, missingPrices }
   }
 
   const handleWithdraw = () => {
-    const path = routes.dexV2PoolAddLiquidity.replace(':id', poolId)
+    const path = routes.dexV2PoolWithdraw.replace(':id', poolId)
     history.push(path)
   }
 

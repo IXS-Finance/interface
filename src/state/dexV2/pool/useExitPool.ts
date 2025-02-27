@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import debounce from 'debounce-promise'
 import { bnSum, bnum, includesAddress, isSameAddress, removeAddress, selectByAddress } from 'lib/utils'
@@ -6,7 +6,6 @@ import { ExitHandler, ExitPoolService } from 'services/balancer/pools/exits/exit
 import { ExitType } from 'services/balancer/pools/exits/handlers/exit-pool.handler'
 import { Pool, PoolToken } from 'services/pool/types'
 import { TokenInfoMap } from 'types/TokenList'
-import { TransactionActionInfo } from 'types/transactions'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { HIGH_PRICE_IMPACT, REKT_PRICE_IMPACT } from 'constants/dexV2/poolLiquidity'
 import QUERY_KEYS from 'constants/dexV2/queryKeys'
@@ -27,6 +26,9 @@ import {
 } from 'hooks/dex-v2/usePoolHelpers'
 import { POOLS } from 'constants/dexV2/pools'
 import useNumbers from 'hooks/dex-v2/useNumbers' // assumed similar to your Vue version
+import { setPoolState } from '.'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppState } from 'state'
 
 // TYPES
 export type AmountOut = {
@@ -37,14 +39,13 @@ export type AmountOut = {
 }
 
 export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounceGetSingleAssetMaxMillis = 1000) => {
+  const state = useSelector((state: AppState) => state.dexV2Pool)
+  const { isSingleAssetExit, priceImpact, priceImpactValid, propAmountsOut, isTxPayloadReady, bptIn } = state
+  const dispatch = useDispatch()
   // === STATE (using React useState) ===
   const [isMounted, setIsMounted] = useState(false)
-  const [isSingleAssetExit, setIsSingleAssetExit] = useState(false)
-  const [priceImpact, setPriceImpact] = useState(0)
-  const [priceImpactValid, setPriceImpactValid] = useState(true)
-  const [highPriceImpactAccepted, setHighPriceImpactAccepted] = useState(false)
-  const [bptIn, setBptIn] = useState('0')
-  const [bptInValid, setBptInValid] = useState(true)
+  const highPriceImpactAccepted = false
+  const bptInValid = true
   const [txError, setTxError] = useState('')
   const [singleAmountOut, setSingleAmountOut] = useState<AmountOut>({
     address: '',
@@ -52,8 +53,6 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
     max: '',
     valid: true,
   })
-  const [propAmountsOut, setPropAmountsOut] = useState<AmountOut[]>([])
-  const [isTxPayloadReady, setIsTxPayloadReady] = useState(false)
 
   // === SERVICES & COMPOSABLES ===
   const exitPoolService = new ExitPoolService(pool)
@@ -65,8 +64,10 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
 
   // === DEBOUNCED FUNCTIONS (stored in refs for stability) ===
   // We will define the functions below and assign them to these refs.
-  const debounceQueryExitRef = useRef<any>()
-  const debounceGetSingleAssetMaxRef = useRef<any>()
+  const debounceQueryExit = debounce(queryExit, debounceQueryExitMillis)
+  const debounceGetSingleAssetMax = debounce(getSingleAssetMax, debounceGetSingleAssetMaxMillis, {
+    leading: true,
+  })
 
   // === Derived flag for enabling queries (recalculated on every render) ===
   const queriesEnabled = isMounted && !txInProgress
@@ -77,7 +78,7 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
   // === React Query: query for exit simulation ===
   const queryExitQuery = useQuery({
     queryKey: QUERY_KEYS.Pools.Exits.QueryExit(account, bptIn, isSingleAssetExit, singleAmountOut, ''),
-    queryFn: () => debounceQueryExitRef.current(),
+    queryFn: debounceQueryExit,
     enabled: queriesEnabled,
     refetchOnWindowFocus: false,
   })
@@ -85,7 +86,7 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
   // === React Query: query for single asset max ===
   const singleAssetMaxQuery = useQuery({
     queryKey: QUERY_KEYS.Pools.Exits.SingleAssetMax(bptBalance, isSingleAssetExit, singleAmountOut.address),
-    queryFn: () => debounceGetSingleAssetMaxRef.current(),
+    queryFn: debounceGetSingleAssetMax,
     enabled: queriesEnabled,
     refetchOnWindowFocus: false,
   })
@@ -120,7 +121,8 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
 
   const approvalActions: any = []
   const exitTokenAddresses = (() => {
-    let addresses: string[] = isDeep(pool) ? tokenTreeNodes(pool.tokens) : pool.tokensList
+    const addresses: string[] = isDeep(pool) ? tokenTreeNodes(pool.tokens) : pool.tokensList
+
     return removeAddress(pool.address, addresses)
   })()
   const exitTokenInfo: TokenInfoMap = getTokens([
@@ -165,9 +167,16 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
   }
 
   // === METHODS ===
+  const setBptIn = (value: string) => {
+    dispatch(setPoolState({ bptIn: value }))
+  }
+
+  const setPriceImpact = (value: number) => {
+    dispatch(setPoolState({ priceImpact: value }))
+  }
 
   async function queryExit() {
-    setPriceImpactValid(false)
+    dispatch(setPoolState({ setPriceImpactValid: false }))
     if (isSingleAssetExit && !validExitInputs) return null
     if (!isSingleAssetExit && !bnum(bptIn).gt(0)) return null
 
@@ -194,18 +203,20 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
         max: '',
         valid: true,
       }))
-      setPropAmountsOut(newPropAmountsOut)
-      setIsTxPayloadReady(output.txReady)
-      setPriceImpactValid(true)
+      dispatch(
+        setPoolState({
+          propAmountsOut: newPropAmountsOut,
+          priceImpactValid: true,
+        })
+      )
+      dispatch(
+        setPoolState({ propAmountsOut: newPropAmountsOut, priceImpactValid: true, isTxPayloadReady: output.txReady })
+      )
       return output
     } catch (error: any) {
       await logExitException(error, queryExitQuery)
       throw new Error('Failed to construct exit.', { cause: error })
     }
-  }
-  // Assign debounced queryExit to a ref (once on first render)
-  if (!debounceQueryExitRef.current) {
-    debounceQueryExitRef.current = debounce(queryExit, debounceQueryExitMillis)
   }
 
   async function getSingleAssetMax() {
@@ -235,12 +246,6 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
       await logExitException(error, singleAssetMaxQuery)
       throw new Error('Failed to calculate max.', { cause: error })
     }
-  }
-  // Assign debounced getSingleAssetMax to a ref (once)
-  if (!debounceGetSingleAssetMaxRef.current) {
-    debounceGetSingleAssetMaxRef.current = debounce(getSingleAssetMax, debounceGetSingleAssetMaxMillis, {
-      leading: true,
-    })
   }
 
   async function exit(): Promise<TransactionResponse> {
@@ -272,18 +277,20 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
     const leafNodes: string[] = isDeep(pool)
       ? tokenTreeLeafs(pool.tokens)
       : pool.tokensList.filter((token) => !isSameAddress(token, pool.address))
-    setPropAmountsOut(
-      leafNodes.map((address) => ({
-        address,
-        value: '0',
-        max: '',
-        valid: true,
-      }))
+    dispatch(
+      setPoolState({
+        propAmountsOut: leafNodes.map((address) => ({
+          address,
+          value: '0',
+          max: '',
+          valid: true,
+        })),
+      })
     )
   }
 
-  function handleSetIsSingleAssetExit(value: boolean) {
-    setIsSingleAssetExit(value)
+  function setIsSingleAssetExit(value: boolean) {
+    dispatch(setPoolState({ isSingleAssetExit: value }))
   }
 
   async function logExitException(error: Error, query?: any) {
@@ -326,14 +333,14 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
   // === WATCHERS / EFFECTS ===
 
   // When isSingleAssetExit changes, reset bptIn and (if false) initialize propAmountsOut.
-  useEffect(() => {
-    setBptIn('')
-    exitPoolService.setExitHandler(exitHandlerType)
-    if (!isSingleAssetExit) {
-      setInitialPropAmountsOut()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSingleAssetExit])
+  // useEffect(() => {
+  //   dispatch(setPoolState({ bptIn: '' }))
+  //   exitPoolService.setExitHandler(exitHandlerType)
+  //   if (!isSingleAssetExit) {
+  //     setInitialPropAmountsOut()
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [isSingleAssetExit])
 
   // onBeforeMount equivalent: run once on mount.
   useEffect(() => {
@@ -343,7 +350,7 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
       setInitialPropAmountsOut()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [JSON.stringify(exitTokenAddresses), JSON.stringify(pool)])
 
   // onMounted equivalent:
   useEffect(() => {
@@ -396,8 +403,9 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
     exitType,
     _bptIn,
     // methods
-    setIsSingleAssetExit: handleSetIsSingleAssetExit,
+    setIsSingleAssetExit,
     exit,
+    setBptIn,
   }
 }
 

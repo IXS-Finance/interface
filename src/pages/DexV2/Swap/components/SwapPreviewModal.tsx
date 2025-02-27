@@ -347,10 +347,10 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
                       width="24"
                       height="24"
                       stroke="currentColor"
-                      stroke-width="2"
+                      strokeWidth="2"
                       fill="none"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     >
                       <line x1="12" y1="5" x2="12" y2="19"></line>
                       <polyline points="19 12 12 19 5 12"></polyline>
