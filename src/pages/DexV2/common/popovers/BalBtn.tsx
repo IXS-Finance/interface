@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import BalLoadingIcon from './BalLoadingIcon'
 
-export type BalBtnProps = {
+interface BalBtnProps extends React.HTMLAttributes<HTMLButtonElement> {
   tag?: 'button' | 'a' | 'div'
   size?: 'xs' | 'sm' | 'md' | 'lg'
   color?:
@@ -27,7 +27,7 @@ export type BalBtnProps = {
   loadingLabel?: string
   disabled?: boolean
   justifyContent?: 'start' | 'center' | 'end' | 'between'
-} & React.HTMLAttributes<HTMLElement>
+}
 
 const defaultProps: Partial<BalBtnProps> = {
   tag: 'button',

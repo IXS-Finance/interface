@@ -13,7 +13,7 @@ import Asset from 'pages/DexV2/common/Asset'
 
 type InputValue = string | number
 
-interface TokenInputProps {
+interface TokenInputProps extends React.HTMLAttributes<HTMLInputElement> {
   name: string
   amount: InputValue
   address?: string
