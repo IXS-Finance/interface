@@ -29,6 +29,7 @@ import useNumbers from 'hooks/dex-v2/useNumbers' // assumed similar to your Vue 
 import { setDataForSingleAmountOut, setPoolState } from '.'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppState } from 'state'
+import { overflowProtected } from 'pages/DexV2/Pool/components/helpers'
 
 // TYPES
 export type AmountOut = {
@@ -69,6 +70,8 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
 
   // === User’s BPT balance ===
   const bptBalance = balanceFor(pool.address)
+  console.log('bptBalance', bptBalance)
+  console.log('pool.address', pool.address)
 
   // === React Query: query for exit simulation ===
   const queryExitQuery = useQuery({
@@ -176,7 +179,6 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
     if (!isSingleAssetExit && !bnum(bptIn).gt(0)) return null
 
     exitPoolService.setExitHandler(exitHandlerType)
-    console.log('exitHandler:', exitHandlerType)
     try {
       const output = await exitPoolService.queryExit({
         exitType: exitType,
@@ -221,12 +223,10 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
     const singleAssetMaxedExitHandler = shouldUseSwapExit ? ExitHandler.Swap : ExitHandler.ExactIn
     exitPoolService.setExitHandler(singleAssetMaxedExitHandler)
 
-    console.log('exitHandler:', exitHandlerType);
-    console.log('singleAssetMaxedExitHandler:', singleAssetMaxedExitHandler);
     try {
       const output = await exitPoolService.queryExit({
         exitType: ExitType.GivenIn,
-        bptIn: bptBalance,
+        bptIn: overflowProtected(bptBalance, 0),
         amountsOut: [singleAmountOut],
         signer: await getSigner(),
         slippageBsp: slippageBsp,
@@ -235,8 +235,9 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
         bptInValid: bptInValid,
         relayerSignature: '',
         transactionDeadline: transactionDeadline,
-        toInternalBalance: true,
+        toInternalBalance: shouldExitViaInternalBalance,
       })
+      debugger
       const newMax = selectByAddress(output.amountsOut, singleAmountOut.address) || '0'
       dispatch(setDataForSingleAmountOut({ key: 'max', value: newMax }))
       return newMax
