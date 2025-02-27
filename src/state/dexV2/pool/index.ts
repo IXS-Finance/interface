@@ -1,5 +1,5 @@
 // src/store/poolSlice.ts
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AmountIn } from './useJoinPool'
 import { AmountOut } from './useExitPool'
 
@@ -21,6 +21,7 @@ interface PoolState {
   propAmountsOut: AmountOut[]
   isTxPayloadReady: boolean
   bptIn: string
+  singleAmountOut: AmountOut
 }
 
 const initialState: PoolState = {
@@ -32,6 +33,12 @@ const initialState: PoolState = {
   propAmountsOut: [],
   isTxPayloadReady: false,
   bptIn: '0',
+  singleAmountOut: {
+    address: '',
+    value: '',
+    max: '',
+    valid: true,
+  },
 }
 
 const poolSlice = createSlice({
@@ -45,9 +52,15 @@ const poolSlice = createSlice({
       const { index, value } = action.payload
       state.amountsIn[index].value = value
     },
+    setDataForSingleAmountOut(state, action: PayloadAction<{ key: keyof AmountOut; value: string | boolean }>) {
+      const { key, value } = action.payload
+      if (typeof value === 'string' || typeof value === 'boolean') {
+        state.singleAmountOut[key] = value as never
+      }
+    },
   },
 })
 
-export const { setPoolState, setValueOfAmountIn } = poolSlice.actions
+export const { setPoolState, setValueOfAmountIn, setDataForSingleAmountOut } = poolSlice.actions
 
 export default poolSlice.reducer

@@ -26,7 +26,7 @@ import {
 } from 'hooks/dex-v2/usePoolHelpers'
 import { POOLS } from 'constants/dexV2/pools'
 import useNumbers from 'hooks/dex-v2/useNumbers' // assumed similar to your Vue version
-import { setPoolState } from '.'
+import { setDataForSingleAmountOut, setPoolState } from '.'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppState } from 'state'
 
@@ -40,19 +40,14 @@ export type AmountOut = {
 
 export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounceGetSingleAssetMaxMillis = 1000) => {
   const state = useSelector((state: AppState) => state.dexV2Pool)
-  const { isSingleAssetExit, priceImpact, priceImpactValid, propAmountsOut, isTxPayloadReady, bptIn } = state
+  const { isSingleAssetExit, priceImpact, priceImpactValid, propAmountsOut, isTxPayloadReady, bptIn, singleAmountOut } =
+    state
   const dispatch = useDispatch()
   // === STATE (using React useState) ===
   const [isMounted, setIsMounted] = useState(false)
   const highPriceImpactAccepted = false
   const bptInValid = true
   const [txError, setTxError] = useState('')
-  const [singleAmountOut, setSingleAmountOut] = useState<AmountOut>({
-    address: '',
-    value: '',
-    max: '',
-    valid: true,
-  })
 
   // === SERVICES & COMPOSABLES ===
   const exitPoolService = new ExitPoolService(pool)
@@ -220,11 +215,14 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
   }
 
   async function getSingleAssetMax() {
-    setSingleAmountOut((prev) => ({ ...prev, max: '0' }))
+    dispatch(setDataForSingleAmountOut({ key: 'max', value: '0' }))
     if (!isSingleAssetExit) return null
     if (!hasBpt) return null
     const singleAssetMaxedExitHandler = shouldUseSwapExit ? ExitHandler.Swap : ExitHandler.ExactIn
     exitPoolService.setExitHandler(singleAssetMaxedExitHandler)
+
+    console.log('exitHandler:', exitHandlerType);
+    console.log('singleAssetMaxedExitHandler:', singleAssetMaxedExitHandler);
     try {
       const output = await exitPoolService.queryExit({
         exitType: ExitType.GivenIn,
@@ -237,12 +235,13 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
         bptInValid: bptInValid,
         relayerSignature: '',
         transactionDeadline: transactionDeadline,
-        toInternalBalance: shouldExitViaInternalBalance,
+        toInternalBalance: true,
       })
       const newMax = selectByAddress(output.amountsOut, singleAmountOut.address) || '0'
-      setSingleAmountOut((prev) => ({ ...prev, max: newMax }))
+      dispatch(setDataForSingleAmountOut({ key: 'max', value: newMax }))
       return newMax
     } catch (error: any) {
+      console.log('error', error)
       await logExitException(error, singleAssetMaxQuery)
       throw new Error('Failed to calculate max.', { cause: error })
     }
