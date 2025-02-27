@@ -1,12 +1,11 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 
-import { TokenInfo } from 'types/TokenList'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useUrls from 'hooks/dex-v2/useUrls'
 
-type Props = {
+interface Props extends React.HTMLAttributes<HTMLDivElement> {
   address?: string
   iconURI?: string
   size?: number
@@ -27,7 +26,7 @@ const Asset: React.FC<Props> = (props) => {
   const rootElementAttrs = {
     'aria-label': token?.symbol,
     disabled: props.disabled,
-  };
+  }
 
   return (
     <div>

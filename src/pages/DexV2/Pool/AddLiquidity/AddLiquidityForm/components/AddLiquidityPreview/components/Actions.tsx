@@ -11,6 +11,7 @@ import { useJoinPool } from 'state/dexV2/pool/useJoinPool'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { usePoolHelpers } from 'hooks/dex-v2/usePoolHelpers'
 import BalActionSteps from './BalActionSteps'
+import FeedbackCard from 'pages/DexV2/common/FeedbackCard'
 // import usePoolStaking from '@/hooks/usePoolStaking';
 
 // // UI Components (assumed to be available as React components)
@@ -140,7 +141,7 @@ const Actions: React.FC<Props> = ({ pool, onSuccess, onShowStakeModal }) => {
         </div>
       )}
 
-      {/* {(txState.confirming || txState.confirmed) && <FeedbackCard style={{ marginTop: '0.75rem' }} />} */}
+      {(txState.confirming || txState.confirmed) && <FeedbackCard style={{ marginTop: '0.75rem' }} />}
     </Container>
   )
 }

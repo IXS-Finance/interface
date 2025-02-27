@@ -1,5 +1,3 @@
-import { useMemo } from 'react'
-
 import usePoolQuery from './usePoolQuery'
 import { Pool } from 'services/pool/types'
 import usePoolDecorationQuery from 'hooks/dex-v2/queries/usePoolDecorationQuery'

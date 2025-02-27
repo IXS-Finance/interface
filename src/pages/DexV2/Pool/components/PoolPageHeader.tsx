@@ -19,7 +19,6 @@ const PoolPageHeader: React.FC<PoolPageHeaderProps> = ({ pool, titleTokens, isSt
   const { balancerTokenListTokens, getToken } = useTokens()
   const { fNum } = useNumbers()
 
-  console.log('pool', pool)
   const poolMetadata = useMemo(() => (pool && pool.id ? getPoolMetadata(pool?.id) : null), [JSON.stringify(pool)])
   const poolTypeLabel = useMemo(() => {
     if (!pool?.factory) return ''

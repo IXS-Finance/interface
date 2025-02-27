@@ -1,37 +1,38 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
-
 import { ReactComponent as ChevDown } from 'assets/images/dex-v2/chev-down.svg'
 import SelectTokenModal from './modals/SelectTokenModal'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import Asset from './Asset'
 
-interface TokenSelectInputProps {
+export interface TokenSelectInputProps {
+  fixed?: boolean
   modelValue: string
   excludedTokens?: string[]
   updateAddress: (address: string) => void
 }
 
-const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue, excludedTokens = [], updateAddress }) => {
+const TokenSelectInput: React.FC<TokenSelectInputProps> = ({
+  fixed = false,
+  modelValue,
+  excludedTokens = [],
+  updateAddress,
+}) => {
   const { getToken } = useTokens()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const hasToken = useMemo(() => !!modelValue, [modelValue])
-
-  const token = useMemo(() => {
-    if (!hasToken || !modelValue) {
-      return null
-    }
-
-    return getToken(modelValue)
-  }, [modelValue])
+  // Compute token existence inline.
+  const hasToken = modelValue !== ''
+  const token = hasToken ? getToken(modelValue) : null
 
   const onClose = () => {
     setIsModalOpen(false)
   }
 
   const toggleModal = () => {
-    setIsModalOpen(!isModalOpen)
+    if (!fixed) {
+      setIsModalOpen(!isModalOpen)
+    }
   }
 
   return (
@@ -45,17 +46,16 @@ const TokenSelectInput: React.FC<TokenSelectInputProps> = ({ modelValue, exclude
         ) : (
           <SelectText>Select token</SelectText>
         )}
-
         <ChevDown />
       </TokenSelectInputWrapper>
 
-      {isModalOpen ? (
+      {isModalOpen && (
         <SelectTokenModal
           excludedTokens={[...excludedTokens, modelValue]}
           updateAddress={updateAddress}
           onClose={onClose}
         />
-      ) : null}
+      )}
     </div>
   )
 }
@@ -82,8 +82,6 @@ const TokenSelected = styled.div`
 const SelectText = styled.span`
   color: rgba(102, 102, 255, 0.9);
   font-size: 14px;
-  font-style: normal;
   font-weight: 500;
-  line-height: normal;
   letter-spacing: -0.42px;
 `
