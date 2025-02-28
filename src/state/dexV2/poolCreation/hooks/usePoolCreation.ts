@@ -27,6 +27,7 @@ import {
   setPoolCreationState,
   removeTokenWeightsByIndex,
   setValueOfActionState,
+  resetPoolCreation,
 } from '..'
 import { PoolSeedToken } from 'pages/DexV2/types'
 import { usePoolCreationState } from '.'
@@ -221,7 +222,7 @@ export const usePoolCreation = () => {
   })()
 
   function resetPoolCreationState() {
-    dispatch(resetPoolCreationState())
+    dispatch(resetPoolCreation())
     setRestoredState(false)
   }
 
