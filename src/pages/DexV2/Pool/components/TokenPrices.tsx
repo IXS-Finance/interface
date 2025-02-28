@@ -34,7 +34,6 @@ const TokenPrices: React.FC<TokenPricesProps> = () => {
 
       {unknownTokens.map((token) => {
         const tokenInfo = getToken(token)
-        console.log('tokenInfo', tokenInfo)
         return (
           <Flex
             fontSize={14}

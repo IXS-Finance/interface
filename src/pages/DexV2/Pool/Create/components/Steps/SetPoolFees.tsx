@@ -5,7 +5,11 @@ import { useDispatch } from 'react-redux'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 import { setPoolCreationState } from 'state/dexV2/poolCreation'
-import { Line } from '../Create'
+import { Line } from '../..'
+import BalCard from 'pages/DexV2/common/Card'
+import BalStack from 'pages/DexV2/common/BalStack'
+import { Box } from 'rebass'
+import { configService } from 'services/config/config.service'
 
 interface SetPoolFeesProps {}
 
@@ -18,6 +22,7 @@ const SetPoolFees: React.FC<SetPoolFeesProps> = () => {
   const [name, setName] = useState('')
   const [isInvalidFee, setIsInvalidFee] = useState(false)
 
+  const networkName = configService.network.name
   const poolSymbol = getPoolSymbol()
 
   const isProceedDisabled = useMemo(() => {
@@ -60,50 +65,59 @@ const SetPoolFees: React.FC<SetPoolFeesProps> = () => {
   }, [poolSymbol])
 
   return (
-    <div>
-      <Line />
+    <BalCard shadow="xl" noBorder>
+      <BalStack vertical spacing="sm">
+        <Box color="#b8b8d2" fontSize="14px" fontWeight={500}>
+          {networkName}
+        </Box>
+        <Box color="rgba(41, 41, 51, 0.9)" fontSize="20px" fontWeight={600}>
+          Set pool fees
+        </Box>
 
-      <Title>Initial swap fees</Title>
-      <Desc>0.30% is best for most weighted pools with established tokens. Go higher for more exotic tokens.</Desc>
-      <Wrapper>
-        <StyledInput
-          placeholder="0"
-          value={fee}
-          min="0"
-          step="0.01"
-          onKeyDown={onKeyDown}
-          type="text"
-          inputMode="decimal"
-          pattern="[0-9]*[.,]?[0-9]*"
-          onChange={(e) => onFeeChange(e.target.value)}
-        />
-        <PercentSymbol>%</PercentSymbol>
-      </Wrapper>
-      <ButtonContainer>
-        <StyledButton onClick={() => onFeeChange('0.1')}>0.1%</StyledButton>
-        <StyledButton onClick={() => onFeeChange('0.3')}>0.3%</StyledButton>
-        <StyledButton onClick={() => onFeeChange('0.5')}>0.5%</StyledButton>
-        <StyledButton onClick={() => onFeeChange('1')}>1%</StyledButton>
-      </ButtonContainer>
+        <Line />
 
-      <Line />
-      <Title>Pool Name</Title>
-      <Desc>
-        Choose a name for your pool, or keep the auto-generated one based on tokens and weights. The pool symbol is set
-        by your token choices and their weights.
-      </Desc>
+        <Title>Initial swap fees</Title>
+        <Desc>0.30% is best for most weighted pools with established tokens. Go higher for more exotic tokens.</Desc>
+        <Wrapper>
+          <StyledInput
+            placeholder="0"
+            value={fee}
+            min="0"
+            step="0.01"
+            onKeyDown={onKeyDown}
+            type="text"
+            inputMode="decimal"
+            pattern="[0-9]*[.,]?[0-9]*"
+            onChange={(e) => onFeeChange(e.target.value)}
+          />
+          <PercentSymbol>%</PercentSymbol>
+        </Wrapper>
+        <ButtonContainer>
+          <StyledButton onClick={() => onFeeChange('0.1')}>0.1%</StyledButton>
+          <StyledButton onClick={() => onFeeChange('0.3')}>0.3%</StyledButton>
+          <StyledButton onClick={() => onFeeChange('0.5')}>0.5%</StyledButton>
+          <StyledButton onClick={() => onFeeChange('1')}>1%</StyledButton>
+        </ButtonContainer>
 
-      <Wrapper>
-        <StyledInput placeholder={name} value={name} onChange={(e) => onNameChange(e.target.value)} />
-      </Wrapper>
+        <Line />
+        <Title>Pool Name</Title>
+        <Desc>
+          Choose a name for your pool, or keep the auto-generated one based on tokens and weights. The pool symbol is
+          set by your token choices and their weights.
+        </Desc>
 
-      <NavigationButtons>
-        <BackButton onClick={goBack}>Back</BackButton>
-        <NextButton disabled={isProceedDisabled} onClick={proceed}>
-          Next
-        </NextButton>
-      </NavigationButtons>
-    </div>
+        <Wrapper>
+          <StyledInput placeholder={name} value={name} onChange={(e) => onNameChange(e.target.value)} />
+        </Wrapper>
+
+        <NavigationButtons>
+          <BackButton onClick={goBack}>Back</BackButton>
+          <NextButton disabled={isProceedDisabled} onClick={proceed}>
+            Next
+          </NextButton>
+        </NavigationButtons>
+      </BalStack>
+    </BalCard>
   )
 }
 

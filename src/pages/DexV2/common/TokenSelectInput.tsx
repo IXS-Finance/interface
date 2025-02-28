@@ -46,7 +46,19 @@ const TokenSelectInput: React.FC<TokenSelectInputProps> = ({
         ) : (
           <SelectText>Select token</SelectText>
         )}
-        <ChevDown />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
       </TokenSelectInputWrapper>
 
       {isModalOpen && (
@@ -71,6 +83,7 @@ const TokenSelectInputWrapper = styled.div`
   padding: 8px 12px 8px 8px;
   align-items: center;
   gap: 8px;
+  color: rgba(102, 102, 255, 0.9);
 `
 
 const TokenSelected = styled.div`
