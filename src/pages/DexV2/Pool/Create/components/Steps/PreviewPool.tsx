@@ -1,19 +1,22 @@
 import React, { useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 import BigNumber from 'bignumber.js'
-import { Flex } from 'rebass'
+import { Box, Flex } from 'rebass'
 import { useDispatch } from 'react-redux'
 
-import { BackButton, Line, NavigationButtons, NextButton } from '../Create'
-import TokenInfo from '../components/TokenInfo'
-import CreateActions from '../components/CreateActions'
+import { BackButton, Line, NavigationButtons, NextButton } from '../..'
+import TokenInfo from '../../../components/TokenInfo'
+import CreateActions from '../../../components/CreateActions'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { bnum, shortenLabel } from 'lib/utils'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { useWeb3React } from 'hooks/useWeb3React'
-import BalAlert from '../components/BalAlert'
+import BalAlert from '../../../components/BalAlert'
 import { sortSeedTokens } from 'state/dexV2/poolCreation'
+import BalCard from 'pages/DexV2/common/Card'
+import BalStack from 'pages/DexV2/common/BalStack'
+import { configService } from 'services/config/config.service'
 
 const PreviewPool: React.FC = () => {
   const { account } = useWeb3React()
@@ -34,6 +37,7 @@ const PreviewPool: React.FC = () => {
   const { fNum } = useNumbers()
   const dispatch = useDispatch()
 
+  const networkName = configService.network.name
   const tokenAddresses = seedTokens.map((token) => token.tokenAddress)
 
   const tokensAmounts = getAmounts()
@@ -71,80 +75,88 @@ const PreviewPool: React.FC = () => {
   }
 
   return (
-    <div>
-      <SubTitle>Tokens and initial seed liquidity</SubTitle>
-      <Line />
+    <BalCard shadow="xl" noBorder>
+      <BalStack vertical spacing="sm">
+        <Box color="#b8b8d2" fontSize="14px" fontWeight={500}>
+          {networkName}
+        </Box>
+        <Box color="rgba(41, 41, 51, 0.9)" fontSize="20px" fontWeight={600}>
+          Confirm pool creation
+        </Box>
+        <SubTitle>Tokens and initial seed liquidity</SubTitle>
+        <Line />
 
-      {seedTokens.length > 0 ? (
-        <div>
-          {seedTokens.map((token, i) => {
-            return (
-              <TokenInfo
-                key={`token-${i}`}
-                address={token?.tokenAddress}
-                initialWeights={initialWeights}
-                token={token}
-              />
-            )
-          })}
-        </div>
-      ) : null}
+        {seedTokens.length > 0 ? (
+          <div>
+            {seedTokens.map((token, i) => {
+              return (
+                <TokenInfo
+                  key={`token-${i}`}
+                  address={token?.tokenAddress}
+                  initialWeights={initialWeights}
+                  token={token}
+                />
+              )
+            })}
+          </div>
+        ) : null}
 
-      <Flex justifyContent="space-between">
-        <Total>Total</Total>
-        <Total>{fNum(poolLiquidity.toString(), FNumFormats.fiat)}</Total>
-      </Flex>
-
-      <SummaryContainer>
-        <SummaryTitle>Summary</SummaryTitle>
-        <Flex justifyContent="space-between" width="100%">
-          <SummaryKey>Pool name</SummaryKey>
-          <SummaryValue>{poolName}</SummaryValue>
+        <Flex justifyContent="space-between">
+          <Total>Total</Total>
+          <Total>{fNum(poolLiquidity.toString(), FNumFormats.fiat)}</Total>
         </Flex>
-        <Flex justifyContent="space-between" width="100%">
-          <SummaryKey>Pool symbol</SummaryKey>
-          <SummaryValue>{poolSymbol}</SummaryValue>
-        </Flex>
-        <Flex justifyContent="space-between" width="100%">
-          <SummaryKey>Pool type</SummaryKey>
-          <SummaryValue>{poolTypeString}</SummaryValue>
-        </Flex>
-        <Flex justifyContent="space-between" width="100%">
-          <SummaryKey>Swap fee</SummaryKey>
-          <SummaryValue>{fNum(initialFee, FNumFormats.percent)}</SummaryValue>
-        </Flex>
-        <Flex justifyContent="space-between" width="100%">
-          <SummaryKey>Swap fee manager</SummaryKey>
-          <SummaryValue>{getSwapFeeManager()}</SummaryValue>
-        </Flex>
-      </SummaryContainer>
 
-      {hasMissingPoolNameOrSymbol ? (
-        <BalAlert title="Missing pool name or symbol" type="warning">
-          There is a missing pool name or symbol, fill it in before creating the pool.
-        </BalAlert>
-      ) : null}
+        <SummaryContainer>
+          <SummaryTitle>Summary</SummaryTitle>
+          <Flex justifyContent="space-between" width="100%">
+            <SummaryKey>Pool name</SummaryKey>
+            <SummaryValue>{poolName}</SummaryValue>
+          </Flex>
+          <Flex justifyContent="space-between" width="100%">
+            <SummaryKey>Pool symbol</SummaryKey>
+            <SummaryValue>{poolSymbol}</SummaryValue>
+          </Flex>
+          <Flex justifyContent="space-between" width="100%">
+            <SummaryKey>Pool type</SummaryKey>
+            <SummaryValue>{poolTypeString}</SummaryValue>
+          </Flex>
+          <Flex justifyContent="space-between" width="100%">
+            <SummaryKey>Swap fee</SummaryKey>
+            <SummaryValue>{fNum(initialFee, FNumFormats.percent)}</SummaryValue>
+          </Flex>
+          <Flex justifyContent="space-between" width="100%">
+            <SummaryKey>Swap fee manager</SummaryKey>
+            <SummaryValue>{getSwapFeeManager()}</SummaryValue>
+          </Flex>
+        </SummaryContainer>
 
-      {hasInvalidInitialWeight ? (
-        <BalAlert title="Invalid initial weight" type="warning">
-          One or more tokens has an initial weight less than 1% which may cause funding to fail. If the token has a
-          missing price, enter in a price. Otherwise, adjust the initial balances in the previous step.
-        </BalAlert>
-      ) : null}
+        {hasMissingPoolNameOrSymbol ? (
+          <BalAlert title="Missing pool name or symbol" type="warning">
+            There is a missing pool name or symbol, fill it in before creating the pool.
+          </BalAlert>
+        ) : null}
 
-      {/* <BalAlert title="Invalid initial weight" type="warning">
+        {hasInvalidInitialWeight ? (
+          <BalAlert title="Invalid initial weight" type="warning">
+            One or more tokens has an initial weight less than 1% which may cause funding to fail. If the token has a
+            missing price, enter in a price. Otherwise, adjust the initial balances in the previous step.
+          </BalAlert>
+        ) : null}
+
+        {/* <BalAlert title="Invalid initial weight" type="warning">
         Your ETH/WETH balance may not be sufficient for seed this pool and may cause pool funding to fail. You can
         adjust whether you use ETH or WETH for seed liquidity in the previous step.
       </BalAlert> */}
 
-      <CreateActions
-        tokenAddresses={tokenAddresses}
-        amounts={tokensAmounts}
-        createDisabled={actionsDisabled}
-        goBack={() => goBack()}
-        success={handleSuccess}
-      />
-    </div>
+        <CreateActions
+          tokenAddresses={tokenAddresses}
+          amounts={tokensAmounts}
+          createDisabled={actionsDisabled}
+          goBack={() => goBack()}
+          success={handleSuccess}
+        />
+      </BalStack>
+    </BalCard>
   )
 }
 

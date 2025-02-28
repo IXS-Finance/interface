@@ -2,16 +2,19 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useDispatch } from 'react-redux'
 
-import { Flex } from 'rebass'
-import Switch from '../components/Switch'
+import { Box, Flex } from 'rebass'
+import Switch from '../../../components/Switch'
 import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
-import TokenInput from '../components/TokenInput'
+import TokenInput from '../../../components/TokenInput'
 import { isGreaterThan } from 'lib/utils/validations'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { setPoolCreationState, setTokenAmount } from 'state/dexV2/poolCreation'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers from 'hooks/dex-v2/useNumbers'
 import { bnum, isSameAddress } from 'lib/utils'
+import BalCard from 'pages/DexV2/common/Card'
+import BalStack from 'pages/DexV2/common/BalStack'
+import { configService } from 'services/config/config.service'
 
 interface SetPoolFeesProps {}
 
@@ -31,6 +34,7 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
   const { fNum } = useNumbers()
   const dispatch = useDispatch()
 
+  const networkName = configService.network.name
   const [isOptimised, setIsOptimised] = useState(false)
   const tokenAddresses = [...seedTokens.map((token) => token.tokenAddress)]
 
@@ -86,45 +90,54 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
   }, [dynamicDataLoading])
 
   return (
-    <div>
-      {seedTokens.map((token, i) => {
-        return (
-          <TokenInput
-            key={`tokenweight-${token.id}`}
-            name={`initial-token-${token.tokenAddress}`}
-            weight={token.weight}
-            address={token.tokenAddress}
-            amount={token.amount}
-            rules={[isGreaterThan(0)]}
-            updateAmount={(amount: any) => handleAmountChange(i, amount)}
-          />
-        )
-      })}
+    <BalCard shadow="xl" noBorder>
+      <BalStack vertical spacing="sm">
+        <Box color="#b8b8d2" fontSize="14px" fontWeight={500}>
+          {networkName}
+        </Box>
+        <Box color="rgba(41, 41, 51, 0.9)" fontSize="20px" fontWeight={600}>
+        Set initial liquidity
+        </Box>
 
-      <Flex alignItems="center" style={{ gap: 8 }} marginTop={16}>
-        <Switch />
-        <SwitchText>Auto optimize liquidity</SwitchText>
-      </Flex>
+        {seedTokens.map((token, i) => {
+          return (
+            <TokenInput
+              key={`tokenweight-${token.id}`}
+              name={`initial-token-${token.tokenAddress}`}
+              weight={token.weight}
+              address={token.tokenAddress}
+              amount={token.amount}
+              rules={[isGreaterThan(0)]}
+              updateAmount={(amount: any) => handleAmountChange(i, amount)}
+            />
+          )
+        })}
 
-      <SummaryContainer>
-        <SummaryItem>
-          <div>Total</div>
-          <div>$0.00</div>
-        </SummaryItem>
+        <Flex alignItems="center" style={{ gap: 8 }} marginTop={16}>
+          <Switch />
+          <SwitchText>Auto optimize liquidity</SwitchText>
+        </Flex>
 
-        <SummaryItem>
-          <div>
-            Available: $0.00 <Maxed>Maxed</Maxed>
-          </div>
-          <Optimized>Optimized</Optimized>
-        </SummaryItem>
-      </SummaryContainer>
+        <SummaryContainer>
+          <SummaryItem>
+            <div>Total</div>
+            <div>$0.00</div>
+          </SummaryItem>
 
-      <NavigationButtons>
-        <BackButton onClick={() => goBack()}>Back</BackButton>
-        <NextButton onClick={() => saveAndProcessed()}>Next</NextButton>
-      </NavigationButtons>
-    </div>
+          <SummaryItem>
+            <div>
+              Available: $0.00 <Maxed>Maxed</Maxed>
+            </div>
+            <Optimized>Optimized</Optimized>
+          </SummaryItem>
+        </SummaryContainer>
+
+        <NavigationButtons>
+          <BackButton onClick={() => goBack()}>Back</BackButton>
+          <NextButton onClick={() => saveAndProcessed()}>Next</NextButton>
+        </NavigationButtons>
+      </BalStack>
+    </BalCard>
   )
 }
 

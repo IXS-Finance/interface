@@ -40,7 +40,7 @@ export default function useAllowancesQuery({ tokens, contractAddresses, isEnable
 
   const queryFn = async () => {
     const allowances = await new TokenService().allowances.get(account, contractAddresses, tokens)
-    console.log('Fetching', tokenAddresses.length, 'allowances', allowances, account, contractAddresses, tokens)
+    console.log('Fetching', tokenAddresses.length)
     return allowances
   }
 

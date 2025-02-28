@@ -1,32 +1,28 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import _get from 'lodash/get'
-import { Address } from 'viem'
 
-import ChooseWeights from './Steps/ChooseWeights'
-import SetPoolFees from './Steps/SetPoolFees'
-import InitialLiquidity from './Steps/InitialLiquidity'
+import ChooseWeights from './components/Steps/ChooseWeights'
+import SetPoolFees from './components/Steps/SetPoolFees'
+import InitialLiquidity from './components/Steps/InitialLiquidity'
 import config from 'lib/config'
 import { useWeb3React } from 'hooks/useWeb3React'
-import PreviewPool from './Steps/PreviewPool'
+import PreviewPool from './components/Steps/PreviewPool'
 import { useDispatch } from 'react-redux'
-import { useTokensState } from 'state/dexV2/tokens/hooks'
-import PoolSummary from './components/PoolSummary'
-import TokenPrices from './components/TokenPrices'
+
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
-import UnknownTokenPriceModal from '../common/modals/UnknownTokenPriceModal'
+import UnknownTokenPriceModal from '../../common/modals/UnknownTokenPriceModal'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { StepState } from 'types'
-import VerticleSteps from './components/VerticleSteps'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
+import VerticleSteps from '../components/VerticleSteps'
+import PoolSummary from './components/PoolSummary'
+import TokenPrices from '../components/TokenPrices'
+import SimilarPool from './components/Steps/SimilarPool'
 
-const SimilarPool = () => {
-  return <div>SimilarPool</div>
-}
 const Create: React.FC = () => {
   const { chainId, account } = useWeb3React()
-  const { activeStep, similarPools, tokensList, seedTokens, hasRestoredFromSavedState, resetPoolCreationState } =
-    usePoolCreation()
+  const { activeStep, similarPools, tokensList, seedTokens, hasRestoredFromSavedState } = usePoolCreation()
   const { tokens, priceFor, getToken, injectTokens, injectSpenders } = useTokens()
   const dispatch = useDispatch()
   const networkConfig = config[chainId]
@@ -70,29 +66,28 @@ const Create: React.FC = () => {
       isVisible: true,
       component: SetPoolFees,
     },
-    // {
-    //   tooltip: 'Similar pools',
-    //   state: StepState.Warning,
-    //   id: 2,
-    //   isVisible: doSimilarPoolsExist && activeStep === 2,
-    //   component: SimilarPool,
-    // },
     {
-      tooltip: 'Set initial liquidity',
+      tooltip: 'Similar pools',
       state: getStepState(2),
       id: 2,
+      isVisible: activeStep === 2 && doSimilarPoolsExist,
+      component: SimilarPool,
+    },
+    {
+      tooltip: 'Set initial liquidity',
+      state: getStepState(3),
+      id: 3,
       isVisible: true,
       component: InitialLiquidity,
     },
     {
       tooltip: 'Confirm pool creation',
-      state: getStepState(3),
-      id: 3,
+      state: getStepState(4),
+      id: 4,
       isVisible: true,
       component: PreviewPool,
     },
   ]
-  const currentStep = steps[activeStep]
   const CurrentStepComponent = steps[activeStep].component
 
   function handleUnknownModalClose() {
@@ -120,6 +115,7 @@ const Create: React.FC = () => {
   useEffect(() => {
     injectSpenders([appNetworkConfig.addresses.vault])
   }, [isWalletReady])
+
   return (
     <WidthFull>
       <LayoutContainer>
@@ -127,11 +123,7 @@ const Create: React.FC = () => {
           <VerticleSteps steps={steps} activeStep={activeStep} />
         </LeftContent>
         <CenterContent>
-          <Card>
-            <NetworkText>{name}</NetworkText>
-            <Title>{steps[activeStep].tooltip}</Title>
-            {steps[activeStep].isVisible ? <CurrentStepComponent /> : null}
-          </Card>
+          {steps[activeStep].isVisible ? <CurrentStepComponent /> : null}
         </CenterContent>
 
         {validTokens.length > 0 ? (
@@ -172,7 +164,7 @@ const LayoutContainer = styled.div`
   @media (min-width: 1024px) {
     grid-template-columns: repeat(7, minmax(0, 1fr));
     column-gap: 2rem;
-    margin-top: 146px;
+    margin-top: 32px;
   }
 `
 
@@ -235,28 +227,6 @@ const Card = styled.div`
     padding: 48px;
   }
 `
-
-const NetworkText = styled.div`
-  color: #b8b8d2;
-  font-family: Inter;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  letter-spacing: -0.42px;
-  margin-bottom: 6px;
-`
-
-const Title = styled.div`
-  color: rgba(41, 41, 51, 0.9);
-  font-family: Inter;
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  letter-spacing: -0.6px;
-`
-
 export const Line = styled.div`
   border: 1px solid #e6e6ff;
   margin-top: 16px;
