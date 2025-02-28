@@ -175,13 +175,13 @@ const poolCreationSlice = createSlice({
         ...value,
       };
     },
-    resetPoolCreationState: () => initialState,
+    resetPoolCreation: () => initialState,
   },
 })
 
 export const {
   setPoolCreationState,
-  resetPoolCreationState,
+  resetPoolCreation,
   setTokenWeight,
   setTokenLocked,
   distributeWeights,
