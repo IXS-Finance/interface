@@ -1,32 +1,26 @@
 // @ts-nocheck
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { uniqueId, sumBy } from 'lodash'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
-import { useWriteContract } from 'wagmi'
-import { parseUnits } from 'viem'
 
-import TokenWeightInput from '../components/TokenWeightInput'
-import BalProgressBar from '../components/ProgressBar'
-import { Line } from '../Create'
-import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
+import TokenWeightInput from '../../../components/TokenWeightInput'
+import BalProgressBar from '../../../components/ProgressBar'
+import { Line } from '../..'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
-import { PoolSeedToken } from '../../types'
+import { PoolSeedToken } from '../../../../types'
 import { useWeb3React } from 'hooks/useWeb3React'
-import WeightedPoolFactoryV4Abi from 'lib/abi/WeightedPoolFactoryV4.json'
 import config from 'lib/config'
-import { generateSalt } from 'lib/utils/random'
-import { ZERO_ADDRESS } from 'constants/misc'
-import { ethers } from 'ethers'
-import { wagmiConfig } from 'components/Web3Provider'
-import { publicClient } from 'components/Web3Provider/wagmi'
 import { setTokensList } from 'state/dexV2/poolCreation'
 import { useDispatch } from 'react-redux'
-import BalAlert from '../components/BalAlert'
+import BalAlert from '../../../components/BalAlert'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
-import { Flex } from 'rebass'
+import { Box, Flex } from 'rebass'
+import BalCard from 'pages/DexV2/common/Card'
+import BalStack from 'pages/DexV2/common/BalStack'
+import { configService } from 'services/config/config.service'
 
 const emptyTokenWeight: PoolSeedToken = {
   tokenAddress: '',
@@ -38,6 +32,8 @@ const emptyTokenWeight: PoolSeedToken = {
 
 const ChooseWeights: React.FC = () => {
   const {
+    hasUnlistedToken,
+    seedTokens,
     tokensList,
     totalLiquidity,
     updateTokenWeights,
@@ -49,74 +45,43 @@ const ChooseWeights: React.FC = () => {
     removeTokenWeights,
     getPoolSymbol,
   } = usePoolCreation()
-  const { seedTokens } = usePoolCreationState()
-  const { account, chainId } = useWeb3React()
+  const { account } = useWeb3React()
   const { openConnectModal } = useConnectModal()
   const dispatch = useDispatch()
   const { getToken } = useTokens()
-  const { data: hash, writeContract } = useWriteContract()
   const { fNum } = useNumbers()
   const { isWalletReady } = useWeb3()
 
-  const networkConfig = config[chainId]
+  const networkName = configService.network.name
 
-  const maxTokenAmountReached = useMemo(() => {
-    return seedTokens.length >= 8
-  }, [seedTokens.length])
+  // Compute values directly on every render
 
-  const excludedTokens = useMemo(() => {
-    return [...tokensList]
-  }, [JSON.stringify(tokensList)])
+  const maxTokenAmountReached = seedTokens.length >= 8
 
-  const zeroWeightToken = useMemo(() => {
-    const validTokens = seedTokens.filter((t) => t.tokenAddress !== '')
-    const zeroWeightToken = validTokens.find((t) => t.weight === 0)
-    if (zeroWeightToken) {
-      return getToken(zeroWeightToken.tokenAddress)
-    }
-    return null
-  }, [JSON.stringify(seedTokens)])
+  const excludedTokens = [...tokensList]
 
-  const totalAllocatedWeight = useMemo(() => {
-    const validTokens = seedTokens.filter((t) => t.tokenAddress !== '')
-    const validPercentage = sumBy(validTokens, 'weight')
-    return validPercentage.toFixed(2)
-  }, [JSON.stringify(seedTokens)])
+  const validTokens = seedTokens.filter((t) => t.tokenAddress !== '')
+  const zeroToken = validTokens.find((t) => t.weight === 0)
+  const zeroWeightToken = zeroToken ? getToken(zeroToken.tokenAddress) : null
 
-  const totalWeight = useMemo(() => {
-    const pct = sumBy(seedTokens, 'weight')
-    return pct.toFixed(2)
-  }, [JSON.stringify(seedTokens)])
+  const totalAllocatedWeight = sumBy(validTokens, 'weight').toFixed(2)
+  const totalWeight = sumBy(seedTokens, 'weight').toFixed(2)
 
-  const isProceedDisabled = useMemo(() => {
-    if (!account) return false
+  const isProceedDisabled = (() => {
+    if (!isWalletReady) return false
     if (Number(totalAllocatedWeight) !== 100) return true
     if (seedTokens.length < 2) return true
     if (zeroWeightToken) return true
+    if (hasUnlistedToken && !isTestnet) return true
     return false
-  }, [account, JSON.stringify(seedTokens)])
+  })()
 
-  const showLiquidityAlert = useMemo(() => {
-    const validTokens = seedTokens.filter((t) => t.tokenAddress !== '')
-    return totalLiquidity.lt(20000) && validTokens.length >= 2
-  }, [seedTokens, totalLiquidity])
+  const validTokensForAlert = seedTokens.filter((t) => t.tokenAddress !== '')
+  const showLiquidityAlert = totalLiquidity.lt(20000) && validTokensForAlert.length >= 2
 
-  const weightColor = useMemo(() => {
-    if (Number(totalWeight) > 100 || Number(totalWeight) <= 0) {
-      return { color: 'red' }
-    }
-    return {}
-  }, [totalWeight])
+  const weightColor = Number(totalWeight) > 100 || Number(totalWeight) <= 0 ? { color: 'red' } : {}
 
-  const walletLabel = useMemo(() => {
-    if (!account) {
-      return 'Connect Wallet'
-    }
-    // if (showLiquidityAlert) {
-    //   return 'Continue anyway'
-    // }
-    return 'Next'
-  }, [account])
+  const walletLabel = !account ? 'Connect Wallet' : 'Next'
 
   const progressBarColor = () => {
     if (Number(totalAllocatedWeight) > 100 || Number(totalAllocatedWeight) <= 0) {
@@ -159,7 +124,6 @@ const ChooseWeights: React.FC = () => {
         { ...emptyTokenWeight, id: uniqueId() } as PoolSeedToken,
         { ...emptyTokenWeight, id: uniqueId() } as PoolSeedToken,
       ]
-
       updateTokenWeights(newWeights)
     }
   }, [])
@@ -169,9 +133,15 @@ const ChooseWeights: React.FC = () => {
   }, [JSON.stringify(seedTokens)])
 
   return (
-    <div>
-      {seedTokens.map((token, i) => {
-        return (
+    <BalCard shadow="xl" noBorder>
+      <BalStack vertical spacing="sm">
+        <Box color="#b8b8d2" fontSize="14px" fontWeight={500}>
+          {networkName}
+        </Box>
+        <Box color="rgba(41, 41, 51, 0.9)" fontSize="20px" fontWeight={600}>
+          Choose tokens & weights
+        </Box>
+        {seedTokens.map((token, i) => (
           <TokenWeightInput
             key={`tokenweight-${token.id}`}
             weight={token.weight}
@@ -182,48 +152,52 @@ const ChooseWeights: React.FC = () => {
             deleteItem={() => handleRemoveToken(i)}
             updateAddress={(data) => handleAddressChange(data, i)}
           />
-        )
-      })}
+        ))}
 
-      <AddTokenButton disabled={maxTokenAmountReached} onClick={addTokenToPool}>
-        Add a Token
-      </AddTokenButton>
+        <AddTokenButton disabled={maxTokenAmountReached} onClick={addTokenToPool}>
+          Add a Token
+        </AddTokenButton>
 
-      <Line />
+        <Line />
 
-      <WrapProgressBar>
-        <TitleProgressBar>
-          <LeftContentProgressBar>Total Allocated</LeftContentProgressBar>
-          <RightContentProgressBar style={weightColor}>{totalAllocatedWeight}%</RightContentProgressBar>
-        </TitleProgressBar>
-        <BalProgressBar width={Number(totalAllocatedWeight)} color={progressBarColor()} />
-      </WrapProgressBar>
+        <WrapProgressBar>
+          <TitleProgressBar>
+            <LeftContentProgressBar>Total Allocated</LeftContentProgressBar>
+            <RightContentProgressBar style={weightColor}>{totalAllocatedWeight}%</RightContentProgressBar>
+          </TitleProgressBar>
+          <BalProgressBar width={Number(totalAllocatedWeight)} color={progressBarColor()} />
+        </WrapProgressBar>
 
-      <Line />
+        <Line />
 
-      <Flex direction="column" gap="16px" mb="16px">
-        {showLiquidityAlert && isWalletReady ? (
-          <BalAlert title="It’s recommended to provide new pools with at least $20,000 in initial funds" type="warning">
-            {`Based on your wallet balances for these tokens, the maximum amount you can fund this pool with is ~${fNum(
-              totalLiquidity.toString(),
-              FNumFormats.fiat
-            )}.`}
-          </BalAlert>
-        ) : null}
+        <Flex direction="column" gap="16px" mb="16px">
+          {showLiquidityAlert && isWalletReady ? (
+            <BalAlert
+              title="It’s recommended to provide new pools with at least $20,000 in initial funds"
+              type="warning"
+            >
+              {`Based on your wallet balances for these tokens, the maximum amount you can fund this pool with is ~${fNum(
+                totalLiquidity.toString(),
+                FNumFormats.fiat
+              )}.`}
+            </BalAlert>
+          ) : null}
 
-        {!!zeroWeightToken ? (
-          <BalAlert title="You’ve included a token with zero weight" type="warning">
-            {`All tokens in a pool must have a weighting greater than zero. Either remove or replace ${zeroWeightToken?.symbol} or set it above 0.01%.`}
-          </BalAlert>
-        ) : null}
-      </Flex>
+          {!!zeroWeightToken ? (
+            <BalAlert title="You’ve included a token with zero weight" type="warning">
+              {`All tokens in a pool must have a weighting greater than zero. Either remove or replace ${zeroWeightToken?.symbol} or set it above 0.01%.`}
+            </BalAlert>
+          ) : null}
+        </Flex>
 
-      {/* {isPoolExisting ? <BalAlert title={`Pair ${getPoolSymbol()} already exists!`} type="warning" /> : null} */}
+        {/* Uncomment the below if needed */}
+        {/* {isPoolExisting ? <BalAlert title={`Pair ${getPoolSymbol()} already exists!`} type="warning" /> : null} */}
 
-      <ButtonPrimary onClick={handleProceed} disabled={isProceedDisabled}>
-        {walletLabel}
-      </ButtonPrimary>
-    </div>
+        <ButtonPrimary onClick={handleProceed} disabled={isProceedDisabled}>
+          {walletLabel}
+        </ButtonPrimary>
+      </BalStack>
+    </BalCard>
   )
 }
 

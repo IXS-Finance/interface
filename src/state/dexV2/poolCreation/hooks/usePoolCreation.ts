@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { flatten, sumBy } from 'lodash'
 import { BigNumber as EPBigNumber } from '@ethersproject/bignumber'
@@ -99,6 +99,26 @@ export const usePoolCreation = () => {
 
   const similarPools = flatten(similarPoolsResponse?.pages?.map((p: any) => p.pools) || [])
 
+  const existingPool = (() => {
+    if (!similarPools.length) return null
+    const similarPool = similarPools.find((pool: any) => {
+      if (pool.swapFee === poolCreationState.initialFee) {
+        let weightsMatch = true
+        for (const token of pool.tokens) {
+          const relevantToken = poolCreationState.seedTokens.find((t) => isSameAddress(t.tokenAddress, token.address))
+          const similarPoolWeight = Number(token.weight).toFixed(2)
+          const seedTokenWeight = ((relevantToken?.weight || 0) / 100).toFixed(2)
+          if (similarPoolWeight !== seedTokenWeight) {
+            weightsMatch = false
+          }
+        }
+        return weightsMatch
+      }
+      return false
+    })
+    return similarPool
+  })()
+
   const poolLiquidity = (() => {
     let sum = bnum(0)
     for (const token of poolCreationState.seedTokens) {
@@ -189,19 +209,16 @@ export const usePoolCreation = () => {
     return seedTokens.find((token: PoolSeedToken) => isSameAddress(token.tokenAddress, address))
   }
 
-  const scaledLiquidity = useMemo((): Record<string, OptimisedLiquidity> => {
-    const scaledLiquidity: Record<string, OptimisedLiquidity> = {}
-
+  // Removed useMemo. scaledLiquidity is now computed on every render.
+  const scaledLiquidity: Record<string, OptimisedLiquidity> = (() => {
+    const result: Record<string, OptimisedLiquidity> = {}
     const modifiedToken = findSeedTokenByAddress(manuallySetToken)
-
-    if (!modifiedToken) return scaledLiquidity
-
+    if (!modifiedToken) return result
     const bip = bnum(priceFor(modifiedToken.tokenAddress || '0'))
       .times(modifiedToken.amount)
       .div(modifiedToken.weight)
-
     return getTokensScaledByBIP(bip)
-  }, [manuallySetToken])
+  })()
 
   function resetPoolCreationState() {
     dispatch(resetPoolCreationState())
@@ -234,18 +251,18 @@ export const usePoolCreation = () => {
 
   function proceed() {
     dispatch(setActiveStep(activeStep + 1))
-    // if (!similarPools.length && poolCreationState.activeStep === 1) {
-    //   dispatch(setActiveStep(activeStep + 2))
-    // } else {
-    //   dispatch(setActiveStep(activeStep + 1))
-    // }
+    if (!similarPools.length && poolCreationState.activeStep === 1) {
+      dispatch(setActiveStep(activeStep + 2))
+    } else {
+      dispatch(setActiveStep(activeStep + 1))
+    }
   }
 
   function goBack() {
-    // if (!similarPools.length && poolCreationState.activeStep === 3) {
-    //   dispatch(setActiveStep(activeStep - 2))
-    //   return
-    // }
+    if (!similarPools.length && poolCreationState.activeStep === 3) {
+      dispatch(setActiveStep(activeStep - 2))
+      return
+    }
     dispatch(setActiveStep(activeStep - 1))
     if (hasRestoredFromSavedState) {
       setRestoredState(false)
@@ -274,6 +291,10 @@ export const usePoolCreation = () => {
       return token.amount
     })
     return amounts
+  }
+
+  function setStep(step: number) {
+    dispatch(setActiveStep(step))
   }
 
   function calculateTokenWeights(tokens: PoolSeedToken[]): string[] {
@@ -361,9 +382,9 @@ export const usePoolCreation = () => {
   async function joinPool() {
     const provider = await getProvider()
     const tokenAddresses: string[] = poolCreationState.seedTokens.map((token) => {
-      // if (isSameAddress(token.tokenAddress, wrappedNativeAsset.address) && poolCreationState.useNativeAsset) {
-      //   return nativeAsset.address
-      // }
+      if (isSameAddress(token.tokenAddress, wrappedNativeAsset.address) && poolCreationState.useNativeAsset) {
+        return nativeAsset.address
+      }
       return token.tokenAddress
     })
     console.log(provider, poolCreationState.poolId, account, account, tokenAddresses, getScaledAmounts())
@@ -399,6 +420,8 @@ export const usePoolCreation = () => {
 
   return {
     ...poolCreationState,
+    isLoadingSimilarPools,
+    existingPool,
     hasRestoredFromSavedState,
     totalLiquidity,
     updateTokenWeights,
@@ -423,5 +446,6 @@ export const usePoolCreation = () => {
     tokensWithNoPrice,
     similarPools,
     updateActionState,
+    setStep,
   }
 }
