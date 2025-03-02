@@ -5,8 +5,9 @@ import { bnum } from 'lib/utils'
 import { PoolSeedToken, StepIds } from 'pages/DexV2/types'
 import { TransactionActionState } from 'types/transactions'
 
-type FeeManagementType = 'governance' | 'self'
-type FeeController = 'self' | 'other'
+export type FeeManagementType = 'governance' | 'self'
+export type FeeController = 'self' | 'other'
+export type FeeType = 'fixed' | 'dynamic'
 
 export enum PoolType {
   Weighted = 'Weighted',
@@ -36,43 +37,55 @@ export enum PoolType {
 }
 
 export interface DexV2State {
-  activeStep: number
   seedTokens: PoolSeedToken[]
-  initialFee: string
   name: string
-  symbol: string
-  tokensList: string[]
-  manuallySetToken: string
-  autoOptimiseBalances: boolean
-  type: PoolType
+  activeStep: number
+  initialFee: string
+  isFeeGovManaged: boolean
   feeManagementType: FeeManagementType
+  feeType: FeeType
   feeController: FeeController
   thirdPartyFeeController: string
-  needsSeeding: boolean
+  fee: string
+  tokensList: string[]
   poolId: string
-  createPoolTxHash: string
+  poolAddress: string
+  symbol: string
+  manuallySetToken: string
+  autoOptimiseBalances: boolean
   useNativeAsset: boolean
+  type: PoolType
+  needsSeeding: boolean
+  createPoolTxHash: string
   actionStates: TransactionActionState[]
+  tokenColors?: string[]
+  hasRestoredFromSavedState: boolean | null
 }
 
 const initialState: DexV2State = {
-  seedTokens: [],
+  seedTokens: [] as PoolSeedToken[],
   name: '',
   symbol: '',
   activeStep: StepIds.ChooseWeights,
   initialFee: '0.003',
+  isFeeGovManaged: false,
+  feeManagementType: 'governance' as FeeManagementType,
+  feeType: 'fixed' as FeeType,
+  feeController: 'self' as FeeController,
+  thirdPartyFeeController: '',
+  fee: '',
   tokensList: [],
+  poolId: '',
+  poolAddress: '',
   manuallySetToken: '',
   autoOptimiseBalances: false,
-  type: PoolType.Weighted,
-  feeManagementType: 'governance',
-  feeController: 'self',
-  thirdPartyFeeController: '',
-  needsSeeding: false,
-  poolId: '',
-  createPoolTxHash: '',
   useNativeAsset: false,
+  type: PoolType.Weighted,
+  needsSeeding: false,
+  createPoolTxHash: '',
   actionStates: [],
+  tokenColors: [],
+  hasRestoredFromSavedState: null,
 }
 
 function handleDistributeWeights(seedTokens: PoolSeedToken[]) {
@@ -152,9 +165,6 @@ const poolCreationSlice = createSlice({
     setTokensList(state, action) {
       state.tokensList = action.payload
     },
-    setActiveStep(state, action) {
-      state.activeStep = action.payload
-    },
     removeTokenWeightsByIndex(state, action) {
       state.seedTokens = state.seedTokens.filter((_, i) => i !== action.payload)
       handleDistributeWeights(state.seedTokens)
@@ -168,12 +178,12 @@ const poolCreationSlice = createSlice({
       state.actionStates = action.payload
     },
     setValueOfActionState(state, action) {
-      const { actionIndex, value } = action.payload;
-      const currentState = state.actionStates[actionIndex] as any;
+      const { actionIndex, value } = action.payload
+      const currentState = state.actionStates[actionIndex] as any
       state.actionStates[actionIndex] = {
         ...currentState,
         ...value,
-      };
+      }
     },
     resetPoolCreation: () => initialState,
   },
@@ -189,7 +199,6 @@ export const {
   setTokenAddress,
   setTokensList,
   addTokenWeight,
-  setActiveStep,
   setTokenAmount,
   removeTokenWeightsByIndex,
   sortSeedTokens,
