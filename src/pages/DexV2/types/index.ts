@@ -1,7 +1,7 @@
 export enum StepIds {
   ChooseWeights = 0,
   SetPoolFees = 1,
-  // SimilarPool = 2,
+  SimilarPool = 2,
   InitialLiquidity = 3,
   ConfirmPoolCreation = 4,
 }
@@ -9,7 +9,7 @@ export enum StepIds {
 export enum StepLabels {
   ChooseWeights = 'Tokens and weights',
   SetPoolFees = 'Set pool fees',
-  // SimilarPool = 'Similar pools',
+  SimilarPool = 'Similar pools',
   InitialLiquidity = 'Set initial liquidity',
   ConfirmPoolCreation = 'Confirm pool creation',
 }
