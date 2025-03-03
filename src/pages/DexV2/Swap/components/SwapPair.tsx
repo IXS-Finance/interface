@@ -106,25 +106,26 @@ const SwapPair: React.FC<Props> = ({
           setMax={() => setExactIn(true)}
         />
       </div>
-      <SwapIconWrapper onClick={handleTokenSwitch}>
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M1 10L3.29289 12.2929C3.92286 12.9229 5 12.4767 5 11.5858V1"
-            stroke="#B8B8CC"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M14 5L11.7071 2.70711C11.0771 2.07714 10 2.52331 10 3.41421V14"
-            stroke="#B8B8CC"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </SwapIconWrapper>
-      <Box mt={24}>
+
+      <Box mt={24} css={{ position: 'relative' }}>
+        <SwapIconWrapper onClick={handleTokenSwitch}>
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M1 10L3.29289 12.2929C3.92286 12.9229 5 12.4767 5 11.5858V1"
+              stroke="#B8B8CC"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M14 5L11.7071 2.70711C11.0771 2.07714 10 2.52331 10 3.41421V14"
+              stroke="#B8B8CC"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </SwapIconWrapper>
         <TokenInput
           disabled={swapLoading}
           amount={tokenOutAmount}
@@ -144,13 +145,11 @@ const SwapPair: React.FC<Props> = ({
 
 export default SwapPair
 
-const Container = styled.div`
-  position: relative;
-`
+const Container = styled.div``
 
 const SwapIconWrapper = styled.div`
   position: absolute;
-  top: 50%;
+  top: -12%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 48px;
