@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { getAddress } from '@ethersproject/address'
 import { AddressZero } from '@ethersproject/constants'
@@ -57,7 +57,7 @@ function getV2Routes(
     return []
   }
 
-  // To get total amount we can use all swaps because multihops have a value of 0
+  // Calculate the total swap amount using all swaps (multihops have a value of 0)
   const totalSwapAmount = swaps.reduce((total, rawHops) => {
     return total.plus(rawHops.amount || '0')
   }, new BigNumber(0))
@@ -80,7 +80,7 @@ function getV2Routes(
           ? WRAPPED_NATIVE_ASSET_ADDRESS
           : getAddress(addresses[swap.assetOutIndex])
 
-      const isDirectSwap = tokenIn === addressIn && tokenOut === addressOut ? true : false
+      const isDirectSwap = tokenIn === addressIn && tokenOut === addressOut
 
       const pool = {
         address: rawPool.address,
@@ -154,61 +154,55 @@ function getV2Routes(
 
 const SwapRoute: React.FC<Props> = (props) => {
   const { getToken } = useTokens()
-
   const [visible, setVisible] = useState(false)
 
-  const routes = useMemo<Route[]>((): Route[] => {
-    const { sorReturn } = props
-
-    if (!sorReturn.hasSwaps) {
-      return []
-    }
-
+  // Compute routes on every render instead of memoizing
+  let routes: Route[] = []
+  if (props.sorReturn.hasSwaps) {
     const pools = props.pools as SubgraphPoolBase[]
-    const swaps = sorReturn.result.swaps
-    const addresses = sorReturn.result.tokenAddresses
+    const swaps = props.sorReturn.result.swaps
+    const addresses = props.sorReturn.result.tokenAddresses
     const addressIn = props.addressIn as string
     const addressOut = props.addressOut as string
+    routes = getV2Routes(addressIn, addressOut, pools, swaps, addresses)
+  }
 
-    return getV2Routes(addressIn, addressOut, pools, swaps, addresses)
-  }, [JSON.stringify(props)])
-  const input = useMemo(() => {
+  // Compute input asset details on every render
+  const input = (() => {
     if (!props.addressOut) {
       return {}
     }
-
     const symbol = getToken(props.addressIn).symbol
     return {
       amount: props.amountIn,
       address: props.addressIn,
-      symbol: symbol,
+      symbol,
     }
-  }, [props.addressIn, props.amountIn])
-  const output = useMemo(() => {
+  })()
+
+  // Compute output asset details on every render
+  const output = (() => {
     if (!props.addressOut) {
       return {}
     }
-
     const symbol = getToken(props.addressOut).symbol
     return {
       amount: props.amountOut,
       address: props.addressOut,
       symbol,
     }
-  }, [props.addressOut, props.amountOut])
+  })()
 
   function toggleVisible() {
     setVisible(!visible)
   }
 
-  console.log('routes', routes)
   return (
     <div>
       {routes.length > 0 ? (
         <div>
           <Flex alignItems="center" style={{ gap: 8, cursor: 'pointer' }} onClick={toggleVisible}>
             <Box css={{ fontSize: 12, color: '#b8b8d' }}>Swap Route</Box>
-
             <Flex alignItems="center">{visible ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</Flex>
           </Flex>
 
@@ -268,7 +262,7 @@ export default SwapRoute
 
 const PairLine = styled.div`
   position: absolute;
-  margin: 0 2.25rem; /* mx-9 = 9 * 0.25rem */
+  margin: 0 2.25rem;
   height: 50%;
   border-bottom: 1px dashed #6b7280;
   width: calc(100% - 72px);

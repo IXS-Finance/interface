@@ -1,4 +1,4 @@
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { BigNumber, formatFixed } from '@ethersproject/bignumber'
 import { AddressZero, WeiPerEther as ONE, Zero } from '@ethersproject/constants'
 import { formatUnits, parseUnits } from '@ethersproject/units'
@@ -19,24 +19,17 @@ import { NATIVE_ASSET_ADDRESS } from 'constants/dexV2/tokens'
 import { getBalancerSDK } from 'dependencies/balancer-sdk'
 import { captureBalancerException, isUserError } from 'lib/utils/errors'
 import { TransactionAction } from 'pages/DexV2/types'
-import { useAccount } from 'wagmi'
 import { SwapQuote } from './types'
 import { useSwapper } from './useSwapper'
 import useTransactions from 'hooks/dex-v2/useTransactions'
 import useEthers from 'hooks/dex-v2/useEthers'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import useFathom from 'hooks/dex-v2/useFathom'
+import { AppState } from 'state'
+import { setSwapState } from '.'
 
 const MIN_PRICE_IMPACT = 0.0001
 const HIGH_PRICE_IMPACT_THRESHOLD = 0.05
-
-type SorState = {
-  validationErrors: {
-    highPriceImpact: boolean
-    noSwaps: boolean
-  }
-  submissionError: string | null
-}
 
 type Props = {
   exactIn: boolean
@@ -88,6 +81,8 @@ export function calcPriceImpact(
   const SCALE = 18
   const scalingFactor = BigNumber.from(10).pow(SCALE)
 
+  console.log('buyTokenAmount.toString()', buyTokenAmount.toString())
+  console.log('sellTokenDecimals', sellTokenDecimals)
   const effectivePrice = sellTokenScaled.mul(scalingFactor).div(buyTokenScaled)
   const marketSpScaled = parseFixed(marketSp, SCALE)
 
@@ -130,7 +125,7 @@ export default function useSor({
   setTokenInAmountInput,
   setTokenOutAmountInput,
 }: Props) {
-  const state = useSelector((state: any) => state.swap)
+  const state = useSelector((state: AppState) => state.swapDexV2)
   const { priceFor, getToken } = useTokens()
   const { account, getProvider, appNetworkConfig } = useWeb3()
   const { trackGoal, Goals } = useFathom()
@@ -138,18 +133,15 @@ export default function useSor({
   const { addTransaction } = useTransactions()
   const { fNum, toFiat } = useNumbers()
   const { swapIn, swapOut } = useSwapper()
+  const dispatch = useDispatch()
 
   const [pools, setPools] = useState<SubgraphPoolBase[]>([])
   const [poolsLoading, setPoolsLoading] = useState<boolean>(true)
-  const [priceImpact, setPriceImpact] = useState<number>(0)
   const [latestTxHash, setLatestTxHash] = useState<string>('')
   const [sorReturn, setSorReturn] = useState<any>({})
   const [confirming, setConfirming] = useState<boolean>(false)
   const [swapping, setSwapping] = useState<boolean>(false)
-  const [validationErrors, setValidationErrors] = useState<any>({
-    highPriceImpact: false,
-    noSwaps: false,
-  })
+
   const [submissionError, setSubmissionError] = useState<string | null>(null)
 
   async function fetchPools(): Promise<void> {
@@ -191,8 +183,8 @@ export default function useSor({
         const tokenInDecimals = getTokenDecimals(tokenInAddressInput)
         const tokenOutDecimals = getTokenDecimals(tokenOutAddressInput)
 
-        let tokenInAddress = tokenInAddressInput === NATIVE_ASSET_ADDRESS ? AddressZero : tokenInAddressInput
-        let tokenOutAddress = tokenOutAddressInput === NATIVE_ASSET_ADDRESS ? AddressZero : tokenOutAddressInput
+        const tokenInAddress = tokenInAddressInput === NATIVE_ASSET_ADDRESS ? AddressZero : tokenInAddressInput
+        const tokenOutAddress = tokenOutAddressInput === NATIVE_ASSET_ADDRESS ? AddressZero : tokenOutAddressInput
 
         const tokenInPosition = result.tokenAddresses.indexOf(tokenInAddress.toLowerCase())
         const tokenOutPosition = result.tokenAddresses.indexOf(tokenOutAddress.toLowerCase())
@@ -242,7 +234,7 @@ export default function useSor({
       setTokenOutAmountInput(amount)
     }
 
-    setPriceImpact(0)
+    dispatch(setSwapState({ priceImpact: 0 }))
     setSorReturn((old: any) => ({ ...old, returnAmount: Zero, hasSwaps: false }))
   }
 
@@ -287,7 +279,7 @@ export default function useSor({
         setTokenInAmountInput(formatFixed(inputAmount, tokenOutDecimals))
       }
       setSorReturn((old: any) => ({ ...old, hasSwaps: false }))
-      setPriceImpact(0)
+      dispatch(setSwapState({ priceImpact: 0 }))
       return
     }
 
@@ -314,8 +306,8 @@ export default function useSor({
       let tokenOutAmount = swapReturn.returnAmount
       setTokenOutAmountInput(tokenOutAmount.gt(0) ? formatAmount(formatUnits(tokenOutAmount, tokenOutDecimals)) : '')
       if (!sorReturn.hasSwaps) {
-        setPriceImpact(0)
-        setValidationErrors((old: any) => ({ ...old, noSwaps: true }))
+        dispatch(setSwapState({ priceImpact: 0 }))
+        dispatch(setSwapState({ validationErrors: { ...state.validationErrors, noSwaps: true } }))
       } else {
         tokenInAmountScaled = await mutateAmount({
           amount: tokenInAmountScaled,
@@ -327,15 +319,17 @@ export default function useSor({
           address: tokenOutAddress,
           isInputToken: false,
         })
-        const priceImpactCalc = calcPriceImpact(
-          tokenInAmountScaled,
-          tokenInDecimals,
-          tokenOutAmount,
-          tokenOutDecimals,
-          SwapType.SwapExactIn,
-          swapReturn.marketSpNormalised
-        )
-        setPriceImpact(Math.max(Number(formatUnits(priceImpactCalc)), MIN_PRICE_IMPACT))
+        const priceImpactCalc = tokenOutAmount
+          ? calcPriceImpact(
+              tokenInAmountScaled,
+              tokenInDecimals,
+              tokenOutAmount,
+              tokenOutDecimals,
+              SwapType.SwapExactIn,
+              swapReturn.marketSpNormalised
+            )
+          : 0
+        dispatch(setSwapState({ priceImpact: Math.max(Number(formatUnits(priceImpactCalc)), MIN_PRICE_IMPACT) }))
       }
     } else {
       await setSwapCost(tokenInAddressInput, tokenInDecimals, sorManager)
@@ -353,8 +347,7 @@ export default function useSor({
       let tokenInAmount = swapReturn.returnAmount
       setTokenInAmountInput(tokenInAmount.gt(0) ? formatAmount(formatUnits(tokenInAmount, tokenInDecimals)) : '')
       if (!sorReturn.hasSwaps) {
-        setPriceImpact(0)
-        setValidationErrors((old: any) => ({ ...old, noSwaps: true }))
+        dispatch(setSwapState({ priceImpact: 0, validationErrors: { ...state.validationErrors, noSwaps: true } }))
       } else {
         tokenOutAmountScaled = await mutateAmount({
           amount: tokenOutAmountScaled,
@@ -366,22 +359,28 @@ export default function useSor({
           address: tokenInAddress,
           isInputToken: false,
         })
-        const priceImpactCalc = calcPriceImpact(
-          tokenInAmount,
-          tokenInDecimals,
-          tokenOutAmountScaled,
-          tokenOutDecimals,
-          SwapType.SwapExactIn,
-          swapReturn.marketSpNormalised
-        )
-        setPriceImpact(Math.max(Number(formatUnits(priceImpactCalc)), MIN_PRICE_IMPACT))
+        const priceImpactCalc = tokenOutAmountScaled
+          ? calcPriceImpact(
+              tokenInAmount,
+              tokenInDecimals,
+              tokenOutAmountScaled,
+              tokenOutDecimals,
+              SwapType.SwapExactIn,
+              swapReturn.marketSpNormalised
+            )
+          : 0
+        dispatch(setSwapState({ priceImpact: Math.max(Number(formatUnits(priceImpactCalc)), MIN_PRICE_IMPACT) }))
       }
     }
     setPools(sorManager.selectedPools)
-    setValidationErrors((old: any) => ({
-      ...old,
-      highPriceImpact: priceImpact >= HIGH_PRICE_IMPACT_THRESHOLD,
-    }))
+    dispatch(
+      setSwapState({
+        validationErrors: {
+          ...state.validationErrors,
+          highPriceImpact: state.priceImpact >= HIGH_PRICE_IMPACT_THRESHOLD,
+        },
+      })
+    )
   }
 
   function txHandler(tx: any, action: TransactionAction): void {
@@ -420,7 +419,7 @@ export default function useSor({
         tokenOutAmount: tokenOutAmountInput,
         exactIn: exactIn,
         quote: getQuote(),
-        priceImpact: priceImpact,
+        priceImpact: state.priceImpact,
         slippageBufferRate: slippageBufferRate,
       },
     })
@@ -601,7 +600,6 @@ export default function useSor({
 
   return {
     ...state,
-    validationErrors,
     submissionError,
     sorManager,
     sorReturn,
@@ -610,7 +608,6 @@ export default function useSor({
     exactIn,
     swap,
     swapping,
-    priceImpact,
     latestTxHash,
     fetchPools,
     poolsLoading,
