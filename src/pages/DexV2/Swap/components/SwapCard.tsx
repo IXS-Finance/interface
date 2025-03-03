@@ -57,6 +57,7 @@ const SwapCard: React.FC = () => {
     setTokenInAmount,
     setTokenOutAmount
   )
+
   const { errorMessage } = useValidation(tokenInAddress, tokenInAmount, tokenOutAddress, tokenOutAmount)
   const isHighPriceImpact = swapping.sor.validationErrors.highPriceImpact && !dismissedErrors.highPriceImpact
   const hasMismatchedNetwork = isMismatchedNetwork
@@ -73,7 +74,6 @@ const SwapCard: React.FC = () => {
       : 'Swap'
   const pools: SubgraphPoolBase[] = swapping.sor.pools
 
-  console.log('swapping', swapping.sor.validationErrors.noSwaps)
   let error
   if (isMismatchedNetwork) {
     error = {
@@ -192,7 +192,7 @@ const SwapCard: React.FC = () => {
         setExactIn={setExactIn}
       />
 
-      {/* {error ? (
+      {error ? (
         <BalAlert
           className="p-3 mb-4"
           type="error"
@@ -202,7 +202,7 @@ const SwapCard: React.FC = () => {
           block
           onActionClick={handleErrorButtonClick}
         />
-      ) : null} */}
+      ) : null}
 
       <div>
         <ButtonPrimary disabled={swapDisabled} onClick={handlePreviewButton}>

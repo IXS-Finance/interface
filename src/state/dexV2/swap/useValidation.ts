@@ -1,5 +1,3 @@
-import { useMemo } from 'react'
-
 import { bnum } from 'lib/utils'
 import { useAccount } from 'wagmi'
 import { useTokens } from '../tokens/hooks/useTokens'
@@ -22,21 +20,20 @@ export default function useValidation(
   const { address } = useAccount()
   const { balances } = useTokens()
 
+  function isValidTokenAmount(tokenAmount: string) {
+    return bnum(tokenAmount).gt(0) && tokenAmount.trim() !== ''
+  }
+
   const noAmounts = !isValidTokenAmount(tokenInAmount) && !isValidTokenAmount(tokenOutAmount)
   const missingToken = !tokenInAddress || !tokenOutAddress
   const exceedsBalance = !balances[tokenInAddress] || bnum(balances[tokenInAddress]).lt(tokenInAmount)
 
-  const validationStatus = useMemo(() => {
+  // Compute validationStatus immediately instead of memoizing it
+  const validationStatus = (() => {
     if (noAmounts || missingToken) return SwapValidation.EMPTY
-
     if (address && exceedsBalance) return SwapValidation.NO_BALANCE
-
     return SwapValidation.VALID
-  }, [noAmounts, missingToken, exceedsBalance])
-
-  function isValidTokenAmount(tokenAmount: string) {
-    return bnum(tokenAmount).gt(0) && tokenAmount.trim() !== ''
-  }
+  })()
 
   const errorMessage = validationStatus
 
