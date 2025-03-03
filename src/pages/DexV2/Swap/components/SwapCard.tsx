@@ -205,7 +205,7 @@ const SwapCard: React.FC = () => {
       ) : null}
 
       <div>
-        <ButtonPrimary disabled={swapDisabled} onClick={handlePreviewButton}>
+        <ButtonPrimary disabled={!!swapDisabled} onClick={handlePreviewButton}>
           {swapping.isLoading ? 'Fetching swap' : 'Preview'}
         </ButtonPrimary>
       </div>

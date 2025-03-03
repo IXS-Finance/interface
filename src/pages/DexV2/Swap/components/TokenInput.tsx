@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Flex } from 'rebass'
 import _get from 'lodash/get'
@@ -45,9 +45,7 @@ type Props = {
   ignoreWalletBalance?: boolean
   tokenValue?: string
   placeholder?: string
-  // tokenSelectProps?: Partial<TokenSelectProps>
   slider?: boolean
-  // sliderProps?: Partial<BalRangeInputProps>
   updateAmount: (amount: string) => void
   updateAddress: (address: string) => void
   setMax?: () => void
@@ -69,7 +67,6 @@ const defaultProps: Props = {
   hideFooter: false,
   hideFiatValue: false,
   ignoreWalletBalance: false,
-  // options: () => [],
   rules: [],
   priceImpact: 0,
   label: '',
@@ -78,9 +75,7 @@ const defaultProps: Props = {
   hint: '',
   excludedTokens: [],
   placeholder: '',
-  // tokenSelectProps: () => ({}),
   slider: false,
-  // sliderProps: () => ({}),
   updateAmount: () => {},
   updateAddress: () => {},
   setMax: () => {},
@@ -103,7 +98,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
   const [amount, setAmount] = useState<any>('')
 
   const { address: account } = useAccount()
-  const isWalletReady = useMemo(() => account !== null, [account])
+  const isWalletReady = account !== null
   const { fNum, toFiat } = useNumbers()
   const { getToken, balanceFor, nativeAsset, getMaxBalanceFor } = useTokens()
   const { balances } = useTokensState()
@@ -111,10 +106,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
   /**
    * COMPUTED
    */
-  const tokenBalance = useMemo(() => {
-    if (customBalance) return customBalance
-    return balanceFor(_get(props, 'address', ''))
-  }, [props.address, customBalance, JSON.stringify(balances)])
+  const tokenBalance = customBalance ? customBalance : balanceFor(_get(props, 'address', ''))
 
   const hasToken = !!props.address
   const amountBN = bnum(props.amount)
@@ -123,52 +115,36 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
   const hasBalance = tokenBalanceBN.gt(0)
   const shouldUseTxBuffer = props.address === nativeAsset.address && !disableNativeAssetBuffer
   const amountExceedsTokenBalance = amountBN.gt(tokenBalance)
-  const shouldShowTxBufferMessage = useMemo(() => {
-    if (amountExceedsTokenBalance || !shouldUseTxBuffer || !hasBalance || !hasAmount) {
-      return false
-    }
+  const shouldShowTxBufferMessage =
+    !amountExceedsTokenBalance &&
+    shouldUseTxBuffer &&
+    hasBalance &&
+    hasAmount &&
+    amountBN.gte(tokenBalanceBN.minus(nativeAsset.minTransactionBuffer))
 
-    return amountBN.gte(tokenBalanceBN.minus(nativeAsset.minTransactionBuffer))
-  }, [amountExceedsTokenBalance, shouldUseTxBuffer, hasBalance, hasAmount])
+  const isMaxed = shouldUseTxBuffer
+    ? props.amount === tokenBalanceBN.minus(nativeAsset.minTransactionBuffer).toString()
+    : props.amount === tokenBalance
 
-  const isMaxed = useMemo(() => {
-    if (shouldUseTxBuffer) {
-      return props.amount === tokenBalanceBN.minus(nativeAsset.minTransactionBuffer).toString()
-    } else {
-      return props.amount === tokenBalance
-    }
-  }, [props.amount, tokenBalance, shouldUseTxBuffer])
-
-  const token = useMemo((): TokenInfo | undefined => {
-    if (!hasToken) return undefined
-    return getToken(_get(props, 'address', ''))
-  }, [props.address, hasToken])
+  const token: TokenInfo | undefined = !hasToken ? undefined : getToken(_get(props, 'address', ''))
 
   const tokenValue = props.tokenValue ?? toFiat(amount, _get(props, 'address', ''))
 
-  const inputRules = useMemo(() => {
-    if (!hasToken || !isWalletReady || props.noRules) {
-      return [isPositive()]
-    }
-
-    const rules = props.rules ? [...props.rules, isPositive()] : [isPositive()]
+  let inputRules = []
+  if (!hasToken || !isWalletReady || props.noRules) {
+    inputRules = [isPositive()]
+  } else {
+    inputRules = props.rules ? [...props.rules, isPositive()] : [isPositive()]
     if (!props.ignoreWalletBalance) {
-      rules.push(isLessThanOrEqualTo(tokenBalance, 'exceedsBalance'))
+      inputRules.push(isLessThanOrEqualTo(tokenBalance, 'exceedsBalance'))
     }
-    return rules
-  }, [hasToken, isWalletReady, props.noRules, props.rules, props.ignoreWalletBalance, tokenBalance])
+  }
 
-  const maxPercentage = useMemo(() => {
-    if (!hasBalance || !hasAmount) return '0'
+  const maxPercentage = !hasBalance || !hasAmount ? '0' : amountBN.div(tokenBalance).times(100).toFixed(2)
 
-    return amountBN.div(tokenBalance).times(100).toFixed(2)
-  }, [hasBalance, hasAmount, amountBN, tokenBalance])
-
-  const bufferPercentage = useMemo(() => {
-    if (!shouldShowTxBufferMessage) return '0'
-
-    return bnum(nativeAsset.minTransactionBuffer).div(tokenBalance).times(100).toFixed(2)
-  }, [shouldShowTxBufferMessage, tokenBalance])
+  const bufferPercentage = !shouldShowTxBufferMessage
+    ? '0'
+    : bnum(nativeAsset.minTransactionBuffer).div(tokenBalance).times(100).toFixed(2)
 
   const barColor = amountExceedsTokenBalance ? 'red' : 'green'
 
@@ -180,19 +156,15 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
 
   function handleAmountChange(amount: InputValue) {
     const safeAmount = overflowProtected(amount, decimalLimit)
-
     setAmount(safeAmount)
     props.updateAmount(safeAmount)
   }
 
   const setMax = () => {
     if (props.disableMax) return
-
     const maxAmount = props.customBalance
       ? props.customBalance
       : getMaxBalanceFor(_get(props, 'address', ''), props.disableNativeAssetBuffer)
-
-    // emit('setMax', maxAmount)
     handleAmountChange(maxAmount)
   }
 
@@ -230,7 +202,6 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
         />
 
         <Flex alignItems="center" style={{ gap: 8 }}>
-          {hasBalance && !noMax && !disableMax ? <MaxButton onClick={setMax}>MAX</MaxButton> : null}
           <TokenSelectInput
             modelValue={address as string}
             excludedTokens={excludedTokens}
@@ -247,6 +218,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
         )}
 
         <Flex alignItems="center" style={{ gap: 8 }}>
+          {hasBalance && !noMax && !disableMax ? <MaxButton onClick={setMax}>Max</MaxButton> : null}
           <StyledNumber>{fNum(tokenBalance, FNumFormats.token)}</StyledNumber>
           <WalletIcon />
         </Flex>
@@ -290,19 +262,18 @@ const StyledNumber = styled.div`
   letter-spacing: -0.42px;
 `
 
-const MaxButton = styled.button`
-  display: flex;
-  padding: 8px 16px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  align-self: stretch;
-  border-radius: 8px;
-  background: #fff;
-  outline: none;
-  border: none;
-  font-weight: 600;
-  color: #66f;
-  font-size: 9px;
+const MaxButton = styled.div`
+  color: #2563eb;
+  transition: color 0.2s ease-in-out;
+  font-size: 14px;
+  text-transform: capitalize;
+  cursor: pointer;
+
+  &:hover {
+    color: #8b5cf6;
+  }
+
+  &:focus {
+    color: #8b5cf6;
+  }
 `
