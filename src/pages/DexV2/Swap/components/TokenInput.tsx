@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Flex } from 'rebass'
+import { Box, Flex } from 'rebass'
 import _get from 'lodash/get'
 
 import TokenSelectInput from '../../common/TokenSelectInput'
@@ -14,6 +14,7 @@ import { isLessThanOrEqualTo, isPositive } from 'lib/utils/validations'
 import { Rules } from 'pages/DexV2/types'
 import { overflowProtected } from 'pages/DexV2/Pool/components/helpers'
 import { useTokensState } from 'state/dexV2/tokens/hooks'
+import useInputValidation from 'pages/DexV2/common/forms/useInputValidation'
 
 type InputValue = string | number
 
@@ -81,6 +82,34 @@ const defaultProps: Props = {
   setMax: () => {},
 }
 
+/**
+ * Returns an array of validation rule functions.
+ *
+ * @param hasToken - Indicates if a token is available.
+ * @param isWalletReady - Indicates if the wallet is ready.
+ * @param props - An object that can include `noRules`, `ignoreWalletBalance`, and an optional `rules` array.
+ * @param tokenBalance - The current token balance.
+ * @param t - A translation function.
+ *
+ * @returns An array of RuleFunction.
+ */
+function getInputRules(
+  hasToken: boolean,
+  isWalletReady: boolean,
+  props: { noRules?: boolean; ignoreWalletBalance?: boolean; rules?: Rules },
+  tokenBalance: string
+): Rules {
+  if (!hasToken || !isWalletReady || props.noRules) {
+    return [isPositive()]
+  }
+
+  const rules = props.rules ? [...props.rules, isPositive()] : [isPositive()]
+  if (!props.ignoreWalletBalance) {
+    rules.push(isLessThanOrEqualTo(tokenBalance, 'Exceeds wallet balance'))
+  }
+  return rules
+}
+
 const TokenInput: React.FC<Props> = (props = defaultProps) => {
   const {
     disabled,
@@ -130,15 +159,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
 
   const tokenValue = props.tokenValue ?? toFiat(amount, _get(props, 'address', ''))
 
-  let inputRules = []
-  if (!hasToken || !isWalletReady || props.noRules) {
-    inputRules = [isPositive()]
-  } else {
-    inputRules = props.rules ? [...props.rules, isPositive()] : [isPositive()]
-    if (!props.ignoreWalletBalance) {
-      inputRules.push(isLessThanOrEqualTo(tokenBalance, 'exceedsBalance'))
-    }
-  }
+  const inputRules = getInputRules(hasToken, isWalletReady, props, tokenBalance)
 
   const maxPercentage = !hasBalance || !hasAmount ? '0' : amountBN.div(tokenBalance).times(100).toFixed(2)
 
@@ -183,23 +204,42 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
     setAmount(props.amount)
   }, [props.address, props.amount])
 
+  const handleUpdateIsValid = (isValid: boolean) => {
+    console.log('Is valid?', isValid)
+  }
+
+  const { errors, isInvalid, validate } = useInputValidation({
+    rules: inputRules,
+    validateOn: 'input', // Change this value as needed (e.g., 'blur')
+    modelValue: amount,
+    onUpdateIsValid: handleUpdateIsValid,
+  })
+
+  useEffect(() => {
+    validate(amount)
+  }, [address])
+
+  console.log('inputRules', inputRules)
+  console.log('errors', errors)
   return (
     <Container>
       <Flex justifyContent="space-between" alignItems="center">
-        <StyledInput
-          disabled={disabled}
-          placeholder="0.00"
-          min="0"
-          step="0.01"
-          onKeyDown={onKeyDown}
-          type="text"
-          inputMode="decimal"
-          pattern="[0-9]*[.,]?[0-9]*"
-          value={amount}
-          name={name}
-          autoFocus={autoFocus}
-          onChange={(e) => handleAmountChange(e.target.value)}
-        />
+        <div>
+          <StyledInput
+            disabled={disabled}
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+            onKeyDown={onKeyDown}
+            type="text"
+            inputMode="decimal"
+            pattern="[0-9]*[.,]?[0-9]*"
+            value={amount}
+            name={name}
+            autoFocus={autoFocus}
+            onChange={(e) => handleAmountChange(e.target.value)}
+          />
+        </div>
 
         <Flex alignItems="center" style={{ gap: 8 }}>
           <TokenSelectInput
@@ -210,19 +250,32 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
         </Flex>
       </Flex>
 
-      <Flex justifyContent="space-between" alignItems="center">
-        {hasAmount && hasToken && !hideFiatValue ? (
-          <StyledNumber>{fNum(tokenValue, FNumFormats.fiat)}</StyledNumber>
-        ) : (
-          <div />
-        )}
+      <div>
+        <Flex justifyContent="space-between" alignItems="center">
+          {hasAmount && hasToken && !hideFiatValue ? (
+            <StyledNumber>{fNum(tokenValue, FNumFormats.fiat)}</StyledNumber>
+          ) : (
+            <div />
+          )}
 
-        <Flex alignItems="center" style={{ gap: 8 }}>
-          {hasBalance && !noMax && !disableMax ? <MaxButton onClick={setMax}>Max</MaxButton> : null}
-          <StyledNumber>{fNum(tokenBalance, FNumFormats.token)}</StyledNumber>
-          <WalletIcon />
+          <Flex alignItems="center" style={{ gap: 8 }}>
+            {hasBalance && !noMax && !disableMax ? <MaxButton onClick={setMax}>Max</MaxButton> : null}
+            <StyledNumber>{fNum(tokenBalance, FNumFormats.token)}</StyledNumber>
+            <WalletIcon />
+          </Flex>
         </Flex>
-      </Flex>
+        {isInvalid && !!errors[0] ? (
+          <Box
+            sx={{
+              fontSize: '12px',
+              color: '#f56565',
+              mt: 2,
+            }}
+          >
+            {errors[0]}
+          </Box>
+        ) : null}
+      </div>
     </Container>
   )
 }
