@@ -69,6 +69,10 @@ export const usePoolCreation = () => {
    * COMPUTED
    */
 
+  const isUnlistedToken = (tokenAddress: string) => {
+    return tokenAddress !== '' && !balancerTokenListTokens[tokenAddress]
+  }
+
   const tokensList = [...poolCreationState.tokensList].sort((tokenA, tokenB) => (tokenA > tokenB ? 1 : -1))
 
   const hasUnlistedToken = tokensList.some((tokenAddress) => tokenAddress && isUnlistedToken(tokenAddress))
@@ -466,10 +470,6 @@ export const usePoolCreation = () => {
 
     dispatch(setPoolCreationState(temState))
     await retrievePoolAddress(hash)
-  }
-
-  const isUnlistedToken = (tokenAddress: string) => {
-    return tokenAddress !== '' && !balancerTokenListTokens[tokenAddress]
   }
 
   function addTokenWeightToPool(token: PoolSeedToken) {

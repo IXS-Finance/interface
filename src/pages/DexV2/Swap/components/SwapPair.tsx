@@ -91,9 +91,6 @@ const SwapPair: React.FC<Props> = ({
     }
   }, [])
 
-  console.log('tokenInAmount', tokenInAmount)
-  console.log('tokenOutAmount', tokenOutAmount)
-
   return (
     <Container>
       <div>

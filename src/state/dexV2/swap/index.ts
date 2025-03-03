@@ -19,6 +19,7 @@ export interface SwapState {
   tokenInAmount: string
   tokenOutAmount: string
   transactionDeadline: number
+  priceImpact: number
 }
 
 const initialState: SwapState = {
@@ -36,6 +37,7 @@ const initialState: SwapState = {
   tokenInAmount: '',
   tokenOutAmount: '',
   transactionDeadline: defaultSwapDeadlineMinutes,
+  priceImpact: 0,
 }
 
 const swapSlice = createSlice({
