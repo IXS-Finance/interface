@@ -23,7 +23,7 @@ const config: Config = {
   testNetwork: true,
   rpc: getAlchemyUrlFor('base-sepolia'),
   ws: ``,
-  explorer: 'https://sepolia.etherscan.io',
+  explorer: 'https://sepolia.basescan.org',
   explorerName: 'Etherscan',
   subgraph: 'https://api.studio.thegraph.com/query/80624/balancer-sepolia/version/latest',
   poolsUrlV2: '',
