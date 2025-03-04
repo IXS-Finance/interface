@@ -63,11 +63,38 @@ const HeaderPopover = () => {
   )
 }
 
+const DexV2Popover = () => {
+  return (
+    <PopOverContent
+      onClick={(e: any) => (e ? e.stopPropagation() : null)}
+      onMouseDown={(e: any) => (e ? e.stopPropagation() : null)}
+    >
+      <Column style={{ gap: 3 }}>
+        <SubMenuLink style={{ fontSize: '13px' }} id={`pools`} to={routes.dexV2Pools}>
+          <Trans>Pools</Trans>
+        </SubMenuLink>
+      </Column>
+
+      <Row style={{ padding: '0', margin: '5px 0' }}>
+        <Line />
+      </Row>
+
+      <Column style={{ gap: 3 }}>
+        <SubMenuLink style={{ fontSize: '13px' }} id={`swap`} to={routes.dexV2Swap}>
+          <Trans>Swap</Trans>
+        </SubMenuLink>
+      </Column>
+    </PopOverContent>
+  )
+}
+
 export const HeaderLinks = () => {
   const [open, toggle] = useToggle(false)
+  const [openV2, toggleV2] = useToggle(false)
   const [openNFT, toggleNFT] = useToggle(false)
   const { isApproved } = useKyc()
   const farmNode = useRef<HTMLDivElement>()
+  const v2Node = useRef<HTMLDivElement>()
   const nftNode = useRef<HTMLDivElement>()
 
   const { config } = useWhitelabelState()
@@ -75,6 +102,7 @@ export const HeaderLinks = () => {
   const bridgeUrl = process.env.REACT_APP_BRIDGE_URL || 'https://bridge.ixs.finance'
 
   useOnClickOutside(farmNode, open ? toggle : undefined)
+  useOnClickOutside(v2Node, openV2 ? toggleV2 : undefined)
   useOnClickOutside(nftNode, openNFT ? toggleNFT : undefined)
 
   const isWhitelisted = isUserWhitelisted({ account, chainId })
@@ -163,6 +191,25 @@ export const HeaderLinks = () => {
           <Popover hideArrow show={open} content={<HeaderPopover />} placement="bottom-start">
             <RowFixed onClick={toggle}>
               <Trans>Staking</Trans>
+              <ChevronElement marginLeft={5} showMore={open} />
+            </RowFixed>
+          </Popover>
+        </StyledNavLink>
+      ),
+    },
+    {
+      condition: isAllowed(routes.swap) && isWhitelisted,
+      component: (
+        <StyledNavLink
+          key="v2"
+          ref={v2Node as any}
+          id="farming-nav-link"
+          to="#"
+          isActive={(match, { pathname }) => pathname.startsWith('/v2')}
+        >
+          <Popover hideArrow show={openV2} content={<DexV2Popover />} placement="bottom-start">
+            <RowFixed onClick={toggleV2}>
+              <Trans>Dex V2</Trans>
               <ChevronElement marginLeft={5} showMore={open} />
             </RowFixed>
           </Popover>
