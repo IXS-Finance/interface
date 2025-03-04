@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { Box } from 'rebass'
+import styled from 'styled-components'
 
 import usePoolFilters from 'state/dexV2/swap/usePoolFilters'
 import SwapCard from './components/SwapCard'
@@ -37,24 +38,17 @@ const Swap: React.FC = () => {
   }, [isWalletReady])
 
   return (
-    <Box mt="32px">
-      <Col3Layout mobileGuttersFirst={true} mobileGuttersLast={false} mobileHideGutters={false} offsetGutters={true}>
-        {{
-          gutterLeft: (
-            <div style={{ background: '#f0f0f0' }}>
-              <MyWallet />
-            </div>
-          ),
-          center: (
-            <div>
-              <SwapCard />
-            </div>
-          ),
-          gutterRight: <div style={{ background: '#f0f0f0' }}>{hasBridge ? <BridgeLink /> : null}</div>,
-        }}
-      </Col3Layout>
-    </Box>
+    <Container>
+      <SwapCard />
+    </Container>
   )
 }
 
 export default Swap
+
+const Container = styled.div`
+  padding: 0 1rem;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 462px;
+`
