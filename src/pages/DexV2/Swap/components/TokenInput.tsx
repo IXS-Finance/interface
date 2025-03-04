@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Box, Flex } from 'rebass'
 import _get from 'lodash/get'
+import numeral from 'numeral'
 
 import TokenSelectInput from '../../common/TokenSelectInput'
 import { ReactComponent as WalletIcon } from 'assets/images/dex-v2/wallet.svg'
@@ -110,6 +111,8 @@ function getInputRules(
   return rules
 }
 
+const displayNumeralNoDecimal = (amount: any) => numeral(amount).format('0,0')
+
 const TokenInput: React.FC<Props> = (props = defaultProps) => {
   const {
     disabled,
@@ -125,12 +128,12 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
   } = props
   const [address, setAddress] = useState<any>('')
   const [amount, setAmount] = useState<any>('')
+  const [displayValue, setDisplayValue] = useState<string>('')
 
   const { address: account } = useAccount()
   const isWalletReady = account !== null
   const { fNum, toFiat } = useNumbers()
   const { getToken, balanceFor, nativeAsset, getMaxBalanceFor } = useTokens()
-  const { balances } = useTokensState()
 
   /**
    * COMPUTED
@@ -161,24 +164,31 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
 
   const inputRules = getInputRules(hasToken, isWalletReady, props, tokenBalance)
 
-  const maxPercentage = !hasBalance || !hasAmount ? '0' : amountBN.div(tokenBalance).times(100).toFixed(2)
-
-  const bufferPercentage = !shouldShowTxBufferMessage
-    ? '0'
-    : bnum(nativeAsset.minTransactionBuffer).div(tokenBalance).times(100).toFixed(2)
-
-  const barColor = amountExceedsTokenBalance ? 'red' : 'green'
-
-  const priceImpactSign = _get(props, 'priceImpact', 0) >= 0 ? '-' : '+'
-
-  const priceImpactClass = _get(props, 'priceImpact', 0) >= 0.01 ? 'text-red-500' : ''
-
   const decimalLimit = token?.decimals || 18
 
-  function handleAmountChange(amount: InputValue) {
-    const safeAmount = overflowProtected(amount, decimalLimit)
-    setAmount(safeAmount)
-    props.updateAmount(safeAmount)
+  function handleAmountChange(val: string) {
+    const regex = /^-?\d*[.,]?\d*$/
+    const value = val.split(',').join('')
+
+    if (regex.test(value)) {
+      const amountFinal = numeral(value).value()
+      const safeAmount = overflowProtected(amountFinal || 0, decimalLimit)
+      setAmount(safeAmount)
+      props.updateAmount(safeAmount)
+
+      if (val.length >= 2 && val.charAt(0) === '0' && val.charAt(1) === '0') {
+        return setDisplayValue('0')
+      }
+
+      if (value.indexOf('.') > -1) {
+        const decimal = value.substring(value.indexOf('.') + 1, value.indexOf('.') + decimalLimit + 1)
+        const int = value.substring(0, value.indexOf('.'))
+        const data = displayNumeralNoDecimal(int) + '.' + decimal
+        return setDisplayValue(data)
+      }
+
+      setDisplayValue(value ? numeral(value).format('0,0') : '')
+    }
   }
 
   const setMax = () => {
@@ -187,16 +197,6 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
       ? props.customBalance
       : getMaxBalanceFor(_get(props, 'address', ''), props.disableNativeAssetBuffer)
     handleAmountChange(maxAmount)
-  }
-
-  function blockInvalidChar(event: KeyboardEvent) {
-    if (['e', 'E', '+', '-'].includes(event.key)) {
-      event.preventDefault()
-    }
-  }
-
-  function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
-    blockInvalidChar(event.nativeEvent)
   }
 
   useEffect(() => {
@@ -210,7 +210,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
 
   const { errors, isInvalid, validate } = useInputValidation({
     rules: inputRules,
-    validateOn: 'input', // Change this value as needed (e.g., 'blur')
+    validateOn: 'input',
     modelValue: amount,
     onUpdateIsValid: handleUpdateIsValid,
   })
@@ -219,22 +219,19 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
     validate(amount)
   }, [address])
 
-  console.log('inputRules', inputRules)
-  console.log('errors', errors)
   return (
     <Container>
       <Flex justifyContent="space-between" alignItems="center">
         <div>
           <StyledInput
             disabled={disabled}
-            placeholder="0.00"
-            min="0"
-            step="0.01"
-            onKeyDown={onKeyDown}
-            type="text"
             inputMode="decimal"
-            pattern="[0-9]*[.,]?[0-9]*"
-            value={amount}
+            autoComplete="off"
+            autoCorrect="off"
+            type="text"
+            spellCheck="false"
+            placeholder="0.00"
+            value={displayValue}
             name={name}
             autoFocus={autoFocus}
             onChange={(e) => handleAmountChange(e.target.value)}
