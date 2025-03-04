@@ -1,3 +1,4 @@
+import React from 'react'
 import { Flex } from "rebass";
 import { BodyRow, HeaderRow, Table } from "components/Table";
 import { BodyContainer } from "components/TmPayoutHistory/styleds";
@@ -109,7 +110,7 @@ const Row = ({ pool }: { pool: any }) => {
   const history = useHistory()
 
   return (
-    <StyledBodyRow onClick={() => history.push(`/dex-v2/pool/${pool.id}`)}>
+    <StyledBodyRow onClick={() => history.push(`/v2/pool/${pool.id}`)}>
       <Flex flexWrap='wrap'>
         {pool?.tokens?.map((token: any) => (
           <Flex key={token.ticker} alignItems="center" className="token">
