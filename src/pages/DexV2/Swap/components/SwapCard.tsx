@@ -25,8 +25,7 @@ import BalAlert from 'pages/DexV2/Pool/components/BalAlert'
 
 const SwapCard: React.FC = () => {
   const { inputAsset, outputAsset } = useSwapAssets()
-  const { fNum } = useNumbers()
-  const { account, appNetworkConfig, isMismatchedNetwork } = useWeb3()
+  const { appNetworkConfig, isMismatchedNetwork } = useWeb3()
   const { nativeAsset } = useTokens()
   const isMounted = useIsMounted()
 
@@ -36,7 +35,6 @@ const SwapCard: React.FC = () => {
   const [dismissedErrors, setDismissedErrors] = useState({
     highPriceImpact: false,
   })
-  const alwaysShowRoutes = false // TODO: Review UX
   const {
     tokenInAddress,
     tokenOutAddress,
@@ -57,6 +55,8 @@ const SwapCard: React.FC = () => {
     setTokenInAmount,
     setTokenOutAmount
   )
+
+  console.log('swapping', swapping)
 
   const { errorMessage } = useValidation(tokenInAddress, tokenInAmount, tokenOutAddress, tokenOutAmount)
   const isHighPriceImpact = swapping.sor.validationErrors.highPriceImpact && !dismissedErrors.highPriceImpact
