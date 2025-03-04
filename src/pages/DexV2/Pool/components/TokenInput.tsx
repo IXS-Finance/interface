@@ -26,10 +26,10 @@ interface TokenInputProps extends React.HTMLAttributes<HTMLInputElement> {
 const TokenInput: React.FC<TokenInputProps> = (props) => {
   const theme = useTheme()
   const { getToken, balanceFor } = useTokens()
-  const { weight = 0, address = '', rules = [], ignoreWalletBalance = false, amount, updateAmount } = props
+  const { weight = 0, address = '', rules = [], ignoreWalletBalance = false } = props
 
   const [errors, setErrors] = useState<string[]>([])
-  const [amountValue, setAmountValue] = useState<string>('')
+  const [amount, setAmount] = useState<any>('')
 
   const token = address ? getToken(address) : null
   const hasToken = !!address
@@ -72,13 +72,9 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
   function handleAmountChange(value: string) {
     const safeAmount = overflowProtected(value, decimalLimit)
     validate(safeAmount)
-    setAmountValue(safeAmount)
-    updateAmount(safeAmount)
+    setAmount(safeAmount)
+    props.updateAmount(safeAmount)
   }
-
-  useEffect(() => {
-    setAmountValue(formatAmount(+amount, 2))
-  }, [amount])
 
   return (
     <LiquidityContainer className="token-input">
@@ -97,7 +93,7 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
           type="text"
           inputMode="decimal"
           pattern="[0-9]*[.,]?[0-9]*"
-          value={amountValue}
+          value={amount}
           onChange={(e) => handleAmountChange(e.target.value)}
         />
       </FlexContainer>
