@@ -3,7 +3,7 @@ import { FiatCurrency } from 'constants/dexV2/currency'
 
 export type YesNo = 'yes' | 'no'
 
-const DEFAULT_SLIPPAGE = '0.5' // 0.5%
+const DEFAULT_SLIPPAGE = '0.005' // 0.5%
 const DEFAULT_ENABLE_SIGNATURES: YesNo = 'yes'
 export enum EthereumTxType {
   LEGACY = 'Legacy',

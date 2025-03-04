@@ -1,5 +1,4 @@
-// AppSlippageForm.tsx
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 import { bnum } from 'lib/utils'
@@ -7,20 +6,16 @@ import BtnGroup from '../BtnGroup'
 import useNumbers from 'hooks/dex-v2/useNumbers'
 import useUserSettings from 'state/dexV2/userSettings/useUserSettings'
 
-// Fixed options (as strings)
 const FIXED_OPTIONS = ['0.005', '0.01', '0.02']
 
 const AppSlippageForm: React.FC = () => {
-  // Custom hooks
   const { fNum } = useNumbers()
-  const { slippage, setSlippage } = useUserSettings() // assume `slippage` is a string
+  const { slippage, setSlippage } = useUserSettings()
 
-  // Local state equivalent to Vue's reactive state:
   const [fixedSlippage, setFixedSlippage] = useState<string>('')
   const [customSlippage, setCustomSlippage] = useState<string>('')
   const [isCustomInput, setIsCustomInput] = useState<boolean>(false)
 
-  // Build options using fNum to format each fixed option
   const options: any[] = FIXED_OPTIONS.map((option) => ({
     label: fNum(option, {
       style: 'percent',
@@ -31,18 +26,16 @@ const AppSlippageForm: React.FC = () => {
     value: option,
   }))
 
-  // Computed: determine if the current slippage is one of the fixed options
-  const isFixedSlippage = useMemo(() => FIXED_OPTIONS.includes(slippage), [slippage])
+  // Compute directly without useMemo:
+  const isFixedSlippage = FIXED_OPTIONS.includes(slippage)
 
-  // Compute custom input classes (using a simple string; you may use a library like 'classnames' if desired)
-  const customInputClasses = useMemo(() => {
-    if (!isFixedSlippage && isCustomInput) {
-      return 'border border-blue-500 text-blue-500'
-    } else if (isFixedSlippage && !isCustomInput) {
-      return 'border dark:border-gray-900'
-    }
-    return ''
-  }, [isFixedSlippage, isCustomInput])
+  // Compute custom input classes inline
+  const customInputClasses =
+    !isFixedSlippage && isCustomInput
+      ? 'border border-blue-500 text-blue-500'
+      : isFixedSlippage && !isCustomInput
+      ? 'border'
+      : ''
 
   // When a fixed option is selected:
   const onFixedInput = (val: string) => {
@@ -59,7 +52,6 @@ const AppSlippageForm: React.FC = () => {
     setSlippage(newVal)
   }
 
-  // Watch for changes in the slippage value (similar to a Vue watcher)
   useEffect(() => {
     if (isFixedSlippage && !isCustomInput) {
       setFixedSlippage(slippage)
@@ -70,25 +62,14 @@ const AppSlippageForm: React.FC = () => {
     }
   }, [slippage, isFixedSlippage, isCustomInput])
 
-  // Watch for changes in customSlippage and trigger custom input logic.
-  // (This mimics Vue's watcher on state.customSlippage with immediate: true.)
-  useEffect(() => {
-    if (customSlippage) {
-      onCustomInput(customSlippage)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customSlippage])
-
+  console.log('slippage', slippage)
   return (
-    <Flex>
-      {/* BalBtnGroup acts as the fixed options selector */}
+    <Flex css={{ gap: '0.5rem' }}>
       <BtnGroup value={fixedSlippage} options={options} onChange={onFixedInput} />
-      {/* Custom input container */}
       <CustomInputWrapper className={customInputClasses}>
-        <input
+        <Input
           value={customSlippage}
-          onChange={(e) => setCustomSlippage(e.target.value)}
-          className="w-12 text-right bg-transparent"
+          onChange={(e) => onCustomInput(e.target.value)}
           placeholder="0.1"
           type="number"
           step="any"
@@ -102,15 +83,30 @@ const AppSlippageForm: React.FC = () => {
 
 export default AppSlippageForm
 
-// Styled container for the custom input
 const CustomInputWrapper = styled.div`
   display: flex;
   align-items: center;
-  padding: 0 0.25rem; /* equivalent to Tailwind's px-1 */
-  border-radius: 0.375rem; /* rounded-lg */
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06); /* approximate for shadow-inner */
+  padding: 0 0.25rem;
+  border-radius: 0.375rem;
+  border: 1px solid #e6e6ff;
 
-  .w-12 {
-    width: 3rem; /* equivalent to Tailwind's w-12 */
+  .border {
+    border: 1px solid #e6e6ff;
   }
+
+  .border-blue-500 {
+    border: 1px solid rgba(102, 102, 255, 0.3);
+  }
+
+  .text-blue-500 {
+    color: rgba(102, 102, 255, 0.9);
+  }
+`
+
+const Input = styled.input`
+  width: 3rem;
+  text-align: right;
+  background: transparent;
+  border: none;
+  outline: none;
 `
