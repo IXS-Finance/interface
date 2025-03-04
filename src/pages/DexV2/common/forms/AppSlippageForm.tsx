@@ -109,4 +109,8 @@ const CustomInputWrapper = styled.div`
   padding: 0 0.25rem; /* equivalent to Tailwind's px-1 */
   border-radius: 0.375rem; /* rounded-lg */
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06); /* approximate for shadow-inner */
+
+  .w-12 {
+    width: 3rem; /* equivalent to Tailwind's w-12 */
+  }
 `

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import styled from 'styled-components'
-import { Flex } from 'rebass'
+import { Box, Flex } from 'rebass'
 import { useAccount } from 'wagmi'
 import { getAddress, isAddress } from '@ethersproject/address'
 
@@ -22,6 +22,7 @@ import { SubgraphPoolBase } from '@ixswap1/dex-v2-sdk'
 import SwapPreviewModal from './SwapPreviewModal'
 import { useIsMounted } from 'hooks/dex-v2/useIsMounted'
 import BalAlert from 'pages/DexV2/Pool/components/BalAlert'
+import SwapSettingsPopover, { SwapSettingsContext } from 'pages/DexV2/common/popovers/SwapSettingsPopover'
 
 const SwapCard: React.FC = () => {
   const { inputAsset, outputAsset } = useSwapAssets()
@@ -29,7 +30,6 @@ const SwapCard: React.FC = () => {
   const { nativeAsset } = useTokens()
   const isMounted = useIsMounted()
 
-  const [isOpenSwapSettings, setOpenSwapSettings] = useState(false)
   const [isOpenSwapPreview, setOpenSwapPreview] = useState(false)
   const [exactIn, setExactIn] = useState(true)
   const [dismissedErrors, setDismissedErrors] = useState({
@@ -165,7 +165,7 @@ const SwapCard: React.FC = () => {
 
   const isLoadingSwaps = swapping.isBalancerSwap ? swapping.isLoading : false
   const isLoading = isLoadingSwaps || !isMounted
-  const loadingText = isLoading ? 'Fetching swap...' : undefined
+  const loadingText = isLoading ? 'Fetching swap...' : 'Next'
 
   console.log('swapping', swapping)
   return (
@@ -179,9 +179,7 @@ const SwapCard: React.FC = () => {
           </Flex>
           <HorizontalLine />
           <PercentText>0.05%</PercentText>
-          <Flex alignItems="center" css={{ cursor: 'pointer' }} onClick={() => setOpenSwapSettings(true)}>
-            <img src={settingIcon} alt="Settings" />
-          </Flex>
+          <SwapSettingsPopover context={SwapSettingsContext.swap} isGasless={swapping.swapGasless} />
         </Flex>
       </Flex>
 
@@ -205,18 +203,15 @@ const SwapCard: React.FC = () => {
         />
       ) : null}
 
-      <div>
+      <Box mt={3}>
         <ButtonPrimary disabled={!!swapDisabled} onClick={handlePreviewButton}>
-          {swapping.isLoading ? 'Fetching swap' : 'Preview'}
+          {loadingText}
         </ButtonPrimary>
-      </div>
+      </Box>
 
-      {swapping && swapping.tokenInAmountInput && swapping.tokenOutAddressInput ? (
-        <SwapDetails pools={pools} swapping={swapping} />
-      ) : null}
+      <SwapDetails pools={pools} swapping={swapping} />
 
-      {isOpenSwapSettings ? <SwapSettingsModal onClose={() => setOpenSwapSettings(false)} /> : null}
-      {isOpenSwapPreview ? <SwapPreviewModal swapping={swapping} onClose={() => setOpenSwapPreview(false)} /> : null}
+      {isOpenSwapPreview ? <SwapPreviewModal swapping={swapping} onClose={handlePreviewModalClose} /> : null}
     </Container>
   )
 }
@@ -233,6 +228,12 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: 100%;
+    padding: 24px 16px;
+    margin-top: 48px;
+  `};
 
   .p-3 {
     padding: 12px;

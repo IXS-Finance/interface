@@ -42,8 +42,6 @@ const Swap: React.FC = () => {
 export default Swap
 
 const Container = styled.div`
-  padding: 0 1rem;
   margin: 0 auto;
   width: 100%;
-  max-width: 462px;
 `
