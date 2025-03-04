@@ -201,7 +201,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
 
   useEffect(() => {
     setAddress(props.address)
-    setAmount(props.amount)
+    handleAmountChange(props.amount.toString())
   }, [props.address, props.amount])
 
   const handleUpdateIsValid = (isValid: boolean) => {
