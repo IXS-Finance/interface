@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 import _get from 'lodash/get'
@@ -27,10 +27,8 @@ const SwapDetails: React.FC<Props> = ({ swapping, pools }) => {
   const isNativeWrapOrUnwrap = wrapType === WrapType.Wrap || wrapType === WrapType.Unwrap
   const priceImpact = _get(swapping, 'sor.priceImpact', 0)
   const priceImpactDisplay = fNum(priceImpact, FNumFormats.percent)
-  // const _slippage = isNativeWrapOrUnwrap ? 0 : slippage
-  // const _slippageDecimal = isNativeWrapOrUnwrap ? 0 : slippageDecimal
-  // const maxSlippageUsd = bn(slippage).div(100).times(returnAmountUsd)
-  const showSwapRoute = useMemo(() => swapping.isBalancerSwap, [swapping.isBalancerSwap])
+  // Removed useMemo - assign directly:
+  const showSwapRoute = swapping.isBalancerSwap
 
   return (
     <Container>
@@ -115,3 +113,4 @@ const SummaryValue = styled.div<{ isRed?: boolean }>`
   align-items: center;
   gap: 8px;
 `
+

@@ -167,6 +167,7 @@ const SwapCard: React.FC = () => {
   const isLoading = isLoadingSwaps || !isMounted
   const loadingText = isLoading ? 'Fetching swap...' : undefined
 
+  console.log('swapping', swapping)
   return (
     <Container>
       <Flex justifyContent="space-between" alignItems="center">
@@ -210,7 +211,9 @@ const SwapCard: React.FC = () => {
         </ButtonPrimary>
       </div>
 
-      <SwapDetails pools={pools} swapping={swapping} />
+      {swapping && swapping.tokenInAmountInput && swapping.tokenOutAddressInput ? (
+        <SwapDetails pools={pools} swapping={swapping} />
+      ) : null}
 
       {isOpenSwapSettings ? <SwapSettingsModal onClose={() => setOpenSwapSettings(false)} /> : null}
       {isOpenSwapPreview ? <SwapPreviewModal swapping={swapping} onClose={() => setOpenSwapPreview(false)} /> : null}
