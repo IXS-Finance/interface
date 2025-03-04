@@ -8,8 +8,10 @@ const DECENTRALIZED_SUBGRAPH_URL = 'https://gateway.thegraph.com';
 export class SubgraphFallbackService {
   private urlIndex = 0;
 
-  public url = this.urls[this.urlIndex];
-  constructor(private readonly urls = configService.subgraphUrls || []) {}
+  public url = this.urls ? this.urls[this.urlIndex] : '';
+  constructor(private readonly urls = configService.subgraphUrls || []) {
+    console.log('urls', urls)
+  }
 
   public async get(payload: unknown): Promise<AxiosResponse | void> {
     if (!payload) {

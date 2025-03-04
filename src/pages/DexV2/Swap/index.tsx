@@ -1,13 +1,8 @@
 import React, { useEffect } from 'react'
-import { Box } from 'rebass'
 import styled from 'styled-components'
 
 import usePoolFilters from 'state/dexV2/swap/usePoolFilters'
 import SwapCard from './components/SwapCard'
-import Col3Layout from '../common/Col3Layout'
-import MyWallet from './components/MyWallet'
-import BridgeLink from './components/BridgeLink'
-import { hasBridge } from 'hooks/dex-v2/useNetwork'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { walletService } from 'services/web3/wallet.service'
