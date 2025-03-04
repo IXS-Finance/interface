@@ -21,10 +21,10 @@ export enum SwapSettingsContext {
 
 type Props = {
   context: SwapSettingsContext
-  isGassless?: boolean
+  isGasless?: boolean
 }
 
-const SwapSettingsPopover: React.FC<Props> = ({ context, isGassless = false }) => {
+const SwapSettingsPopover: React.FC<Props> = ({ context, isGasless = false }) => {
   // Hooks analogous to your Vue composables
   const { trackGoal, Goals } = useFathom()
   const {
@@ -166,7 +166,7 @@ const SwapSettingsPopover: React.FC<Props> = ({ context, isGassless = false }) =
         </div>
 
         {/* Transaction Deadline (if gassless and swap context) */}
-        {isGassless && context === SwapSettingsContext.swap && (
+        {isGasless && context === SwapSettingsContext.swap && (
           <div style={{ marginTop: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'baseline' }}>
               <span style={{ marginBottom: '0.5rem', fontWeight: 500 }}>Transaction deadline</span>
