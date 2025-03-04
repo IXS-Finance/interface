@@ -46,7 +46,17 @@ import swapDexV2 from './dexV2/swap'
 import userSettings from './dexV2/userSettings'
 import dexV2Pool from './dexV2/pool'
 
-const PERSISTED_KEYS: string[] = ['auth', 'lists', 'swap', 'swapHelper', 'transactions', 'user', 'wallet', 'global']
+const PERSISTED_KEYS: string[] = [
+  'auth',
+  'lists',
+  'swap',
+  'swapHelper',
+  'transactions',
+  'user',
+  'wallet',
+  'global',
+  'userSettings',
+]
 
 const persistConfig = {
   key: 'root',
