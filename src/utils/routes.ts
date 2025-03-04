@@ -78,13 +78,13 @@ export const routes = {
   tenantEdit: '/tenant/edit/:id',
 
   // Dex V2
-  dexV2CreatePool: '/dex-v2/pool/create',
-  dexV2Pools: '/dex-v2/pools',
-  dexV2Swap: '/dex-v2/swap',
-  dexV2Lock: '/dex-v2/lock',
-  dexV2PoolDetail: '/dex-v2/pool/:id',
-  dexV2PoolAddLiquidity: '/dex-v2/pool/:id/add-liquidity',
-  dexV2PoolWithdraw: '/dex-v2/pool/:id/withdraw',
+  dexV2CreatePool: '/v2/pool/create',
+  dexV2Pools: '/v2/pools',
+  dexV2Swap: '/v2/swap',
+  dexV2Lock: '/v2/lock',
+  dexV2PoolDetail: '/v2/pool/:id',
+  dexV2PoolAddLiquidity: '/v2/pool/:id/add-liquidity',
+  dexV2PoolWithdraw: '/v2/pool/:id/withdraw',
 }
 
 export function checkAllowed(path: string, allowedPages: string[] | null | undefined): boolean {

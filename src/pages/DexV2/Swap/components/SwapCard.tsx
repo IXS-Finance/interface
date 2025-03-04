@@ -8,7 +8,6 @@ import settingIcon from 'assets/images/dex-v2/setting.svg'
 import chainIcon from 'assets/images/dex-v2/chain.svg'
 import SwapPair from './SwapPair'
 import { ButtonPrimary } from '../../common'
-import SwapSettingsModal from './SwapSettingsModal'
 import SwapDetails from './SwapDetails'
 import useSwapping from 'state/dexV2/swap/useSwapping'
 import { useSwapState } from 'state/dexV2/swap/useSwapState'
@@ -167,7 +166,6 @@ const SwapCard: React.FC = () => {
   const isLoading = isLoadingSwaps || !isMounted
   const loadingText = isLoading ? 'Fetching swap...' : 'Next'
 
-  console.log('swapping', swapping)
   return (
     <Container>
       <Flex justifyContent="space-between" alignItems="center">
@@ -175,10 +173,9 @@ const SwapCard: React.FC = () => {
 
         <Flex alignItems="center">
           <Flex alignItems="center">
-            <img src={chainIcon} alt="Settings" />
+            <img src={chainIcon} alt="link" />
           </Flex>
           <HorizontalLine />
-          <PercentText>0.05%</PercentText>
           <SwapSettingsPopover context={SwapSettingsContext.swap} isGasless={swapping.swapGasless} />
         </Flex>
       </Flex>
@@ -224,7 +221,7 @@ const Container = styled.div`
   border-radius: 16px;
   background: #fff;
   box-shadow: 0px 30px 48px 0px rgba(63, 63, 132, 0.05);
-  padding: 48px;
+  padding: 32px 36px;
   display: flex;
   flex-direction: column;
   gap: 16px;

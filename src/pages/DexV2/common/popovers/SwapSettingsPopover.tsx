@@ -1,10 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
+import { Box } from 'rebass'
 
 import AppSlippageForm from '../forms/AppSlippageForm'
 import BalBtn from './BalBtn'
 import BalBtnGroup from './BalBtnGroup'
-
 import { ethereumTxTypeOptions } from 'constants/dexV2/options'
 import BalPopover from '../BalPopover'
 import useNetwork from 'hooks/dex-v2/useNetwork'
@@ -13,7 +13,6 @@ import useFathom from 'hooks/dex-v2/useFathom'
 import BalToggle from './BalToggle'
 import BalTooltip from '../BalTooltip'
 
-// If not defined elsewhere, you can define your enum like this:
 export enum SwapSettingsContext {
   swap,
   invest,
@@ -25,7 +24,6 @@ type Props = {
 }
 
 const SwapSettingsPopover: React.FC<Props> = ({ context, isGasless = false }) => {
-  // Hooks analogous to your Vue composables
   const { trackGoal, Goals } = useFathom()
   const {
     transactionDeadline,
@@ -72,11 +70,12 @@ const SwapSettingsPopover: React.FC<Props> = ({ context, isGasless = false }) =>
         </BalBtn>
       }
     >
-      {/* Content */}
       <div>
-        {/* Slippage Tolerance */}
-        <div style={{ display: 'flex', alignItems: 'baseline' }}>
-          <span style={{ marginBottom: '0.5rem', fontWeight: 500 }}>Slippage tolerance</span>
+        <Title>Transaction settings</Title>
+        <div style={{ display: 'flex', alignItems: 'center', marginTop: 18 }}>
+          <Box fontWeight={500} fontSize="14px" pb="4px" mr="4px">
+            Slippage tolerance
+          </Box>
           <BalTooltip
             text="Market conditions may change between the time your order is submitted and the time it gets executed on Ethereum. Slippage tolerance is the maximum change in price you are willing to accept. This protects you from front-running bots and miner extractable value (MEV)."
             width="44px"
@@ -106,8 +105,10 @@ const SwapSettingsPopover: React.FC<Props> = ({ context, isGasless = false }) =>
         {/* Transaction Type (if EIP1559 supported) */}
         {isEIP1559SupportedNetwork && (
           <div style={{ marginTop: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline' }}>
-              <span style={{ marginBottom: '0.5rem', fontWeight: 500 }}>Transaction type</span>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Box fontWeight={500} fontSize="14px" pb="4px" mr="4px">
+                Transaction type
+              </Box>
               <BalTooltip
                 text="Most users will want EIP-1559 Transactions, but there are some instances that may require a Legacy Transaction. For example, some Ledger users have had issues using MetaMask with EIP-1559 Transactions."
                 textAlign="center"
@@ -137,8 +138,10 @@ const SwapSettingsPopover: React.FC<Props> = ({ context, isGasless = false }) =>
 
         {/* Use Signatures */}
         <div style={{ marginTop: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline' }}>
-            <span style={{ marginBottom: '0.5rem', fontWeight: 500 }}>Use signatures</span>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Box fontWeight={500} fontSize="14px" pb="4px" mr="4px">
+              Use signatures
+            </Box>
             <BalTooltip
               text="It's recommended to turn on signatures for gas-free transactions. However, if your wallet doesn't support the signing of signatures, you can turn it off."
               textAlign="center"
@@ -168,8 +171,10 @@ const SwapSettingsPopover: React.FC<Props> = ({ context, isGasless = false }) =>
         {/* Transaction Deadline (if gassless and swap context) */}
         {isGasless && context === SwapSettingsContext.swap && (
           <div style={{ marginTop: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline' }}>
-              <span style={{ marginBottom: '0.5rem', fontWeight: 500 }}>Transaction deadline</span>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Box fontWeight={500} fontSize="14px" pb="4px" mr="4px">
+                Transaction deadline
+              </Box>
               <BalTooltip
                 text="Your swap will expire and not execute if it is pending for more than the selected duration. Only executed transactions incur fees for swaps between ERC-20 tokens."
                 textAlign="center"
@@ -238,4 +243,14 @@ const DeadlineInput = styled.input`
 
 const MinutesText = styled.div`
   padding: 0 0.5rem;
+`
+
+const Title = styled.div`
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.6px;
 `
