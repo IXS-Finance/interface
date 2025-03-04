@@ -62,7 +62,6 @@ const AppSlippageForm: React.FC = () => {
     }
   }, [slippage, isFixedSlippage, isCustomInput])
 
-  console.log('slippage', slippage)
   return (
     <Flex css={{ gap: '0.5rem' }}>
       <BtnGroup value={fixedSlippage} options={options} onChange={onFixedInput} />
