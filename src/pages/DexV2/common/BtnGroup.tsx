@@ -24,8 +24,7 @@ const BtnGroup: React.FC<BtnGroupProps> = ({ value, options, onChange, ...rest }
         return (
           <StyledButton
             key={option.value}
-            size="small"
-            sx={{
+            style={{
               color: isSelected ? 'rgba(102, 102, 255, 0.90)' : 'rgba(41, 41, 51, 0.90)',
               border: isSelected ? '1px solid rgba(102, 102, 255, 0.30)' : '1px solid #E6E6FF',
               borderRadius: '8px',
@@ -46,8 +45,13 @@ const BtnGroup: React.FC<BtnGroupProps> = ({ value, options, onChange, ...rest }
 export default BtnGroup
 
 // Styled button that mimics the Tailwind classes (e.g. "mr-2 capitalize w-18")
-const StyledButton = styled(Button)`
-  text-transform: capitalize;
-  width: 72px;
-  font-size: 14px;
+const StyledButton = styled.button`
+  display: flex;
+  height: 33px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid #e6e6ff;
+  background: #fff;
 `
