@@ -6,6 +6,7 @@ import SwapCard from './components/SwapCard'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { walletService } from 'services/web3/wallet.service'
+import DexV2Layout from '../common/Layout'
 
 const Swap: React.FC = () => {
   const { setSelectedTokens } = usePoolFilters()
@@ -33,9 +34,11 @@ const Swap: React.FC = () => {
   }, [isWalletReady])
 
   return (
-    <Container>
-      <SwapCard />
-    </Container>
+    <DexV2Layout>
+      <Container>
+        <SwapCard />
+      </Container>
+    </DexV2Layout>
   )
 }
 

@@ -18,6 +18,7 @@ import WithdrawTabs from './components/WithdrawTabs'
 import useWithdrawPageTabs from 'state/dexV2/pool/useWithdrawPageTabs'
 import { setPoolState } from 'state/dexV2/pool'
 import { useDispatch } from 'react-redux'
+import DexV2Layout from 'pages/DexV2/common/Layout'
 
 function useInterval(callback: () => void, delay: number | null) {
   useEffect(() => {
@@ -47,25 +48,27 @@ const Withdraw: FC = () => {
   }, [isLoading])
 
   return (
-    <Container>
-      {isLoading ? (
-        <LoadingBlock style={{ height: '24rem' }} />
-      ) : (
-        <BalCard shadow="xl" exposeOverflow noBorder>
-          <div className="w-full">
-            <div>{network.chainName}</div>
-            <Flex justifyContent="space-between" alignItems="center">
-              <div>Withdraw from pool</div>
-              <SwapSettingsPopover context={SwapSettingsContext.invest} />
-            </Flex>
+    <DexV2Layout>
+      <Container>
+        {isLoading ? (
+          <LoadingBlock style={{ height: '24rem' }} />
+        ) : (
+          <BalCard shadow="xl" exposeOverflow noBorder>
+            <div className="w-full">
+              <div>{network.chainName}</div>
+              <Flex justifyContent="space-between" alignItems="center">
+                <div>Withdraw from pool</div>
+                <SwapSettingsPopover context={SwapSettingsContext.invest} />
+              </Flex>
 
-            <WithdrawTabs pool={pool} />
-          </div>
+              <WithdrawTabs pool={pool} />
+            </div>
 
-          {pool.address ? <WithdrawForm pool={pool} /> : null}
-        </BalCard>
-      )}
-    </Container>
+            {pool.address ? <WithdrawForm pool={pool} /> : null}
+          </BalCard>
+        )}
+      </Container>
+    </DexV2Layout>
   )
 }
 

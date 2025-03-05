@@ -2,13 +2,10 @@ import { pick } from 'lodash'
 
 // import localStorageKeys from 'constants/local-storage.keys'
 // import { lsSet } from 'lib/utils'
-import TokenListService, { tokenListService } from 'services/token-list/token-list.service'
+import { tokenListService } from 'services/token-list/token-list.service'
 import { TokenList, TokenListMap } from 'types/TokenList'
 import useNetwork from 'hooks/dex-v2/useNetwork'
 import { useTokenListsState } from './hooks'
-import { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { setTokenListsState } from '.'
 
 /** TYPES */
 export interface TokenListsState {
@@ -18,7 +15,6 @@ export interface TokenListsState {
 const useTokenLists = () => {
   const { uris } = tokenListService
   const { networkId } = useNetwork()
-  const dispatch = useDispatch()
 
   /**
    * STATE
@@ -73,20 +69,6 @@ const useTokenLists = () => {
   function isActiveList(uri: string): boolean {
     return state.activeListKeys.includes(uri)
   }
-
-  useEffect(() => {
-    const getData = async () => {
-      const module = await tokensListPromise
-      const tokenLists = module.default as TokenListMap
-
-      // filter token lists by network id
-      dispatch(setTokenListsState({ allTokenLists: TokenListService.filterTokensList(tokenLists, networkId) }))
-    }
-
-    if (networkId) {
-      getData()
-    }
-  }, [networkId])
 
   return {
     // state

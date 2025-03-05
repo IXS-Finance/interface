@@ -14,6 +14,7 @@ import { PoolToken } from 'services/pool/types'
 import { POOLS } from 'constants/dexV2/pools'
 import MyPoolBalancesCard from './components/MyPoolBalancesCard'
 import PoolPageHeader from './components/PoolPageHeader'
+import DexV2Layout from '../common/Layout'
 
 const PoolDetail: React.FC = () => {
   const params = useParams<any>()
@@ -61,23 +62,25 @@ const PoolDetail: React.FC = () => {
   )
 
   return (
-    <Container>
-      <GridContainer>
-        <ColSpan2>
-          {loadingPool || !pool ? (
-            <LoadingBlock darker rounded="lg" className="header-loading-block" />
-          ) : (
-            <PoolPageHeader pool={pool} titleTokens={titleTokens} isStableLikePool={isStableLikePool} />
-          )}
-        </ColSpan2>
+    <DexV2Layout>
+      <Container>
+        <GridContainer>
+          <ColSpan2>
+            {loadingPool || !pool ? (
+              <LoadingBlock darker rounded="lg" className="header-loading-block" />
+            ) : (
+              <PoolPageHeader pool={pool} titleTokens={titleTokens} isStableLikePool={isStableLikePool} />
+            )}
+          </ColSpan2>
 
-        <div className="order-2 lg:order-1 col-span-2"></div>
-        <Order2LgOrder1ColSpan2>Chart</Order2LgOrder1ColSpan2>
-        <Order1LgOrder2Px4LgPx0>
-          <MyPoolBalancesCard pool={pool} missingPrices={missingPrices} />
-        </Order1LgOrder2Px4LgPx0>
-      </GridContainer>
-    </Container>
+          <div className="order-2 lg:order-1 col-span-2"></div>
+          <Order2LgOrder1ColSpan2>Chart</Order2LgOrder1ColSpan2>
+          <Order1LgOrder2Px4LgPx0>
+            <MyPoolBalancesCard pool={pool} missingPrices={missingPrices} />
+          </Order1LgOrder2Px4LgPx0>
+        </GridContainer>
+      </Container>
+    </DexV2Layout>
   )
 }
 
