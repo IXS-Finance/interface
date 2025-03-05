@@ -15,7 +15,7 @@ import { useSwapAssets } from 'state/dexV2/swap/useSwapAssets'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers from 'hooks/dex-v2/useNumbers'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
-import useValidation from 'state/dexV2/swap/useValidation'
+import useValidation, { SwapValidation } from 'state/dexV2/swap/useValidation'
 import { WrapType } from 'lib/utils/balancer/wrapper'
 import { SubgraphPoolBase } from '@ixswap1/dex-v2-sdk'
 import SwapPreviewModal from './SwapPreviewModal'
@@ -62,8 +62,9 @@ const SwapCard: React.FC = () => {
   const hasMismatchedNetwork = isMismatchedNetwork
   const hasAmountsError = !tokenInAmount || !tokenOutAmount
   const hasBalancerErrors = swapping.isBalancerSwap && isHighPriceImpact
-  const swapDisabled = hasAmountsError || hasBalancerErrors || hasMismatchedNetwork
-
+  const swapDisabled =
+    hasAmountsError || hasBalancerErrors || hasMismatchedNetwork || errorMessage !== SwapValidation.VALID
+  console.log('swapping', swapping)
   console.log('errorMessage', errorMessage)
   const title =
     swapping.wrapType === WrapType.Wrap
@@ -188,7 +189,7 @@ const SwapCard: React.FC = () => {
         setExactIn={setExactIn}
       />
 
-      {error ? (
+      {error && tokenInAmount ? (
         <BalAlert
           className="p-3 mb-4"
           type="error"
