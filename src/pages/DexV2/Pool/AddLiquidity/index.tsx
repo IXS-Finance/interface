@@ -1,51 +1,49 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { useParams } from 'react-router-dom'
 
-import Col2Layout from 'pages/DexV2/common/Col2Layout'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 import { usePool } from 'state/dexV2/pool/usePool'
-import MyWallet from './MyWallet'
 import AddLiquidityCard from './AddLiquidityCard'
+import useWeb3 from 'hooks/dex-v2/useWeb3'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import DexV2Layout from 'pages/DexV2/common/Layout'
 
-interface AddLiquidityProps {
-  // Add props definitions here if needed
-}
-
-const AddLiquidity: React.FC<AddLiquidityProps> = (props) => {
+const AddLiquidity: React.FC = () => {
   const params = useParams<any>()
   const poolId = (params.id as string).toLowerCase()
   const { pool, isLoadingPool } = usePool(poolId)
+  const { appNetworkConfig, isWalletReady } = useWeb3()
+  const { injectSpenders, tokens } = useTokens()
+
   const isLoading: boolean = isLoadingPool
 
+  useEffect(() => {
+    injectSpenders([appNetworkConfig.addresses.vault])
+  }, [isWalletReady])
+
   return (
-    <Container>
-      {isLoading || !pool ? (
-        <Col2Layout
-          leftSpan="5"
-          rightSpan="7"
-          left={<LoadingBlock className="h-24" />}
-          right={<LoadingBlock className="h-96" />}
-        />
-      ) : (
-        <Col2Layout leftSpan="5" rightSpan="7" left={<MyWallet />} right={<AddLiquidityCard pool={pool} />} />
-      )}
-    </Container>
+    <DexV2Layout>
+      <Container>
+        {!isLoading && pool && pool.address && tokens && Object.keys(tokens).length > 1 ? (
+          <AddLiquidityCard pool={pool} />
+        ) : (
+          <LoadingBlock className="h-120" />
+        )}
+      </Container>
+    </DexV2Layout>
   )
 }
 
 export default AddLiquidity
 
 const Container = styled.div`
-  .h-24 {
-    height: 6rem;
-  }
+  padding: 0 1rem;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 462px;
 
-  .h-96 {
-    height: 24rem;
-  }
-
-  .h-64 {
-    height: 16rem /* 256px */;
+  .h-120 {
+    height: 30rem;
   }
 `
