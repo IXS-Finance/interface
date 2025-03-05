@@ -84,6 +84,16 @@ const DexV2Popover = () => {
           <Trans>Swap</Trans>
         </SubMenuLink>
       </Column>
+
+      <Row style={{ padding: '0', margin: '5px 0' }}>
+        <Line />
+      </Row>
+
+      <Column style={{ gap: 3 }}>
+        <SubMenuLink style={{ fontSize: '13px' }} id={`staking`} to={routes.dexV2Lock}>
+          <Trans>Staking</Trans>
+        </SubMenuLink>
+      </Column>
     </PopOverContent>
   )
 }
