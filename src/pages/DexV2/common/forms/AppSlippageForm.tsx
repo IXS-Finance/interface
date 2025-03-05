@@ -35,7 +35,7 @@ const AppSlippageForm: React.FC = () => {
       ? 'border border-blue-500 text-blue-500'
       : isFixedSlippage && !isCustomInput
       ? 'border'
-      : ''
+      : 'border'
 
   // When a fixed option is selected:
   const onFixedInput = (val: string) => {
@@ -44,12 +44,19 @@ const AppSlippageForm: React.FC = () => {
     setSlippage(val)
   }
 
-  // When a custom value is entered:
   const onCustomInput = (val: string) => {
-    if (!val) return
-    setIsCustomInput(true)
-    const newVal = bnum(val).div(100).toString()
-    setSlippage(newVal)
+    if (!val) {
+      setCustomSlippage('')
+      return
+    }
+    const regex = /^-?\d*[.,]?\d*$/
+    const value = val.split(',').join('')
+
+    if (regex.test(value)) {
+      setIsCustomInput(true)
+      const newVal = bnum(val).div(100).toString()
+      setSlippage(newVal)
+    }
   }
 
   useEffect(() => {
@@ -63,31 +70,32 @@ const AppSlippageForm: React.FC = () => {
   }, [slippage, isFixedSlippage, isCustomInput])
 
   return (
-    <Flex css={{ gap: '0.5rem' }}>
-      <BtnGroup value={fixedSlippage} options={options} onChange={onFixedInput} />
+    <Container>
       <CustomInputWrapper className={customInputClasses}>
         <Input
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
+          autoCorrect="off"
           value={customSlippage}
           onChange={(e) => onCustomInput(e.target.value)}
-          placeholder="0.1"
-          type="number"
-          step="any"
-          min="0"
+          placeholder={bnum(slippage).times(100).toString()}
         />
-        <div className="px-2">%</div>
+        <PercentText>%</PercentText>
       </CustomInputWrapper>
-    </Flex>
+
+      <BtnGroup value={fixedSlippage} options={options} onChange={onFixedInput} />
+    </Container>
   )
 }
 
 export default AppSlippageForm
 
-const CustomInputWrapper = styled.div`
+const Container = styled.div`
   display: flex;
-  align-items: center;
-  padding: 0 0.25rem;
-  border-radius: 0.375rem;
-  border: 1px solid #e6e6ff;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
 
   .border {
     border: 1px solid #e6e6ff;
@@ -101,11 +109,36 @@ const CustomInputWrapper = styled.div`
     color: rgba(102, 102, 255, 0.9);
   }
 `
+const CustomInputWrapper = styled.div`
+  display: flex;
+  height: 50px;
+  padding: 24px 16px;
+  justify-content: space-between;
+  align-items: center;
+  align-self: stretch;
+  border-radius: 8px;
+  background: #fff;
+`
 
 const Input = styled.input`
-  width: 3rem;
-  text-align: right;
   background: transparent;
   border: none;
   outline: none;
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
+`
+
+const PercentText = styled.div`
+  color: #b8b8cc;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
 `

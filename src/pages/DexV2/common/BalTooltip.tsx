@@ -28,7 +28,7 @@ const defaultProps: Partial<TooltipProps> = {
   placement: 'top',
   noPad: false,
   disabled: false,
-  width: '52', // Tailwind's "w-52" equals ~13rem; we convert this below
+  width: '52',
   textAlign: '',
   iconName: 'info',
   iconSize: 'md',
@@ -47,7 +47,6 @@ const ActivatorButton = styled.button<{ disabled?: boolean }>`
 `
 
 interface TooltipContainerProps {
-  customWidth: string
   textAlign: TextAlign
 }
 const TooltipContainer = styled.div<TooltipContainerProps>`
@@ -56,7 +55,7 @@ const TooltipContainer = styled.div<TooltipContainerProps>`
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   text-align: left;
   display: none; /* Hidden by default */
-  width: ${(props) => props.customWidth};
+  width: fit-content;
 
   &.show {
     display: block;
@@ -188,7 +187,7 @@ const BalTooltip: React.FC<TooltipProps> = (incomingProps) => {
           </svg>
         )}
       </ActivatorButton>
-      <TooltipContainer ref={contentRef} customWidth={computedWidth} textAlign={textAlign || ''}>
+      <TooltipContainer ref={contentRef} textAlign={textAlign || ''}>
         <TooltipContent noPad={!!noPad} textAlign={textAlign || ''}>
           {text ? <p>{text}</p> : children}
         </TooltipContent>
