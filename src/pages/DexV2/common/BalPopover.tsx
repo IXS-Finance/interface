@@ -125,17 +125,7 @@ const BalPopover: React.FC<PopoverProps> = ({
         activatorWidth={activatorWidthPx}
         activatorHalfWidth={activatorHalfWidthPx}
       >
-        {/* Replace this with your Card component if desired */}
-        <div
-          style={{
-            background: 'white',
-            padding: '1rem',
-            borderRadius: '0.5rem',
-            boxShadow: '0px 0px 100px 38px rgba(0,0,0,0.1)',
-          }}
-        >
-          {children}
-        </div>
+        {children}
       </PopoverWrapper>
     </Container>
   )

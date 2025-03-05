@@ -1,10 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Box } from 'rebass'
+import { Box, Flex } from 'rebass'
 
 import AppSlippageForm from '../forms/AppSlippageForm'
 import BalBtn from './BalBtn'
-import BalBtnGroup from './BalBtnGroup'
 import { ethereumTxTypeOptions } from 'constants/dexV2/options'
 import BalPopover from '../BalPopover'
 import useNetwork from 'hooks/dex-v2/useNetwork'
@@ -12,6 +11,7 @@ import useUserSettings from 'state/dexV2/userSettings/useUserSettings'
 import useFathom from 'hooks/dex-v2/useFathom'
 import BalToggle from './BalToggle'
 import BalTooltip from '../BalTooltip'
+import BtnGroup from '../BtnGroup'
 
 export enum SwapSettingsContext {
   swap,
@@ -25,14 +25,7 @@ type Props = {
 
 const SwapSettingsPopover: React.FC<Props> = ({ context, isGasless = false }) => {
   const { trackGoal, Goals } = useFathom()
-  const {
-    transactionDeadline,
-    ethereumTxType,
-    supportSignatures,
-    setSupportSignatures,
-    setEthereumTxType,
-    setTransactionDeadline,
-  } = useUserSettings()
+  const { transactionDeadline, ethereumTxType, setEthereumTxType, setTransactionDeadline } = useUserSettings()
   const { isEIP1559SupportedNetwork } = useNetwork()
 
   function onActivatorClick(): void {
@@ -70,103 +63,61 @@ const SwapSettingsPopover: React.FC<Props> = ({ context, isGasless = false }) =>
         </BalBtn>
       }
     >
-      <div>
+      <Container>
         <Title>Transaction settings</Title>
-        <div style={{ display: 'flex', alignItems: 'center', marginTop: 18 }}>
-          <Box fontWeight={500} fontSize="14px" pb="4px" mr="4px">
-            Slippage tolerance
-          </Box>
-          <BalTooltip
-            text="Market conditions may change between the time your order is submitted and the time it gets executed on Ethereum. Slippage tolerance is the maximum change in price you are willing to accept. This protects you from front-running bots and miner extractable value (MEV)."
-            width="44px"
-            textAlign="center"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="16" x2="12" y2="12"></line>
-              <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
-          </BalTooltip>
-        </div>
-        <div style={{ marginTop: '0.25rem' }}>
+        <Box width="100%">
+          <Flex alignItems="center" mb="16px">
+            <Box fontWeight={500} fontSize="14px" pb="4px" mr="4px">
+              Slippage tolerance
+            </Box>
+            <BalTooltip
+              text="Market conditions may change between the time your order is submitted and the time it gets executed on Ethereum. Slippage tolerance is the maximum change in price you are willing to accept. This protects you from front-running bots and miner extractable value (MEV)."
+              width="44px"
+              textAlign="center"
+              activator={
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" viewBox="0 0 14 15" fill="none">
+                  <path
+                    d="M7 7.2V10.2M7 4.806L7.006 4.7994M7 13.5C10.3138 13.5 13 10.8138 13 7.5C13 4.1862 10.3138 1.5 7 1.5C3.6862 1.5 1 4.1862 1 7.5C1 10.8138 3.6862 13.5 7 13.5Z"
+                    stroke="#B8B8CC"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              }
+            />
+          </Flex>
+
           <AppSlippageForm />
-        </div>
+          <Line />
+        </Box>
 
         {/* Transaction Type (if EIP1559 supported) */}
         {isEIP1559SupportedNetwork && (
-          <div style={{ marginTop: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div>
+            <Flex alignItems="center" mb="16px">
               <Box fontWeight={500} fontSize="14px" pb="4px" mr="4px">
                 Transaction type
               </Box>
               <BalTooltip
                 text="Most users will want EIP-1559 Transactions, but there are some instances that may require a Legacy Transaction. For example, some Ledger users have had issues using MetaMask with EIP-1559 Transactions."
                 textAlign="center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="12"></line>
-                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-              </BalTooltip>
-            </div>
-            <div style={{ display: 'flex', marginTop: '0.25rem' }}>
-              <BalBtnGroup modelValue={ethereumTxType} options={ethereumTxTypeOptions} onChange={setEthereumTxType} />
-            </div>
+                activator={
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" viewBox="0 0 14 15" fill="none">
+                    <path
+                      d="M7 7.2V10.2M7 4.806L7.006 4.7994M7 13.5C10.3138 13.5 13 10.8138 13 7.5C13 4.1862 10.3138 1.5 7 1.5C3.6862 1.5 1 4.1862 1 7.5C1 10.8138 3.6862 13.5 7 13.5Z"
+                      stroke="#B8B8CC"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                }
+              />
+            </Flex>
+            <BtnGroup value={ethereumTxType} options={ethereumTxTypeOptions} onChange={setEthereumTxType} />
           </div>
         )}
-
-        {/* Use Signatures */}
-        <div style={{ marginTop: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Box fontWeight={500} fontSize="14px" pb="4px" mr="4px">
-              Use signatures
-            </Box>
-            <BalTooltip
-              text="It's recommended to turn on signatures for gas-free transactions. However, if your wallet doesn't support the signing of signatures, you can turn it off."
-              textAlign="center"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-              </svg>
-            </BalTooltip>
-          </div>
-          <div style={{ marginTop: '0.25rem' }}>
-            <BalToggle modelValue={supportSignatures} name="supportSignatures" onToggle={setSupportSignatures} />
-          </div>
-        </div>
 
         {/* Transaction Deadline (if gassless and swap context) */}
         {isGasless && context === SwapSettingsContext.swap && (
@@ -178,23 +129,18 @@ const SwapSettingsPopover: React.FC<Props> = ({ context, isGasless = false }) =>
               <BalTooltip
                 text="Your swap will expire and not execute if it is pending for more than the selected duration. Only executed transactions incur fees for swaps between ERC-20 tokens."
                 textAlign="center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="12"></line>
-                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-              </BalTooltip>
+                activator={
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" viewBox="0 0 14 15" fill="none">
+                    <path
+                      d="M7 7.2V10.2M7 4.806L7.006 4.7994M7 13.5C10.3138 13.5 13 10.8138 13 7.5C13 4.1862 10.3138 1.5 7 1.5C3.6862 1.5 1 4.1862 1 7.5C1 10.8138 3.6862 13.5 7 13.5Z"
+                      stroke="#B8B8CC"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                }
+              />
             </div>
             <DeadlineContainer style={{ marginTop: '0.25rem' }}>
               <DeadlineInputWrapper>
@@ -211,7 +157,7 @@ const SwapSettingsPopover: React.FC<Props> = ({ context, isGasless = false }) =>
             </DeadlineContainer>
           </div>
         )}
-      </div>
+      </Container>
     </BalPopover>
   )
 }
@@ -253,4 +199,23 @@ const Title = styled.div`
   font-weight: 600;
   line-height: normal;
   letter-spacing: -0.6px;
+`
+
+const Container = styled.div`
+  border-radius: 16px;
+  border: 1px solid #e6e6ff;
+  background: #fff;
+  box-shadow: 0px 16px 48px 0px rgba(63, 63, 132, 0.16);
+  display: flex;
+  width: 384px;
+  padding: 32px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+`
+
+const Line = styled.div`
+  border-top: 1px solid #e6e6ff;
+  margin-top: 16px;
+  width: 100%;
 `
