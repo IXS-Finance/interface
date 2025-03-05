@@ -213,7 +213,7 @@ export const HeaderLinks = () => {
         <StyledNavLink
           key="v2"
           ref={v2Node as any}
-          id="farming-nav-link"
+          id="dexV2-nav-link"
           to="#"
           isActive={(match, { pathname }) => pathname.startsWith('/v2')}
         >
