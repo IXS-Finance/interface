@@ -1,23 +1,26 @@
-import { MEDIA_WIDTHS, TYPE } from "theme";
-import { Trans } from "@lingui/macro";
-import styled from "styled-components";
-import Filters from "./Filters";
-import PoolList from "./PoolList";
-import { FilterProvider } from "./FilterProvider";
+import { MEDIA_WIDTHS, TYPE } from 'theme'
+import { Trans } from '@lingui/macro'
+import styled from 'styled-components'
+import Filters from './Filters'
+import PoolList from './PoolList'
+import { FilterProvider } from './FilterProvider'
+import DexV2Layout from 'pages/DexV2/common/Layout'
 
 export default function LiquidityPool() {
   return (
-    <FilterProvider>
-      <Pager>
-        <PageContainer>
-          <TYPE.title4 marginBottom="30px" data-testid="liquidityPoolTitle">
-            <Trans>Liquidity Pools</Trans>
-          </TYPE.title4>
-          <Filters />
-          <PoolList />
-        </PageContainer>
-      </Pager>
-    </FilterProvider>
+    <DexV2Layout>
+      <FilterProvider>
+        <Pager>
+          <PageContainer>
+            <TYPE.title4 marginBottom="30px" data-testid="liquidityPoolTitle">
+              <Trans>Liquidity Pools</Trans>
+            </TYPE.title4>
+            <Filters />
+            <PoolList />
+          </PageContainer>
+        </Pager>
+      </FilterProvider>
+    </DexV2Layout>
   )
 }
 

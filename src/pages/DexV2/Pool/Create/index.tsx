@@ -19,6 +19,7 @@ import VerticleSteps from '../components/VerticleSteps'
 import PoolSummary from './components/PoolSummary'
 import TokenPrices from '../components/TokenPrices'
 import SimilarPool from './components/Steps/SimilarPool'
+import DexV2Layout from 'pages/DexV2/common/Layout'
 
 const Create: React.FC = () => {
   const { chainId, account } = useWeb3React()
@@ -117,25 +118,25 @@ const Create: React.FC = () => {
   }, [isWalletReady])
 
   return (
-    <WidthFull>
-      <LayoutContainer>
-        <LeftContent>
-          <VerticleSteps steps={steps} activeStep={activeStep} />
-        </LeftContent>
-        <CenterContent>
-          {steps[activeStep].isVisible ? <CurrentStepComponent /> : null}
-        </CenterContent>
+    <DexV2Layout>
+      <WidthFull>
+        <LayoutContainer>
+          <LeftContent>
+            <VerticleSteps steps={steps} activeStep={activeStep} />
+          </LeftContent>
+          <CenterContent>{steps[activeStep].isVisible ? <CurrentStepComponent /> : null}</CenterContent>
 
-        {validTokens.length > 0 ? (
-          <RightContent>
-            <PoolSummary />
-            <TokenPrices toggleUnknownPriceModal={showUnknownTokenModal} />
-          </RightContent>
-        ) : null}
-      </LayoutContainer>
+          {validTokens.length > 0 ? (
+            <RightContent>
+              <PoolSummary />
+              <TokenPrices toggleUnknownPriceModal={showUnknownTokenModal} />
+            </RightContent>
+          ) : null}
+        </LayoutContainer>
 
-      <UnknownTokenPriceModal visible={isUnknownTokenModalVisible} onClose={handleUnknownModalClose} />
-    </WidthFull>
+        <UnknownTokenPriceModal visible={isUnknownTokenModalVisible} onClose={handleUnknownModalClose} />
+      </WidthFull>
+    </DexV2Layout>
   )
 }
 
