@@ -56,8 +56,6 @@ const SwapCard: React.FC = () => {
     setTokenOutAmount
   )
 
-  console.log('swapping', swapping)
-
   const { errorMessage } = useValidation(tokenInAddress, tokenInAmount, tokenOutAddress, tokenOutAmount)
   const isHighPriceImpact = swapping.sor.validationErrors.highPriceImpact && !dismissedErrors.highPriceImpact
   const hasMismatchedNetwork = isMismatchedNetwork
@@ -65,8 +63,7 @@ const SwapCard: React.FC = () => {
   const hasBalancerErrors = swapping.isBalancerSwap && isHighPriceImpact
   const swapDisabled =
     hasAmountsError || hasBalancerErrors || hasMismatchedNetwork || errorMessage !== SwapValidation.VALID
-  console.log('swapping', swapping)
-  console.log('errorMessage', errorMessage)
+
   const title =
     swapping.wrapType === WrapType.Wrap
       ? `Wrap ${swapping.tokenIn?.symbol}`
@@ -203,7 +200,7 @@ const SwapCard: React.FC = () => {
         />
       ) : null}
 
-      <SwapDetails pools={pools} swapping={swapping} />
+      {pools.length > 0 ? <SwapDetails pools={pools} swapping={swapping} /> : null}
 
       <Box>
         <ButtonPrimary disabled={!!swapDisabled} onClick={handlePreviewButton}>
