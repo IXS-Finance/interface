@@ -12,6 +12,9 @@ import { isSameAddress } from 'lib/utils'
 import { Box, Flex } from 'rebass'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import Asset from 'pages/DexV2/common/Asset'
+import BalCard from 'pages/DexV2/common/BalCard'
+import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
+import { networkSlug } from 'hooks/dex-v2/useNetwork'
 
 interface Props {
   addressIn: string
@@ -154,6 +157,8 @@ function getV2Routes(
 
 const SwapRoute: React.FC<Props> = (props) => {
   const { getToken } = useTokens()
+  const { fNum } = useNumbers()
+
   const [visible, setVisible] = useState(false)
 
   // Compute routes on every render instead of memoizing
@@ -197,91 +202,200 @@ const SwapRoute: React.FC<Props> = (props) => {
     setVisible(!visible)
   }
 
+  function formatShare(share: number): string {
+    return fNum(share, FNumFormats.percent)
+  }
+
+  if (!routes || routes.length === 0) return null
+
   return (
-    <div>
-      {routes.length > 0 ? (
-        <div>
-          <Flex alignItems="center" style={{ gap: 8, cursor: 'pointer' }} onClick={toggleVisible}>
-            <Box css={{ fontSize: 12, color: '#b8b8d' }}>Swap Route</Box>
-            <Flex alignItems="center">{visible ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</Flex>
-          </Flex>
-
-          {visible ? (
-            <Box mt="18px">
-              <div>
-                <Flex justifyContent="space-between">
-                  <div>
-                    <div className="font-semibold">{input.amount}</div>
-                    <div>{input.symbol}</div>
-                  </div>
-                  <Flex alignItems="flex-end" flexDirection="column">
-                    <div className="font-semibold">{output.amount}</div>
-                    <div>{output.symbol}</div>
-                  </Flex>
-                </Flex>
-
-                <Box mt="8px" css={{ position: 'relative' }}>
-                  <PairLine />
-                  <Flex justifyContent="space-between" css={{ position: 'relative', zIndex: 10 }}>
-                    <Asset address={input.address} size={36} />
-                    <Asset address={output.address} size={36} />
-                  </Flex>
-                </Box>
-              </div>
-              <Flex justifyContent="space-between" style={{ margin: `8px ${12 + routes.length}px` }}>
+    <Card shadow="none">
+      <ToggleHeader onClick={toggleVisible}>
+        <Box css={{ fontSize: 12, color: '#b8b8d' }}>Swap Route</Box>
+        <Flex alignItems="center">{visible ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</Flex>
+      </ToggleHeader>
+      {visible && (
+        <ContentWrapper>
+          {routes.length === 0 ? (
+            <div style={{ marginTop: '20px', fontSize: '0.875rem', color: 'var(--color-secondary)' }}>
+              No data available
+            </div>
+          ) : (
+            <>
+              <TokenInfoContainer>
+                <div>
+                  <div style={{ fontWeight: 'bold' }}>{input.amount}</div>
+                  <div>{input.symbol}</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontWeight: 'bold' }}>{output.amount}</div>
+                  <div>{output.symbol}</div>
+                </div>
+              </TokenInfoContainer>
+              <AssetsWrapper>
+                <PairLine />
+                <AssetsIcons>
+                  <Asset address={input.address} size={36} />
+                  <Asset address={output.address} size={36} />
+                </AssetsIcons>
+              </AssetsWrapper>
+              <TriangleContainer routesLength={routes.length}>
                 <Triangle size={8} fill="currentColor" style={{ transform: 'rotate(180deg)' }} />
                 <Triangle size={8} fill="currentColor" />
-              </Flex>
-              <Box css={{ position: 'relative' }} mx="16px" my="3px">
-                {routes.map((route, index) => (
-                  <RouteBox
-                    key={index}
-                    style={{
-                      height: `${18 + 70 * index}px`,
-                      width: `calc(100% - ${4 * (routes.length - index - 1)}px + 1px)`,
-                      margin: `0 ${2 * (routes.length - index - 1) - 1}px`,
-                    }}
-                  />
-                ))}
-
-                <Box css={{ position: 'relative', zIndex: 10 }}>
-                  {routes.map((route, index) => (
-                    <HopsContainer key={index}></HopsContainer>
+              </TriangleContainer>
+              <RoutesContainer>
+                {/* Background layers for each route */}
+                {routes.map((route, index) => {
+                  const bgStyle = {
+                    height: `${20 + 70 * index}px`,
+                    width: `calc(100% - ${4 * (routes.length - index - 1)}px + 1px)`,
+                    margin: `0 ${2 * (routes.length - index - 1) - 1}px`,
+                  }
+                  return <RouteBackground key={`bg-${index}`} style={bgStyle} />
+                })}
+                <div style={{ position: 'relative', zIndex: 10 }}>
+                  {routes.map((route, idx) => (
+                    <RouteItem key={route.hops[0]?.pool?.address} first={idx === 0}>
+                      <IconWrapper>
+                        <Triangle size={8} fill="currentColor" style={{ transform: 'rotate(90deg)' }} />
+                      </IconWrapper>
+                      <HopsContainer>
+                        {route.hops.map((hop, hIndex) => (
+                          <HopContainer key={hop?.pool?.address} first={hIndex === 0}>
+                            <HopLink
+                              href={`/#/${networkSlug}/pool/${hop.pool.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {hop.pool.tokens.map((token) => (
+                                <Asset
+                                  key={token.address}
+                                  address={token.address}
+                                  size={20}
+                                  style={{ marginLeft: hIndex === 0 ? 0 : '6px' }}
+                                />
+                              ))}
+                            </HopLink>
+                          </HopContainer>
+                        ))}
+                      </HopsContainer>
+                      <ShareText>{formatShare(route.share)}</ShareText>
+                    </RouteItem>
                   ))}
-                </Box>
-              </Box>
-            </Box>
-          ) : null}
-        </div>
-      ) : null}
-    </div>
+                </div>
+              </RoutesContainer>
+            </>
+          )}
+        </ContentWrapper>
+      )}
+    </Card>
   )
 }
 
 export default SwapRoute
 
-const PairLine = styled.div`
-  position: absolute;
-  margin: 0 2.25rem;
-  height: 50%;
-  border-bottom: 1px dashed #6b7280;
-  width: calc(100% - 72px);
+const Card = styled(BalCard)`
+  /* You can override styles here if needed; the shadow is controlled via props */
 `
 
-const RouteBox = styled.div`
+const ToggleHeader = styled.div`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--color-secondary);
+`
+
+const ContentWrapper = styled.div`
+  margin-top: 20px; /* mt-5 */
+`
+
+const TokenInfoContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem; /* text-xs */
+`
+
+const AssetsWrapper = styled.div`
+  position: relative;
+  margin-top: 8px; /* mt-2 */
+`
+
+const PairLine = styled.div`
   position: absolute;
-  border-radius: 0 0 0.375rem 0.375rem;
+  margin: 0 36px; /* mx-9 (9*4px = 36px) */
+  height: 50%; /* h-1/2 */
+  border-bottom: 1px dashed #6b7280; /* border-gray-500 + border-dashed */
+  width: calc(100% - 72px); /* from scoped style in Vue */
+`
+
+const AssetsIcons = styled.div`
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  z-index: 10;
+`
+
+const TriangleContainer = styled.div<{ routesLength: number }>`
+  display: flex;
+  justify-content: space-between;
+  margin: 8px ${(props) => 12 + props.routesLength}px;
+`
+
+const RoutesContainer = styled.div`
+  position: relative;
+  margin: 6px 16px; /* my-1.5 (6px) and mx-4 (16px) */
+`
+
+const RouteBackground = styled.div`
+  position: absolute;
   border-right: 1px solid #6b7280;
   border-bottom: 1px solid #6b7280;
   border-left: 1px solid #6b7280;
+  border-radius: 0 0 4px 4px; /* rounded-b-md approximation */
+`
+
+const RouteItem = styled.div<{ first: boolean }>`
+  display: flex;
+  justify-content: space-between;
+  margin-top: ${(props) => (props.first ? '0' : '36px')}; /* mt-9 for non-first items */
+`
+
+const IconWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: 16px; /* ml-4 */
+  width: 16px; /* w-4 */
 `
 
 const HopsContainer = styled.div`
   display: flex;
-  justify-content: space-between;
-  margin-top: 36px;
+`
 
-  &:fist-child {
-    margin-top: 0;
+const HopContainer = styled.div<{ first: boolean }>`
+  display: flex;
+  margin-left: ${(props) => (props.first ? '0' : '16px')}; /* first:ml-0 vs ml-4 */
+  background: white;
+  border: 1px solid #f3f4f6; /* border-gray-100 */
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: #f9fafb; /* hover:bg-gray-50 */
+    border-color: #e5e7eb; /* hover:border-gray-300 */
   }
+`
+
+const HopLink = styled.a`
+  display: flex;
+  padding: 6px; /* p-1.5 */
+  text-decoration: none;
+`
+
+const ShareText = styled.div`
+  margin-right: 16px; /* mr-4 */
+  width: 40px; /* w-10 */
+  font-size: 0.75rem; /* text-xs */
+  text-align: right;
+  color: var(--color-secondary);
 `
