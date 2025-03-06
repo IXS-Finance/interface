@@ -36,7 +36,8 @@
         "address": "0x949546713004ee02537292b1F41046f705909191",
         "name": "TIXS",
         "symbol": "TIXS",
-        "decimals": 18
+        "decimals": 18,
+        "logoURI": "https://asset-metadata-service-production.s3.amazonaws.com/asset_icons/f1516fe008a89da24fe1930c30acb4c4c262696a919c7e9c52dd127b9ee1cfc6.png"
       }
     ]
   }
