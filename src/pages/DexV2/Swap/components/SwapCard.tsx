@@ -22,6 +22,7 @@ import SwapPreviewModal from './SwapPreviewModal'
 import { useIsMounted } from 'hooks/dex-v2/useIsMounted'
 import BalAlert from 'pages/DexV2/Pool/components/BalAlert'
 import SwapSettingsPopover, { SwapSettingsContext } from 'pages/DexV2/common/popovers/SwapSettingsPopover'
+import SwapRoute from './SwapRoute'
 
 const SwapCard: React.FC = () => {
   const { inputAsset, outputAsset } = useSwapAssets()
@@ -166,6 +167,7 @@ const SwapCard: React.FC = () => {
   const isLoadingSwaps = swapping.isBalancerSwap ? swapping.isLoading : false
   const isLoading = isLoadingSwaps || !isMounted
   const loadingText = isLoading ? 'Fetching swap...' : 'Next'
+  const showSwapRoute = swapping.isBalancerSwap
 
   return (
     <Container>
@@ -201,13 +203,24 @@ const SwapCard: React.FC = () => {
         />
       ) : null}
 
-      <Box mt={3}>
+      <SwapDetails pools={pools} swapping={swapping} />
+
+      <Box>
         <ButtonPrimary disabled={!!swapDisabled} onClick={handlePreviewButton}>
           {loadingText}
         </ButtonPrimary>
       </Box>
 
-      <SwapDetails pools={pools} swapping={swapping} />
+      {showSwapRoute && swapping?.tokenIn && swapping?.tokenOut ? (
+        <SwapRoute
+          addressIn={swapping?.tokenIn?.address}
+          addressOut={swapping?.tokenOut?.address}
+          amountIn={swapping?.tokenInAmountInput}
+          amountOut={swapping?.tokenOutAmountInput}
+          pools={pools}
+          sorReturn={swapping.sor.sorReturn}
+        />
+      ) : null}
 
       {isOpenSwapPreview ? <SwapPreviewModal swapping={swapping} onClose={handlePreviewModalClose} /> : null}
     </Container>

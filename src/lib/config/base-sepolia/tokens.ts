@@ -5,7 +5,7 @@ const tokens: TokenConstants = {
     Symbols: ['USDC', 'TIXS', 'USDT', 'WETH'],
   },
   InitialSwapTokens: {
-    input: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+    input: '0x949546713004ee02537292b1F41046f705909191',
     output: '0xA9c2c7D5E9bdA19bF9728384FFD3cF71Ada5dfcB',
   },
   Addresses: {

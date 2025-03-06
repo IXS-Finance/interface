@@ -7,11 +7,9 @@ import ChevronDown from 'assets/images/dex-v2/chev-down.svg'
 import InfoIcon from 'assets/images/dex-v2/info.svg'
 import { UseSwapping } from 'state/dexV2/swap/useSwapping'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
-import { bn } from 'lib/balancer/utils/numbers'
 import useUserSettings from 'state/dexV2/userSettings/useUserSettings'
 import { WrapType } from 'lib/utils/balancer/wrapper'
 import SwapRate from './SwapRate'
-import SwapRoute from './SwapRoute'
 import { SubgraphPoolBase } from '@ixswap1/dex-v2-sdk'
 
 type Props = {
@@ -27,8 +25,6 @@ const SwapDetails: React.FC<Props> = ({ swapping, pools }) => {
   const isNativeWrapOrUnwrap = wrapType === WrapType.Wrap || wrapType === WrapType.Unwrap
   const priceImpact = _get(swapping, 'sor.priceImpact', 0)
   const priceImpactDisplay = fNum(priceImpact, FNumFormats.percent)
-  // Removed useMemo - assign directly:
-  const showSwapRoute = swapping.isBalancerSwap
 
   return (
     <Container>
@@ -49,17 +45,6 @@ const SwapDetails: React.FC<Props> = ({ swapping, pools }) => {
             {priceImpactDisplay} <img src={InfoIcon} alt="icon" />
           </SummaryValue>
         </Flex>
-
-        {showSwapRoute && swapping?.tokenIn && swapping?.tokenOut ? (
-          <SwapRoute
-            addressIn={swapping?.tokenIn?.address}
-            addressOut={swapping?.tokenOut?.address}
-            amountIn={swapping?.tokenInAmountInput}
-            amountOut={swapping?.tokenOutAmountInput}
-            pools={pools}
-            sorReturn={swapping.sor.sorReturn}
-          />
-        ) : null}
       </DetailContainer>
     </Container>
   )
@@ -113,4 +98,3 @@ const SummaryValue = styled.div<{ isRed?: boolean }>`
   align-items: center;
   gap: 8px;
 `
-
