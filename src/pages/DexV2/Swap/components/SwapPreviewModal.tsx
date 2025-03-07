@@ -56,6 +56,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
   const [tokenApprovalActions, setTokenApprovalActions] = useState<TransactionActionInfo[]>([])
 
   // Inline computed values (without useMemo)
+  const quote = swapping.getQuote()
   const slippageRatePercent = fNum(slippage, FNumFormats.percent)
   const addressIn = swapping.tokenIn.address
   const tokenInFiatValue = fNum(toFiat(swapping.tokenInAmountInput, swapping.tokenIn.address), FNumFormats.fiat)
@@ -65,7 +66,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
   const exceedsBalance =
     account && bnum(swapping.tokenInAmountInput).isGreaterThan(balanceFor(swapping.tokenInAddressInput))
   const disableSubmitButton = !!exceedsBalance || !!error || !!loadingApprovals
-
+  let amountToApprove = swapping.tokenInAmountInput
   const summary = (() => {
     const summaryItems: Record<string, string> = {
       amountBeforeFees: '',
@@ -86,7 +87,6 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
       summaryItems.totalWithoutSlippage = tokenOutAmountInput
       summaryItems.totalWithSlippage = tokenOutAmountInput
     } else {
-      const quote = swapping.getQuote()
       if (exactIn) {
         summaryItems.amountBeforeFees = tokenOutAmountInput
         summaryItems.swapFees = formatUnits(quote.feeAmountOutToken, tokenOut.decimals)
@@ -99,7 +99,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
         summaryItems.totalWithSlippage = formatUnits(quote.maximumInAmount, tokenIn.decimals)
       }
     }
-
+    amountToApprove = summaryItems.totalWithSlippage
     if (showSummaryInFiat) {
       return mapValues(
         summaryItems,
@@ -234,7 +234,6 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blockNumber])
 
-  console.log('tokenApprovalSpender', tokenApprovalSpender)
   // Lifecycle: on mount, fetch token approval actions
   useEffect(() => {
     async function fetchTokenApprovalActions() {
@@ -242,7 +241,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
         amountsToApprove: [
           {
             address: addressIn,
-            amount: swapping.tokenInAmountInput,
+            amount: amountToApprove,
           },
         ],
         spender: tokenApprovalSpender,
