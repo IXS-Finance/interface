@@ -2551,10 +2551,10 @@
   resolved "https://registry.yarnpkg.com/@ixswap1/default-token-list/-/default-token-list-1.5.8.tgz#251440a4f0e522fe213f5cfb10e14517185eb803"
   integrity sha512-BABvHi/CxKShqBJg4Q5nw1EnWe/JG1/qN7VbY7gLLnFcSG1FTwImm9bSg/C0SG6FPCNcrFdzcDU7FjzfYCi0oA==
 
-"@ixswap1/dex-v2-sdk@^1.2.6":
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/@ixswap1/dex-v2-sdk/-/dex-v2-sdk-1.2.6.tgz#01c21bcff77516c5ccfae03cae79d444df8032cc"
-  integrity sha512-FqxeWoXQCPh9UIbN+LNHezvendIEs8CC6q7trvTfZIbVbRrdHDEiR9Unk/bI05EeW9mNmBvAmht/d4B51OdjQQ==
+"@ixswap1/dex-v2-sdk@^1.2.8":
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/@ixswap1/dex-v2-sdk/-/dex-v2-sdk-1.2.8.tgz#efa7f4b0cd9e371d1c300a76e6dff2cc028d4ec8"
+  integrity sha512-7C5Cda2TFbihsXcJMsWsQKopSyNH23urghpu22uUt3rrCH0iA9dLI9Cocbm3+kzzN4+2XsYzpW7Ncnu7vuGlPw==
   dependencies:
     "@ethersproject/abi" "^5.4.0"
     "@ethersproject/abstract-signer" "^5.4.0"
@@ -2565,7 +2565,7 @@
     "@ethersproject/constants" "^5.4.0"
     "@ethersproject/contracts" "^5.4.0"
     "@ethersproject/providers" "^5.4.5"
-    "@ixswap1/ixs-v2-sor" "^0.1.0"
+    "@ixswap1/ixs-v2-sor" "^0.1.1"
     axios "^0.24.0"
     ethers "^5"
     graphql "^15.6.1"
@@ -2573,10 +2573,10 @@
     json-to-graphql-query "^2.2.4"
     lodash "^4.17.21"
 
-"@ixswap1/ixs-v2-sor@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@ixswap1/ixs-v2-sor/-/ixs-v2-sor-0.1.0.tgz#ed82eaa56f0ffe316d22a40377b17288cfeba484"
-  integrity sha512-xnzsDKmsg3s6vzdkWQcf2MO34S0+aCR9n93jUfLXgtg7zlfx4Yt0pMV0GpM1mzLxXiHH405sfPqOSIJELDYO1w==
+"@ixswap1/ixs-v2-sor@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@ixswap1/ixs-v2-sor/-/ixs-v2-sor-0.1.1.tgz#5395b99a11bb6ca74b50f6130014eaf773aacb62"
+  integrity sha512-y4VML4FJMIBB4kELjKkunL7npbDP8DuSwqOn7cODQl3NdAsk4d2ZO24/Dq5AFRFFSm3Mt+lk95CU+75aePG6GA==
   dependencies:
     isomorphic-fetch "^2.2.1"
 
