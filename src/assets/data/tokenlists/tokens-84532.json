@@ -17,7 +17,7 @@
       },
       {
         "chainId": 84532,
-        "address": "0x142953B2F88D0939FD9f48F4bFfa3A2BFa21e4F8",
+        "address": "0xb6cd7297d7f0D761C5C395383219333d47F47b2a",
         "name": "USDT",
         "symbol": "USDT",
         "decimals": 6,
@@ -25,7 +25,7 @@
       },
       {
         "chainId": 84532,
-        "address": "0xA9c2c7D5E9bdA19bF9728384FFD3cF71Ada5dfcB",
+        "address": "0x8e3b0aEEF4b75d5aF86eF027fFe2d7C2AeC21CA4",
         "name": "USDC",
         "symbol": "USDC",
         "decimals": 6,

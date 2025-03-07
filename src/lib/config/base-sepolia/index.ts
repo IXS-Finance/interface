@@ -25,7 +25,7 @@ const config: Config = {
   ws: ``,
   explorer: 'https://sepolia.basescan.org',
   explorerName: 'Etherscan',
-  subgraph: 'https://api.studio.thegraph.com/query/80624/balancer-sepolia/version/latest',
+  subgraph: 'https://api.studio.thegraph.com/query/27946/v2-basesepolia/version/latest',
   poolsUrlV2: '',
   subgraphs: {
     main: ['https://api.studio.thegraph.com/query/24660/balancer-sepolia-v2/version/latest'],
@@ -43,7 +43,8 @@ const config: Config = {
     symbol: 'ETH',
     decimals: 18,
     deeplinkId: 'ether',
-    logoURI: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
+    logoURI:
+      'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
     minTransactionBuffer: '0.05',
   },
   thirdParty: {
