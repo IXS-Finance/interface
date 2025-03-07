@@ -15,8 +15,8 @@ export type TokenPrices = { [address: string]: number }
 
 const initTokenPrices: TokenPrices = {
   ['0x4a2b0767ACEE85C7825F09F48A9347285F58a5C2']: 2700,
-  ['0x142953B2F88D0939FD9f48F4bFfa3A2BFa21e4F8']: 1,
-  ['0xA9c2c7D5E9bdA19bF9728384FFD3cF71Ada5dfcB']: 1,
+  ['0xb6cd7297d7f0D761C5C395383219333d47F47b2a']: 1,
+  ['0x8e3b0aEEF4b75d5aF86eF027fFe2d7C2AeC21CA4']: 1,
   ['0x949546713004ee02537292b1F41046f705909191']: 0.3,
 }
 

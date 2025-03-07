@@ -9,6 +9,6 @@ export const SUBGRAPH_URLS: Record<string, Record<number, string>> = {
     [84532]: 'https://subgraph.satsuma-prod.com/788670ba78ee/ixswap/ixs-lbp-base-sepolia/api',
   },
   [SUBGRAPH_QUERY.POOLS]: {
-    84532: 'https://api.studio.thegraph.com/query/80624/balancer-sepolia/version/latest',
-  }
+    84532: 'https://api.studio.thegraph.com/query/27946/v2-basesepolia/version/latest',
+  },
 }
