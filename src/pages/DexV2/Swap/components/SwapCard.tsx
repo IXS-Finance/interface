@@ -20,9 +20,9 @@ import { WrapType } from 'lib/utils/balancer/wrapper'
 import { SubgraphPoolBase } from '@ixswap1/dex-v2-sdk'
 import SwapPreviewModal from './SwapPreviewModal'
 import { useIsMounted } from 'hooks/dex-v2/useIsMounted'
-import BalAlert from 'pages/DexV2/Pool/components/BalAlert'
 import SwapSettingsPopover, { SwapSettingsContext } from 'pages/DexV2/common/popovers/SwapSettingsPopover'
 import SwapRoute from './SwapRoute'
+import { BalAlert } from 'pages/DexV2/common/BalAlert'
 
 const SwapCard: React.FC = () => {
   const { inputAsset, outputAsset } = useSwapAssets()
