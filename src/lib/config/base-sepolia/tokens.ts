@@ -5,14 +5,14 @@ const tokens: TokenConstants = {
     Symbols: ['USDC', 'TIXS', 'USDT', 'WETH'],
   },
   InitialSwapTokens: {
-    input: '0x949546713004ee02537292b1F41046f705909191',
-    output: '0xA9c2c7D5E9bdA19bF9728384FFD3cF71Ada5dfcB',
+    input: '0xb6cd7297d7f0D761C5C395383219333d47F47b2a',
+    output: '0x8e3b0aEEF4b75d5aF86eF027fFe2d7C2AeC21CA4',
   },
   Addresses: {
     nativeAsset: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
     wNativeAsset: '0x4a2b0767ACEE85C7825F09F48A9347285F58a5C2',
     WETH: '0x4a2b0767ACEE85C7825F09F48A9347285F58a5C2',
-    USDC: '0xA9c2c7D5E9bdA19bF9728384FFD3cF71Ada5dfcB',
+    USDC: '0x8e3b0aEEF4b75d5aF86eF027fFe2d7C2AeC21CA4',
   },
   PriceChainMap: {
     /**
