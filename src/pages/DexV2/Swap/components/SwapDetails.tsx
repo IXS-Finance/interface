@@ -1,51 +1,82 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 import _get from 'lodash/get'
 
-import ChevronDown from 'assets/images/dex-v2/chev-down.svg'
+import { ChevronDown, ChevronUp } from 'react-feather'
 import InfoIcon from 'assets/images/dex-v2/info.svg'
 import { UseSwapping } from 'state/dexV2/swap/useSwapping'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import useUserSettings from 'state/dexV2/userSettings/useUserSettings'
 import { WrapType } from 'lib/utils/balancer/wrapper'
 import SwapRate from './SwapRate'
-import { SubgraphPoolBase } from '@ixswap1/dex-v2-sdk'
 
 type Props = {
   swapping: UseSwapping
-  pools: SubgraphPoolBase[]
+  hopCount: number
 }
 
-const SwapDetails: React.FC<Props> = ({ swapping, pools }) => {
+const SwapDetails: React.FC<Props> = ({ swapping, hopCount }) => {
   const { fNum, toFiat } = useNumbers()
   const { slippage, slippageDecimal } = useUserSettings()
+
+  const [visible, setVisible] = useState(false)
 
   const wrapType = _get(swapping, 'wrapType', '')
   const isNativeWrapOrUnwrap = wrapType === WrapType.Wrap || wrapType === WrapType.Unwrap
   const priceImpact = _get(swapping, 'sor.priceImpact', 0)
   const priceImpactDisplay = fNum(priceImpact, FNumFormats.percent)
 
+  function toggleVisible() {
+    setVisible(!visible)
+  }
+
   return (
     <Container>
-      <Flex justifyContent="space-between" alignItems="center" width="100%">
+      <Flex
+        justifyContent="space-between"
+        alignItems="center"
+        width="100%"
+        css={{ cursor: 'pointer' }}
+        onClick={toggleVisible}
+      >
         <SwapRate swapping={swapping} />
         <Flex alignItems="center" style={{ gap: 8, cursor: 'pointer' }}>
           <DetailText>Detail</DetailText>
-          <div style={{ width: 8 }}>
-            <img src={ChevronDown} alt="Chevron Down" style={{ width: '100%', height: 'auto' }} />
-          </div>
+          <Flex alignItems="center" color="#B8B8D2">
+            {visible ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </Flex>
         </Flex>
       </Flex>
 
-      <DetailContainer>
-        <Flex justifyContent="space-between" width="100%" alignItems="center">
-          <SummaryKey>Price impact</SummaryKey>
-          <SummaryValue isRed={priceImpact < 0}>
-            {priceImpactDisplay} <img src={InfoIcon} alt="icon" />
-          </SummaryValue>
-        </Flex>
-      </DetailContainer>
+      {visible ? (
+        <DetailContainer>
+          <Flex justifyContent="space-between" width="100%" alignItems="center">
+            <SummaryKey>Price impact</SummaryKey>
+            <SummaryValue isRed={priceImpact < 0}>
+              {priceImpactDisplay} <img src={InfoIcon} alt="icon" />
+            </SummaryValue>
+          </Flex>
+          <Flex justifyContent="space-between" width="100%" alignItems="center">
+            <SummaryKey>Max slippage</SummaryKey>
+            <SummaryValue>
+              -- <img src={InfoIcon} alt="icon" />
+            </SummaryValue>
+          </Flex>
+          <Flex justifyContent="space-between" width="100%" alignItems="center">
+            <SummaryKey>Max. fees</SummaryKey>
+            <SummaryValue>
+              -- <img src={InfoIcon} alt="icon" />
+            </SummaryValue>
+          </Flex>
+          <Flex justifyContent="space-between" width="100%" alignItems="center">
+            <SummaryKey>Swap route</SummaryKey>
+            <SummaryValue>
+              {hopCount ? hopCount + ` ${hopCount > 1 ? 'hops' : 'hop'}` : '--'} <img src={InfoIcon} alt="icon" />
+            </SummaryValue>
+          </Flex>
+        </DetailContainer>
+      ) : null}
     </Container>
   )
 }

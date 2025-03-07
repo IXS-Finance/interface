@@ -30,6 +30,7 @@ const SwapCard: React.FC = () => {
   const { nativeAsset } = useTokens()
   const isMounted = useIsMounted()
 
+  const [hopCount, setHopCount] = useState(0)
   const [isOpenSwapPreview, setOpenSwapPreview] = useState(false)
   const [exactIn, setExactIn] = useState(true)
   const [dismissedErrors, setDismissedErrors] = useState({
@@ -200,7 +201,7 @@ const SwapCard: React.FC = () => {
         />
       ) : null}
 
-      {pools.length > 0 ? <SwapDetails pools={pools} swapping={swapping} /> : null}
+      {pools.length > 0 ? <SwapDetails swapping={swapping} hopCount={hopCount} /> : null}
 
       <Box>
         <ButtonPrimary disabled={!!swapDisabled} onClick={handlePreviewButton}>
@@ -216,6 +217,7 @@ const SwapCard: React.FC = () => {
           amountOut={swapping?.tokenOutAmountInput}
           pools={pools}
           sorReturn={swapping.sor.sorReturn}
+          setHopCount={setHopCount}
         />
       ) : null}
 
@@ -240,7 +242,6 @@ const Container = styled.div`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
     padding: 24px 16px;
-    margin-top: 48px;
   `};
 
   .p-3 {
@@ -258,15 +259,6 @@ const Title = styled.div`
   font-style: normal;
   font-weight: 600;
   letter-spacing: -0.6px;
-`
-
-const PercentText = styled.div`
-  color: #b8b8cc;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 500;
-  letter-spacing: -0.42px;
-  margin-right: 4px;
 `
 
 const HorizontalLine = styled.div`

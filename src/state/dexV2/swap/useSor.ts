@@ -81,8 +81,6 @@ export function calcPriceImpact(
   const SCALE = 18
   const scalingFactor = BigNumber.from(10).pow(SCALE)
 
-  console.log('buyTokenAmount.toString()', buyTokenAmount.toString())
-  console.log('sellTokenDecimals', sellTokenDecimals)
   const effectivePrice = sellTokenScaled.mul(scalingFactor).div(buyTokenScaled)
   const marketSpScaled = parseFixed(marketSp, SCALE)
 
