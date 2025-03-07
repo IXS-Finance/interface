@@ -491,6 +491,8 @@ export default function useSor({
       try {
         const tx = await swapOut(sr, tokenInAmountMax, tokenOutAmountScaled)
         console.log('Swap out tx', tx)
+
+        txHandler(tx, 'swap')
         if (successCallback != null) {
           successCallback()
         }
