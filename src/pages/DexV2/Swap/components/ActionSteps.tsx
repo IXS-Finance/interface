@@ -150,12 +150,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     try {
       updateActionState(actionIndex, { init: true, error: null })
 
-      let tx: any
-      if (actionInfo.label === 'Fund pool') {
-        tx = await joinPool() // Because joinPool is async
-      } else {
-        tx = await action()
-      }
+      const tx = await action()
 
       updateActionState(actionIndex, { init: false, confirming: true })
 
@@ -181,8 +176,6 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     dispatch(setActionStates(actionStatesData))
   }, [JSON.stringify(requiredActions)])
 
-  console.log('currentActionState', currentActionState)
-  console.log('test', lastActionState)
   return (
     <div>
       {currentActionState && currentActionState?.error && !isLoading ? (
