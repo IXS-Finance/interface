@@ -220,7 +220,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
   }, [address])
 
   return (
-    <Container>
+    <Container isError={isInvalid && !!errors[0]}>
       <Flex justifyContent="space-between" alignItems="center">
         <div>
           <StyledInput
@@ -265,7 +265,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
           <Box
             sx={{
               fontSize: '12px',
-              color: '#f56565',
+              color: '#FF8080',
               mt: 2,
             }}
           >
@@ -279,13 +279,14 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
 
 export default TokenInput
 
-const Container = styled.div`
+const Container = styled.div<{ isError: boolean }>`
   border-radius: 8px;
   background: #f7f7fa;
   display: flex;
   padding: 16px;
   flex-direction: column;
   gap: 8px;
+  border: ${({ isError }) => (isError ? '1px solid rgba(255, 128, 128, 0.50)' : 'none')};
 `
 
 const StyledInput = styled.input`
