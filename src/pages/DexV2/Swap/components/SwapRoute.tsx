@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { getAddress } from '@ethersproject/address'
 import { AddressZero } from '@ethersproject/constants'
@@ -23,6 +23,7 @@ interface Props {
   amountOut: string
   pools: SubgraphPoolBase[]
   sorReturn: SorReturn
+  setHopCount?: (count: number) => void
 }
 
 interface Asset {
@@ -206,13 +207,19 @@ const SwapRoute: React.FC<Props> = (props) => {
     return fNum(share, FNumFormats.percent)
   }
 
+  useEffect(() => {
+    props.setHopCount &&  props.setHopCount(routes.length)
+  }, [routes.length])
+
   if (!routes || routes.length === 0) return null
 
   return (
     <Card shadow="none">
       <ToggleHeader onClick={toggleVisible}>
-        <Box css={{ fontSize: 12, color: '#b8b8d' }}>Swap Route</Box>
-        <Flex alignItems="center">{visible ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</Flex>
+        <Box css={{ fontSize: 14, color: '#B8B8D2', fontWeight: 500 }}>Swap Route</Box>
+        <Flex alignItems="center" color="#B8B8D2" ml="4px">
+          {visible ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </Flex>
       </ToggleHeader>
       {visible && (
         <ContentWrapper>
