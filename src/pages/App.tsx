@@ -316,6 +316,7 @@ const BodyWrapper = styled.div<{ hideHeader?: boolean }>`
   display: flex;
   flex-direction: column;
   width: 100%;
+  min-height: calc(100vh - 150px);
   ${(props) => !props.hideHeader && 'margin-top: 120px;'}
   align-items: center;
   flex: 1;
@@ -324,6 +325,10 @@ const BodyWrapper = styled.div<{ hideHeader?: boolean }>`
     padding: 0 12px;
     margin-top: 0;
   `};
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    min-height: 100%;
+  `}
 `
 
 const ToggleableBody = styled(BodyWrapper)<{ isVisible?: boolean; hideHeader?: boolean }>`
