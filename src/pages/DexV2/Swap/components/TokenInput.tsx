@@ -187,7 +187,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
         return setDisplayValue(data)
       }
 
-      setDisplayValue(value ? numeral(value).format('0,0') : '')
+      setDisplayValue(value && Number(value) ? numeral(value).format('0,0') : '')
     }
   }
 
