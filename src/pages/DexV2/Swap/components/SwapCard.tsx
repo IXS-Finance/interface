@@ -201,7 +201,9 @@ const SwapCard: React.FC = () => {
         />
       ) : null}
 
-      {pools.length > 0 ? <SwapDetails swapping={swapping} hopCount={hopCount} /> : null}
+      {showSwapRoute && hopCount > 0 && swapping?.tokenIn && swapping?.tokenOut ? (
+        <SwapDetails swapping={swapping} hopCount={hopCount} />
+      ) : null}
 
       <Box>
         <ButtonPrimary disabled={!!swapDisabled} onClick={handlePreviewButton}>
