@@ -22,7 +22,6 @@ import useNetwork from 'hooks/dex-v2/useNetwork'
 import { SwapQuote } from 'state/dexV2/swap/types'
 import { bnum, bnumZero } from 'lib/utils'
 import { getWrapAction, WrapType } from 'lib/utils/balancer/wrapper'
-import BalAlert from 'pages/DexV2/Pool/components/BalAlert'
 import { Box, Flex } from 'rebass'
 import Asset from 'pages/DexV2/common/Asset'
 import BalCard from 'pages/DexV2/common/Card'
@@ -30,6 +29,8 @@ import { FiatCurrency } from 'constants/dexV2/currency'
 import { ButtonPrimary } from 'pages/DexV2/common'
 import ActionSteps from './ActionSteps'
 import SwapRoute from './SwapRoute'
+import Modal from 'pages/DexV2/common/modals'
+import { BalAlert } from 'pages/DexV2/common/BalAlert'
 
 interface SwapSettingsModalProps {
   swapping: UseSwapping
@@ -256,288 +257,277 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
   }, [addressIn, swapping.tokenInAmountInput, tokenApprovalSpender, JSON.stringify(allowances)])
 
   return (
-    <Portal>
-      <CenteredFixed width="100vw" height="100vh">
-        <ModalContent>
-          <HeaderModal>
-            <TitleWrapper>
-              <Title>{labels.modalTitle}</Title>
-              <CloseButton onClick={onClose}>
-                <CloseIcon />
-              </CloseButton>
-            </TitleWrapper>
-          </HeaderModal>
+    <Modal onClose={onClose}>
+      <BodyModal>
+        <Title>{labels.modalTitle}</Title>
 
-          <BodyModal>
-            <div>
-              <BalCard noPad className="overflow-auto relative mb-6">
-                {error ? (
-                  <BalAlert
-                    className="p-3 mb-2"
-                    type="error"
-                    size="sm"
-                    title={error.header}
-                    description={error.body}
-                    actionLabel={error.label}
-                    block
-                  />
-                ) : null}
-                {!error && warning && (
-                  <BalAlert
-                    className="p-3 mb-2"
-                    type="warning"
-                    size="sm"
-                    title={warning.header}
-                    description={warning.body}
-                    block
-                  />
-                )}
+        <Box
+          p="12px"
+          width="100%"
+          fontSize="14px"
+          css={{ border: ' 1px solid #E6E6FF;', borderRadius: '8px' }} // light-mode text color
+        >
+          Effective price:{' '}
+          <span style={{ fontWeight: 500 }}>
+            {swapping.exactIn ? swapping.effectivePriceMessage.tokenIn : swapping.effectivePriceMessage.tokenOut}
+          </span>
+        </Box>
+
+        <div>
+          {error ? (
+            <BalAlert
+              className="p-3 mb-2"
+              type="error"
+              size="sm"
+              title={error.header}
+              description={error.body}
+              actionLabel={error.label}
+              block
+            />
+          ) : null}
+          {!error && warning && (
+            <BalAlert
+              className="p-3 mb-2"
+              type="warning"
+              size="sm"
+              title={warning.header}
+              description={warning.body}
+              block
+            />
+          )}
+
+          {exceedsBalance && (
+            <BalAlert
+              className="p-3"
+              type="error"
+              size="sm"
+              title={`Exceeds wallet balance ${fNum(balanceFor(swapping.tokenInAddressInput), FNumFormats.token)} ${
+                swapping.tokenIn.symbol
+              }`}
+              block
+              square
+            />
+          )}
+        </div>
+
+        <Flex flexDirection="column" css={{ position: 'relative', gap: 16 }}>
+          <Box
+            css={{
+              padding: '16px',
+              background: '#F7F7FA',
+              borderRadius: '8px',
+            }}
+          >
+            <Flex alignItems="center">
+              <Box mr="12px">
+                <Asset address={swapping.tokenIn.address} size={36} />
+              </Box>
+              <div>
+                <Box fontSize="14px" fontWeight={500}>
+                  {fNum(swapping.tokenInAmountInput, FNumFormats.token)}
+                  {swapping.tokenIn.symbol}
+                </Box>
+                <Box fontSize="14px" fontWeight={500} css={{ color: '#B8B8D2' }}>
+                  {tokenInFiatValue}
+                </Box>
+              </div>
+            </Flex>
+          </Box>
+
+          <ArrowDown>
+            <svg
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+              stroke="currentColor"
+              strokeWidth="2"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+          </ArrowDown>
+
+          <Box
+            css={{
+              padding: '16px',
+              background: '#F7F7FA',
+              borderRadius: '8px',
+            }}
+          >
+            <Flex alignItems="center">
+              <Box mr="12px">
+                <Asset address={swapping.tokenOut.address} size={36} />
+              </Box>
+              <div>
+                <Box fontSize="14px" fontWeight={500}>
+                  {fNum(swapping.tokenOutAmountInput, FNumFormats.token)}
+                  {swapping.tokenOut.symbol}
+                </Box>
+                <Box fontSize="14px" fontWeight={500} css={{ color: '#B8B8D2' }}>
+                  {tokenInFiatValue}{' '}
+                  {swapping.isBalancerSwap || swapping.isWrapUnwrapSwap ? (
+                    <span>
+                      / Price impact:
+                      {fNum(swapping.sor.priceImpact, FNumFormats.percent)}
+                    </span>
+                  ) : null}
+                </Box>
+              </div>
+            </Flex>
+          </Box>
+        </Flex>
+
+        <BalCard noPad shadow="none" className="mb-3">
+          <Flex
+            justifyContent="space-between"
+            alignItems="center"
+            p="12px"
+            width="100%"
+            css={{ borderBottom: '1px solid #e2e8f0' }}
+          >
+            <Box fontWeight={600}>{labels.swapSummary.title}</Box>
+            <Box
+              display="flex" // Equivalent to 'flex'
+              fontSize="12px" // Tailwind 'text-xs' is usually 0.75rem (12px)
+              sx={{
+                // This applies a left border to every child element except the first,
+                // simulating Tailwind's 'divide-x'
+                '& > * + *': {
+                  borderLeft: '1px solid',
+                  borderColor: 'gray.200',
+                },
+              }}
+              css={{ textTransform: 'uppercase' }}
+            >
+              <Flex>
                 <Box
-                  p={3}
-                  width="100%" // equivalent to w-full
-                  fontSize={1} // adjust this value based on your theme (text-sm)
-                  bg="#f8fafc" // light-mode background
-                  css={{ borderBottom: 'solid 1px #e2e8f0' }} // light-mode text color
+                  pr={2} // padding-right, equivalent to Tailwind's pr-2
+                  sx={{
+                    cursor: 'pointer',
+                    fontWeight: 500, // Tailwind's font-medium
+                    color: !showSummaryInFiat ? 'blue.600' : 'inherit', // text-blue-600 when not showing fiat
+                  }}
+                  onClick={() => setShowSummaryInFiat(false)}
                 >
-                  {`Effective price: ${
-                    swapping.exactIn ? swapping.effectivePriceMessage.tokenIn : swapping.effectivePriceMessage.tokenOut
-                  }`}
+                  Token
                 </Box>
-
-                <Box css={{ position: 'relative' }}>
-                  {exceedsBalance && (
-                    <BalAlert
-                      className="p-3"
-                      type="error"
-                      size="sm"
-                      title={`Exceeds wallet balance ${fNum(
-                        balanceFor(swapping.tokenInAddressInput),
-                        FNumFormats.token
-                      )} ${swapping.tokenIn.symbol}`}
-                      block
-                      square
-                    />
-                  )}
-
-                  <Box
-                    css={{
-                      position: 'relative',
-                      padding: '12px',
-                      borderBottom: '1px solid #e2e8f0',
-                    }}
-                  >
-                    <Flex alignItems="center">
-                      <Box mr="12px">
-                        <Asset address={swapping.tokenIn.address} size={36} />
-                      </Box>
-                      <div>
-                        <div>
-                          {fNum(swapping.tokenInAmountInput, FNumFormats.token)}
-                          {swapping.tokenIn.symbol}
-                        </div>
-                        <div>{tokenInFiatValue}</div>
-                      </div>
-                    </Flex>
-                  </Box>
-
-                  <ArrowDown>
-                    <svg
-                      viewBox="0 0 24 24"
-                      width="24"
-                      height="24"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <line x1="12" y1="5" x2="12" y2="19"></line>
-                      <polyline points="19 12 12 19 5 12"></polyline>
-                    </svg>
-                  </ArrowDown>
-
-                  <Box
-                    css={{
-                      padding: '12px',
-                      borderBottom: '1px solid #e2e8f0',
-                    }}
-                  >
-                    <Flex alignItems="center">
-                      <Box mr="12px">
-                        <Asset address={swapping.tokenOut.address} size={36} />
-                      </Box>
-                      <div>
-                        <div>
-                          {fNum(swapping.tokenOutAmountInput, FNumFormats.token)}
-                          {swapping.tokenOut.symbol}
-                        </div>
-                        <div>
-                          {tokenInFiatValue}{' '}
-                          {swapping.isBalancerSwap || swapping.isWrapUnwrapSwap ? (
-                            <span>
-                              / Price impact:
-                              {fNum(swapping.sor.priceImpact, FNumFormats.percent)}
-                            </span>
-                          ) : null}
-                        </div>
-                      </div>
-                    </Flex>
-                  </Box>
-                </Box>
-              </BalCard>
-
-              <BalCard noPad shadow="none" className="mb-3">
-                <Flex
-                  justifyContent="space-between"
-                  alignItems="center"
-                  p="12px"
-                  width="100%"
-                  css={{ borderBottom: '1px solid #e2e8f0' }}
-                >
-                  <Box fontWeight={600}>{labels.swapSummary.title}</Box>
-                  <Box
-                    display="flex" // Equivalent to 'flex'
-                    fontSize="12px" // Tailwind 'text-xs' is usually 0.75rem (12px)
-                    sx={{
-                      // This applies a left border to every child element except the first,
-                      // simulating Tailwind's 'divide-x'
-                      '& > * + *': {
-                        borderLeft: '1px solid',
-                        borderColor: 'gray.200',
-                      },
-                    }}
-                    css={{ textTransform: 'uppercase' }}
-                  >
-                    <Flex>
-                      <Box
-                        pr={2} // padding-right, equivalent to Tailwind's pr-2
-                        sx={{
-                          cursor: 'pointer',
-                          fontWeight: 500, // Tailwind's font-medium
-                          color: !showSummaryInFiat ? 'blue.600' : 'inherit', // text-blue-600 when not showing fiat
-                        }}
-                        onClick={() => setShowSummaryInFiat(false)}
-                      >
-                        Token
-                      </Box>
-                      <Box
-                        pl={2} // padding-left, equivalent to Tailwind's pl-2
-                        sx={{
-                          cursor: 'pointer',
-                          fontWeight: 500, // Tailwind's font-medium
-                          textTransform: 'uppercase', // uppercase text
-                          color: showSummaryInFiat ? 'blue.600' : 'inherit', // text-blue-600 when showing fiat
-                        }}
-                        onClick={() => setShowSummaryInFiat(true)}
-                      >
-                        {FiatCurrency.usd}
-                      </Box>
-                    </Flex>
-                  </Box>
-                </Flex>
-
                 <Box
-                  p={3} // p-3
-                  width="100%" // w-full
-                  fontSize={1} // text-sm (adjust based on your theme)
-                  bg="white" // light mode background
+                  pl={2} // padding-left, equivalent to Tailwind's pl-2
+                  sx={{
+                    cursor: 'pointer',
+                    fontWeight: 500, // Tailwind's font-medium
+                    textTransform: 'uppercase', // uppercase text
+                    color: showSummaryInFiat ? 'blue.600' : 'inherit', // text-blue-600 when showing fiat
+                  }}
+                  onClick={() => setShowSummaryInFiat(true)}
                 >
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    fontWeight="medium" // font-medium
-                    mb={2}
-                    className="summary-item-row"
-                  >
-                    <Box width={256}>
-                      {' '}
-                      {/* w-64: 16rem equals 256px */}
-                      {labels.swapSummary.totalAfterFees}
-                    </Box>
-                    <Box
-                      // replicates v-html="summary.totalWithoutSlippage"
-                      dangerouslySetInnerHTML={{ __html: summary.totalWithoutSlippage }}
-                    />
-                  </Box>
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    color="secondary" // text-secondary (ensure this exists in your theme)
-                    className="summary-item-row"
-                  >
-                    <Box width={256}>{labels.swapSummary.totalWithSlippage}</Box>
-                    <Box
-                      // replicate v-html based on condition
-                      dangerouslySetInnerHTML={{
-                        __html: swapping.isWrapUnwrapSwap ? '' : summary.totalWithSlippage,
-                      }}
-                    />
-                  </Box>
+                  {FiatCurrency.usd}
                 </Box>
-              </BalCard>
+              </Flex>
+            </Box>
+          </Flex>
 
-              {showPriceUpdateError && (
-                <BalAlert
-                  className="p-3 mb-4"
-                  type="error"
-                  size="md"
-                  title="Price updated"
-                  description={`The swap price has updated by more than ${fNum(
-                    PRICE_UPDATE_THRESHOLD,
-                    FNumFormats.percent
-                  )}`}
-                  actionLabel="Accept"
-                  block
-                  onActionClick={confirmPriceUpdate}
-                />
-              )}
-
-              {!account ? (
-                <ButtonPrimary onClick={startConnectWithInjectedProvider}>Connect Wallet</ButtonPrimary>
-              ) : (
-                <ActionSteps
-                  requiredActions={actions}
-                  primaryActionType="swap"
-                  disabled={disableSubmitButton || showPriceUpdateError}
-                />
-              )}
-
-              {swapping.submissionError != null && (
-                <BalAlert
-                  className="p-3 mt-4"
-                  type="error"
-                  size="md"
-                  title="Swap submission error"
-                  description={swapping.submissionError}
-                  block
-                  actionLabel="Dismiss"
-                  onActionClick={swapping.resetSubmissionError}
-                />
-              )}
-            </div>
-            {showSwapRoute ? (
-              <SwapRoute
-                addressIn={swapping?.tokenIn?.address}
-                addressOut={swapping?.tokenOut?.address}
-                amountIn={swapping?.tokenInAmountInput}
-                amountOut={swapping?.tokenOutAmountInput}
-                pools={pools}
-                sorReturn={swapping.sor.sorReturn}
+          <Box
+            p={3} // p-3
+            width="100%" // w-full
+            fontSize={1} // text-sm (adjust based on your theme)
+            bg="white" // light mode background
+          >
+            <Box
+              display="flex"
+              alignItems="center"
+              fontWeight="medium" // font-medium
+              mb={2}
+              className="summary-item-row"
+            >
+              <Box width={256}>
+                {' '}
+                {/* w-64: 16rem equals 256px */}
+                {labels.swapSummary.totalAfterFees}
+              </Box>
+              <Box
+                // replicates v-html="summary.totalWithoutSlippage"
+                dangerouslySetInnerHTML={{ __html: summary.totalWithoutSlippage }}
               />
-            ) : null}
-          </BodyModal>
-        </ModalContent>
-      </CenteredFixed>
-    </Portal>
+            </Box>
+            <Box
+              display="flex"
+              alignItems="center"
+              color="secondary" // text-secondary (ensure this exists in your theme)
+              className="summary-item-row"
+            >
+              <Box width={256}>{labels.swapSummary.totalWithSlippage}</Box>
+              <Box
+                // replicate v-html based on condition
+                dangerouslySetInnerHTML={{
+                  __html: swapping.isWrapUnwrapSwap ? '' : summary.totalWithSlippage,
+                }}
+              />
+            </Box>
+          </Box>
+        </BalCard>
+
+        {showPriceUpdateError && (
+          <BalAlert
+            className="p-3 mb-4"
+            type="error"
+            size="md"
+            title="Price updated"
+            description={`The swap price has updated by more than ${fNum(PRICE_UPDATE_THRESHOLD, FNumFormats.percent)}`}
+            actionLabel="Accept"
+            block
+            onActionClick={confirmPriceUpdate}
+          />
+        )}
+
+        {!account ? (
+          <ButtonPrimary onClick={startConnectWithInjectedProvider}>Connect Wallet</ButtonPrimary>
+        ) : (
+          <ActionSteps
+            requiredActions={actions}
+            primaryActionType="swap"
+            disabled={disableSubmitButton || showPriceUpdateError}
+          />
+        )}
+
+        {swapping.submissionError != null && (
+          <BalAlert
+            className="p-3 mt-4"
+            type="error"
+            size="md"
+            title="Swap submission error"
+            description={swapping.submissionError}
+            block
+            actionLabel="Dismiss"
+            onActionClick={swapping.resetSubmissionError}
+          />
+        )}
+
+        {showSwapRoute ? (
+          <SwapRoute
+            addressIn={swapping?.tokenIn?.address}
+            addressOut={swapping?.tokenOut?.address}
+            amountIn={swapping?.tokenInAmountInput}
+            amountOut={swapping?.tokenOutAmountInput}
+            pools={pools}
+            sorReturn={swapping.sor.sorReturn}
+          />
+        ) : null}
+      </BodyModal>
+    </Modal>
   )
 }
 
 export default SwapPreviewModal
 
-const ModalContent = styled.div`
-  background: white;
-  border-radius: 16px;
-  width: 480px;
+const BodyModal = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
 
   .p3 {
     padding: 12px;
@@ -562,49 +552,6 @@ const ModalContent = styled.div`
   .mt-4 {
     margin-top: 16px;
   }
-`
-
-const HeaderModal = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-  align-self: stretch;
-  padding-top: 32px;
-  padding-left: 32px;
-  padding-right: 32px;
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-`
-
-const BodyModal = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding-top: 16px;
-  padding-left: 32px;
-  padding-right: 32px;
-  padding-bottom: 32px;
-  border-bottom-left-radius: 16px;
-  border-bottom-right-radius: 16px;
-`
-
-const CloseButton = styled.div`
-  cursor: pointer;
-  color: rgba(41, 41, 51, 0.5);
-  font-family: Inter;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  letter-spacing: -0.42px;
-`
-
-const TitleWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
 `
 
 const Title = styled.div`
@@ -650,14 +597,15 @@ export const Button = styled.button`
 const ArrowDown = styled.div`
   position: absolute;
   right: 0;
-  border-radius: 9999px; /* rounded-full */
-  border: 1px solid #f3f4f6; /* border-gray-100 */
+  top: 50%;
+  transform: translate(50%, -50%);
+  border-radius: 9999px;
   display: flex;
   align-items: center;
-  height: 2rem; /* h-8 */
-  width: 2rem; /* w-8 */
+  height: 48px;
+  width: 48px;
   justify-content: center;
-  background-color: #ffffff; /* bg-white */
-  margin-right: 0.75rem; /* mr-3 */
-  transform: translateY(-50%);
+  background-color: #ffffff;
+  margin-right: 32px;
+  color: #b8b8cc;
 `
