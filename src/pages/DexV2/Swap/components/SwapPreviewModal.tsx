@@ -172,6 +172,15 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
   const { getTokenApprovalActions } = useTokenApprovalActions()
   const pools = swapping.sor.pools
   const showPriceUpdateError = priceUpdated && !priceUpdateAccepted
+
+  async function swap() {
+    return swapping.swap(() => {
+      swapping.resetAmounts()
+      onClose()
+    })
+  }
+
+
   const actions: TransactionActionInfo[] = [
     ...tokenApprovalActions,
     {
@@ -185,12 +194,6 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
 
   console.log('actions', actions)
   // METHODS
-  async function swap() {
-    await swapping.swap(() => {
-      swapping.resetAmounts()
-      onClose()
-    })
-  }
 
   function confirmPriceUpdate() {
     setPriceUpdated(false)
@@ -254,7 +257,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
     }
 
     fetchTokenApprovalActions()
-  }, [addressIn, swapping.tokenInAmountInput, tokenApprovalSpender, JSON.stringify(allowances)])
+  }, [addressIn, swapping.tokenInAmountInput, tokenApprovalSpender])
 
   return (
     <Modal onClose={onClose}>
@@ -324,8 +327,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
               </Box>
               <div>
                 <Box fontSize="14px" fontWeight={500}>
-                  {fNum(swapping.tokenInAmountInput, FNumFormats.token)}
-                  {swapping.tokenIn.symbol}
+                  {fNum(swapping.tokenInAmountInput, FNumFormats.token)} {swapping.tokenIn.symbol}
                 </Box>
                 <Box fontSize="14px" fontWeight={500} css={{ color: '#B8B8D2' }}>
                   {tokenInFiatValue}
@@ -363,8 +365,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
               </Box>
               <div>
                 <Box fontSize="14px" fontWeight={500}>
-                  {fNum(swapping.tokenOutAmountInput, FNumFormats.token)}
-                  {swapping.tokenOut.symbol}
+                  {fNum(swapping.tokenOutAmountInput, FNumFormats.token)} {swapping.tokenOut.symbol}
                 </Box>
                 <Box fontSize="14px" fontWeight={500} css={{ color: '#B8B8D2' }}>
                   {tokenInFiatValue}{' '}
@@ -529,7 +530,7 @@ const BodyModal = styled.div`
   gap: 1rem;
   width: 100%;
 
-  .p3 {
+  .p-3 {
     padding: 12px;
   }
 
@@ -551,6 +552,10 @@ const BodyModal = styled.div`
 
   .mt-4 {
     margin-top: 16px;
+  }
+
+  .mb-4 {
+    margin-bottom: 16px;
   }
 `
 

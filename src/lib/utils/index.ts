@@ -55,6 +55,23 @@ export function selectByAddress<T>(map: Record<string, T>, address: string): T |
 }
 
 /**
+ * Wait for a reactive variable to change to an expected value.
+ */
+export async function forChange<T>(
+  reactiveVar: any,
+  expected: T,
+  checkCount = 0,
+  checkDelay = 500,
+  checkLimit = 20
+): Promise<void> {
+  console.log(checkCount)
+  if (reactiveVar === expected || checkCount >= checkLimit) return;
+  await sleep(checkDelay);
+  await forChange(reactiveVar, expected, checkCount+1);
+}
+
+
+/**
  * Sums and array of string numbers and returns as BigNumber
  */
 export function bnSum(amounts: string[]): BigNumber {

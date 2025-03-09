@@ -111,7 +111,6 @@ export default function useSwapping(
 
   // METHODS
   async function swap(successCallback?: () => void) {
-    // handles both Balancer and Wrap/Unwrap swaps
     return sor.swap(() => {
       if (successCallback) {
         successCallback()

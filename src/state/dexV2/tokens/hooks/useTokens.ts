@@ -2,7 +2,7 @@ import { useDispatch } from 'react-redux'
 import { compact, omit, pick } from 'lodash'
 import { getAddress, isAddress } from '@ethersproject/address'
 
-import { bnum, getAddressFromPoolId, includesAddress, isSameAddress, selectByAddressFast } from 'lib/utils'
+import { bnum, forChange, getAddressFromPoolId, includesAddress, isSameAddress, selectByAddressFast } from 'lib/utils'
 import { NativeAsset, TokenInfo, TokenInfoMap, TokenListMap } from 'types/TokenList'
 import { useTokensState } from '.'
 import { setTokensState } from '..'
@@ -18,17 +18,17 @@ import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { BalanceMap } from 'services/token/concerns/balances.concern'
 import { ContractAllowancesMap } from 'services/token/concerns/allowances.concern'
 import { AmountToApprove } from 'hooks/dex-v2/approvals/useTokenApprovalActions'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const { uris: tokenListUris } = tokenListService
 
 export const useTokens = () => {
   const state = useTokensState()
-
   const dispatch = useDispatch()
   const { networkConfig } = useConfig()
   const { isWalletReady } = useWeb3()
   const { allTokenLists, activeTokenLists, balancerTokenLists } = useTokenLists()
+  const { allowances } = state
 
   /**
    * STATE
@@ -115,7 +115,13 @@ export const useTokens = () => {
 
   const prices: TokenPrices = priceData ? priceData : {}
   const balances: BalanceMap = balanceData ? balanceData : {}
-  const allowances: ContractAllowancesMap = allowanceData ? allowanceData : {}
+
+  useEffect(() => {
+    dispatch(setTokensState({ allowanceQueryRefetching }))
+  }, [allowanceQueryRefetching])
+  useEffect(() => {
+    dispatch(setTokensState({ allowances: allowanceData ? allowanceData : {} }))
+  }, [JSON.stringify(allowanceData)])
 
   const onchainDataLoading: boolean =
     isWalletReady &&
@@ -181,6 +187,7 @@ export const useTokens = () => {
     )
 
     dispatch(setTokensState({ injectedTokens: newTokens }))
+    // await forChange(onchainDataLoading, false);
   }
 
   /**
@@ -192,6 +199,7 @@ export const useTokens = () => {
     addresses = addresses.filter((a) => a).map(getAddress)
 
     setSpenders(addresses)
+    // await forChange(onchainDataLoading, false);
   }
 
   /**
@@ -250,6 +258,37 @@ export const useTokens = () => {
    */
   function allowanceFor(tokenAddress: string, spenderAddress: string): any {
     return bnum((allowances[getAddress(spenderAddress)] || {})[getAddress(tokenAddress)])
+  }
+
+  /**
+   * Returns the allowance for a token, scaled by token decimals
+   *  (so 1 ETH = 1, 1 GWEI = 0.000000001)
+   */
+  function allowanceForWithAllowances(
+    tokenAddress: string,
+    spenderAddress: string,
+    newAllowances: ContractAllowancesMap
+  ): any {
+    return bnum((newAllowances[getAddress(spenderAddress)] || {})[getAddress(tokenAddress)])
+  }
+
+  /**
+   * Check if approval is required for given contract address
+   * for a token and amount.
+   */
+  function approvalRequiredWithAllowances(
+    tokenAddress: string,
+    amount: string,
+    spenderAddress: string,
+    newAllowances: ContractAllowancesMap
+  ): boolean {
+    if (!amount || bnum(amount).eq(0)) return false
+    if (!spenderAddress) return false
+    if (isSameAddress(tokenAddress, nativeAsset.address)) return false
+
+    const allowance = allowanceForWithAllowances(tokenAddress, spenderAddress, newAllowances)
+
+    return allowance.lt(bnum(amount))
   }
 
   /**
@@ -390,6 +429,7 @@ export const useTokens = () => {
     balanceQueryLoading,
     dynamicDataLoaded,
     dynamicDataLoading,
+    allowanceQueryRefetching: state.allowanceQueryRefetching,
     priceQueryError,
     priceQueryLoading,
     balancesQueryError,
@@ -404,6 +444,7 @@ export const useTokens = () => {
     hasBalance,
     approvalRequired,
     approvalsRequired,
+    approvalRequiredWithAllowances,
     allowanceFor,
     priceFor,
     balanceFor,
