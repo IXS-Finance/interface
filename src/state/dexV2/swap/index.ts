@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { networkConfig } from 'hooks/dex-v2/useNetwork'
 import config from 'lib/config'
+import { TransactionActionState } from 'types/transactions'
 
 const defaultSwapDeadlineMinutes = 100
 
@@ -20,6 +21,7 @@ export interface SwapState {
   tokenOutAmount: string
   transactionDeadline: number
   priceImpact: number
+  actionStates: TransactionActionState[]
 }
 
 const initialState: SwapState = {
@@ -38,6 +40,7 @@ const initialState: SwapState = {
   tokenOutAmount: '',
   transactionDeadline: defaultSwapDeadlineMinutes,
   priceImpact: 0,
+  actionStates: [],
 }
 
 const swapSlice = createSlice({
@@ -59,10 +62,28 @@ const swapSlice = createSlice({
       const tokenIndex = state.selectedTokens.indexOf(action.payload)
       state.selectedTokens.splice(tokenIndex, 1)
     },
+    setActionStates(state, action) {
+      state.actionStates = action.payload
+    },
+    setValueOfActionState(state, action) {
+      const { actionIndex, value } = action.payload
+      const currentState = state.actionStates[actionIndex] as any
+      state.actionStates[actionIndex] = {
+        ...currentState,
+        ...value,
+      }
+    },
     resetSwapState: () => initialState,
   },
 })
 
-export const { setSwapState, resetSwapState, setSelectedTokensState, addSelectedTokenState, removeSelectedTokenState } =
-  swapSlice.actions
+export const {
+  setSwapState,
+  resetSwapState,
+  setSelectedTokensState,
+  addSelectedTokenState,
+  removeSelectedTokenState,
+  setValueOfActionState,
+  setActionStates,
+} = swapSlice.actions
 export default swapSlice.reducer

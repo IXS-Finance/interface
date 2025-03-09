@@ -1,10 +1,10 @@
 import { useDispatch, useSelector } from 'react-redux'
-import { setSwapState } from '.'
+import { setSwapState, setValueOfActionState } from '.'
 import { AppState } from 'state'
 
 export function useSwapState() {
   const dispatch = useDispatch()
-  const { initialized, tokenInAddress, tokenOutAddress, tokenInAmount, tokenOutAmount } = useSelector(
+  const { initialized, tokenInAddress, tokenOutAddress, tokenInAmount, tokenOutAmount, actionStates } = useSelector(
     (state: AppState) => state.swapDexV2
   )
 
@@ -26,7 +26,12 @@ export function useSwapState() {
     dispatch(setSwapState({ tokenOutAmount: amount }))
   }
 
+  const updateActionState = (actionIndex: number, value: any) => {
+    dispatch(setValueOfActionState({ actionIndex, value }))
+  }
+
   return {
+    actionStates,
     initialized,
     tokenInAddress,
     tokenOutAddress,
@@ -37,5 +42,6 @@ export function useSwapState() {
     setTokenOutAddress,
     setTokenInAmount,
     setTokenOutAmount,
+    updateActionState,
   }
 }

@@ -67,7 +67,6 @@ const WithdrawPreviewModal: React.FC<WithdrawPreviewModalProps> = ({ pool, onClo
   // Close handler: if no BPT, navigate to the pool page; else call onClose callback.
   const handleClose = () => {
     if (!hasBpt) {
-      debugger
       history.push(`/pool/${pool.id}?networkSlug=${networkSlug}`)
     } else {
       onClose()

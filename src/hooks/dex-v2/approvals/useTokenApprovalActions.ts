@@ -8,7 +8,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import useTransactions from '../useTransactions'
 import { configService } from 'services/config/config.service'
 import { flatten } from 'lodash'
-import { bnum } from 'lib/utils'
+import { bnum, forChange } from 'lib/utils'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useWeb3 from '../useWeb3'
 
@@ -40,8 +40,17 @@ export default function useTokenApprovalActions() {
   /**
    * COMPOSABLES
    */
-  const { tokens, refetchAllowances, approvalsRequired, approvalRequired, getToken, injectSpenders, allowanceFor } =
-    useTokens()
+  const {
+    allowances,
+    allowanceQueryRefetching,
+    tokens,
+    refetchAllowances,
+    approvalsRequired,
+    approvalRequiredWithAllowances,
+    getToken,
+    injectSpenders,
+    allowanceFor,
+  } = useTokens()
   const { getSigner } = useWeb3()
   const { addTransaction } = useTransactions()
 
@@ -82,9 +91,9 @@ export default function useTokenApprovalActions() {
     }
   }
 
-  async function updateAllowancesFor(spender: string): Promise<void> {
+  async function updateAllowancesFor(spender: string): Promise<any> {
     await injectSpenders([spender])
-    await refetchAllowances()
+    return await refetchAllowances()
   }
 
   async function getApprovalsRequired(
@@ -102,9 +111,9 @@ export default function useTokenApprovalActions() {
   async function isApprovalValid(amountToApprove: AmountToApprove, spender: string): Promise<boolean> {
     if (bnum(amountToApprove.amount).eq(0)) return true
 
-    await updateAllowancesFor(spender)
+    const { data } = await updateAllowancesFor(spender)
 
-    return !approvalRequired(amountToApprove.address, amountToApprove.amount, spender)
+    return !approvalRequiredWithAllowances(amountToApprove.address, amountToApprove.amount, spender, data || allowances)
   }
 
   /**

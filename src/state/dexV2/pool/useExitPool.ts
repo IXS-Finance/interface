@@ -237,7 +237,6 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
         transactionDeadline: transactionDeadline,
         toInternalBalance: shouldExitViaInternalBalance,
       })
-      debugger
       const newMax = selectByAddress(output.amountsOut, singleAmountOut.address) || '0'
       dispatch(setDataForSingleAmountOut({ key: 'max', value: newMax }))
       return newMax
