@@ -149,17 +149,17 @@ function isErrorOfType(error: any, messages: RegExp[]): boolean {
 export function useErrorMsg() {
   const gasTooLowError: TransactionError = {
     title: 'Gas too low',
-    description: 'transactionErrors.gasTooLow.description',
+    description: 'Transaction gas is too low. There is not enough gas to cover minimal cost of the transaction. Try increasing supplied gas.',
   }
 
   const cannotEstimateGasError: TransactionError = {
     title: 'transactionErrors.cannotEstGas.title',
-    description: 'transactionErrors.cannotEstGas.description',
+    description: 'Transaction may fail or require manual gas limit.',
   }
 
   const slippageError: TransactionError = {
-    title: 'transactionErrors.slippage.title',
-    description: 'transactionErrors.slippage.description',
+    title: 'Cannot estimate gas',
+    description: 'Transaction may fail or require manual gas limit.',
   }
 
   const unknownAccountError: TransactionError = {

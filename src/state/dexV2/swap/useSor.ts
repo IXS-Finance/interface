@@ -439,6 +439,7 @@ export default function useSor({
   async function swap(successCallback?: () => void) {
     setSwapping(true)
     setConfirming(true)
+    setSubmissionError(null)
     const tokenInAddress = tokenInAddressInput
     const tokenOutAddress = tokenOutAddressInput
     const tokenInDecimals = getToken(tokenInAddress).decimals
@@ -580,7 +581,10 @@ export default function useSor({
     throw error
   }
 
-  function resetState() {}
+  function resetState() {
+    dispatch(setSwapState({ validationErrors: { ...state.validationErrors, highPriceImpact: false, noSwaps: false } }))
+    setSubmissionError(null)
+  }
 
   useEffect(() => {
     const getData = async () => {

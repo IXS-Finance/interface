@@ -3,16 +3,16 @@ import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract
 import { useDispatch } from 'react-redux'
 
 import { TransactionActionInfo, TransactionActionState } from 'pages/DexV2/types/transactions'
-import HorizSteps, { Step, StepState } from 'pages/DexV2/Pool/components/HorizSteps'
+import HorizSteps, { Step, StepState } from './HorizSteps'
 import { NavigationButtons, NextButton } from 'pages/DexV2/Pool/Create'
 import { captureBalancerException, useErrorMsg } from 'lib/utils/errors'
-import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import Loader from 'components/Loader'
 import useEthers from 'hooks/dex-v2/useEthers'
 import { TransactionAction, postConfirmationDelay } from 'hooks/dex-v2/useTransactions'
 import { dateTimeLabelFor } from 'hooks/dex-v2/useTime'
-import { setActionStates } from 'state/dexV2/poolCreation'
-import BalAlert from 'pages/DexV2/Pool/components/BalAlert'
+import { BalAlert } from 'pages/DexV2/common/BalAlert'
+import { useSwapState } from 'state/dexV2/swap/useSwapState'
+import { setActionStates } from 'state/dexV2/swap'
 
 export type BalStepAction = {
   label: string
@@ -61,8 +61,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   const dispatch = useDispatch()
   const { txListener, getTxConfirmedAt } = useEthers()
   const { formatErrorMsg } = useErrorMsg()
-  const { actionStates, hasRestoredFromSavedState, poolTypeString, createPool, joinPool, updateActionState } =
-    usePoolCreation()
+  const { actionStates, updateActionState } = useSwapState()
 
   const [loading, setLoading] = useState(false)
   const [currentActionIndex, setCurrentActionIndex] = useState(0)
@@ -90,7 +89,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   const lastActionState: TransactionActionState = actionStates[actionStates.length - 1]
   const steps: Step[] = actions.map((action: any) => action.step)
 
-  const _loadingLabel: string = currentAction?.pending ? currentAction.loadingLabel : loadingLabel || 'Loading...'
+  const _loadingLabel: string = currentAction?.pending ? currentAction.loadingLabel : loadingLabel || 'Fetching data...'
 
   function getStepState(actionState: TransactionActionState, index: number): StepState {
     if (currentActionIndex < index) return StepState.Todo
@@ -120,16 +119,21 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
 
         await postConfirmationDelay(tx)
 
-        await postActionValidation?.()
-        if (!postActionValidation) {
+        const isValid = await postActionValidation?.()
+
+        if (isValid || !postActionValidation) {
           const confirmedAt = await getTxConfirmedAt(receipt)
           updateActionState(actionIndex, { confirmedAt: dateTimeLabelFor(confirmedAt), confirmed: true })
-
           if (currentActionIndex >= actions.length - 1) {
             console.log('success', receipt, state.confirmedAt)
           } else {
-            setCurrentActionIndex((prevIndex: any) => prevIndex + 1)
+            setCurrentActionIndex(currentActionIndex + 1)
           }
+        } else {
+          if (actionInvalidReason) {
+            updateActionState(actionIndex, { error: actionInvalidReason })
+          }
+          updateActionState(actionIndex, { init: false })
         }
         updateActionState(actionIndex, { confirming: false })
       },
@@ -156,7 +160,6 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
         handleSignAction(state)
         return
       }
-
       if (tx) handleTransaction(tx, state, actionInfo, actionIndex)
     } catch (error) {
       console.log(error)
@@ -177,17 +180,17 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   return (
     <div>
       {currentActionState && currentActionState?.error && !isLoading ? (
-        <BalAlert type="error" title={currentActionState?.error?.title ?? 'Error'}>
+        <BalAlert type="error" title={currentActionState?.error?.title ?? 'Error'} className="mb-4">
           {currentActionState?.error?.description ?? 'An error occurred'}
         </BalAlert>
       ) : null}
 
-      {actions && actions.length > 1 && !lastActionState?.confirmed ? <HorizSteps steps={steps} /> : null}
+      {actions && actions.length > 1 && !lastActionState?.confirmed && !disabled ? <HorizSteps steps={steps} /> : null}
       {!lastActionState?.confirmed ? (
         <NavigationButtons>
-          <NextButton onClick={() => currentAction?.promise()} disabled={currentAction?.pending || loading}>
-            {loading ? <Loader /> : null}
-            {currentAction?.label}
+          <NextButton onClick={() => currentAction?.promise()} disabled={disabled || currentAction?.pending || loading}>
+            {loading || disabled ? <Loader /> : null}
+            {!disabled ? currentAction?.label : _loadingLabel}
           </NextButton>
         </NavigationButtons>
       ) : null}

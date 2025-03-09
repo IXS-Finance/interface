@@ -7,10 +7,10 @@ import { TokenListMap, TokenInfoMap, TokenInfo } from 'types/TokenList'
 import { wagmiConfig } from 'components/Web3Provider'
 import config from 'lib/config'
 import { erc20Abi, formatUnits } from 'viem'
+import { ContractAllowancesMap } from 'services/token/concerns/allowances.concern'
 
 export type BalanceMap = { [address: string]: string }
 export type AllowanceMap = { [address: string]: string }
-export type ContractAllowancesMap = { [address: string]: AllowanceMap }
 export type TokenPrices = { [address: string]: number }
 
 const initTokenPrices: TokenPrices = {
@@ -34,6 +34,7 @@ interface AllowanceInputPayload {
 interface TokensState {
   balances: BalanceMap
   allowances: ContractAllowancesMap
+  allowanceQueryRefetching: boolean
   tokens: TokenInfoMap
   prices: TokenPrices
   wrappedNativeAsset: TokenInfo | null
@@ -52,6 +53,7 @@ const TOKENS = networkConfig.tokens
 const initialState: TokensState = {
   balances: {},
   allowances: {},
+  allowanceQueryRefetching: false,
   tokens: {},
   prices: {},
   wrappedNativeAsset: null,
