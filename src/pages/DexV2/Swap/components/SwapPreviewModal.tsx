@@ -182,7 +182,6 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
     })
   }
 
-
   const actions: TransactionActionInfo[] = [
     ...tokenApprovalActions,
     {
@@ -243,11 +242,16 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
   // Lifecycle: on mount, fetch token approval actions
   useEffect(() => {
     async function fetchTokenApprovalActions() {
+      let amountToApprove = swapping.tokenInAmountInput
+      if (!swapping.exactIn) {
+        amountToApprove = bnum(swapping.tokenOutAmountInput).times(bnum(1).plus(slippage)).toString()
+      }
+
       const actions = await getTokenApprovalActions({
         amountsToApprove: [
           {
             address: addressIn,
-            amount: swapping.exactIn ? swapping.tokenInAmountInput : swapping.tokenOutAmountInput,
+            amount: amountToApprove,
           },
         ],
         spender: tokenApprovalSpender,

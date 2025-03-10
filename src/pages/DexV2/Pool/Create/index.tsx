@@ -8,13 +8,11 @@ import InitialLiquidity from './components/Steps/InitialLiquidity'
 import config from 'lib/config'
 import { useWeb3React } from 'hooks/useWeb3React'
 import PreviewPool from './components/Steps/PreviewPool'
-import { useDispatch } from 'react-redux'
 
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import UnknownTokenPriceModal from '../../common/modals/UnknownTokenPriceModal'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { StepState } from 'types'
-import useWeb3 from 'hooks/dex-v2/useWeb3'
 import VerticleSteps from '../components/VerticleSteps'
 import PoolSummary from './components/PoolSummary'
 import TokenPrices from '../components/TokenPrices'
@@ -22,15 +20,12 @@ import SimilarPool from './components/Steps/SimilarPool'
 import DexV2Layout from 'pages/DexV2/common/Layout'
 
 const Create: React.FC = () => {
-  const { chainId, account } = useWeb3React()
+  const { chainId } = useWeb3React()
   const { activeStep, similarPools, tokensList, seedTokens, hasRestoredFromSavedState } = usePoolCreation()
-  const { tokens, priceFor, getToken, injectTokens, injectSpenders } = useTokens()
-  const dispatch = useDispatch()
+  const { priceFor, getToken, injectTokens } = useTokens()
   const networkConfig = config[chainId]
-  const { appNetworkConfig, isWalletReady } = useWeb3()
 
   const [isUnknownTokenModalVisible, setIsUnknownTokenModalVisible] = useState(false)
-  const [isLoading, setLoading] = useState(true)
 
   const validTokens = tokensList.filter((t: string) => t !== '')
   const doSimilarPoolsExist = similarPools.length > 0
@@ -112,10 +107,6 @@ const Create: React.FC = () => {
       showUnknownTokenModal()
     }
   }, [activeStep])
-
-  useEffect(() => {
-    injectSpenders([appNetworkConfig.addresses.vault])
-  }, [isWalletReady])
 
   return (
     <DexV2Layout>
