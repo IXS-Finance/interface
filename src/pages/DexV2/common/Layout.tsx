@@ -31,4 +31,8 @@ const Container = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin-top: 48px;
   `}
+
+  .h-120 {
+    height: 30rem;
+  }
 `

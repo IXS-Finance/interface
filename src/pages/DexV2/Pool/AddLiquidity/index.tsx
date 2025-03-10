@@ -16,7 +16,9 @@ const AddLiquidity: React.FC = () => {
 
   return (
     <DexV2Layout>
-      <Container>{isLoading || !pool ? <LoadingBlock className="h-120" /> : <AddLiquidityCard pool={pool} />}</Container>
+      <Container>
+        {isLoading || !pool ? <LoadingBlock className="h-120" /> : <AddLiquidityCard pool={pool} />}
+      </Container>
     </DexV2Layout>
   )
 }
@@ -28,8 +30,4 @@ const Container = styled.div`
   margin: 0 auto;
   width: 100%;
   max-width: 462px;
-
-  .h-120 {
-    height: 30rem;
-  }
 `
