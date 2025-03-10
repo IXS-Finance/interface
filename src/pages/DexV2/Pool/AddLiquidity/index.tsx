@@ -5,7 +5,6 @@ import { useParams } from 'react-router-dom'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 import { usePool } from 'state/dexV2/pool/usePool'
 import AddLiquidityCard from './AddLiquidityCard'
-import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import DexV2Layout from 'pages/DexV2/common/Layout'
 
@@ -13,14 +12,9 @@ const AddLiquidity: React.FC = () => {
   const params = useParams<any>()
   const poolId = (params.id as string).toLowerCase()
   const { pool, isLoadingPool } = usePool(poolId)
-  const { appNetworkConfig, isWalletReady } = useWeb3()
-  const { injectSpenders, tokens } = useTokens()
+  const { tokens } = useTokens()
 
   const isLoading: boolean = isLoadingPool
-
-  useEffect(() => {
-    injectSpenders([appNetworkConfig.addresses.vault])
-  }, [isWalletReady])
 
   return (
     <DexV2Layout>

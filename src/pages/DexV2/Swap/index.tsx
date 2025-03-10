@@ -3,23 +3,14 @@ import styled from 'styled-components'
 
 import usePoolFilters from 'state/dexV2/swap/usePoolFilters'
 import SwapCard from './components/SwapCard'
-import useWeb3 from 'hooks/dex-v2/useWeb3'
-import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
-import { walletService } from 'services/web3/wallet.service'
 import DexV2Layout from '../common/Layout'
 
 const Swap: React.FC = () => {
   const { setSelectedTokens } = usePoolFilters()
-  const { appNetworkConfig, isWalletReady, getProvider } = useWeb3()
-  const { injectSpenders } = useTokens()
 
   useEffect(() => {
     setSelectedTokens([])
   }, [])
-
-  useEffect(() => {
-    injectSpenders([appNetworkConfig.addresses.vault])
-  }, [isWalletReady])
 
   return (
     <DexV2Layout>
