@@ -118,6 +118,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
     }
   })()
 
+  console.log('summary', summary)
   const labels = (() => {
     if (swapping.isWrap) {
       return {
@@ -193,7 +194,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
     },
   ]
 
-  console.log('actions', actions)
+  console.log('quote', quote)
   // METHODS
 
   function confirmPriceUpdate() {
@@ -246,7 +247,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
         amountsToApprove: [
           {
             address: addressIn,
-            amount: amountToApprove,
+            amount: swapping.exactIn ? swapping.tokenInAmountInput : swapping.tokenOutAmountInput,
           },
         ],
         spender: tokenApprovalSpender,
@@ -259,6 +260,8 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
 
     fetchTokenApprovalActions()
   }, [addressIn, swapping.tokenInAmountInput, tokenApprovalSpender])
+
+  console.log('swapping', swapping)
 
   return (
     <Modal onClose={onClose}>
