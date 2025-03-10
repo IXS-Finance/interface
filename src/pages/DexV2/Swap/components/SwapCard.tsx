@@ -23,6 +23,7 @@ import { useIsMounted } from 'hooks/dex-v2/useIsMounted'
 import SwapSettingsPopover, { SwapSettingsContext } from 'pages/DexV2/common/popovers/SwapSettingsPopover'
 import SwapRoute from './SwapRoute'
 import { BalAlert } from 'pages/DexV2/common/BalAlert'
+import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 
 const SwapCard: React.FC = () => {
   const { inputAsset, outputAsset } = useSwapAssets()
@@ -65,6 +66,7 @@ const SwapCard: React.FC = () => {
   const hasBalancerErrors = swapping.isBalancerSwap && isHighPriceImpact
   const swapDisabled =
     hasAmountsError || hasBalancerErrors || hasMismatchedNetwork || errorMessage !== SwapValidation.VALID
+  const swapLoading = swapping.isBalancerSwap ? swapping.isLoading : false
 
   const title =
     swapping.wrapType === WrapType.Wrap
@@ -169,62 +171,68 @@ const SwapCard: React.FC = () => {
   const showSwapRoute = swapping.isBalancerSwap
 
   return (
-    <Container>
-      <Flex justifyContent="space-between" alignItems="center">
-        <Title>{title}</Title>
+    <>
+      {swapLoading ? (
+        <LoadingBlock className="h-120" />
+      ) : (
+        <Container>
+          <Flex justifyContent="space-between" alignItems="center">
+            <Title>{title}</Title>
 
-        <Flex alignItems="center">
-          <Flex alignItems="center">
-            <img src={chainIcon} alt="link" />
+            <Flex alignItems="center">
+              <Flex alignItems="center">
+                <img src={chainIcon} alt="link" />
+              </Flex>
+              <HorizontalLine />
+              <SwapSettingsPopover context={SwapSettingsContext.swap} isGasless={swapping.swapGasless} />
+            </Flex>
           </Flex>
-          <HorizontalLine />
-          <SwapSettingsPopover context={SwapSettingsContext.swap} isGasless={swapping.swapGasless} />
-        </Flex>
-      </Flex>
 
-      <SwapPair
-        exactIn={exactIn}
-        swapLoading={swapping.isBalancerSwap ? swapping.isLoading : false}
-        amountChange={swapping.handleAmountChange}
-        setExactIn={setExactIn}
-      />
+          <SwapPair
+            exactIn={exactIn}
+            swapLoading={swapLoading}
+            amountChange={swapping.handleAmountChange}
+            setExactIn={setExactIn}
+          />
 
-      {error && tokenInAmount ? (
-        <BalAlert
-          className="p-3 mb-4"
-          type="error"
-          size="sm"
-          title={error.header}
-          description={error.body}
-          block
-          onActionClick={handleErrorButtonClick}
-        />
-      ) : null}
+          {error && tokenInAmount ? (
+            <BalAlert
+              className="p-3 mb-4"
+              type="error"
+              size="sm"
+              title={error.header}
+              description={error.body}
+              block
+              onActionClick={handleErrorButtonClick}
+            />
+          ) : null}
 
-      {showSwapRoute && hopCount > 0 && swapping?.tokenIn && swapping?.tokenOut ? (
-        <SwapDetails swapping={swapping} hopCount={hopCount} />
-      ) : null}
+          {showSwapRoute && hopCount > 0 && swapping?.tokenIn && swapping?.tokenOut ? (
+            <SwapDetails swapping={swapping} hopCount={hopCount} />
+          ) : null}
 
-      <Box>
-        <ButtonPrimary disabled={!!swapDisabled} onClick={handlePreviewButton}>
-          {loadingText}
-        </ButtonPrimary>
-      </Box>
+          <Box>
+            <ButtonPrimary disabled={!!swapDisabled} onClick={handlePreviewButton}>
+              {loadingText}
+            </ButtonPrimary>
+          </Box>
 
-      {showSwapRoute && swapping?.tokenIn && swapping?.tokenOut ? (
-        <SwapRoute
-          addressIn={swapping?.tokenIn?.address}
-          addressOut={swapping?.tokenOut?.address}
-          amountIn={swapping?.tokenInAmountInput}
-          amountOut={swapping?.tokenOutAmountInput}
-          pools={pools}
-          sorReturn={swapping.sor.sorReturn}
-          setHopCount={setHopCount}
-        />
-      ) : null}
+          {showSwapRoute && swapping?.tokenIn && swapping?.tokenOut ? (
+            <SwapRoute
+              addressIn={swapping?.tokenIn?.address}
+              addressOut={swapping?.tokenOut?.address}
+              amountIn={swapping?.tokenInAmountInput}
+              amountOut={swapping?.tokenOutAmountInput}
+              pools={pools}
+              sorReturn={swapping.sor.sorReturn}
+              setHopCount={setHopCount}
+            />
+          ) : null}
 
-      {isOpenSwapPreview ? <SwapPreviewModal swapping={swapping} onClose={handlePreviewModalClose} /> : null}
-    </Container>
+          {isOpenSwapPreview ? <SwapPreviewModal swapping={swapping} onClose={handlePreviewModalClose} /> : null}
+        </Container>
+      )}
+    </>
   )
 }
 
