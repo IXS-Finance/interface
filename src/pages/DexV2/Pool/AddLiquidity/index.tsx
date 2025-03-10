@@ -1,30 +1,22 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { useParams } from 'react-router-dom'
 
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 import { usePool } from 'state/dexV2/pool/usePool'
 import AddLiquidityCard from './AddLiquidityCard'
-import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import DexV2Layout from 'pages/DexV2/common/Layout'
 
 const AddLiquidity: React.FC = () => {
   const params = useParams<any>()
   const poolId = (params.id as string).toLowerCase()
   const { pool, isLoadingPool } = usePool(poolId)
-  const { tokens } = useTokens()
 
   const isLoading: boolean = isLoadingPool
 
   return (
     <DexV2Layout>
-      <Container>
-        {!isLoading && pool && pool.address && tokens && Object.keys(tokens).length > 1 ? (
-          <AddLiquidityCard pool={pool} />
-        ) : (
-          <LoadingBlock className="h-120" />
-        )}
-      </Container>
+      <Container>{isLoading || !pool ? <LoadingBlock className="h-120" /> : <AddLiquidityCard pool={pool} />}</Container>
     </DexV2Layout>
   )
 }
