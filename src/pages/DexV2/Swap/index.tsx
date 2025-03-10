@@ -21,18 +21,6 @@ const Swap: React.FC = () => {
     injectSpenders([appNetworkConfig.addresses.vault])
   }, [isWalletReady])
 
-  useEffect(() => {
-    async function setProvider() {
-      const provider = await getProvider()
-      if (provider) {
-        walletService.setUserProvider(provider)
-      }
-    }
-    if (isWalletReady) {
-      setProvider()
-    }
-  }, [isWalletReady])
-
   return (
     <DexV2Layout>
       <Container>

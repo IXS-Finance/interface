@@ -1,53 +1,46 @@
-import {
-  FundManagement,
-  SingleSwap,
-  SwapType,
-  SwapV2,
-} from '@ixswap1/dex-v2-sdk';
-import { Vault__factory } from '@balancer-labs/typechain';
-import { TransactionResponse } from '@ethersproject/abstract-provider';
-import { ContractInterface } from '@ethersproject/contracts';
-
-import { calculateValidTo } from '../cowswap/utils';
-
-import ConfigService, { configService } from 'services/config/config.service';
-
-import WalletService, {
-  walletService as walletServiceInstance,
-} from 'services/web3/wallet.service';
+import { FundManagement, SingleSwap, SwapType, SwapV2 } from '@ixswap1/dex-v2-sdk'
+import { Vault__factory } from '@balancer-labs/typechain'
+import { TransactionResponse } from '@ethersproject/abstract-provider'
+import { ContractInterface } from '@ethersproject/contracts'
+import { calculateValidTo } from '../cowswap/utils'
+import ConfigService, { configService } from 'services/config/config.service'
+import { getEthersSigner } from 'hooks/useEthersProvider'
+import { wagmiConfig } from 'components/Web3Provider'
+import { TransactionBuilder } from 'services/web3/transactions/transaction.builder'
 
 export default class VaultService {
-  abi: ContractInterface;
+  abi: ContractInterface
 
-  constructor(
-    protected readonly config: ConfigService = configService,
-    private readonly walletService: WalletService = walletServiceInstance
-  ) {
-    this.abi = Vault__factory.abi;
+  constructor(protected readonly config: ConfigService = configService) {
+    this.abi = Vault__factory.abi
   }
 
   get address() {
-    return this.config.network.addresses.vault;
+    return this.config.network.addresses.vault
   }
 
-  public swap(
+  public async swap(
     single: SingleSwap,
     funds: FundManagement,
     tokenOutAmount: string,
     transactionDeadline: number,
     options: Record<string, any> = {}
   ): Promise<TransactionResponse> {
-    const deadline = calculateValidTo(transactionDeadline);
-    return this.walletService.txBuilder.contract.sendTransaction({
+    const getSigner = () => getEthersSigner(wagmiConfig)
+    const signer = await getSigner()
+    const txBuilder = new TransactionBuilder(signer)
+    const deadline = calculateValidTo(transactionDeadline)
+
+    return txBuilder.contract.sendTransaction({
       contractAddress: this.address,
       abi: this.abi,
       action: 'swap',
       params: [single, funds, tokenOutAmount, deadline],
       options,
-    });
+    })
   }
 
-  public batchSwap(
+  public async batchSwap(
     swapKind: SwapType,
     swaps: SwapV2[],
     tokenAddresses: string[],
@@ -56,48 +49,57 @@ export default class VaultService {
     transactionDeadline: number,
     options: Record<string, any> = {}
   ): Promise<TransactionResponse> {
-    const deadline = calculateValidTo(transactionDeadline);
-    return this.walletService.txBuilder.contract.sendTransaction({
+    const getSigner = () => getEthersSigner(wagmiConfig)
+    const signer = await getSigner()
+    const txBuilder = new TransactionBuilder(signer)
+    const deadline = calculateValidTo(transactionDeadline)
+
+    return txBuilder.contract.sendTransaction({
       contractAddress: this.address,
       abi: this.abi,
       action: 'batchSwap',
       params: [swapKind, swaps, tokenAddresses, funds, limits, deadline],
       options,
-    });
+    })
   }
 
-  public getInternalBalance(
-    account: string,
-    tokens: string[]
-  ): Promise<string[]> {
-    return this.walletService.txBuilder.contract.callStatic({
+  public async getInternalBalance(account: string, tokens: string[]): Promise<string[]> {
+    const getSigner = () => getEthersSigner(wagmiConfig)
+    const signer = await getSigner()
+    const txBuilder = new TransactionBuilder(signer)
+
+    return txBuilder.contract.callStatic({
       contractAddress: this.address,
       abi: this.abi,
       action: 'getInternalBalance',
       params: [account, tokens],
-    });
+    })
   }
 
-  public manageUserBalance({
+  public async manageUserBalance({
     kind,
     asset,
     amount,
     sender,
     recipient,
   }: {
-    kind: number;
-    asset: string;
-    amount: string;
-    sender: string;
-    recipient: string;
+    kind: number
+    asset: string
+    amount: string
+    sender: string
+    recipient: string
   }): Promise<TransactionResponse> {
-    return this.walletService.txBuilder.contract.sendTransaction({
+    const getSigner = () => getEthersSigner(wagmiConfig)
+    const signer = await getSigner()
+    const txBuilder = new TransactionBuilder(signer)
+
+    return txBuilder.contract.sendTransaction({
       contractAddress: this.address,
       abi: this.abi,
       action: 'manageUserBalance',
       params: [[{ kind, asset, amount, sender, recipient }]],
-    });
+    })
   }
 }
 
-export const vaultService = new VaultService();
+export const vaultService = new VaultService()
