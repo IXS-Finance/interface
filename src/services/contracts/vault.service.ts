@@ -19,6 +19,12 @@ export default class VaultService {
     return this.config.network.addresses.vault
   }
 
+  async getTransactionBuilder(): Promise<TransactionBuilder> {
+    const getSigner = () => getEthersSigner(wagmiConfig)
+    const signer = await getSigner()
+    return new TransactionBuilder(signer)
+  }
+
   public async swap(
     single: SingleSwap,
     funds: FundManagement,
@@ -26,9 +32,7 @@ export default class VaultService {
     transactionDeadline: number,
     options: Record<string, any> = {}
   ): Promise<TransactionResponse> {
-    const getSigner = () => getEthersSigner(wagmiConfig)
-    const signer = await getSigner()
-    const txBuilder = new TransactionBuilder(signer)
+    const txBuilder = await this.getTransactionBuilder()
     const deadline = calculateValidTo(transactionDeadline)
 
     return txBuilder.contract.sendTransaction({
@@ -49,9 +53,7 @@ export default class VaultService {
     transactionDeadline: number,
     options: Record<string, any> = {}
   ): Promise<TransactionResponse> {
-    const getSigner = () => getEthersSigner(wagmiConfig)
-    const signer = await getSigner()
-    const txBuilder = new TransactionBuilder(signer)
+    const txBuilder = await this.getTransactionBuilder()
     const deadline = calculateValidTo(transactionDeadline)
 
     return txBuilder.contract.sendTransaction({
@@ -64,9 +66,7 @@ export default class VaultService {
   }
 
   public async getInternalBalance(account: string, tokens: string[]): Promise<string[]> {
-    const getSigner = () => getEthersSigner(wagmiConfig)
-    const signer = await getSigner()
-    const txBuilder = new TransactionBuilder(signer)
+    const txBuilder = await this.getTransactionBuilder()
 
     return txBuilder.contract.callStatic({
       contractAddress: this.address,
@@ -89,9 +89,7 @@ export default class VaultService {
     sender: string
     recipient: string
   }): Promise<TransactionResponse> {
-    const getSigner = () => getEthersSigner(wagmiConfig)
-    const signer = await getSigner()
-    const txBuilder = new TransactionBuilder(signer)
+    const txBuilder = await this.getTransactionBuilder()
 
     return txBuilder.contract.sendTransaction({
       contractAddress: this.address,
