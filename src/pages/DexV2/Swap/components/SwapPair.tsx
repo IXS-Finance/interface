@@ -5,14 +5,14 @@ import styled from 'styled-components'
 import TokenInput from './TokenInput'
 import SwapIcon from 'assets/images/dex-v2/swap.svg'
 import { emptyToken, UseSwapping } from 'state/dexV2/swap/useSwapping'
-import useNumbers from 'hooks/dex-v2/useNumbers'
+import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { useSwapState } from 'state/dexV2/swap/useSwapState'
+import { bnum } from 'lib/utils'
 
 type Props = {
   exactIn: boolean
   priceImpact?: number
-  effectivePriceMessage?: UseSwapping['effectivePriceMessage']
   swapLoading?: boolean
   amountChange: () => void
   setExactIn: (exactIn: boolean) => void
@@ -21,13 +21,10 @@ type Props = {
 const SwapPair: React.FC<Props> = ({
   exactIn,
   priceImpact,
-  effectivePriceMessage,
   swapLoading,
   amountChange,
   setExactIn,
 }) => {
-  const { fNum } = useNumbers()
-  const { getToken } = useTokens()
   const {
     tokenInAddress,
     tokenOutAddress,
@@ -37,26 +34,14 @@ const SwapPair: React.FC<Props> = ({
     setTokenOutAddress,
     setTokenInAmount,
     setTokenOutAmount,
-    setInitialized,
   } = useSwapState()
-
-  const [isInRate, setIsInRate] = useState(true)
-  const [typingTimeout, setTypingTimeout] = useState<any>(undefined)
-
-  const missingToken = !tokenInAddress || !tokenOutAddress
-  const missingAmount = !tokenInAmount || !tokenOutAmount
-
-  const tokenIn = tokenInAddress ? getToken(tokenInAddress) : emptyToken
-  const tokenOut = tokenOutAddress ? getToken(tokenOutAddress) : emptyToken
 
   function handleInAmountChange(value: string): void {
     setTokenInAmount(value)
-    setExactIn(true)
   }
 
   function handleOutAmountChange(value: string): void {
     setTokenOutAmount(value)
-    setExactIn(false)
   }
 
   function handleTokenSwitch(): void {
@@ -104,6 +89,7 @@ const SwapPair: React.FC<Props> = ({
           updateAmount={handleInAmountChange}
           updateAddress={handleInputTokenChange}
           setMax={() => setExactIn(true)}
+          setExactInOnChange={() => setExactIn(true)}
         />
       </div>
 
@@ -137,6 +123,7 @@ const SwapPair: React.FC<Props> = ({
           disableNativeAssetBuffer
           updateAmount={handleOutAmountChange}
           updateAddress={handleOutputTokenChange}
+          setExactInOnChange={() => setExactIn(false)}
         />
       </Box>
     </Container>
