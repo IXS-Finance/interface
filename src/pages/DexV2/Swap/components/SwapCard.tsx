@@ -58,7 +58,6 @@ const SwapCard: React.FC = () => {
     setTokenOutAmount
   )
 
-  console.log('exactIn root', exactIn)
   const { errorMessage } = useValidation(tokenInAddress, tokenInAmount, tokenOutAddress, tokenOutAmount)
   const isHighPriceImpact = swapping.sor.validationErrors.highPriceImpact && !dismissedErrors.highPriceImpact
   const hasMismatchedNetwork = isMismatchedNetwork

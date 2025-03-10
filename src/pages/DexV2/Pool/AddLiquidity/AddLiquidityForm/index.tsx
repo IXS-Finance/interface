@@ -67,7 +67,9 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
       // For single asset joins, default to wrapped native asset
       setTokensIn([wrappedNativeAsset.address])
     } else {
-      setTokensIn(poolJoinTokens)
+      if (poolJoinTokens) {
+        setTokensIn(poolJoinTokens)
+      }
     }
   }
 
