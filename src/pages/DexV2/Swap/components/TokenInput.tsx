@@ -51,6 +51,7 @@ type Props = {
   updateAmount: (amount: string) => void
   updateAddress: (address: string) => void
   setMax?: () => void
+  setExactInOnChange?: () => void
 }
 
 const defaultProps: Props = {
@@ -166,6 +167,9 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
 
   const decimalLimit = token?.decimals || 18
 
+  const priceImpactSign = props.priceImpact && props.priceImpact >= 0 ? '-' : '+'
+  const priceImpactClass = props.priceImpact && props.priceImpact >= 0.01 ? 'text-red-500' : ''
+
   function handleAmountChange(val: string) {
     const regex = /^-?\d*[.,]?\d*$/
     const value = val.split(',').join('')
@@ -197,6 +201,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
       ? props.customBalance
       : getMaxBalanceFor(_get(props, 'address', ''), props.disableNativeAssetBuffer)
     handleAmountChange(maxAmount)
+    props.setExactInOnChange?.()
   }
 
   useEffect(() => {
@@ -234,7 +239,10 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
             value={displayValue}
             name={name}
             autoFocus={autoFocus}
-            onChange={(e) => handleAmountChange(e.target.value)}
+            onChange={(e) => {
+              handleAmountChange(e.target.value)
+              props.setExactInOnChange?.()
+            }}
           />
         </div>
 
@@ -249,8 +257,8 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
 
       <div>
         <Flex justifyContent="space-between" alignItems="center">
-          {hasAmount && hasToken && !hideFiatValue ? (
-            <StyledNumber>{fNum(tokenValue, FNumFormats.fiat)}</StyledNumber>
+          {hasAmount && hasToken ? (
+            <>{!hideFiatValue ? <StyledNumber>{fNum(tokenValue, FNumFormats.fiat)}</StyledNumber> : null}</>
           ) : (
             <div />
           )}
