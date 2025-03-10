@@ -42,6 +42,7 @@ interface SwapSettingsModalProps {
 const PRICE_UPDATE_THRESHOLD = 0.02
 
 const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, warning, onClose }) => {
+  console.log('swapping', swapping)
   const { fNum, toFiat } = useNumbers()
   const { balanceFor, allowances } = useTokens()
   const { blockNumber, account, startConnectWithInjectedProvider } = useWeb3()
