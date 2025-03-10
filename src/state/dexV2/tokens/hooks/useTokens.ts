@@ -30,6 +30,7 @@ export const useTokens = () => {
   const { allTokenLists, activeTokenLists, balancerTokenLists } = useTokenLists()
   const { allowances } = state
 
+  console.log('allowances', allowances)
   /**
    * STATE
    */
