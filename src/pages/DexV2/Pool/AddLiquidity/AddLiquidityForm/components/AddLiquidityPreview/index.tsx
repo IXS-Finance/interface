@@ -29,12 +29,20 @@ type AmountMap = {
 }
 
 interface AddLiquidityModalProps {
+  isLoadingQuery: boolean
+  queryJoinQuery: any
   pool: Pool
   onClose: () => void
   onShowStakeModal: () => void
 }
 
-const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({ pool, onClose, onShowStakeModal }) => {
+const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({
+  isLoadingQuery,
+  queryJoinQuery,
+  pool,
+  onClose,
+  onShowStakeModal,
+}) => {
   // Local state
   const [confirmed, setConfirmed] = useState(false)
 
@@ -50,9 +58,7 @@ const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({ pool, onClose, 
     priceImpact,
     highPriceImpact,
     rektPriceImpact,
-    isLoadingQuery,
     txInProgress,
-    queryJoinQuery,
     missingPricesIn,
     resetAmounts,
   } = useJoinPool(pool)
@@ -72,6 +78,8 @@ const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({ pool, onClose, 
   const amountOutMap: AmountMap = {
     [pool.address]: bptOut,
   }
+
+  console.log('bptOut', bptOut)
 
   // Build token maps using getToken()
   const tokenInMap: TokenInfoMap = {}
@@ -112,15 +120,18 @@ const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({ pool, onClose, 
     onShowStakeModal()
   }
 
-  // Periodically refetch join pool query every 10 seconds if conditions allow
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!isLoadingQuery && !txInProgress) {
-        queryJoinQuery.refetch()
-      }
-    }, oneSecondInMs * 10)
-    return () => clearInterval(interval)
-  }, [isLoadingQuery, txInProgress, JSON.stringify(allowances)])
+  // // Periodically refetch join pool query every 10 seconds if conditions allow
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (!isLoadingQuery && !txInProgress) {
+  //       queryJoinQuery.refetch()
+  //     }
+  //   }, oneSecondInMs * 10)
+  //   return () => clearInterval(interval)
+  // }, [isLoadingQuery, txInProgress, JSON.stringify(allowances)])
+
+
+  console.log('amountOutMap', amountOutMap)
 
   return (
     <Modal onClose={onClose}>
@@ -152,18 +163,16 @@ const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({ pool, onClose, 
         fiatTotal={fiatValueIn}
         hideAmountShare={isSingleAssetJoin}
       />
-      {showTokensOut ? (
-        <TokenAmounts
-          showZeroAmounts
-          title="You’re expected to receive"
-          className="mt-4"
-          amountMap={amountOutMap}
-          tokenMap={tokenOutMap}
-          fiatAmountMap={fiatAmountOutMap}
-          fiatTotal={fiatTotalOut}
-          hideAmountShare
-        />
-      ) : null}
+      <TokenAmounts
+        showZeroAmounts
+        title="You’re expected to receive"
+        className="mt-4"
+        amountMap={amountOutMap}
+        tokenMap={tokenOutMap}
+        fiatAmountMap={fiatAmountOutMap}
+        fiatTotal={fiatTotalOut}
+        hideAmountShare
+      />
 
       {missingPricesIn ? (
         <BalAlert

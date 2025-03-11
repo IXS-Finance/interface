@@ -48,8 +48,8 @@ export const useTokens = () => {
    */
   const allTokenListTokens: TokenInfoMap = {
     [networkConfig.nativeAsset.address]: nativeAsset,
-    ...mapTokenListTokens(allTokenLists),
     ...state.injectedTokens,
+    ...mapTokenListTokens(allTokenLists),
   }
 
   /**
@@ -70,8 +70,8 @@ export const useTokens = () => {
    */
   const tokens: TokenInfoMap = {
     [networkConfig.nativeAsset.address]: nativeAsset,
-    ...allTokenListTokens,
     ...state.injectedTokens,
+    ...allTokenListTokens,
   }
 
   const wrappedNativeAsset: TokenInfo = getToken(TOKENS.Addresses.wNativeAsset)

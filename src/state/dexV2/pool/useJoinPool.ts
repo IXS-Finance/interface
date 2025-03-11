@@ -1,13 +1,10 @@
 // useJoinPool.ts
-import { useState, useEffect, useCallback } from 'react'
-import debounce from 'debounce-promise'
-import { useQuery } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
 
 import { joinTokens, fiatValueOf, isDeep, isStableLike } from 'hooks/dex-v2/usePoolHelpers'
 import useNumbers from 'hooks/dex-v2/useNumbers'
 import { useTxState } from 'hooks/dex-v2/useTxState'
 import { HIGH_PRICE_IMPACT, REKT_PRICE_IMPACT } from 'constants/dexV2/poolLiquidity'
-import QUERY_KEYS from 'constants/dexV2/queryKeys'
 import { bnSum, bnum, isSameAddress } from 'lib/utils'
 import { JoinHandler, JoinPoolService } from 'services/balancer/pools/joins/join-pool.service'
 import { TokenInfoMap } from 'types/TokenList'
@@ -31,17 +28,14 @@ export type AmountIn = {
 }
 
 // --- Hook ---
-export const useJoinPool = (pool: any, queryJoinDebounceMillis = 1000) => {
+export const useJoinPool = (pool: any) => {
   const dispatch = useDispatch()
   const state = useSelector((state: any) => state.dexV2Pool)
-  const { amountsIn } = state
+  const { amountsIn, bptOut, priceImpact, approvalActions } = state
+
   // STATE
-  const [isMounted, setIsMounted] = useState(false)
-  const [bptOut, setBptOut] = useState<string>('0')
-  const [priceImpact, setPriceImpact] = useState<number>(0)
   const [highPriceImpactAccepted, setHighPriceImpactAccepted] = useState<boolean>(false)
   const [txError, setTxError] = useState<string>('')
-  const [approvalActions, setApprovalActionsState] = useState<TransactionActionInfo[]>([])
   const [isSingleAssetJoin, setSingleAssetJoin] = useState<boolean>(false)
   // (For relayer approval/signature, these are placeholders—you may replace them with real state.)
   const [relayerSignature, setRelayerSignature] = useState<string>('')
@@ -97,8 +91,8 @@ export const useJoinPool = (pool: any, queryJoinDebounceMillis = 1000) => {
   }
 
   const resetQueryJoinState = () => {
-    setBptOut('0')
-    setPriceImpact(0)
+    dispatch(setPoolState({ bptOut: '0', priceImpact: 0 }))
+
     // if (queryJoinQuery.remove) {
     //   queryJoinQuery.remove()
     // }
@@ -111,12 +105,12 @@ export const useJoinPool = (pool: any, queryJoinDebounceMillis = 1000) => {
       actionType: ApprovalAction.AddLiquidity,
       skipAllowanceCheck: true,
     })
-    setApprovalActionsState(tokenApprovalActions)
+    dispatch(setPoolState({ approvalActions: tokenApprovalActions }))
   }
 
   const validateAmountsIn = (): boolean => {
     if (!hasAmountsIn) {
-      setPriceImpact(0)
+      dispatch(setPoolState({ priceImpact: 0 }))
       return false
     }
     return true
@@ -138,28 +132,15 @@ export const useJoinPool = (pool: any, queryJoinDebounceMillis = 1000) => {
         approvalActions,
         transactionDeadline: transactionDeadline,
       })
-      setBptOut(output.bptOut)
-      setPriceImpact(output.priceImpact)
+
+      dispatch(setPoolState({ bptOut: output.bptOut, priceImpact: output.priceImpact }))
+
       return output
     } catch (error) {
-      await logJoinException(error as Error, queryJoinQuery)
+      await logJoinException(error as Error)
       throwQueryError('Failed to construct join.', error)
     }
   }
-
-  // Create a debounced version of queryJoin.
-  const debounceQueryJoin = debounce(queryJoin, queryJoinDebounceMillis)
-
-  // --- React Query ---
-  const queryEnabled = isMounted && !txInProgress
-  // @ts-ignore
-  const queryJoinQuery = useQuery({
-    // The query key includes amountsIn and isSingleAssetJoin
-    queryKey: QUERY_KEYS.Pools.Joins.QueryJoin(amountsIn, isSingleAssetJoin),
-    queryFn: debounceQueryJoin,
-    enabled: queryEnabled,
-    refetchOnWindowFocus: false,
-  })
 
   // Execute join transaction.
   const join = async (): Promise<TransactionResponse> => {
@@ -236,14 +217,10 @@ export const useJoinPool = (pool: any, queryJoinDebounceMillis = 1000) => {
 
   // When isSingleAssetJoin changes, reset query state and update join handler.
   useEffect(() => {
-    resetQueryJoinState()
+    // resetQueryJoinState()
     joinPoolService.setJoinHandler(joinHandlerType)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSingleAssetJoin])
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
 
   return {
     // State
@@ -256,8 +233,6 @@ export const useJoinPool = (pool: any, queryJoinDebounceMillis = 1000) => {
     priceImpact,
     txError,
     poolJoinTokens,
-    isLoadingQuery: queryJoinQuery.isFetching,
-    queryError: queryJoinQuery.error ? queryJoinQuery.error.message : undefined,
     highPriceImpact: highPriceImpactFlag,
     rektPriceImpact: rektPriceImpactFlag,
     hasAcceptedHighPriceImpact,
@@ -281,6 +256,6 @@ export const useJoinPool = (pool: any, queryJoinDebounceMillis = 1000) => {
     setJoinWithNativeAsset,
 
     // Query
-    queryJoinQuery,
+    queryJoin,
   }
 }
