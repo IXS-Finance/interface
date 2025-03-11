@@ -14,6 +14,7 @@ const AddLiquidity: React.FC = () => {
 
   const isLoading: boolean = isLoadingPool
 
+  console.log('isLoading', isLoading)
   return (
     <DexV2Layout>
       <Container>
@@ -26,8 +27,6 @@ const AddLiquidity: React.FC = () => {
 export default AddLiquidity
 
 const Container = styled.div`
-  padding: 0 1rem;
   margin: 0 auto;
-  width: 100%;
-  max-width: 462px;
+  width: 480px;
 `

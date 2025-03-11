@@ -15,7 +15,6 @@ import { tokenWeight, usePoolHelpers } from 'hooks/dex-v2/usePoolHelpers'
 // import BalCheckbox from '@/components/BalCheckbox'
 import BalAlert from '../../components/BalAlert'
 import { ButtonPrimary } from 'pages/DexV2/common'
-import TokenInput from '../../components/TokenInput'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { useJoinPool } from 'state/dexV2/pool/useJoinPool'
@@ -24,6 +23,9 @@ import StakePreviewModal from './components/StakePreviewModal'
 import AddLiquidityPreview from './components/AddLiquidityPreview'
 import { useDispatch } from 'react-redux'
 import { setValueOfAmountIn } from 'state/dexV2/pool'
+import TokenInput from './components/TokenInput'
+import { Flex } from 'rebass'
+import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 
 interface AddLiquidityFormProps {
   pool: Pool
@@ -51,6 +53,8 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
     setTokensIn,
     setAmountsIn,
   } = useJoinPool(pool)
+
+  console.log('amountsIn', amountsIn)
 
   // COMPUTED (recalculated on every render)
   const forceProportionalInputs: boolean = !!managedPoolWithSwappingHalted
@@ -124,25 +128,37 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
         </BalAlert>
       )}
 
-      {poolHasLowLiquidity && (
+      {amountsIn.length > 0 && poolHasLowLiquidity ? (
         <BalAlert type="warning" title="Be careful: This pool has low liquidity">
           Add assets proportionally to the pool weights or the price impact will be high and you will likely get REKT
           and lose money.
         </BalAlert>
-      )}
+      ) : null}
 
-      {amountsIn.map((amountIn: any, index: number) => (
-        <TokenInput
-          key={amountIn.address}
-          address={amountIn.address}
-          amount={amountIn.value}
-          name={amountIn.address}
-          weight={tokenWeight(pool, amountIn.address)}
-          updateAmount={(value: string) => {
-            setAmount(index, value)
-          }}
-        />
-      ))}
+      <Flex flexDirection="column" css={{ gap: '1rem' }} mt={2}>
+        {amountsIn.length === 0 ? (
+          <>
+            <LoadingBlock className="h-30" />
+            <LoadingBlock className="h-30" />
+          </>
+        ) : (
+          <>
+            {amountsIn.map((amountIn: any, index: number) => (
+              <TokenInput
+                key={amountIn.address}
+                address={amountIn.address}
+                amount={amountIn.value}
+                name={amountIn.address}
+                weight={tokenWeight(pool, amountIn.address)}
+                updateAddress={() => {}}
+                updateAmount={(value: string) => {
+                  setAmount(index, value)
+                }}
+              />
+            ))}
+          </>
+        )}
+      </Flex>
 
       {/* <AddLiquidityTotals pool={pool} /> */}
 
