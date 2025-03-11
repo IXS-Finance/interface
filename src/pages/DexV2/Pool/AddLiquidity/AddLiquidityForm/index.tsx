@@ -165,7 +165,6 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
 
       {highPriceImpact && (
         <HighPriceImpactContainer className="p-2 pb-2 mt-5 rounded-lg border dark:border-gray-700">
-          I accept the high price impact from , moving the market price based on the depth of the market.
           <BalCheckbox
             modelValue={highPriceImpactAccepted}
             rules={[isRequired('Price impact acknowledgement')]}
