@@ -242,9 +242,11 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
   // Lifecycle: on mount, fetch token approval actions
   useEffect(() => {
     async function fetchTokenApprovalActions() {
-      let amountToApprove = swapping.tokenInAmountInput
+      let amountToApprove = bnum(swapping.tokenInAmountInput).plus(1).toString()
       if (!swapping.exactIn) {
-        amountToApprove = bnum(swapping.tokenInAmountInput).times(bnum(1).plus(slippage)).toString()
+        amountToApprove = bnum(swapping.tokenInAmountInput)
+          .times(bnum(1).plus(slippage + 1))
+          .toString()
       }
 
       const actions = await getTokenApprovalActions({

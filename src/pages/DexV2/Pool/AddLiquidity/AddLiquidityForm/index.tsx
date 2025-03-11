@@ -29,6 +29,8 @@ import TokenInput from './components/TokenInput'
 import { Flex } from 'rebass'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 import QUERY_KEYS from 'constants/dexV2/queryKeys'
+import BalCheckbox from 'pages/DexV2/common/BalCheckbox'
+import { isRequired } from 'lib/utils/validations'
 
 interface AddLiquidityFormProps {
   pool: Pool
@@ -37,6 +39,7 @@ interface AddLiquidityFormProps {
 const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
   const dispatch = useDispatch()
   const {
+    highPriceImpactAccepted,
     txInProgress,
     isSingleAssetJoin,
     amountsIn,
@@ -45,6 +48,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
     hasAmountsIn,
     setTokensIn,
     queryJoin,
+    setHighPriceImpactAccepted,
   } = useJoinPool(pool)
 
   // Create a debounced version of queryJoin.
@@ -162,17 +166,16 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
       {highPriceImpact && (
         <HighPriceImpactContainer className="p-2 pb-2 mt-5 rounded-lg border dark:border-gray-700">
           I accept the high price impact from , moving the market price based on the depth of the market.
-          {/* <BalCheckbox
-            value={highPriceImpactAccepted}
-            rules={[isRequired(t('priceImpactCheckbox'))]}
+          <BalCheckbox
+            modelValue={highPriceImpactAccepted}
+            rules={[isRequired('Price impact acknowledgement')]}
             name="highPriceImpactAccepted"
             size="sm"
-            label={t('priceImpactAccept', [t('depositing')])}
+            label={`I accept the high price impact from depositing, moving the market price based on the depth of the market.`}
             onChange={(val: boolean) => {
-              // Update the high price impact acceptance.
-              // (Assuming the join pool provider has a method or state setter for this.)
+              setHighPriceImpactAccepted(val)
             }}
-          /> */}
+          />
         </HighPriceImpactContainer>
       )}
 
