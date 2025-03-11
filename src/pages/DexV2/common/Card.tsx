@@ -220,6 +220,7 @@ const BalCard: React.FC<BalCardProps> = ({
   header,
   footer,
   children,
+  ...rest
 }) => {
   // Dynamically determine the element to render for the title
   const TitleElement = titleTag as keyof JSX.IntrinsicElements
@@ -232,6 +233,7 @@ const BalCard: React.FC<BalCardProps> = ({
       hFull={hFull}
       shadow={shadow}
       darkBgColor={darkBgColor}
+      {...rest}
     >
       <CardContainer overflowYScroll={overflowYScroll}>
         {imgSrc && <Feature imgSrc={imgSrc} />}
