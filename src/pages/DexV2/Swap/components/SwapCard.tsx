@@ -170,68 +170,62 @@ const SwapCard: React.FC = () => {
   const showSwapRoute = swapping.isBalancerSwap
 
   return (
-    <>
-      {swapLoading ? (
-        <LoadingBlock className="h-120" />
-      ) : (
-        <Container>
-          <Flex justifyContent="space-between" alignItems="center">
-            <Title>{title}</Title>
+    <Container>
+      <Flex justifyContent="space-between" alignItems="center">
+        <Title>{title}</Title>
 
-            <Flex alignItems="center">
-              <Flex alignItems="center">
-                <img src={chainIcon} alt="link" />
-              </Flex>
-              <HorizontalLine />
-              <SwapSettingsPopover context={SwapSettingsContext.swap} isGasless={swapping.swapGasless} />
-            </Flex>
+        <Flex alignItems="center">
+          <Flex alignItems="center">
+            <img src={chainIcon} alt="link" />
           </Flex>
+          <HorizontalLine />
+          <SwapSettingsPopover context={SwapSettingsContext.swap} isGasless={swapping.swapGasless} />
+        </Flex>
+      </Flex>
 
-          <SwapPair
-            exactIn={exactIn}
-            swapLoading={swapLoading}
-            amountChange={swapping.handleAmountChange}
-            setExactIn={setExactIn}
-          />
+      <SwapPair
+        exactIn={exactIn}
+        swapLoading={swapLoading}
+        amountChange={swapping.handleAmountChange}
+        setExactIn={setExactIn}
+      />
 
-          {error && tokenInAmount ? (
-            <BalAlert
-              className="p-3 mb-4"
-              type="error"
-              size="sm"
-              title={error.header}
-              description={error.body}
-              block
-              onActionClick={handleErrorButtonClick}
-            />
-          ) : null}
+      {error && tokenInAmount ? (
+        <BalAlert
+          className="p-3 mb-4"
+          type="error"
+          size="sm"
+          title={error.header}
+          description={error.body}
+          block
+          onActionClick={handleErrorButtonClick}
+        />
+      ) : null}
 
-          {showSwapRoute && hopCount > 0 && swapping?.tokenIn && swapping?.tokenOut ? (
-            <SwapDetails swapping={swapping} hopCount={hopCount} />
-          ) : null}
+      {showSwapRoute && hopCount > 0 && swapping?.tokenIn && swapping?.tokenOut ? (
+        <SwapDetails swapping={swapping} hopCount={hopCount} />
+      ) : null}
 
-          <Box>
-            <ButtonPrimary disabled={!!swapDisabled} onClick={handlePreviewButton}>
-              {loadingText}
-            </ButtonPrimary>
-          </Box>
+      <Box>
+        <ButtonPrimary disabled={!!swapDisabled} onClick={handlePreviewButton}>
+          {loadingText}
+        </ButtonPrimary>
+      </Box>
 
-          {showSwapRoute && swapping?.tokenIn && swapping?.tokenOut ? (
-            <SwapRoute
-              addressIn={swapping?.tokenIn?.address}
-              addressOut={swapping?.tokenOut?.address}
-              amountIn={swapping?.tokenInAmountInput}
-              amountOut={swapping?.tokenOutAmountInput}
-              pools={pools}
-              sorReturn={swapping.sor.sorReturn}
-              setHopCount={setHopCount}
-            />
-          ) : null}
+      {showSwapRoute && swapping?.tokenIn && swapping?.tokenOut ? (
+        <SwapRoute
+          addressIn={swapping?.tokenIn?.address}
+          addressOut={swapping?.tokenOut?.address}
+          amountIn={swapping?.tokenInAmountInput}
+          amountOut={swapping?.tokenOutAmountInput}
+          pools={pools}
+          sorReturn={swapping.sor.sorReturn}
+          setHopCount={setHopCount}
+        />
+      ) : null}
 
-          {isOpenSwapPreview ? <SwapPreviewModal swapping={swapping} onClose={handlePreviewModalClose} /> : null}
-        </Container>
-      )}
-    </>
+      {isOpenSwapPreview ? <SwapPreviewModal swapping={swapping} onClose={handlePreviewModalClose} /> : null}
+    </Container>
   )
 }
 

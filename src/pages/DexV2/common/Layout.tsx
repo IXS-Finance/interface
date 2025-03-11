@@ -35,4 +35,22 @@ const Container = styled.div`
   .h-120 {
     height: 30rem;
   }
+
+  .h-24 {
+    height: 6rem;
+  }
+
+  .h-30 {
+    height: 7.5rem;
+  }
+
+  .px-5 {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
 `

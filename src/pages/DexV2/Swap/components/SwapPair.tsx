@@ -9,6 +9,7 @@ import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { useSwapState } from 'state/dexV2/swap/useSwapState'
 import { bnum } from 'lib/utils'
+import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 
 type Props = {
   exactIn: boolean
@@ -18,13 +19,7 @@ type Props = {
   setExactIn: (exactIn: boolean) => void
 }
 
-const SwapPair: React.FC<Props> = ({
-  exactIn,
-  priceImpact,
-  swapLoading,
-  amountChange,
-  setExactIn,
-}) => {
+const SwapPair: React.FC<Props> = ({ exactIn, priceImpact, swapLoading, amountChange, setExactIn }) => {
   const {
     tokenInAddress,
     tokenOutAddress,
@@ -78,7 +73,9 @@ const SwapPair: React.FC<Props> = ({
 
   return (
     <Container>
-      <div>
+      {swapLoading ? (
+        <LoadingBlock className="h-24" />
+      ) : (
         <TokenInput
           disabled={swapLoading}
           amount={tokenInAmount}
@@ -91,7 +88,7 @@ const SwapPair: React.FC<Props> = ({
           setMax={() => setExactIn(true)}
           setExactInOnChange={() => setExactIn(true)}
         />
-      </div>
+      )}
 
       <Box mt={24} css={{ position: 'relative' }}>
         <SwapIconWrapper onClick={handleTokenSwitch}>
@@ -112,19 +109,24 @@ const SwapPair: React.FC<Props> = ({
             />
           </svg>
         </SwapIconWrapper>
-        <TokenInput
-          disabled={swapLoading}
-          amount={tokenOutAmount}
-          address={tokenOutAddress}
-          name="tokenOut"
-          excludedTokens={[]}
-          noRules
-          noMax
-          disableNativeAssetBuffer
-          updateAmount={handleOutAmountChange}
-          updateAddress={handleOutputTokenChange}
-          setExactInOnChange={() => setExactIn(false)}
-        />
+
+        {swapLoading ? (
+          <LoadingBlock className="h-24" />
+        ) : (
+          <TokenInput
+            disabled={swapLoading}
+            amount={tokenOutAmount}
+            address={tokenOutAddress}
+            name="tokenOut"
+            excludedTokens={[]}
+            noRules
+            noMax
+            disableNativeAssetBuffer
+            updateAmount={handleOutAmountChange}
+            updateAddress={handleOutputTokenChange}
+            setExactInOnChange={() => setExactIn(false)}
+          />
+        )}
       </Box>
     </Container>
   )
