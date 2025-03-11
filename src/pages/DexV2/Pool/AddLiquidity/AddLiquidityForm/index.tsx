@@ -105,13 +105,6 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
       : []
   }
 
-  // Clear amount when the token changes.
-  function onTokenChange() {
-    if (isSingleAssetJoin && amountsIn.length > 0) {
-      amountsIn[0].value = ''
-    }
-  }
-
   function setAmount(index: number, value: string) {
     dispatch(setValueOfAmountIn({ index, value }))
   }
