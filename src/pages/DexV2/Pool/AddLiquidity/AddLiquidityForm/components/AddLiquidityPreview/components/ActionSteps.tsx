@@ -13,6 +13,7 @@ import { dateTimeLabelFor } from 'hooks/dex-v2/useTime'
 import { BalAlert } from 'pages/DexV2/common/BalAlert'
 import { useSwapState } from 'state/dexV2/swap/useSwapState'
 import { setActionStates } from 'state/dexV2/swap'
+import { usePoolState } from 'state/dexV2/pool/usePoolState'
 
 export type BalStepAction = {
   label: string
@@ -52,7 +53,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   const dispatch = useDispatch()
   const { txListener, getTxConfirmedAt } = useEthers()
   const { formatErrorMsg } = useErrorMsg()
-  const { actionStates, updateActionState } = useSwapState()
+  const { actionStates, updateActionState } = usePoolState()
 
   const [loading, setLoading] = useState(false)
   const [currentActionIndex, setCurrentActionIndex] = useState(0)

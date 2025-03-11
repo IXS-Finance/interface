@@ -2,6 +2,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AmountIn } from './useJoinPool'
 import { AmountOut } from './useExitPool'
+import { TransactionActionInfo, TransactionActionState } from 'types/transactions'
 
 export enum Tab {
   PoolTokens,
@@ -16,19 +17,21 @@ interface PoolState {
   amountsIn: AmountIn[]
   activeTab: Tab
   isSingleAssetExit: boolean
-  priceImpact: number
   priceImpactValid: boolean
   propAmountsOut: AmountOut[]
   isTxPayloadReady: boolean
   bptIn: string
   singleAmountOut: AmountOut
+  bptOut: string
+  priceImpact: number
+  approvalActions: TransactionActionInfo[]
+  actionStates: TransactionActionState[]
 }
 
 const initialState: PoolState = {
   amountsIn: [],
   activeTab: tabs[0].value,
   isSingleAssetExit: false,
-  priceImpact: 0,
   priceImpactValid: true,
   propAmountsOut: [],
   isTxPayloadReady: false,
@@ -39,6 +42,10 @@ const initialState: PoolState = {
     max: '',
     valid: true,
   },
+  bptOut: '0',
+  priceImpact: 0,
+  approvalActions: [],
+  actionStates: [],
 }
 
 const poolSlice = createSlice({
@@ -58,9 +65,21 @@ const poolSlice = createSlice({
         state.singleAmountOut[key] = value as never
       }
     },
+    setActionStates(state, action) {
+      state.actionStates = action.payload
+    },
+    setValueOfActionState(state, action) {
+      const { actionIndex, value } = action.payload
+      const currentState = state.actionStates[actionIndex] as any
+      state.actionStates[actionIndex] = {
+        ...currentState,
+        ...value,
+      }
+    },
   },
 })
 
-export const { setPoolState, setValueOfAmountIn, setDataForSingleAmountOut } = poolSlice.actions
+export const { setPoolState, setValueOfAmountIn, setDataForSingleAmountOut, setValueOfActionState, setActionStates } =
+  poolSlice.actions
 
 export default poolSlice.reducer

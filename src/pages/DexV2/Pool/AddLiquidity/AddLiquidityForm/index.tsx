@@ -1,7 +1,9 @@
 // AddLiquidityForm.tsx
 import React, { useState, useEffect, useRef } from 'react'
-import { isEqual } from 'lodash'
 import styled from 'styled-components'
+import debounce from 'debounce-promise'
+import { useQuery } from '@tanstack/react-query'
+
 import { bnum, includesAddress } from 'lib/utils'
 import { LOW_LIQUIDITY_THRESHOLD } from 'constants/dexV2/poolLiquidity'
 import { Pool } from 'services/pool/types'
@@ -17,7 +19,7 @@ import BalAlert from '../../components/BalAlert'
 import { ButtonPrimary } from 'pages/DexV2/common'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
-import { useJoinPool } from 'state/dexV2/pool/useJoinPool'
+import { AmountIn, useJoinPool } from 'state/dexV2/pool/useJoinPool'
 import ActionSteps from '../../components/ActionSteps'
 import StakePreviewModal from './components/StakePreviewModal'
 import AddLiquidityPreview from './components/AddLiquidityPreview'
@@ -26,6 +28,7 @@ import { setValueOfAmountIn } from 'state/dexV2/pool'
 import TokenInput from './components/TokenInput'
 import { Flex } from 'rebass'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
+import QUERY_KEYS from 'constants/dexV2/queryKeys'
 
 interface AddLiquidityFormProps {
   pool: Pool
@@ -33,6 +36,33 @@ interface AddLiquidityFormProps {
 
 const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
   const dispatch = useDispatch()
+  const {
+    txInProgress,
+    isSingleAssetJoin,
+    amountsIn,
+    highPriceImpact,
+    hasValidInputs,
+    hasAmountsIn,
+    setTokensIn,
+    queryJoin,
+  } = useJoinPool(pool)
+
+  // Create a debounced version of queryJoin.
+  // --- React Query ---
+  const queryEnabled = !txInProgress
+  // @ts-ignore
+  const queryJoinQuery = useQuery({
+    queryKey: QUERY_KEYS.Pools.Joins.QueryJoin(amountsIn, isSingleAssetJoin),
+    queryFn: queryJoin,
+    enabled: queryEnabled,
+    refetchOnWindowFocus: false,
+  })
+
+  console.log('queryJoinQuery', queryJoinQuery)
+
+  const queryError = queryJoinQuery.error ? queryJoinQuery.error.message : undefined
+  const isLoadingQuery = queryJoinQuery.isFetching
+
   // Local state
   const [showPreview, setShowPreview] = useState(false)
   const [showStakeModal, setShowStakeModal] = useState(false)
@@ -41,20 +71,6 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
   const { managedPoolWithSwappingHalted, poolJoinTokens } = usePoolHelpers(pool)
   const { isWalletReady, startConnectWithInjectedProvider, isMismatchedNetwork } = useWeb3()
   const { wrappedNativeAsset, nativeAsset, getToken } = useTokens()
-  const {
-    isLoadingQuery,
-    isSingleAssetJoin,
-    amountsIn,
-    highPriceImpact,
-    highPriceImpactAccepted,
-    hasValidInputs,
-    hasAmountsIn,
-    queryError,
-    setTokensIn,
-    setAmountsIn,
-  } = useJoinPool(pool)
-
-  console.log('amountsIn', amountsIn)
 
   // COMPUTED (recalculated on every render)
   const forceProportionalInputs: boolean = !!managedPoolWithSwappingHalted
@@ -102,20 +118,9 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
     dispatch(setValueOfAmountIn({ index, value }))
   }
 
-  // On mount, initialize tokens.
   useEffect(() => {
     initializeTokensForm(isSingleAssetJoin)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(poolJoinTokens), isSingleAssetJoin])
-
-  // When isSingleAssetJoin or poolJoinTokens change (simulate Vue watcher)
-  // useEffect(() => {
-  //   // In Vue, we compared previous values; here we simply reinitialize if preview is not open.
-  //   if (!showPreview) {
-  //     initializeTokensForm(isSingleAssetJoin)
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [isSingleAssetJoin, poolJoinTokens])
+  }, [pool.address])
 
   const disabled = !hasAmountsIn || !hasValidInputs || isMismatchedNetwork || isLoadingQuery || !!queryError
 
@@ -143,7 +148,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
           </>
         ) : (
           <>
-            {amountsIn.map((amountIn: any, index: number) => (
+            {amountsIn.map((amountIn: AmountIn, index: number) => (
               <TokenInput
                 key={amountIn.address}
                 address={amountIn.address}
@@ -151,6 +156,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
                 name={amountIn.address}
                 weight={tokenWeight(pool, amountIn.address)}
                 updateAddress={() => {}}
+                fixedToken
                 updateAmount={(value: string) => {
                   setAmount(index, value)
                 }}
@@ -195,6 +201,8 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
 
       {pool && showPreview ? (
         <AddLiquidityPreview
+          isLoadingQuery={isLoadingQuery}
+          queryJoinQuery={queryJoinQuery}
           pool={pool}
           onClose={() => setShowPreview(false)}
           onShowStakeModal={() => setShowStakeModal(true)}
