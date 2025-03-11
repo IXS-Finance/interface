@@ -58,8 +58,6 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
     refetchOnWindowFocus: false,
   })
 
-  console.log('queryJoinQuery', queryJoinQuery)
-
   const queryError = queryJoinQuery.error ? queryJoinQuery.error.message : undefined
   const isLoadingQuery = queryJoinQuery.isFetching
 
