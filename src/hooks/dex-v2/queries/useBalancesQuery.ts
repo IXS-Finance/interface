@@ -7,16 +7,23 @@ import TokenService from 'services/token/token.service'
 import useNetwork from '../useNetwork'
 import useWeb3 from '../useWeb3'
 import { useMemo } from 'react'
+import { TokenInfoMap } from 'types/TokenList'
 
 /**
  * TYPES
  */
 type QueryResponse = BalanceMap
 
+interface QueryInputs {
+  tokens: TokenInfoMap;
+  isEnabled?: boolean;
+}
+
+
 /**
  * Fetches all balances for provided tokens.
  */
-export default function useBalancesQuery({ tokens, isEnabled = true }: any) {
+export default function useBalancesQuery({ tokens, isEnabled = true }: QueryInputs) {
   /**
    * COMPOSABLES
    */
@@ -45,7 +52,7 @@ export default function useBalancesQuery({ tokens, isEnabled = true }: any) {
   }
 
   // @ts-ignore
-  return useQuery<QueryResponse>({
+  return useQuery({
     queryKey,
     queryFn,
     ...queryOptions,

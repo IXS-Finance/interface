@@ -35,6 +35,7 @@ interface TokensState {
   balances: BalanceMap
   allowances: ContractAllowancesMap
   allowanceQueryRefetching: boolean
+  balanceQueryRefetching: boolean
   tokens: TokenInfoMap
   prices: TokenPrices
   wrappedNativeAsset: TokenInfo | null
@@ -51,9 +52,10 @@ const networkConfig = config[chainId]
 const TOKENS = networkConfig.tokens
 
 const initialState: TokensState = {
-  balances: {},
   allowances: {},
   allowanceQueryRefetching: false,
+  balances: {},
+  balanceQueryRefetching: false,
   tokens: {},
   prices: {},
   wrappedNativeAsset: null,
