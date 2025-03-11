@@ -258,5 +258,6 @@ export const useJoinPool = (pool: any) => {
 
     // Query
     queryJoin,
+    setHighPriceImpactAccepted,
   }
 }
