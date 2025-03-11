@@ -301,7 +301,6 @@ export default function useSor({
         SwapTypes.SwapExactIn,
         tokenInAmountScaled
       )
-      console.log('swapReturn', swapReturn)
       setSorReturn(swapReturn)
       let tokenOutAmount = swapReturn.returnAmount
       setTokenOutAmountInput(tokenOutAmount.gt(0) ? formatAmount(formatUnits(tokenOutAmount, tokenOutDecimals)) : '')
@@ -319,8 +318,11 @@ export default function useSor({
           address: tokenOutAddress,
           isInputToken: false,
         })
+
+        console.log('swapReturn.returnAmount', swapReturn.returnAmount)
+        console.log('tokenOutAmount', tokenOutAmount)
         const priceImpactCalc =
-          tokenOutAmount !== Zero
+          !tokenOutAmount.eq(Zero)
             ? calcPriceImpact(
                 tokenInAmountScaled,
                 tokenInDecimals,
