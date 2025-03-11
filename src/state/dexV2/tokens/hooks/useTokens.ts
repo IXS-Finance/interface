@@ -28,7 +28,7 @@ export const useTokens = () => {
   const { networkConfig } = useConfig()
   const { isWalletReady } = useWeb3()
   const { allTokenLists, activeTokenLists, balancerTokenLists } = useTokenLists()
-  const { allowances } = state
+  const { allowances, balances } = state
 
   /**
    * STATE
@@ -114,14 +114,23 @@ export const useTokens = () => {
   })
 
   const prices: TokenPrices = priceData ? priceData : {}
-  const balances: BalanceMap = balanceData ? balanceData : {}
 
   useEffect(() => {
     dispatch(setTokensState({ allowanceQueryRefetching }))
   }, [allowanceQueryRefetching])
   useEffect(() => {
-    dispatch(setTokensState({ allowances: allowanceData ? allowanceData : {} }))
+    dispatch(setTokensState({ balanceQueryRefetching }))
+  }, [balanceQueryRefetching])
+  useEffect(() => {
+    if (Object.keys(allowanceData).length > 0) {
+      dispatch(setTokensState({ allowances: allowanceData }))
+    }
   }, [JSON.stringify(allowanceData)])
+  useEffect(() => {
+    if (Object.keys(balanceData).length > 0) {
+      dispatch(setTokensState({ balances: balanceData }))
+    }
+  }, [JSON.stringify(balanceData)])
 
   const onchainDataLoading: boolean =
     isWalletReady &&
