@@ -205,9 +205,13 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
   }
 
   useEffect(() => {
-    setAddress(props.address)
     handleAmountChange(props.amount.toString())
-  }, [props.address, props.amount])
+  }, [props.amount])
+
+  useEffect(() => {
+    if (isSameAddress(address, props.address || '')) return
+    setAddress(props.address)
+  }, [props.address])
 
   const handleUpdateIsValid = (isValid: boolean) => {
     console.log('Is valid?', isValid)
@@ -248,6 +252,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
 
         <Flex alignItems="center" style={{ gap: 8 }}>
           <TokenSelectInput
+            fixed={props.fixedToken}
             modelValue={address as string}
             excludedTokens={excludedTokens}
             updateAddress={(value) => updateAddress(value)}

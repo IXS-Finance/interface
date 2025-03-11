@@ -10,7 +10,7 @@ import useTransactions from 'hooks/dex-v2/useTransactions'
 import { useJoinPool } from 'state/dexV2/pool/useJoinPool'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { usePoolHelpers } from 'hooks/dex-v2/usePoolHelpers'
-import BalActionSteps from './BalActionSteps'
+import ActionSteps from './ActionSteps'
 import FeedbackCard from 'pages/DexV2/common/FeedbackCard'
 // import usePoolStaking from '@/hooks/usePoolStaking';
 
@@ -48,6 +48,7 @@ const Actions: React.FC<Props> = ({ pool, onSuccess, onShowStakeModal }) => {
     approvalActions: joinPoolApprovalActions,
   } = useJoinPool(pool)
 
+  console.log('joinPoolApprovalActions', joinPoolApprovalActions)
   // Store approval actions (assume joinPoolApprovalActions is an array)
   const approvalActions = joinPoolApprovalActions
 
@@ -113,12 +114,12 @@ const Actions: React.FC<Props> = ({ pool, onSuccess, onShowStakeModal }) => {
   return (
     <Container>
       {!txState.confirmed || !txState.receipt ? (
-        <BalActionSteps
-          actions={actions}
+        <ActionSteps
+          requiredActions={actions}
           primaryActionType="invest"
-          disabled={rektPriceImpact || isMismatchedNetwork}
-          onSuccess={(receipt: TransactionReceipt, confirmedAt: string) => handleSuccess(receipt, confirmedAt)}
-          onFailed={handleFailed}
+          disabled={!!rektPriceImpact || !!isMismatchedNetwork}
+          // onSuccess={(receipt: TransactionReceipt, confirmedAt: string) => handleSuccess(receipt, confirmedAt)}
+          // onFailed={handleFailed}
         />
       ) : (
         <div>
