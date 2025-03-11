@@ -104,6 +104,7 @@ export const useJoinPool = (pool: any) => {
       spender: appNetworkConfig.addresses.vault,
       actionType: ApprovalAction.AddLiquidity,
       skipAllowanceCheck: true,
+      forceMax: false,
     })
     dispatch(setPoolState({ approvalActions: tokenApprovalActions }))
   }

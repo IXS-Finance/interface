@@ -9,7 +9,7 @@ import useExitPool from 'state/dexV2/pool/useExitPool'
 import { usePoolHelpers } from 'hooks/dex-v2/usePoolHelpers'
 import useNetwork from 'hooks/dex-v2/useNetwork'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
-import BalActionSteps from '../../AddLiquidity/AddLiquidityForm/components/AddLiquidityPreview/components/BalActionSteps'
+import BalActionSteps from './BalActionSteps'
 import ConfirmationIndicator from 'pages/DexV2/common/ConfirmationIndicator'
 import FeedbackCard from 'pages/DexV2/common/FeedbackCard'
 
