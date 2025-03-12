@@ -160,7 +160,7 @@ export const useJoinPool = (pool: any) => {
     try {
       setTxError('')
       joinPoolService.setJoinHandler(joinHandlerType)
-      await setApprovalActions()
+      // await setApprovalActions()
       const joinRes = await joinPoolService.join({
         amountsIn: amountsInWithValue,
         tokensIn,

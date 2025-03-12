@@ -34,6 +34,7 @@ interface ActionStepsProps {
   // override action state loading label
   // for all steps
   loadingLabel?: string
+  onSuccess?: (receipt: TransactionReceipt, confirmedAt: string) => void
 }
 
 const defaultActionState: TransactionActionState = {
@@ -49,6 +50,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   loadingLabel = '',
   requiredActions,
   primaryActionType,
+  onSuccess,
 }) => {
   const dispatch = useDispatch()
   const { txListener, getTxConfirmedAt } = useEthers()
@@ -119,7 +121,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
           const confirmedAt = await getTxConfirmedAt(receipt)
           updateActionState(actionIndex, { confirmedAt: dateTimeLabelFor(confirmedAt), confirmed: true })
           if (currentActionIndex >= actions.length - 1) {
-            console.log('success', receipt, state.confirmedAt)
+            onSuccess?.(receipt, state.confirmedAt)
           } else {
             setCurrentActionIndex(currentActionIndex + 1)
           }
@@ -171,7 +173,6 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     dispatch(setActionStates(actionStatesData))
   }, [JSON.stringify(requiredActions)])
 
-  console.log('currentAction', currentAction)
   return (
     <div>
       {currentActionState && currentActionState?.error && !isLoading ? (

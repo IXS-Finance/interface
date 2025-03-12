@@ -71,7 +71,7 @@ const JoinPoolDataTable: React.FC<Props> = ({ pool, isLoadingQuery }) => {
         <Cell>LP tokens</Cell>
         <NumberCell>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            {!isLoadingQuery ? <span>{fNum(bptOut, FNumFormats.token)}</span> : <LoadingBlock className="w-40" />}
+            {!isLoadingQuery ? <strong>{fNum(bptOut, FNumFormats.token)}</strong> : <LoadingBlock className="w-40" />}
             <Tooltip
               text={`LP tokens you are expected to receive, not including possible slippage (${fNum(
                 slippage,
@@ -96,7 +96,7 @@ const JoinPoolDataTable: React.FC<Props> = ({ pool, isLoadingQuery }) => {
         <NumberCell>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {!isLoadingQuery ? (
-              <span>{fNum(priceImpact, FNumFormats.percent)}</span>
+              <strong>{fNum(priceImpact, FNumFormats.percent)}</strong>
             ) : (
               <LoadingBlock className="w-40" />
             )}
