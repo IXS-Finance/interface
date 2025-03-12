@@ -1,4 +1,5 @@
 // BalCheckbox.tsx
+import { Checkbox } from '@mui/material'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { RuleFunction, Rules } from 'types' // Adjust import as needed
@@ -117,16 +118,7 @@ const BalCheckbox: React.FC<BalCheckboxProps> = ({
     validate(checked)
   }
 
-  // Compute size classes for the input.
-  let sizeClasses = ''
-  if (size === 'sm') {
-    sizeClasses = 'width: 1rem; height: 1rem; margin-top: -1px;' // w-4 h-4 -mt-px
-  } else if (size === 'lg') {
-    sizeClasses = 'width: 1.5rem; height: 1.5rem;' // w-6 h-6
-  } else {
-    // md
-    sizeClasses = `width: 1.25rem; height: 1.25rem; ${alignCheckbox === 'items-start' ? 'margin-top: 0.25rem;' : ''}` // w-5 h-5 and maybe mt-1 (~0.25rem)
-  }
+
 
   // Compute text size for the label.
   const textSize = size === 'sm' ? '0.875rem' : size === 'lg' ? '1.125rem' : '1rem' // text-sm, text-lg, text-base
@@ -136,21 +128,15 @@ const BalCheckbox: React.FC<BalCheckboxProps> = ({
     marginBottom: noMargin ? '0' : '0.25rem', // mb-1 if noMargin is false.
   }
 
-  // If alignCheckbox is "items-start", we want to shift the input a bit (relative top-2).
-  const additionalInputStyle = alignCheckbox === 'items-start' ? { position: 'relative', top: '0.5rem' } : {}
-
   return (
     <CheckboxContainer style={wrapperStyle}>
       <Flex>
         <FlexAlign align={alignCheckbox}>
-          <StyledInput
-            type="checkbox"
+          <Checkbox
             name={name}
             checked={modelValue}
             disabled={disabled}
             onChange={handleChange}
-            style={additionalInputStyle}
-            sizeClasses={sizeClasses}
           />
         </FlexAlign>
         <LabelContainer>
