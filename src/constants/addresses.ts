@@ -248,5 +248,5 @@ export const LBP_FACTORY_ADDRESS = {
 } as Record<number, string>
 
 export const VOTING_ESCROW_ADDRESS = {
-  [84532]: '0x7EF6130e72213B06d9FB6096Ad927557cA6BAa00', // base sepolia
+  [84532]: '0x28d867EE987791eaF67C28c4090e946a9F8Eb140', // base sepolia
 } as ContractAddressRecord
