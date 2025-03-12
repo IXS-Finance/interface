@@ -66,6 +66,8 @@ export const useJoinPool = (pool: any) => {
   const fiatValueIn = bnSum(amountsIn.map((a: any) => toFiat(a.value || 0, a.address))).toString()
   const fiatValueOut = fiatValueOf(pool, bptOut)
 
+  console.log('hasValidInputs', hasValidInputs)
+  console.log('hasAcceptedHighPriceImpact', hasAcceptedHighPriceImpact)
   const amountsToApprove = amountsIn.map((amountIn: any) => ({
     address: amountIn.address,
     amount: amountIn.value,
@@ -125,6 +127,16 @@ export const useJoinPool = (pool: any) => {
       await setApprovalActions()
       if (!validateAmountsIn()) return null
       const output = await joinPoolService.queryJoin({
+        amountsIn: amountsInWithValue,
+        tokensIn,
+        signer: await getSigner(),
+        slippageBsp: slippageBsp,
+        relayerSignature: relayerSignature,
+        approvalActions,
+        transactionDeadline: transactionDeadline,
+      })
+
+      console.log('queryJOin params', {
         amountsIn: amountsInWithValue,
         tokensIn,
         signer: await getSigner(),
