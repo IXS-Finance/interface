@@ -7,6 +7,7 @@ import { useJoinPool } from 'state/dexV2/pool/useJoinPool'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import useUserSettings from 'state/dexV2/userSettings/useUserSettings'
 import { useAddLiquidityTotals } from '../useAddLiquidityTotals'
+import { Flex } from 'rebass'
 
 // Dummy translation function (replace with your i18n solution if needed)
 const t = (key: string) => {
@@ -46,58 +47,35 @@ const JoinPoolDataTable: React.FC<Props> = ({ pool, isLoadingQuery }) => {
   } = useAddLiquidityTotals(pool)
 
   return (
-    <DataTable>
-      <TotalRow>
-        <Cell>{t('total')}</Cell>
-        <NumberCell>
-          {fNum(fiatValueIn, FNumFormats.fiat)}
+    <Container>
+      <Flex
+        justifyContent="space-between"
+        alignItems="center"
+        css={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: 'solid 1px #e6e6ff' }}
+      >
+        <Total>Total</Total>
+        <Flex alignItems="center" justifyContent="flex-end" css={{ gap: '8px' }}>
+          <LPAmount>{fNum(fiatValueIn, FNumFormats.fiat)}</LPAmount>
           {isWalletReady && hasBalanceForSomeTokens && (
-            <div style={{ fontSize: '0.875rem' }}>
-              {maximized ? (
-                <span style={{ color: '#9ca3af' }}>{t('maxed')}</span>
-              ) : (
-                <span style={{ color: '#3b82f6', cursor: 'pointer' }} onClick={maximizeAmounts}>
-                  {t('max')}
-                </span>
-              )}
-            </div>
+            <MaxButton maximized={maximized} onClick={maximizeAmounts}>
+              {maximized ? 'Maxed' : 'Max'}
+            </MaxButton>
           )}
-        </NumberCell>
-      </TotalRow>
+        </Flex>
+      </Flex>
 
-      <SecondaryRow>
-        <Cell>LP tokens</Cell>
-        <NumberCell>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            {!isLoadingQuery ? <span>{fNum(bptOut, FNumFormats.token)}</span> : <LoadingBlock width="40px" />}
-            <Tooltip
-              text={`LP tokens you are expected to receive, not including possible slippage (${fNum(
-                slippage,
-                FNumFormats.percent
-              )})`}
-            >
-              <Icon
-                name="info"
-                size="xs"
-                style={{
-                  marginLeft: '0.25rem',
-                  marginBottom: '-2px',
-                  color: '#9ca3af',
-                }}
-              />
-            </Tooltip>
-          </div>
-        </NumberCell>
-      </SecondaryRow>
-      <SecondaryRow className={clsx(priceImpactClasses)}>
-        <Cell>{t('priceImpact')}</Cell>
-        <NumberCell>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            {!isLoadingQuery ? <span>{fNum(priceImpact, FNumFormats.percent)}</span> : <LoadingBlock width="40px" />}
-            <Tooltip text={t('customAmountsTip')}>
-              {highPriceImpact ? (
-                <Icon name="alert-triangle" size="xs" style={{ marginLeft: '0.25rem', marginBottom: '-2px' }} />
-              ) : (
+      <DataTable>
+        <SecondaryRow>
+          <Cell>LP tokens</Cell>
+          <NumberCell>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {!isLoadingQuery ? <span>{fNum(bptOut, FNumFormats.token)}</span> : <LoadingBlock width="40px" />}
+              <Tooltip
+                text={`LP tokens you are expected to receive, not including possible slippage (${fNum(
+                  slippage,
+                  FNumFormats.percent
+                )})`}
+              >
                 <Icon
                   name="info"
                   size="xs"
@@ -107,27 +85,98 @@ const JoinPoolDataTable: React.FC<Props> = ({ pool, isLoadingQuery }) => {
                     color: '#9ca3af',
                   }}
                 />
-              )}
-            </Tooltip>
-          </div>
-          {isWalletReady && hasBalanceForAllTokens && supportsProportionalOptimization && (
-            <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>
-              {optimized ? (
-                <span style={{ color: '#9ca3af' }}>{t('optimized')}</span>
-              ) : (
-                <span style={{ cursor: 'pointer' }} className={clsx(optimizeBtnClasses)} onClick={optimizeAmounts}>
-                  {t('optimize')}
-                </span>
-              )}
+              </Tooltip>
             </div>
-          )}
-        </NumberCell>
-      </SecondaryRow>
-    </DataTable>
+          </NumberCell>
+        </SecondaryRow>
+        <SecondaryRow className={clsx(priceImpactClasses)}>
+          <Cell>{t('priceImpact')}</Cell>
+          <NumberCell>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {!isLoadingQuery ? <span>{fNum(priceImpact, FNumFormats.percent)}</span> : <LoadingBlock width="40px" />}
+              <Tooltip text={t('customAmountsTip')}>
+                {highPriceImpact ? (
+                  <Icon name="alert-triangle" size="xs" style={{ marginLeft: '0.25rem', marginBottom: '-2px' }} />
+                ) : (
+                  <Icon
+                    name="info"
+                    size="xs"
+                    style={{
+                      marginLeft: '0.25rem',
+                      marginBottom: '-2px',
+                      color: '#9ca3af',
+                    }}
+                  />
+                )}
+              </Tooltip>
+            </div>
+            {isWalletReady && hasBalanceForAllTokens && supportsProportionalOptimization && (
+              <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                {optimized ? (
+                  <span style={{ color: '#9ca3af' }}>{t('optimized')}</span>
+                ) : (
+                  <span style={{ cursor: 'pointer' }} className={clsx(optimizeBtnClasses)} onClick={optimizeAmounts}>
+                    {t('optimize')}
+                  </span>
+                )}
+              </div>
+            )}
+          </NumberCell>
+        </SecondaryRow>
+      </DataTable>
+    </Container>
   )
 }
 
 export default JoinPoolDataTable
+
+const Container = styled.div`
+  width: 100%;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: solid 1px #e6e6ff;
+`
+
+const Total = styled.div`
+  color: rgba(41, 41, 51, 0.9);
+  text-align: center;
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.48px;
+`
+
+const MaxButton = styled.div<{ maximized: boolean }>`
+  border-radius: 8px;
+  background: #f7f7fa;
+  display: flex;
+  padding: 8px 16px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  color: ${({ maximized }) => (maximized ? '#B8B8D2' : '#66F')};
+  cursor: ${({ maximized }) => (maximized ? 'default' : 'pointer')};
+  font-family: Inter;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.18px;
+  text-transform: uppercase;
+`
+
+const LPAmount = styled.div`
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.6px;
+`
 
 // Styled components
 const DataTable = styled.div`
