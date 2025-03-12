@@ -131,10 +131,9 @@ const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({
   // }, [isLoadingQuery, txInProgress, JSON.stringify(allowances)])
 
 
-  console.log('amountOutMap', amountOutMap)
 
   return (
-    <Modal onClose={onClose}>
+    <Modal onClose={handleClose}>
       <Flex alignItems="center">
         {confirmed ? (
           <BalCircle size="8" color="green" className="mr-2 text-white">

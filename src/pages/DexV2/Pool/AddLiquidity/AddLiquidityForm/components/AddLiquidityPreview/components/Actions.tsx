@@ -48,7 +48,6 @@ const Actions: React.FC<Props> = ({ pool, onSuccess, onShowStakeModal }) => {
     approvalActions: joinPoolApprovalActions,
   } = useJoinPool(pool)
 
-  console.log('joinPoolApprovalActions', joinPoolApprovalActions)
   // Store approval actions (assume joinPoolApprovalActions is an array)
   const approvalActions = joinPoolApprovalActions
 
@@ -104,12 +103,12 @@ const Actions: React.FC<Props> = ({ pool, onSuccess, onShowStakeModal }) => {
     }
   }
 
-  // Cleanup: reset txState when component unmounts (similar to onUnmounted)
-  useEffect(() => {
-    return () => {
-      resetTxState()
-    }
-  }, [resetTxState])
+  // // Cleanup: reset txState when component unmounts (similar to onUnmounted)
+  // useEffect(() => {
+  //   return () => {
+  //     resetTxState()
+  //   }
+  // }, [resetTxState])
 
   return (
     <Container>
@@ -118,7 +117,7 @@ const Actions: React.FC<Props> = ({ pool, onSuccess, onShowStakeModal }) => {
           requiredActions={actions}
           primaryActionType="invest"
           disabled={!!rektPriceImpact || !!isMismatchedNetwork}
-          // onSuccess={(receipt: TransactionReceipt, confirmedAt: string) => handleSuccess(receipt, confirmedAt)}
+          onSuccess={(receipt: TransactionReceipt, confirmedAt: string) => handleSuccess(receipt, confirmedAt)}
           // onFailed={handleFailed}
         />
       ) : (
