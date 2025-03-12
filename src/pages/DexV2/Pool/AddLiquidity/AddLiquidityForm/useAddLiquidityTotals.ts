@@ -74,7 +74,7 @@ export function useAddLiquidityTotals(pool: Pool) {
   // METHODS
 
   function maximizeAmounts(): void {
-    if (!maximized) {
+    if (maximized) {
       return
     }
     const newAmounts = amountsIn.map((amount: any) => {
