@@ -74,6 +74,9 @@ export function useAddLiquidityTotals(pool: Pool) {
   // METHODS
 
   function maximizeAmounts(): void {
+    if (!maximized) {
+      return
+    }
     const newAmounts = amountsIn.map((amount: any) => {
       if (isSameAddress(amount.address, nativeAsset.address)) {
         const balance = balanceFor(amount.address)
