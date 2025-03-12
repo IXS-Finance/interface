@@ -1,25 +1,27 @@
 import React from 'react'
-import { Flex } from "rebass";
-import { BodyRow, HeaderRow, Table } from "components/Table";
-import { BodyContainer } from "components/TmPayoutHistory/styleds";
-import { Fragment, memo } from "react";
-import { Line } from "components/Line";
-import { Pagination } from "components/Pagination";
-import styled from "styled-components";
-import { Title } from "components/LaunchpadMisc/tables";
-import { SortIcon } from "components/LaunchpadIssuance/utils/SortIcon";
-import { useOnChangeOrder, usePoolList } from "./hooks";
-import { AbstractOrder } from "state/launchpad/types";
-import { TYPE } from "theme";
-import useTheme from "hooks/useTheme";
-import { useCurrency } from "lib/balancer/hooks/useCurrency";
-import { fNum } from "lib/balancer/utils/numbers";
-import CurrencyLogo from "components/CurrencyLogo";
-import { useSafeCurrency } from "hooks/Tokens";
-import { usePoolFilter } from "./FilterProvider";
-import { adminOffset } from "state/admin/constants";
-import { LoadingIndicator } from "components/LoadingIndicator";
-import { useHistory } from "react-router-dom";
+import { Flex } from 'rebass'
+import { BodyRow, HeaderRow, Table } from 'components/Table'
+import { BodyContainer } from 'components/TmPayoutHistory/styleds'
+import { Fragment, memo } from 'react'
+import { Line } from 'components/Line'
+import { Pagination } from 'components/Pagination'
+import styled from 'styled-components'
+import { Title } from 'components/LaunchpadMisc/tables'
+import { SortIcon } from 'components/LaunchpadIssuance/utils/SortIcon'
+import { useOnChangeOrder, usePoolList } from './hooks'
+import { AbstractOrder } from 'state/launchpad/types'
+import { TYPE } from 'theme'
+import useTheme from 'hooks/useTheme'
+import { useCurrency } from 'lib/balancer/hooks/useCurrency'
+import { fNum } from 'lib/balancer/utils/numbers'
+import CurrencyLogo from 'components/CurrencyLogo'
+import { useSafeCurrency } from 'hooks/Tokens'
+import { usePoolFilter } from './FilterProvider'
+import { adminOffset } from 'state/admin/constants'
+import { LoadingIndicator } from 'components/LoadingIndicator'
+import { useHistory } from 'react-router-dom'
+import Asset from 'pages/DexV2/common/Asset'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 export default function PoolList() {
   const { pools } = usePoolList()
@@ -31,18 +33,14 @@ export default function PoolList() {
   }
 
   return (
-    <Flex flexWrap='wrap' flexDirection="column" style={{ gap: 32 }}>
-      {pools === undefined ?
-        <LoadingIndicator noOverlay={true} isLoading /> :
+    <Flex flexWrap="wrap" flexDirection="column" style={{ gap: 32 }}>
+      {pools === undefined ? (
+        <LoadingIndicator noOverlay={true} isLoading />
+      ) : (
         <Table header={<Header />} body={<Body items={pools} />} />
-      }
+      )}
 
-      <Pagination
-        totalPages={null}
-        page={page + 1}
-        onPageChange={onPageChange}
-        totalItems={adminOffset}
-      />
+      <Pagination totalPages={null} page={page + 1} onPageChange={onPageChange} totalItems={adminOffset} />
     </Flex>
   )
 }
@@ -70,9 +68,7 @@ const Header = () => {
   const onChangeOrder = useOnChangeOrder(order as AbstractOrder, setOrder)
   return (
     <StyledHeaderRow>
-      <Title>
-        Pool name
-      </Title>
+      <Title>Pool name</Title>
       <StyledTitle onClick={() => onChangeOrder('totalLiquidity')}>
         TVL <SortIcon type={order.totalLiquidity} />
       </StyledTitle>
@@ -95,48 +91,44 @@ type TokenIconProps = {
 
 const TokenIcon = ({ address }: TokenIconProps) => {
   const currency = useSafeCurrency(address)
-  return (
-    <CurrencyLogo currency={currency} size={'24px'} />
-  )
+  return <CurrencyLogo currency={currency} size={'24px'} />
 }
 
 const MemoTokenIcon = memo(TokenIcon, (prevProps: TokenIconProps, nextProps: TokenIconProps) => {
-  return prevProps.address === nextProps.address;
+  return prevProps.address === nextProps.address
 })
 
 const Row = ({ pool }: { pool: any }) => {
   const theme = useTheme()
   const { toCurrency } = useCurrency()
   const history = useHistory()
+  const { getToken } = useTokens()
 
   return (
     <StyledBodyRow onClick={() => history.push(`/v2/pool/${pool.id}`)}>
-      <Flex flexWrap='wrap'>
-        {pool?.tokens?.map((token: any) => (
-          <Flex key={token.ticker} alignItems="center" className="token">
-            <MemoTokenIcon address={token.address} />
-            <span>{token.symbol}</span>
-            <span className="percentage">{fNum('weight', token.weight || '')}</span>
-          </Flex>
-        ))}
+      <Flex flexWrap="wrap">
+        {pool?.tokens?.map((token: any) => {
+          const tokenInfo = getToken(token.address)
+
+          console.log('tokenInfo', tokenInfo)
+          return (
+            <Flex key={token.ticker} alignItems="center" className="token">
+              <Asset address={token.address} />
+              <span>{token.symbol}</span>
+              <span className="percentage">{fNum('weight', token.weight || '')}</span>
+            </Flex>
+          )
+        })}
       </Flex>
-      <TYPE.main color={'text1'}>
-        {toCurrency(pool.totalLiquidity)}
-      </TYPE.main>
-      <TYPE.main color={'text1'}>
-        {toCurrency(pool.totalSwapVolume)}
-      </TYPE.main>
-      <TYPE.main1 color={theme.blue5}>
-        SAMPLE
-      </TYPE.main1>
-      <TYPE.main0 fontSize={16}>
-        aprToShow
-      </TYPE.main0>
+      <TYPE.main color={'text1'}>{toCurrency(pool.totalLiquidity)}</TYPE.main>
+      <TYPE.main color={'text1'}>{toCurrency(pool.totalSwapVolume)}</TYPE.main>
+      <TYPE.main1 color={theme.blue5}>SAMPLE</TYPE.main1>
+      <TYPE.main0 fontSize={16}>aprToShow</TYPE.main0>
     </StyledBodyRow>
   )
 }
 
-const gridTemplateColumns = '3.5fr 1fr 1fr 1fr 1fr';
+const gridTemplateColumns = '3.5fr 1fr 1fr 1fr 1fr'
 
 export const StyledHeaderRow = styled(HeaderRow)`
   grid-template-columns: ${gridTemplateColumns};
