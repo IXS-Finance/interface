@@ -160,7 +160,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
         )}
       </Flex>
 
-      <AddLiquidityTotals isLoadingQuery={isLoadingQuery} pool={pool} />
+      {!disabled ? <AddLiquidityTotals isLoadingQuery={isLoadingQuery} pool={pool} /> : null}
 
       {highPriceImpact && (
         <HighPriceImpactContainer className="p-2 pb-2 mt-5 rounded-lg border dark:border-gray-700">
