@@ -34,9 +34,10 @@ export const NFT_ADDRESS = {
 // export const ENV_SUPPORTED_TGE_CHAINS = [1, 42, 137] as number[] | undefined
 
 export const ENV_SUPPORTED_TGE_CHAINS = (
-  process.env.REACT_APP_SUPPORTED_TGE_CHAINS ? JSON.parse(process.env.REACT_APP_SUPPORTED_TGE_CHAINS) : [SupportedChainId.BASE]
+  process.env.REACT_APP_SUPPORTED_TGE_CHAINS
+    ? JSON.parse(process.env.REACT_APP_SUPPORTED_TGE_CHAINS)
+    : [SupportedChainId.BASE]
 ) as number[]
-
 
 export const SUPPORTED_TGE_CHAINS = {
   MAIN: 1,
@@ -52,10 +53,12 @@ export const SUPPORTED_TGE_CHAINS = {
 }
 
 export const SUPPORTED_DEX_CHAINS = (
-  process.env.REACT_APP_SUPPORTED_DEX_CHAINS ? JSON.parse(process.env.REACT_APP_SUPPORTED_DEX_CHAINS) : [SupportedChainId.BASE]
+  process.env.REACT_APP_SUPPORTED_DEX_CHAINS
+    ? JSON.parse(process.env.REACT_APP_SUPPORTED_DEX_CHAINS)
+    : [SupportedChainId.BASE]
 ) as number[]
 
-export const TGE_CHAINS_WITH_SWAP = SUPPORTED_DEX_CHAINS;
+export const TGE_CHAINS_WITH_SWAP = SUPPORTED_DEX_CHAINS
 export const TGE_CHAINS_WITH_STAKING = ENV_SUPPORTED_TGE_CHAINS || [
   SUPPORTED_TGE_CHAINS.AMOY,
   SUPPORTED_TGE_CHAINS.MATIC,
@@ -233,5 +236,5 @@ export const LBP_FACTORY_ADDRESS = {
 } as Record<number, string>
 
 export const VOTING_ESCROW_ADDRESS = {
-  [84532]: '0xc55d5Ed2f931dac22d5b578130Dd96f9CfAFaCB1', // base sepolia
+  [84532]: '0x7EF6130e72213B06d9FB6096Ad927557cA6BAa00', // base sepolia
 } as ContractAddressRecord
