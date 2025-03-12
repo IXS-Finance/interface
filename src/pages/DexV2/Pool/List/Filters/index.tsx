@@ -1,3 +1,4 @@
+import React from 'react'
 import { text8 } from "components/LaunchpadMisc/typography";
 import styled from "styled-components";
 import { PoolTypes } from "../constants";
@@ -32,12 +33,12 @@ const Filters: React.FC = () => {
           )
         })}
       </Flex>
-      <div>
+      {/* <div>
         <NetworkCard
           selectedValue={filters.network}
           onChange={handleChangeNetwork}
         />
-      </div>
+      </div> */}
     </FilterWrapper>
   )
 }
