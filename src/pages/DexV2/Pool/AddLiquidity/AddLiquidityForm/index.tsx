@@ -13,14 +13,13 @@ import { tokenWeight, usePoolHelpers } from 'hooks/dex-v2/usePoolHelpers'
 // import WrapStEthLink from '@/components/contextual/pages/pool/add-liquidity/WrapStEthLink'
 // import StakePreviewModal from '@/components/contextual/pages/pool/staking/StakePreviewModal'
 // import AddLiquidityPreview from './components/AddLiquidityPreview/AddLiquidityPreview'
-// import AddLiquidityTotals from './components/AddLiquidityTotals'
+import AddLiquidityTotals from './components/AddLiquidityTotals'
 // import BalCheckbox from '@/components/BalCheckbox'
 import BalAlert from '../../components/BalAlert'
 import { ButtonPrimary } from 'pages/DexV2/common'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { AmountIn, useJoinPool } from 'state/dexV2/pool/useJoinPool'
-import ActionSteps from '../../components/ActionSteps'
 import StakePreviewModal from './components/StakePreviewModal'
 import AddLiquidityPreview from './components/AddLiquidityPreview'
 import { useDispatch } from 'react-redux'
@@ -135,7 +134,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
         </BalAlert>
       ) : null}
 
-      <Flex flexDirection="column" css={{ gap: '1rem' }} mt={2}>
+      <Flex flexDirection="column" css={{ gap: '1rem' }} mt={2} mb={3}>
         {amountsIn.length === 0 ? (
           <>
             <LoadingBlock className="h-30" />
@@ -161,7 +160,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
         )}
       </Flex>
 
-      {/* <AddLiquidityTotals pool={pool} /> */}
+      <AddLiquidityTotals isLoadingQuery={isLoadingQuery} pool={pool} />
 
       {highPriceImpact && (
         <HighPriceImpactContainer className="p-2 pb-2 mt-5 rounded-lg border dark:border-gray-700">
