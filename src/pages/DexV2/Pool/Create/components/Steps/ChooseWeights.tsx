@@ -27,7 +27,7 @@ const emptyTokenWeight: PoolSeedToken = {
   weight: 0,
   id: '0',
   isLocked: false,
-  amount: '0',
+  amount: '',
 }
 
 const ChooseWeights: React.FC = () => {
@@ -158,17 +158,19 @@ const ChooseWeights: React.FC = () => {
           Add a Token
         </AddTokenButton>
 
-        <Line />
-
-        <WrapProgressBar>
-          <TitleProgressBar>
-            <LeftContentProgressBar>Total Allocated</LeftContentProgressBar>
-            <RightContentProgressBar style={weightColor}>{totalAllocatedWeight}%</RightContentProgressBar>
-          </TitleProgressBar>
-          <BalProgressBar width={Number(totalAllocatedWeight)} color={progressBarColor()} />
-        </WrapProgressBar>
-
-        <Line />
+        {totalAllocatedWeight > 0 ? (
+          <>
+            <Line />
+            <WrapProgressBar>
+              <TitleProgressBar>
+                <LeftContentProgressBar>Total Allocated</LeftContentProgressBar>
+                <RightContentProgressBar style={weightColor}>{totalAllocatedWeight}%</RightContentProgressBar>
+              </TitleProgressBar>
+              <BalProgressBar width={Number(totalAllocatedWeight)} color={progressBarColor()} />
+            </WrapProgressBar>
+            <Line />
+          </>
+        ) : null}
 
         <Flex direction="column" gap="16px" mb="16px">
           {showLiquidityAlert && isWalletReady ? (
@@ -287,9 +289,6 @@ const RightContentProgressBar = styled.div`
 const TitleProgressBar = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-top: 32px;
 `
 
-const WrapProgressBar = styled.div`
-  margin-bottom: 32px;
-`
+const WrapProgressBar = styled.div``

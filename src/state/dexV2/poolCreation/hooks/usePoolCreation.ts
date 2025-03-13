@@ -18,6 +18,8 @@ import {
   FeeManagementType,
   FeeType,
   FeeController,
+  setTokenAmount,
+  distributeWeights,
 } from '..'
 import { PoolSeedToken } from 'pages/DexV2/types'
 import { bnum, includesAddress, isSameAddress, scale } from 'lib/utils'
@@ -277,17 +279,18 @@ export const usePoolCreation = () => {
   function clearAmounts() {
     const newSeedTokens = [...poolCreationState.seedTokens]
     for (const token of newSeedTokens) {
-      token.amount = '0'
+      token.amount = ''
     }
     dispatch(setTokenWeights(newSeedTokens))
   }
 
   function setAmountsToMaxBalances() {
     const newSeedTokens = [...poolCreationState.seedTokens]
-    for (const token of newSeedTokens) {
-      token.amount = balanceFor(token.tokenAddress)
-    }
-    dispatch(setTokenWeights(newSeedTokens))
+    newSeedTokens.forEach((token, idx) => {
+      dispatch(setTokenAmount({ id: idx, amount: balanceFor(token.tokenAddress) }))
+    })
+
+    dispatch(distributeWeights())
   }
 
   function setTokensList(newList: string[]) {
@@ -456,7 +459,7 @@ export const usePoolCreation = () => {
           tokenAddress: getAddress(token),
           weight: Number(details.weights[i]) * 100,
           isLocked: true,
-          amount: '0',
+          amount: '',
           id: i.toString(),
         }
       })
@@ -494,6 +497,10 @@ export const usePoolCreation = () => {
 
   const updateActionState = (actionIndex: number, value: any) => {
     dispatch(setValueOfActionState({ actionIndex, value }))
+  }
+
+  const setPoolCreation = (payload: any) => {
+    dispatch(setPoolCreationState(payload))
   }
 
   return {
@@ -543,5 +550,6 @@ export const usePoolCreation = () => {
     tokensWithNoPrice,
     similarPools,
     updateActionState,
+    setPoolCreation,
   }
 }
