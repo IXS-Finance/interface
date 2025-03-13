@@ -1,12 +1,10 @@
 // src/store/tokensSlice.ts
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { getAddress } from '@ethersproject/address'
-import { getChainId, multicall } from '@wagmi/core'
+import { createSlice } from '@reduxjs/toolkit'
+import { getChainId } from '@wagmi/core'
 
-import { TokenListMap, TokenInfoMap, TokenInfo } from 'types/TokenList'
+import { TokenInfoMap, TokenInfo } from 'types/TokenList'
 import { wagmiConfig } from 'components/Web3Provider'
 import config from 'lib/config'
-import { erc20Abi, formatUnits } from 'viem'
 import { ContractAllowancesMap } from 'services/token/concerns/allowances.concern'
 
 export type BalanceMap = { [address: string]: string }
@@ -18,19 +16,11 @@ const initTokenPrices: TokenPrices = {
   ['0xb6cd7297d7f0D761C5C395383219333d47F47b2a']: 1,
   ['0x8e3b0aEEF4b75d5aF86eF027fFe2d7C2AeC21CA4']: 1,
   ['0x949546713004ee02537292b1F41046f705909191']: 0.3,
+  ['0x8a1887973f72D43B023EA2EF848BB3614664cE5b']: 0.71,
+  ['0xbed7ef47506556b96839e6607ddee9b49de55fdb']: 5.8,
+  ['0xdba068f4486C9d7409976AdECF43417403aD1121']: 0.69,
+  ['0x00A276Ae9b8A3Ca5128B7aba8EAeF62E4C59F871']: 25,
 }
-
-interface BalanceInputPayload {
-  tokens: TokenInfoMap
-  account: string
-}
-
-interface AllowanceInputPayload {
-  tokens: TokenInfoMap
-  account: string
-  contractAddress: string
-}
-
 interface TokensState {
   balances: BalanceMap
   allowances: ContractAllowancesMap
