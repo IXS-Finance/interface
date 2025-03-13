@@ -14,7 +14,6 @@ import { useAccount } from 'wagmi'
 import { isLessThanOrEqualTo, isPositive } from 'lib/utils/validations'
 import { Rules } from 'pages/DexV2/types'
 import { overflowProtected } from 'pages/DexV2/Pool/components/helpers'
-import { useTokensState } from 'state/dexV2/tokens/hooks'
 import useInputValidation from 'pages/DexV2/common/forms/useInputValidation'
 
 type InputValue = string | number

@@ -1,18 +1,17 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 
-const Switch: React.FC = () => {
-  const [isOn, setIsOn] = useState(false)
+interface SwitchProps {
+  checked: boolean
+  onChange: () => void
+}
 
-  const toggleSwitch = () => {
-    setIsOn(!isOn)
-  }
-
+const Switch: React.FC<SwitchProps> = ({ checked, onChange }) => {
   return (
-    <SwitchContainer onClick={toggleSwitch} isOn={isOn}>
+    <SwitchContainer onClick={onChange} checked={checked}>
       <SwitchSvg>
-        <SwitchBackground isOn={isOn} />
-        <SwitchCircle isOn={isOn} />
+        <SwitchBackground checked={checked} />
+        <SwitchCircle checked={checked} />
       </SwitchSvg>
     </SwitchContainer>
   )
@@ -20,7 +19,7 @@ const Switch: React.FC = () => {
 
 export default Switch
 
-const SwitchContainer = styled.div<{ isOn: boolean }>`
+const SwitchContainer = styled.div<{ checked: boolean }>`
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -38,9 +37,9 @@ const SwitchBackground = styled.rect.attrs({
   width: 22,
   height: 16,
   rx: 8,
-})<{ isOn: boolean }>`
+})<{ checked: boolean }>`
   y: 0.5;
-  fill: ${({ isOn }) => (isOn ? '#66F' : '#E2E2F1')};
+  fill: ${({ checked }) => (checked ? '#66F' : '#E2E2F1')};
 `
 
 const SwitchCircle = styled.rect.attrs({
@@ -48,8 +47,8 @@ const SwitchCircle = styled.rect.attrs({
   height: 10,
   rx: 5,
   fill: 'white',
-})<{ isOn: boolean }>`
-  x: ${({ isOn }) => (isOn ? 10 : 3)};
+})<{ checked: boolean }>`
+  x: ${({ checked }) => (checked ? 10 : 3)};
   y: 3.5;
   transition: x 0.3s ease;
 `

@@ -4,8 +4,7 @@ import { useDispatch } from 'react-redux'
 
 import { Box, Flex } from 'rebass'
 import Switch from '../../../components/Switch'
-import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
-import TokenInput from '../../../components/TokenInput'
+import TokenInput from '../TokenInput'
 import { isGreaterThan } from 'lib/utils/validations'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { setPoolCreationState, setTokenAmount } from 'state/dexV2/poolCreation'
@@ -15,11 +14,12 @@ import { bnum, isSameAddress } from 'lib/utils'
 import BalCard from 'pages/DexV2/common/Card'
 import BalStack from 'pages/DexV2/common/BalStack'
 import { configService } from 'services/config/config.service'
+import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 
 interface SetPoolFeesProps {}
 
 const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
-  const { balanceFor, priceFor, nativeAsset, wrappedNativeAsset, dynamicDataLoading } = useTokens()
+  const { balanceFor, priceFor, nativeAsset, wrappedNativeAsset, balanceQueryLoading } = useTokens()
   const {
     seedTokens,
     manuallySetToken,
@@ -30,6 +30,9 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
     proceed,
     goBack,
     useNativeAsset,
+    setAmountsToMaxBalances,
+    setPoolCreation,
+    updateManuallySetToken,
   } = usePoolCreation()
   const { fNum } = useNumbers()
   const dispatch = useDispatch()
@@ -37,16 +40,35 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
   const networkName = configService.network.name
   const [isOptimised, setIsOptimised] = useState(false)
   const tokenAddresses = [...seedTokens.map((token) => token.tokenAddress)]
+  const optimisedLiquidity = getOptimisedLiquidity()
+
+  const areAmountsMaxed = seedTokens.every((t) => bnum(t.amount).eq(balanceFor(t.tokenAddress)))
 
   const handleAmountChange = (idx: number, amount: string) => {
     dispatch(setTokenAmount({ id: idx, amount }))
+  }
+
+  function checkLiquidityScaling() {
+    if (!autoOptimiseBalances) return
+
+    scaleLiquidity()
+  }
+
+  function toggleAutoOptimise() {
+    setPoolCreation({ autoOptimiseBalances: !autoOptimiseBalances })
+    checkLiquidityScaling()
+  }
+
+  function handleMax() {
+    setAmountsToMaxBalances()
+    setIsOptimised(false)
   }
 
   function optimiseLiquidity(force = false) {
     if (manuallySetToken && !force) return
     setIsOptimised(true)
 
-    const optimisedLiquidity = getOptimisedLiquidity()
+    if (Object.keys(optimisedLiquidity).length === 0) return
 
     seedTokens.forEach((token, idx) => {
       dispatch(setTokenAmount({ id: idx, amount: optimisedLiquidity[token.tokenAddress].balanceRequired }))
@@ -82,12 +104,16 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
 
   // Watch dynamicDataLoading; when pricing data becomes available, update values.
   useEffect(() => {
-    if (!dynamicDataLoading) {
+    if (seedTokens.length > 0 && !balanceQueryLoading) {
       setNativeAssetIfRequired()
-      optimiseLiquidity()
+      optimiseLiquidity(true)
       scaleLiquidity()
     }
-  }, [dynamicDataLoading])
+  }, [balanceQueryLoading, seedTokens.length, JSON.stringify(optimisedLiquidity)])
+
+  useEffect(() => {
+    checkLiquidityScaling()
+  }, [JSON.stringify(seedTokens), manuallySetToken])
 
   return (
     <BalCard shadow="xl" noBorder>
@@ -96,25 +122,37 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
           {networkName}
         </Box>
         <Box color="rgba(41, 41, 51, 0.9)" fontSize="20px" fontWeight={600}>
-        Set initial liquidity
+          Set initial liquidity
         </Box>
 
-        {seedTokens.map((token, i) => {
-          return (
-            <TokenInput
-              key={`tokenweight-${token.id}`}
-              name={`initial-token-${token.tokenAddress}`}
-              weight={token.weight}
-              address={token.tokenAddress}
-              amount={token.amount}
-              rules={[isGreaterThan(0)]}
-              updateAmount={(amount: any) => handleAmountChange(i, amount)}
-            />
-          )
-        })}
+        {seedTokens.length === 0 && balanceQueryLoading ? (
+          <>
+            <LoadingBlock className="h-30" />
+            <LoadingBlock className="h-30" />
+          </>
+        ) : (
+          <>
+            {seedTokens.map((token, i) => {
+              return (
+                <TokenInput
+                  key={`tokenweight-${token.id}`}
+                  name={`initial-token-${token.tokenAddress}`}
+                  weight={token.weight}
+                  address={token.tokenAddress}
+                  amount={token.amount}
+                  rules={[]}
+                  updateAmount={(amount: any) => {
+                    updateManuallySetToken(token.tokenAddress)
+                    handleAmountChange(i, amount)
+                  }}
+                />
+              )
+            })}
+          </>
+        )}
 
         <Flex alignItems="center" style={{ gap: 8 }} marginTop={16}>
-          <Switch />
+          <Switch checked={autoOptimiseBalances} onChange={toggleAutoOptimise} />
           <SwitchText>Auto optimize liquidity</SwitchText>
         </Flex>
 
@@ -125,10 +163,12 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
           </SummaryItem>
 
           <SummaryItem>
-            <div>
-              Available: $0.00 <Maxed>Maxed</Maxed>
-            </div>
-            <Optimized>Optimized</Optimized>
+            <div>Available: $0.00 {areAmountsMaxed ? <Maxed>Maxed</Maxed> : <Max onClick={handleMax}>Max</Max>}</div>
+            {isOptimised ? (
+              <Optimized>Optimized</Optimized>
+            ) : (
+              <Optimize onClick={() => optimiseLiquidity(true)}>Optimize</Optimize>
+            )}
           </SummaryItem>
         </SummaryContainer>
 
@@ -204,17 +244,6 @@ const NextButton = styled.button`
   }
 `
 
-const ErrorText = styled.div`
-  color: rgba(255, 128, 128, 0.9);
-  text-align: center;
-  font-family: Inter;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  letter-spacing: -0.42px;
-`
-
 const SwitchText = styled.div`
   color: #b8b8d2;
   font-family: Inter;
@@ -249,7 +278,17 @@ const SummaryItem = styled.div`
 `
 
 const Optimized = styled.div`
-  color: #66f;
+  color: #b8b8d2;
+`
+
+const Optimize = styled.div`
+  color: #6666ff;
+  cursor: pointer;
+`
+
+const Max = styled.span`
+  color: #6666ff;
+  cursor: pointer;
 `
 
 const Maxed = styled.span`
