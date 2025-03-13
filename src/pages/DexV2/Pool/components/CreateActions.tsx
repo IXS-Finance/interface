@@ -93,7 +93,7 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
 
   return (
     <div>
-      <ActionSteps requiredActions={requiredActions} primaryActionType="createPool" disabled={false} />
+      <ActionSteps requiredActions={requiredActions} primaryActionType="createPool" disabled={false} goBack={goBack} />
     </div>
   )
 }

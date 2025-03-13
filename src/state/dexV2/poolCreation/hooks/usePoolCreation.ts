@@ -49,8 +49,6 @@ export interface JoinPoolRequest {
   fromInternalBalance: boolean
 }
 
-const JOIN_KIND_INIT = 0
-
 export const usePoolCreation = () => {
   const poolCreationState = useSelector((state: AppState) => state.poolCreation)
   const {
@@ -352,12 +350,15 @@ export const usePoolCreation = () => {
       throw new Error('Invalid pool creation due to unlisted tokens.')
     }
     const provider = await getProvider()
+    const sortedSeedTokens = [...poolCreationState.seedTokens].sort((a, b) =>
+      a.tokenAddress.toLowerCase() > b.tokenAddress.toLowerCase() ? 1 : -1
+    )
     const tx = await balancerService.pools.weighted.create(
       provider,
       poolCreationState.name,
       poolCreationState.symbol,
       poolCreationState.initialFee,
-      poolCreationState.seedTokens,
+      sortedSeedTokens,
       poolOwner
     )
     dispatch(setPoolCreationState({ createPoolTxHash: tx.hash }))
@@ -383,6 +384,7 @@ export const usePoolCreation = () => {
 
   async function joinPool() {
     const provider = await getProvider()
+
     const tokenAddresses: string[] = poolCreationState.seedTokens.map((token) => {
       if (isSameAddress(token.tokenAddress, wrappedNativeAsset.address) && poolCreationState.useNativeAsset) {
         return nativeAsset.address
@@ -459,7 +461,7 @@ export const usePoolCreation = () => {
           tokenAddress: getAddress(token),
           weight: Number(details.weights[i]) * 100,
           isLocked: true,
-          amount: '',
+          amount: '0',
           id: i.toString(),
         }
       })
