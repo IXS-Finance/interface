@@ -38,6 +38,34 @@
         "symbol": "TIXS",
         "decimals": 18,
         "logoURI": "https://asset-metadata-service-production.s3.amazonaws.com/asset_icons/f1516fe008a89da24fe1930c30acb4c4c262696a919c7e9c52dd127b9ee1cfc6.png"
+      },
+      {
+        "chainId": 84532,
+        "address": "0x8a1887973f72D43B023EA2EF848BB3614664cE5b",
+        "name": "TOKENA",
+        "symbol": "TOKENA",
+        "decimals": 18
+      },
+      {
+        "chainId": 84532,
+        "address": "0xbed7ef47506556b96839e6607ddee9b49de55fdb",
+        "name": "KDA",
+        "symbol": "KDA",
+        "decimals": 18
+      },
+      {
+        "chainId": 84532,
+        "address": "0xdba068f4486C9d7409976AdECF43417403aD1121",
+        "name": "LEON",
+        "symbol": "LEON",
+        "decimals": 18
+      },
+      {
+        "chainId": 84532,
+        "address": "0x00A276Ae9b8A3Ca5128B7aba8EAeF62E4C59F871",
+        "name": "TIGER",
+        "symbol": "TIGER",
+        "decimals": 18
       }
     ]
   }
