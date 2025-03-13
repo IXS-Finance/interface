@@ -4,16 +4,16 @@ import { useDispatch } from 'react-redux'
 
 import { TransactionActionInfo, TransactionActionState } from 'pages/DexV2/types/transactions'
 import HorizSteps, { Step, StepState } from './HorizSteps'
-import { NavigationButtons, NextButton } from 'pages/DexV2/Pool/Create'
+import { BackButton, NavigationButtons, NextButton } from '../Create'
 import { captureBalancerException, useErrorMsg } from 'lib/utils/errors'
+import { toast } from 'react-toastify'
+import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import Loader from 'components/Loader'
 import useEthers from 'hooks/dex-v2/useEthers'
 import { TransactionAction, postConfirmationDelay } from 'hooks/dex-v2/useTransactions'
 import { dateTimeLabelFor } from 'hooks/dex-v2/useTime'
-import { BalAlert } from 'pages/DexV2/common/BalAlert'
-import { useSwapState } from 'state/dexV2/swap/useSwapState'
-import { usePoolState } from 'state/dexV2/pool/usePoolState'
-import { setActionStates } from 'state/dexV2/pool'
+import { setActionStates } from 'state/dexV2/poolCreation'
+import BalAlert from './BalAlert'
 
 export type BalStepAction = {
   label: string
@@ -34,7 +34,16 @@ interface ActionStepsProps {
   // override action state loading label
   // for all steps
   loadingLabel?: string
-  onSuccess?: (receipt: TransactionReceipt, confirmedAt: string) => void
+  goBack: () => void
+}
+
+type StepAction = {
+  label: string
+  loadingLabel: string
+  pending: boolean
+  step: Step
+  promise: () => Promise<void>
+  isSignAction?: boolean
 }
 
 const defaultActionState: TransactionActionState = {
@@ -49,43 +58,48 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   isLoading = false,
   loadingLabel = '',
   requiredActions,
+  goBack,
   primaryActionType,
-  onSuccess,
 }) => {
   const dispatch = useDispatch()
   const { txListener, getTxConfirmedAt } = useEthers()
   const { formatErrorMsg } = useErrorMsg()
-  const { actionStates, updateActionState } = usePoolState()
+  const { actionStates, hasRestoredFromSavedState, poolTypeString, createPool, joinPool, updateActionState } =
+    usePoolCreation()
 
   const [loading, setLoading] = useState(false)
   const [currentActionIndex, setCurrentActionIndex] = useState(0)
 
-  console.log('requiredActions', requiredActions)
-  const actions: any = requiredActions
-    .map((actionInfo, idx) => {
-      const actionState = actionStates[idx]
-      if (!actionState) return null
-      return {
-        label: actionInfo.label,
-        loadingLabel: actionState.init ? actionInfo.loadingLabel : actionInfo.confirmingLabel,
-        pending: actionState.init || actionState.confirming,
-        isSignAction: actionInfo.isSignAction,
-        promise: submit.bind(null, actionInfo, actionState, idx),
-        step: {
-          tooltip: actionInfo.stepTooltip,
-          state: getStepState(actionState, idx),
-        },
-      }
+  const actions: BalStepAction[] = []
+
+  requiredActions.forEach((actionInfo, idx) => {
+    const actionState = actionStates[idx]
+    console.log('actionState', actionState)
+    if (!actionState) {
+      return
+    }
+
+    actions.push({
+      label: actionInfo.label,
+      loadingLabel: actionState.init ? actionInfo.loadingLabel : actionInfo.confirmingLabel,
+      pending: actionState.init || actionState.confirming,
+      isSignAction: actionInfo.isSignAction,
+      promise: submit.bind(null, actionInfo, actionState, idx),
+      step: {
+        tooltip: actionInfo.stepTooltip,
+        state: getStepState(actionState, idx),
+      },
     })
-    .filter((item) => item !== null)
+  })
+
+  console.log('actions', actions)
 
   const currentAction: BalStepAction | undefined = actions[currentActionIndex]
-  console.log('actionStates', actionStates)
   const currentActionState: TransactionActionState = actionStates[currentActionIndex]
   const lastActionState: TransactionActionState = actionStates[actionStates.length - 1]
-  const steps: Step[] = actions.map((action: any) => action.step)
+  const steps: Step[] = actions.map((action) => action.step)
 
-  const _loadingLabel: string = currentAction?.pending ? currentAction.loadingLabel : loadingLabel || 'Fetching data...'
+  const _loadingLabel: string = currentAction?.pending ? currentAction.loadingLabel : loadingLabel || 'Loading...'
 
   function getStepState(actionState: TransactionActionState, index: number): StepState {
     if (currentActionIndex < index) return StepState.Todo
@@ -116,16 +130,18 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
         await postConfirmationDelay(tx)
 
         const isValid = await postActionValidation?.()
-
         if (isValid || !postActionValidation) {
           const confirmedAt = await getTxConfirmedAt(receipt)
           updateActionState(actionIndex, { confirmedAt: dateTimeLabelFor(confirmedAt), confirmed: true })
+
           if (currentActionIndex >= actions.length - 1) {
-            onSuccess?.(receipt, state.confirmedAt)
+            toast.success(`Pool created successfully `)
+            console.log('success', receipt, state.confirmedAt)
           } else {
-            setCurrentActionIndex(currentActionIndex + 1)
+            setCurrentActionIndex((prevIndex: any) => prevIndex + 1)
           }
         } else {
+          // post action validation failed, display reason.
           if (actionInvalidReason) {
             updateActionState(actionIndex, { error: actionInvalidReason })
           }
@@ -134,7 +150,8 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
         updateActionState(actionIndex, { confirming: false })
       },
       onTxFailed: () => {
-        updateActionState(actionIndex, { confirming: false, error: actionInvalidReason })
+        updateActionState(actionIndex, { confirming: false })
+        // emit('failed');
       },
     })
   }
@@ -148,7 +165,12 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     try {
       updateActionState(actionIndex, { init: true, error: null })
 
-      const tx = await action()
+      let tx: any
+      if (actionInfo.label === 'Fund pool') {
+        tx = await joinPool() // Because joinPool is async
+      } else {
+        tx = await action()
+      }
 
       updateActionState(actionIndex, { init: false, confirming: true })
 
@@ -156,6 +178,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
         handleSignAction(state)
         return
       }
+
       if (tx) handleTransaction(tx, state, actionInfo, actionIndex)
     } catch (error) {
       console.log(error)
@@ -173,20 +196,23 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     dispatch(setActionStates(actionStatesData))
   }, [JSON.stringify(requiredActions)])
 
+  console.log('currentActionState', currentActionState)
+  console.log('test', lastActionState)
   return (
     <div>
       {currentActionState && currentActionState?.error && !isLoading ? (
-        <BalAlert type="error" title={currentActionState?.error?.title ?? 'Error'} className="mb-4">
+        <BalAlert type="error" title={currentActionState?.error?.title ?? 'Error'}>
           {currentActionState?.error?.description ?? 'An error occurred'}
         </BalAlert>
       ) : null}
 
-      {actions && actions.length > 1 && !lastActionState?.confirmed && !disabled ? <HorizSteps steps={steps} /> : null}
+      {actions.length > 1 && !lastActionState?.confirmed ? <HorizSteps steps={steps} /> : null}
       {!lastActionState?.confirmed ? (
         <NavigationButtons>
-          <NextButton onClick={() => currentAction?.promise()} disabled={disabled || currentAction?.pending || loading}>
-            {loading || disabled ? <Loader /> : null}
-            {!disabled ? currentAction?.label : _loadingLabel}
+          <BackButton onClick={goBack}>Back</BackButton>
+          <NextButton onClick={() => currentAction?.promise()} disabled={currentAction?.pending || loading}>
+            {loading ? <Loader /> : null}
+            {currentAction?.label}
           </NextButton>
         </NavigationButtons>
       ) : null}
