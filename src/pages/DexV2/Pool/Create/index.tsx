@@ -119,7 +119,7 @@ const Create: React.FC = () => {
 
           {validTokens.length > 0 ? (
             <RightContent>
-              <PoolSummary />
+              {/* <PoolSummary /> */}
               <TokenPrices toggleUnknownPriceModal={showUnknownTokenModal} />
             </RightContent>
           ) : null}

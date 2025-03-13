@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux'
 
 import { TransactionActionInfo, TransactionActionState } from 'pages/DexV2/types/transactions'
 import HorizSteps, { Step, StepState } from './HorizSteps'
-import { NavigationButtons, NextButton } from 'pages/DexV2/Pool/Create'
+import { BackButton, NavigationButtons, NextButton } from '../Create'
 import { captureBalancerException, useErrorMsg } from 'lib/utils/errors'
 import Loader from 'components/Loader'
 import useEthers from 'hooks/dex-v2/useEthers'
@@ -14,6 +14,7 @@ import { BalAlert } from 'pages/DexV2/common/BalAlert'
 import { useSwapState } from 'state/dexV2/swap/useSwapState'
 import { usePoolState } from 'state/dexV2/pool/usePoolState'
 import { setActionStates } from 'state/dexV2/pool'
+import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 
 export type BalStepAction = {
   label: string
@@ -35,6 +36,7 @@ interface ActionStepsProps {
   // for all steps
   loadingLabel?: string
   onSuccess?: (receipt: TransactionReceipt, confirmedAt: string) => void
+  goBack: () => void
 }
 
 const defaultActionState: TransactionActionState = {
@@ -51,11 +53,13 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   requiredActions,
   primaryActionType,
   onSuccess,
+  goBack,
 }) => {
   const dispatch = useDispatch()
   const { txListener, getTxConfirmedAt } = useEthers()
   const { formatErrorMsg } = useErrorMsg()
   const { actionStates, updateActionState } = usePoolState()
+  const { joinPool } = usePoolCreation()
 
   const [loading, setLoading] = useState(false)
   const [currentActionIndex, setCurrentActionIndex] = useState(0)
@@ -148,7 +152,12 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     try {
       updateActionState(actionIndex, { init: true, error: null })
 
-      const tx = await action()
+      let tx: any
+      if (actionInfo.label === 'Fund pool') {
+        tx = await joinPool() // Because joinPool is async
+      } else {
+        tx = await action()
+      }
 
       updateActionState(actionIndex, { init: false, confirming: true })
 
@@ -184,6 +193,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
       {actions && actions.length > 1 && !lastActionState?.confirmed && !disabled ? <HorizSteps steps={steps} /> : null}
       {!lastActionState?.confirmed ? (
         <NavigationButtons>
+          <BackButton onClick={goBack}>Back</BackButton>
           <NextButton onClick={() => currentAction?.promise()} disabled={disabled || currentAction?.pending || loading}>
             {loading || disabled ? <Loader /> : null}
             {!disabled ? currentAction?.label : _loadingLabel}
