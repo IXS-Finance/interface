@@ -218,7 +218,6 @@ export const usePoolCreation = () => {
   }
 
   function proceed() {
-    setActiveStep(poolCreationState.activeStep + 1)
     if (!similarPools.length && poolCreationState.activeStep === 1) {
       setActiveStep(poolCreationState.activeStep + 2)
     } else {
