@@ -15,8 +15,9 @@ import { WEEK } from 'pages/DexV2/Lock/constants'
 
 const LockRewards = () => {
   const { lockData } = useLockReward()
+
   const filteredLockData = (lockData?.data as { result: VeNFT[] }[])
-    ?.filter((data) => Number(data.result[0].expires_at) > 0)
+    ?.filter((data) => Number(data.result[0]?.expires_at) > 0)
     .map((data) => data.result[0])
 
   return (
