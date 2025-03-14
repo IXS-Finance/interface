@@ -115,7 +115,6 @@ const TokenContainer = styled.div`
 
 const TokenBadge = styled.div`
   color: rgba(41, 41, 51, 0.9);
-  font-family: Inter;
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
@@ -140,7 +139,6 @@ const Footer = styled.div`
 
 const WeightText = styled.span`
   color: #b8b8d2;
-  font-family: Inter;
   font-size: 14px;
   font-style: normal;
   font-weight: 500;

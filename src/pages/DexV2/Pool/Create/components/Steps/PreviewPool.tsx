@@ -77,9 +77,6 @@ const PreviewPool: React.FC = () => {
   return (
     <BalCard shadow="xl" noBorder>
       <BalStack vertical spacing="sm">
-        <Box color="#b8b8d2" fontSize="14px" fontWeight={500}>
-          {networkName}
-        </Box>
         <Box color="rgba(41, 41, 51, 0.9)" fontSize="20px" fontWeight={600}>
           Confirm pool creation
         </Box>
