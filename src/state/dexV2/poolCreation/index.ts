@@ -169,7 +169,7 @@ const poolCreationSlice = createSlice({
       state.seedTokens = state.seedTokens.filter((_, i) => i !== action.payload)
       handleDistributeWeights(state.seedTokens)
     },
-    sortSeedTokens(state) {
+    setSortSeedTokens(state) {
       state.seedTokens.sort((tokenA, tokenB) => {
         return tokenA.tokenAddress.toLowerCase() > tokenB.tokenAddress.toLowerCase() ? 1 : -1
       })
@@ -201,7 +201,7 @@ export const {
   addTokenWeight,
   setTokenAmount,
   removeTokenWeightsByIndex,
-  sortSeedTokens,
+  setSortSeedTokens,
   setActionStates,
   setValueOfActionState,
 } = poolCreationSlice.actions

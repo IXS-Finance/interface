@@ -20,6 +20,7 @@ import {
   FeeController,
   setTokenAmount,
   distributeWeights,
+  setSortSeedTokens,
 } from '..'
 import { PoolSeedToken } from 'pages/DexV2/types'
 import { bnum, includesAddress, isSameAddress, scale } from 'lib/utils'
@@ -213,13 +214,7 @@ export const usePoolCreation = () => {
   }
 
   function sortSeedTokens() {
-    dispatch(
-      setTokenWeights(
-        poolCreationState.seedTokens.sort((a, b) =>
-          a.tokenAddress.toLowerCase() > b.tokenAddress.toLowerCase() ? 1 : -1
-        )
-      )
-    )
+    dispatch(setSortSeedTokens())
   }
 
   function proceed() {
@@ -350,15 +345,13 @@ export const usePoolCreation = () => {
       throw new Error('Invalid pool creation due to unlisted tokens.')
     }
     const provider = await getProvider()
-    const sortedSeedTokens = [...poolCreationState.seedTokens].sort((a, b) =>
-      a.tokenAddress.toLowerCase() > b.tokenAddress.toLowerCase() ? 1 : -1
-    )
+
     const tx = await balancerService.pools.weighted.create(
       provider,
       poolCreationState.name,
       poolCreationState.symbol,
       poolCreationState.initialFee,
-      sortedSeedTokens,
+      poolCreationState.seedTokens,
       poolOwner
     )
     dispatch(setPoolCreationState({ createPoolTxHash: tx.hash }))
