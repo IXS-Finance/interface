@@ -8,22 +8,29 @@ import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import Asset from 'pages/DexV2/common/Asset'
 import useNumbers from 'hooks/dex-v2/useNumbers'
 import { Flex } from 'rebass'
+import Chip from './Chip'
+import { ArrowUpRight } from 'react-feather'
+import useWeb3 from 'hooks/dex-v2/useWeb3'
+import { BalAlert } from 'pages/DexV2/common/BalAlert'
+import { usePoolHelpers } from 'hooks/dex-v2/usePoolHelpers'
 
 interface PoolPageHeaderProps {
   pool: Pool
   isStableLikePool: boolean
+  missingPrices: boolean
   titleTokens: PoolToken[]
 }
 
-const PoolPageHeader: React.FC<PoolPageHeaderProps> = ({ pool, titleTokens, isStableLikePool }) => {
-  const { balancerTokenListTokens, getToken } = useTokens()
+const PoolPageHeader: React.FC<PoolPageHeaderProps> = ({ pool, titleTokens, missingPrices, isStableLikePool }) => {
+  const { getToken } = useTokens()
   const { fNum } = useNumbers()
+  const { explorerLinks: explorer } = useWeb3()
+  const { hasNonApprovedRateProviders } = usePoolHelpers(pool)
 
-  const poolMetadata = pool && pool.id ? getPoolMetadata(pool.id) : null
   const poolTypeLabel = (() => {
-    if (!pool?.factory) return ''
-    const key = POOLS.Factories[pool.factory]
-    return key ? key : 'Unknown pool type'
+    if (!pool?.poolType) return 'Unknown pool type'
+
+    return pool?.poolType
   })()
 
   function symbolFor(titleTokenIndex: number): string {
@@ -31,20 +38,13 @@ const PoolPageHeader: React.FC<PoolPageHeaderProps> = ({ pool, titleTokens, isSt
     return getToken(token.address)?.symbol || token.symbol || '---'
   }
 
-  console.log('poolMetadata?.name ', poolMetadata)
+  console.log('poolMetadata?.name ', pool)
   return (
-    <div>
+    <Container>
+      <Flex mb={2}>
+        <Title>{poolTypeLabel}</Title>
+      </Flex>
       <Flex alignItems="center" css={{ gap: '20px' }}>
-        <Header>
-          {poolMetadata?.name ? (
-            <>
-              <Title>{poolMetadata.name}</Title>
-              <Subtitle>{poolTypeLabel}</Subtitle>
-            </>
-          ) : (
-            <Title>{poolTypeLabel}</Title>
-          )}
-        </Header>
         <TokenContainer>
           {titleTokens.map(({ address, weight }, i) => (
             <Flex
@@ -70,29 +70,50 @@ const PoolPageHeader: React.FC<PoolPageHeaderProps> = ({ pool, titleTokens, isSt
             </Flex>
           ))}
         </TokenContainer>
+
+        {pool?.isNew ? (
+          <Chip outline={false} color="orange" className="mr-2">
+            NEW
+          </Chip>
+        ) : null}
+
+        <a href={explorer.addressLink(pool?.address || '')} target="_blank" rel="noreferrer">
+          <ArrowUpRight size={16} />
+        </a>
       </Flex>
 
-      <Alert>Warning: This pool is in recovery mode.</Alert>
-      <Footer>Additional Pool Information</Footer>
-    </div>
+      {hasNonApprovedRateProviders ? (
+        <BalAlert
+          type="warning"
+          title="One or more token rate providers associated with tokens in this pool have not been vetted."
+          className="mt-2"
+          block
+        />
+      ) : null}
+
+      {missingPrices ? (
+        <BalAlert
+          type="warning"
+          title="Price information is missing for this pool, since it contains a token not found by our price provider."
+          className="mt-2"
+          block
+        />
+      ) : null}
+
+      {/* <Footer>Additional Pool Information</Footer> */}
+    </Container>
   )
 }
 
 export default PoolPageHeader
 
-const Card = styled.div`
-  border-radius: 0.75rem;
-  box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1);
-  background: white;
-  overflow: hidden;
-  padding: 1rem;
-`
-
-const Header = styled.div`
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+const Container = styled.div`
+  .mt-2 {
+    margin-top: 0.5rem;
+  }
+  .mr-2 {
+    margin-right: 0.5rem;
+  }
 `
 
 const Title = styled.div`
