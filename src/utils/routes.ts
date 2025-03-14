@@ -87,7 +87,7 @@ export const routes = {
   dexV2PoolDetail: '/v2/pool/:id',
   dexV2PoolAddLiquidity: '/v2/pool/:id/add-liquidity',
   dexV2PoolWithdraw: '/v2/pool/:id/withdraw',
-  dexV2Dashboard: '/dex-v2/dashboard',
+  dexV2Dashboard: '/v2/dashboard',
 }
 
 export function checkAllowed(path: string, allowedPages: string[] | null | undefined): boolean {
