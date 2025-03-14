@@ -82,17 +82,17 @@ const useLiquidityPool = () => {
   const unstakedBalanceIndex = (i: number) => i * contracts.length + 2
 
   const stakedBalanceByPool = pools?.reduce((acc, pool, index) => {
-    acc[pool.address as Address] = data?.[stakedBalanceIndex(index)].result as BigNumber
+    acc[pool.address as Address] = data?.[stakedBalanceIndex(index)]?.result as BigNumber
     return acc
   }, {} as Record<Address, BigNumber>)
 
   const lpSupplyByPool = pools?.reduce((acc, pool, index) => {
-    acc[pool.address as Address] = data?.[lpSupplyIndex(index)].result as BigNumber
+    acc[pool.address as Address] = data?.[lpSupplyIndex(index)]?.result as BigNumber
     return acc
   }, {} as Record<Address, BigNumber>)
 
   const unstakedBalanceByPool = pools?.reduce((acc, pool, index) => {
-    acc[pool.address as Address] = data?.[unstakedBalanceIndex(index)].result as BigNumber
+    acc[pool.address as Address] = data?.[unstakedBalanceIndex(index)]?.result as BigNumber
     return acc
   }, {} as Record<Address, BigNumber>)
 
