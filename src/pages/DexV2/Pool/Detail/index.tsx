@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import LoadingBlock from '../common/LoadingBlock'
+import LoadingBlock from '../../common/LoadingBlock'
 import { usePool } from 'state/dexV2/pool/usePool'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
@@ -12,9 +12,9 @@ import usePoolAprQuery from 'hooks/dex-v2/queries/usePoolAprQuery'
 import { includesAddress } from 'lib/utils'
 import { PoolToken } from 'services/pool/types'
 import { POOLS } from 'constants/dexV2/pools'
-import MyPoolBalancesCard from './components/MyPoolBalancesCard'
-import PoolPageHeader from './components/PoolPageHeader'
-import DexV2Layout from '../common/Layout'
+import MyPoolBalancesCard from '../components/MyPoolBalancesCard'
+import PoolPageHeader from '../components/PoolPageHeader'
+import DexV2Layout from '../../common/Layout'
 
 const PoolDetail: React.FC = () => {
   const params = useParams<any>()
