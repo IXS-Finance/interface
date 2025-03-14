@@ -26,7 +26,7 @@ const DexV2Layout: FC<DexV2LayoutProps> = ({ children }) => {
 export default DexV2Layout
 
 const Container = styled.div`
-  margin-top: 120px;
+  margin-top: 80px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin-top: 48px;

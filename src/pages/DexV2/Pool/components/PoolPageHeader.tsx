@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 import { Pool, PoolToken } from 'services/pool/types'
@@ -19,50 +19,62 @@ const PoolPageHeader: React.FC<PoolPageHeaderProps> = ({ pool, titleTokens, isSt
   const { balancerTokenListTokens, getToken } = useTokens()
   const { fNum } = useNumbers()
 
-  const poolMetadata = useMemo(() => (pool && pool.id ? getPoolMetadata(pool?.id) : null), [JSON.stringify(pool)])
-  const poolTypeLabel = useMemo(() => {
+  const poolMetadata = pool && pool.id ? getPoolMetadata(pool.id) : null
+  const poolTypeLabel = (() => {
     if (!pool?.factory) return ''
     const key = POOLS.Factories[pool.factory]
-
     return key ? key : 'Unknown pool type'
-  }, [JSON.stringify(pool)])
+  })()
 
   function symbolFor(titleTokenIndex: number): string {
     const token = titleTokens[titleTokenIndex]
     return getToken(token.address)?.symbol || token.symbol || '---'
   }
 
+  console.log('poolMetadata?.name ', poolMetadata)
   return (
-    <Card>
-      <Header>
-        {poolMetadata?.name ? (
-          <>
-            <Title>{poolMetadata?.name}</Title>
-            <Subtitle>{poolTypeLabel}</Subtitle>
-          </>
-        ) : (
-          <Title>{poolTypeLabel}</Title>
-        )}
-      </Header>
-      <TokenContainer>
-        {titleTokens.map(({ address, weight }, i) => (
-          <Flex key={i} alignItems="center" mr="12px">
-            <Asset address={address} size={24} />
-            <TokenBadge> {symbolFor(i)}</TokenBadge>
-            {!isStableLikePool && !!weight && weight !== '0' ? (
-              <WeightText>
-                {fNum(weight || '0', {
-                  style: 'percent',
-                  maximumFractionDigits: 0,
-                })}
-              </WeightText>
-            ) : null}
-          </Flex>
-        ))}
-      </TokenContainer>
+    <div>
+      <Flex alignItems="center" css={{ gap: '20px' }}>
+        <Header>
+          {poolMetadata?.name ? (
+            <>
+              <Title>{poolMetadata.name}</Title>
+              <Subtitle>{poolTypeLabel}</Subtitle>
+            </>
+          ) : (
+            <Title>{poolTypeLabel}</Title>
+          )}
+        </Header>
+        <TokenContainer>
+          {titleTokens.map(({ address, weight }, i) => (
+            <Flex
+              key={i}
+              alignItems="center"
+              css={{
+                gap: '8px',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                border: '1px solid #E6E6FF',
+              }}
+            >
+              <Asset address={address} size={24} />
+              <TokenBadge>{symbolFor(i)}</TokenBadge>
+              {!isStableLikePool && !!weight && weight !== '0' ? (
+                <WeightText>
+                  {fNum(weight || '0', {
+                    style: 'percent',
+                    maximumFractionDigits: 0,
+                  })}
+                </WeightText>
+              ) : null}
+            </Flex>
+          ))}
+        </TokenContainer>
+      </Flex>
+
       <Alert>Warning: This pool is in recovery mode.</Alert>
       <Footer>Additional Pool Information</Footer>
-    </Card>
+    </div>
   )
 }
 
@@ -83,14 +95,13 @@ const Header = styled.div`
   gap: 0.5rem;
 `
 
-const Title = styled.h3`
+const Title = styled.div`
   font-size: 1.25rem;
   font-weight: bold;
   text-transform: capitalize;
-  margin-top: 0.5rem;
 `
 
-const Subtitle = styled.h5`
+const Subtitle = styled.div`
   font-size: 0.875rem;
   color: #6b7280;
 `
@@ -99,16 +110,17 @@ const TokenContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: 8px;
 `
 
 const TokenBadge = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0.5rem;
-  background: #f9fafb;
-  border-radius: 0.5rem;
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
 `
 
 const Alert = styled.div`
@@ -127,9 +139,11 @@ const Footer = styled.div`
 `
 
 const WeightText = styled.span`
-  margin-top: 1px;
-  margin-left: 0.25rem;
-  font-size: 0.75rem;
+  color: #b8b8d2;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
   font-weight: 500;
-  color: #9ca3af;
+  line-height: normal;
+  letter-spacing: -0.42px;
 `
