@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import _get from 'lodash/get'
 
 import ChooseWeights from './components/Steps/ChooseWeights'
 import SetPoolFees from './components/Steps/SetPoolFees'
 import InitialLiquidity from './components/Steps/InitialLiquidity'
-import config from 'lib/config'
 import { useWeb3React } from 'hooks/useWeb3React'
 import PreviewPool from './components/Steps/PreviewPool'
 
@@ -14,24 +12,22 @@ import UnknownTokenPriceModal from '../../common/modals/UnknownTokenPriceModal'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { StepState } from 'types'
 import VerticleSteps from '../components/VerticleSteps'
-import PoolSummary from './components/PoolSummary'
 import TokenPrices from '../components/TokenPrices'
 import SimilarPool from './components/Steps/SimilarPool'
 import DexV2Layout from 'pages/DexV2/common/Layout'
 
 const Create: React.FC = () => {
-  const { chainId } = useWeb3React()
   const { activeStep, similarPools, tokensList, seedTokens, hasRestoredFromSavedState } = usePoolCreation()
   const { priceFor, getToken, injectTokens } = useTokens()
-  const networkConfig = config[chainId]
 
   const [isUnknownTokenModalVisible, setIsUnknownTokenModalVisible] = useState(false)
 
   const validTokens = tokensList.filter((t: string) => t !== '')
   const doSimilarPoolsExist = similarPools.length > 0
   const hasUnknownToken = validTokens.some((t: any) => priceFor(t) === 0)
-  const name = _get(networkConfig, 'name', '')
 
+  console.log('similarPools', similarPools)
+  console.log('activeStep', activeStep)
   /**
    * FUNCTIONS
    */

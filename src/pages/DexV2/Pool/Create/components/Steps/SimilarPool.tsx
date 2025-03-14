@@ -2,8 +2,6 @@
 import React from 'react'
 import { orderBy, take } from 'lodash'
 
-import useNetwork from 'hooks/dex-v2/useNetwork'
-import { Pool } from 'services/pool/types'
 import BalCard from 'pages/DexV2/common/Card'
 import BalStack from 'pages/DexV2/common/BalStack'
 import AssetSet from 'pages/DexV2/common/AssetSet'
@@ -16,7 +14,6 @@ import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 interface SimilarPoolProps {}
 
 const SimilarPool: React.FC<SimilarPoolProps> = () => {
-  const { networkConfig } = useNetwork()
   const { fNum } = useNumbers()
   const { similarPools, isLoadingSimilarPools, existingPool, resetPoolCreationState, setStep, proceed, goBack } =
     usePoolCreation()
@@ -40,7 +37,6 @@ const SimilarPool: React.FC<SimilarPoolProps> = () => {
     <BalCard shadow="xl" noBorder className={existingPool ? 'border-red-400' : ''}>
       <BalStack vertical>
         <BalStack vertical spacing="xs">
-          {networkConfig && networkConfig.name && <span className="text-xs text-gray-600">{networkConfig.name}</span>}
           <BalStack horizontal align="center" spacing="xs">
             <button className="flex text-blue-600 hover:text-blue-700 transition-colors" onClick={goBack}>
               <svg
