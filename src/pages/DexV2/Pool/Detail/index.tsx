@@ -13,7 +13,7 @@ import { includesAddress } from 'lib/utils'
 import { PoolToken } from 'services/pool/types'
 import { POOLS } from 'constants/dexV2/pools'
 import MyPoolBalancesCard from '../components/MyPoolBalancesCard'
-import PoolPageHeader from '../components/PoolPageHeader'
+import PoolPageHeader from './components/PoolPageHeader'
 import DexV2Layout from '../../common/Layout'
 import { Card } from 'pages/DexV2/Dashboard/components/Card'
 
@@ -33,7 +33,7 @@ const PoolDetail: React.FC = () => {
     isNewPoolAvailable,
   } = usePoolHelpers(pool)
 
-  const loadingPool = useMemo(() => isLoadingPool || !pool, [isLoadingPool, JSON.stringify(pool)])
+  const loadingPool = isLoadingPool || !pool
   const poolSnapshotsQuery = usePoolSnapshotsQuery(poolId, undefined, {
     refetchOnWindowFocus: false,
   })
@@ -41,16 +41,14 @@ const PoolDetail: React.FC = () => {
   const loadingApr = useMemo(() => aprQuery.isLoading || Boolean(aprQuery.error), [aprQuery.isLoading, aprQuery.error])
   const poolApr = useMemo(() => aprQuery.data, [JSON.stringify(aprQuery.data)])
 
-  const missingPrices = useMemo(() => {
+  const missingPrices = (() => {
     if (pool && prices && !priceQueryLoading) {
       const tokensWithPrice = Object.keys(prices)
       const tokens = pool.tokens ? tokenTreeLeafs(pool.tokens) : []
-
       return !tokens.every((token) => includesAddress(tokensWithPrice, token))
     }
     return false
-  }, [JSON.stringify(pool), JSON.stringify(prices), priceQueryLoading])
-
+  })()
   const titleTokens = useMemo<PoolToken[]>(() => {
     if (!pool || !pool.tokens) return []
 
@@ -67,10 +65,15 @@ const PoolDetail: React.FC = () => {
       <Container>
         <GridContainer>
           <Card>
-            {loadingPool || !pool ? (
+            {loadingPool ? (
               <LoadingBlock darker rounded="lg" className="header-loading-block" />
             ) : (
-              <PoolPageHeader pool={pool} titleTokens={titleTokens} isStableLikePool={isStableLikePool} />
+              <PoolPageHeader
+                pool={pool}
+                titleTokens={titleTokens}
+                isStableLikePool={isStableLikePool}
+                missingPrices={missingPrices}
+              />
             )}
 
             <svg xmlns="http://www.w3.org/2000/svg" width="754" height="320" viewBox="0 0 754 320" fill="none">
