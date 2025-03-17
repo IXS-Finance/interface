@@ -5,7 +5,7 @@ import { Box, Flex } from 'rebass'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
-import PoolActionsCard from './PoolActionsCard'
+import PoolActionsCard from '../../components/PoolActionsCard'
 import { Pool, PoolToken } from 'services/pool/types'
 import { bnum } from 'lib/utils'
 import { fiatValueOf } from 'hooks/dex-v2/usePoolHelpers'
@@ -24,7 +24,7 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
   const { pool, missingPrices, titleTokens, isStableLikePool } = props
   const { balanceFor, getToken } = useTokens()
   const { fNum } = useNumbers()
-  const { isWalletReady } = useWeb3()
+  const { isWalletReady, explorerLinks: explorer } = useWeb3()
 
   const bptBalance = bnum(balanceFor(pool.address)).plus('0').toString()
   const fiatValue = (() => {
@@ -57,19 +57,17 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
                 fontWeight: 500,
               }}
             >
-              <Flex css={{ gap: 10 }} alignItems="center">
+              <Flex css={{ gap: 10 }} alignItems={'center'}>
                 <Asset address={address} size={24} />
-                <Box>
-                  {!isStableLikePool && !!weight && weight !== '0' ? (
-                    <span>
-                      {fNum(weight || '0', {
-                        style: 'percent',
-                        maximumFractionDigits: 0,
-                      })}
-                    </span>
-                  ) : null}{' '}
-                  {symbolFor(i)}
-                </Box>
+                <Flex flexDirection="column">
+                  <div> {symbolFor(i)}</div>
+                  <Box css={{ color: '#B8B8D2' }}>
+                    {fNum(weight || '0', {
+                      style: 'percent',
+                      maximumFractionDigits: 0,
+                    })}
+                  </Box>
+                </Flex>
               </Flex>
 
               <Flex flexDirection="column">
@@ -85,7 +83,10 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
             Pool address
           </Box>
           <Flex alignItems="center" color="rgba(41, 41, 51, 0.90)" fontSize="14px" fontWeight={500} mt="4px">
-            0x3de2...9F29{'  '}
+            <a href={explorer.addressLink(pool?.address || '')} target="_blank" rel="noreferrer">
+              0x3de2...9F29
+            </a>
+
             <Box ml="4px" css={{ cursor: 'pointer' }}>
               <Copy size="14px" color="#B8B8D2" />
             </Box>

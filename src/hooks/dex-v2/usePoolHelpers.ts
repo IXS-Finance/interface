@@ -3,11 +3,13 @@ import { getAddress } from '@ethersproject/address'
 import { cloneDeep, uniq, uniqWith } from 'lodash'
 
 import { PoolToken, allLinearTypes, AnyPool, Pool, SubPool } from 'services/pool/types'
-import useNumbers from './useNumbers'
+import useNumbers, { FNumFormats, numF } from './useNumbers'
 import { configService } from 'services/config/config.service'
 import { bnum, includesAddress, isSameAddress, removeAddress, selectByAddress } from 'lib/utils'
-import { usePoolWarning } from './usePoolWarning'
+import { poolWarning, usePoolWarning } from './usePoolWarning'
 import { PoolWarning } from 'types/pools'
+import { APR_THRESHOLD } from 'constants/dexV2/pools'
+import { isPoolBoostsEnabled } from './useNetwork'
 
 const POOLS = configService.network.pools
 
@@ -139,7 +141,7 @@ export function isStableLike(poolType: PoolType): boolean {
 }
 
 export function isComposableStableV1(pool: Pool): boolean {
-  return isComposableStable(pool.poolType) && pool.poolTypeVersion === 1;
+  return isComposableStable(pool.poolType) && pool.poolTypeVersion === 1
 }
 
 export function isComposableStableLike(poolType: PoolType): boolean {
@@ -268,6 +270,58 @@ export function orderedTokenAddresses(pool: AnyPool): string[] {
   return sortedTokens.map((token) => getAddress(token?.address || ''))
 }
 
+/**
+ * @summary Calculates absolute max APR given boost or not.
+ * If given boost returns user's max APR.
+ * If not given boost returns pool absolute max assuming 2.5x boost.
+ * Used primarily for sorting tables by the APR column.
+ */
+export function absMaxApr(aprs: AprBreakdown, boost?: string): string {
+  if (boost) {
+    const nonStakingApr = bnum(aprs.swapFees).plus(aprs.tokenAprs.total).plus(aprs.rewardAprs.total)
+    const stakingApr = bnum(aprs.stakingApr.min).times(boost).toString()
+    return nonStakingApr.plus(stakingApr).toString()
+  }
+
+  return aprs.max.toString()
+}
+
+/**
+ * @summary Checks if a pool has BAL emissions
+ */
+export function hasBalEmissions(aprs?: AprBreakdown): boolean {
+  if (!aprs) return false
+  return bnum(aprs?.stakingApr?.min || 0).gt(0)
+}
+
+/**
+ * @summary Returns total APR label, whether range or single value.
+ */
+export function totalAprLabel(aprs: AprBreakdown, boost?: string, isConnected?: boolean): string {
+  if (aprs.swapFees > APR_THRESHOLD) {
+    return '-'
+  }
+  if (boost && boost !== '1' && isConnected) {
+    return numF(absMaxApr(aprs, boost), FNumFormats.bp)
+  }
+  if ((hasBalEmissions(aprs) && isPoolBoostsEnabled) || aprs.protocolApr > 0) {
+    const minAPR = numF(aprs.min, FNumFormats.bp)
+    const maxAPR = numF(aprs.max, FNumFormats.bp)
+    return `${minAPR} - ${maxAPR}`
+  }
+
+  return numF(aprs.min, FNumFormats.bp)
+}
+
+/**
+ * Should hide the display of APRs for this pool.
+ */
+export function shouldHideAprs(poolId: string): boolean {
+  if (!poolId) return false
+
+  return poolWarning(poolId).isAffectedBy(PoolWarning.CspPoolVulnWarning)
+}
+
 export function isMigratablePool(pool: AnyPool) {
   return !!POOLS.Migrations?.[pool.id]
 }
@@ -307,18 +361,12 @@ export function fiatValueOf(pool: Pool, shares: string): string {
  * @param {Pool} pool - The pool to check
  */
 export function isRecoveryExitsOnly(pool: Pool): boolean {
-  const isInRecoveryAndPausedMode = !!pool.isInRecoveryMode && !!pool.isPaused;
+  const isInRecoveryAndPausedMode = !!pool.isInRecoveryMode && !!pool.isPaused
   const isVulnCsPoolAndInRecoveryMode =
-    usePoolWarning(pool.id).isAffectedBy(
-      PoolWarning.CspPoolVulnWarning
-    ) && !!pool.isInRecoveryMode;
-  const isNotDeepAndCsV1 = !isDeep(pool) && isComposableStableV1(pool);
+    usePoolWarning(pool.id).isAffectedBy(PoolWarning.CspPoolVulnWarning) && !!pool.isInRecoveryMode
+  const isNotDeepAndCsV1 = !isDeep(pool) && isComposableStableV1(pool)
 
-  return (
-    isInRecoveryAndPausedMode ||
-    isVulnCsPoolAndInRecoveryMode ||
-    isNotDeepAndCsV1
-  );
+  return isInRecoveryAndPausedMode || isVulnCsPoolAndInRecoveryMode || isNotDeepAndCsV1
 }
 
 export function usePoolHelpers(pool: AnyPool | undefined) {

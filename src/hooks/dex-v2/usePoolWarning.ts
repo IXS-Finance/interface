@@ -97,3 +97,32 @@ export function usePoolWarning(poolId: string) {
     isAffectedBy,
   }
 }
+
+
+export function poolWarning(poolId: string) {
+  // Compute the array of issue keys that affect this pool.
+  const issueKeys: PoolWarning[] = Object.keys(issues)
+    .map((issueKey) => (issues[issueKey].includes(poolId) ? issueKey : null))
+    .filter((key): key is PoolWarning => !!key)
+
+  // Determine whether the pool is affected by any issues.
+  const isAffected = issueKeys.length > 0
+
+  // Create an array of warning objects with translated title and description.
+  const warnings = issueKeys.map((issueKey) => ({
+    title: poolWarnings[issueKey].title,
+    description: poolWarnings[issueKey]?.description,
+  }))
+
+  // Helper function to check if the pool is affected by a specific issue.
+  function isAffectedBy(issueKey: PoolWarning): boolean {
+    return issueKeys.includes(issueKey)
+  }
+
+  return {
+    isAffected,
+    warnings,
+    isAffectedBy,
+  }
+}
+

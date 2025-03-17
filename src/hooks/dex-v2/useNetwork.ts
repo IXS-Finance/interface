@@ -12,9 +12,10 @@ export const isMainnet = networkId === Network.MAINNET
 export const isEIP1559SupportedNetwork = configService.network.supportsEIP1559
 export const networkConfig = config[networkId]
 export const isTestnet = !!config[networkId].testNetwork
-export const networkSlug = config[networkId].slug;
+export const networkSlug = config[networkId].slug
 
 export const hasBridge = !!config[networkId].bridgeUrl
+export const isPoolBoostsEnabled = configService.network.pools.BoostsEnabled
 
 export default function useNetwork() {
   const appNetworkConfig = configService.network
