@@ -9,7 +9,6 @@ import Asset from 'pages/DexV2/common/Asset'
 import useNumbers from 'hooks/dex-v2/useNumbers'
 import { Flex } from 'rebass'
 import Chip from './Chip'
-import { ArrowUpRight } from 'react-feather'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { BalAlert } from 'pages/DexV2/common/BalAlert'
 import { usePoolHelpers } from 'hooks/dex-v2/usePoolHelpers'
@@ -76,10 +75,6 @@ const PoolPageHeader: React.FC<PoolPageHeaderProps> = ({ pool, titleTokens, miss
             NEW
           </Chip>
         ) : null}
-
-        <a href={explorer.addressLink(pool?.address || '')} target="_blank" rel="noreferrer">
-          <ArrowUpRight size={16} />
-        </a>
       </Flex>
 
       {hasNonApprovedRateProviders ? (
