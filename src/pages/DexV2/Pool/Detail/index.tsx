@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -15,7 +15,9 @@ import { POOLS } from 'constants/dexV2/pools'
 import MyPoolBalancesCard from '../components/MyPoolBalancesCard'
 import PoolPageHeader from './components/PoolPageHeader'
 import DexV2Layout from '../../common/Layout'
-import { Card } from 'pages/DexV2/Dashboard/components/Card'
+import { Box, Flex } from 'rebass'
+import chartImg from 'assets/images/dex-v2/chart-fake.svg'
+import BalCard from 'pages/DexV2/common/Card'
 
 const PoolDetail: React.FC = () => {
   const params = useParams<any>()
@@ -23,7 +25,7 @@ const PoolDetail: React.FC = () => {
 
   const { pool, isLoadingPool } = usePool(poolId)
   const { isWalletReady } = useWeb3()
-  const { prices } = useTokens()
+  const { balanceQueryLoading, prices } = useTokens()
   const priceQueryLoading = false // TODO: implement
   const {
     isStableLikePool,
@@ -33,13 +35,13 @@ const PoolDetail: React.FC = () => {
     isNewPoolAvailable,
   } = usePoolHelpers(pool)
 
-  const loadingPool = isLoadingPool || !pool
+  const loadingPool = isLoadingPool || !pool || balanceQueryLoading
   const poolSnapshotsQuery = usePoolSnapshotsQuery(poolId, undefined, {
     refetchOnWindowFocus: false,
   })
   const aprQuery = usePoolAprQuery(poolId)
-  const loadingApr = useMemo(() => aprQuery.isLoading || Boolean(aprQuery.error), [aprQuery.isLoading, aprQuery.error])
-  const poolApr = useMemo(() => aprQuery.data, [JSON.stringify(aprQuery.data)])
+  const loadingApr = aprQuery.isLoading || Boolean(aprQuery.error)
+  const poolApr = aprQuery.data
 
   const missingPrices = (() => {
     if (pool && prices && !priceQueryLoading) {
@@ -49,68 +51,66 @@ const PoolDetail: React.FC = () => {
     }
     return false
   })()
-  const titleTokens = useMemo<PoolToken[]>(() => {
-    if (!pool || !pool.tokens) return []
 
-    return orderedPoolTokens(pool, pool.tokens)
-  }, [JSON.stringify(pool?.tokens)])
+  const titleTokens: PoolToken[] = pool?.tokens ? orderedPoolTokens(pool, pool.tokens) : []
 
-  const isStakablePool = useMemo(
-    (): boolean => POOLS.Stakable.VotingGaugePools.includes(poolId) || POOLS.Stakable.AllowList.includes(poolId),
-    [poolId]
-  )
+  const isStakablePool: boolean =
+    POOLS.Stakable.VotingGaugePools.includes(poolId) || POOLS.Stakable.AllowList.includes(poolId)
 
+  console.log('isLoadingPool', isLoadingPool)
   return (
     <DexV2Layout>
       <Container>
         <GridContainer>
-          <Card>
-            {loadingPool ? (
-              <LoadingBlock darker rounded="lg" className="header-loading-block" />
-            ) : (
-              <PoolPageHeader
-                pool={pool}
-                titleTokens={titleTokens}
-                isStableLikePool={isStableLikePool}
-                missingPrices={missingPrices}
-              />
-            )}
-
-            <svg xmlns="http://www.w3.org/2000/svg" width="754" height="320" viewBox="0 0 754 320" fill="none">
-              <g filter="url(#filter0_d_1861_14351)">
-                <path
-                  d="M19 281L24.9667 279.449C30.9333 277.898 42.8667 274.795 54.8 276.941C66.7333 279.088 78.6667 286.483 90.6 268.78C102.533 251.078 114.467 208.278 126.4 188.019C138.333 167.759 150.267 170.041 162.2 186.262C174.133 202.483 186.067 232.644 198 235.893C209.933 239.143 221.867 215.482 233.8 207.07C245.733 198.657 257.667 205.495 269.6 211.708C281.533 217.921 293.467 223.51 305.4 214.256C317.333 205.002 329.267 180.905 341.2 167.572C353.133 154.238 365.067 151.667 377 147.314C388.933 142.96 400.867 136.824 412.8 122.874C424.733 108.924 436.667 87.1608 448.6 71.6123C460.533 56.0637 472.467 46.7299 484.4 64.4185C496.333 82.1072 508.267 126.818 520.2 137.26C532.133 147.702 544.067 123.875 556 119.012C567.933 114.149 579.867 128.251 591.8 138.02C603.733 147.789 615.667 153.225 627.6 132.707C639.533 112.19 651.467 65.7177 663.4 37.6336C675.333 9.54951 687.267 -0.146725 699.2 1.10617C711.133 2.35907 723.067 14.5611 729.033 20.6621L735 26.7631"
-                  stroke="#6666FF"
-                  strokeWidth="2"
+          <Flex flexDirection="column" css={{ gap: '20px' }}>
+            <BalCard shadow="none" noBorder className="p-8">
+              {loadingPool ? (
+                <LoadingBlock darker rounded="lg" className="h-20" />
+              ) : (
+                <PoolPageHeader
+                  pool={pool}
+                  titleTokens={titleTokens}
+                  isStableLikePool={isStableLikePool}
+                  missingPrices={missingPrices}
                 />
-              </g>
-              <defs>
-                <filter
-                  id="filter0_d_1861_14351"
-                  x="0.748047"
-                  y="-0.00012207"
-                  width="752.967"
-                  height="319.968"
-                  filterUnits="userSpaceOnUse"
-                  colorInterpolationFilters="sRGB"
-                >
-                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                  <feColorMatrix
-                    in="SourceAlpha"
-                    type="matrix"
-                    values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                    result="hardAlpha"
-                  />
-                  <feOffset dy="20" />
-                  <feGaussianBlur stdDeviation="9" />
-                  <feComposite in2="hardAlpha" operator="out" />
-                  <feColorMatrix type="matrix" values="0 0 0 0 0.4 0 0 0 0 0.4 0 0 0 0 1 0 0 0 0.4 0" />
-                  <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1861_14351" />
-                  <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1861_14351" result="shape" />
-                </filter>
-              </defs>
-            </svg>
-          </Card>
+              )}
+
+              <Box mt={4}>
+                {loadingPool ? (
+                  <LoadingBlock darker rounded="lg" className="h-375" />
+                ) : (
+                  <Box>
+                    <img src={chartImg} alt="chart" style={{ width: '100%', height: 'auto' }} />
+                  </Box>
+                )}
+              </Box>
+            </BalCard>
+
+            <Flex
+              alignItems="center"
+              alignSelf="stretch"
+              css={{
+                gap: '20px',
+              }}
+            >
+              <Info>
+                <div className="label">Pool Value</div>
+                <div className="value">$199,696</div>
+              </Info>
+              <Info>
+                <div className="label">Volume (24h)</div>
+                <div className="value">$0.00</div>
+              </Info>
+              <Info>
+                <div className="label">Fees (24h)</div>
+                <div className="value">$0.00</div>
+              </Info>
+              <Info>
+                <div className="label">APR</div>
+                <div className="value">$0.00</div>
+              </Info>
+            </Flex>
+          </Flex>
 
           <div>
             <MyPoolBalancesCard pool={pool} missingPrices={missingPrices} />
@@ -132,10 +132,55 @@ const Container = styled.div`
     padding-left: 1rem;
     padding-right: 1rem;
   }
+
+  .h-20 {
+    height: 5rem;
+  }
+
+  .h-375 {
+    height: 375px;
+  }
+
+  .p-8 {
+    padding: 2rem;
+  }
 `
 
 const GridContainer = styled.div`
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 2rem;
+`
+
+const Info = styled.div`
+  display: flex;
+  padding: 32px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1 0 0;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0px 30px 48px 0px rgba(63, 63, 132, 0.05);
+
+  .label {
+    color: #b8b8d2;
+    font-family: Inter;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: -0.42px;
+  }
+
+  .value {
+    align-self: stretch;
+    color: rgba(41, 41, 51, 0.9);
+    font-family: Inter;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    letter-spacing: -0.72px;
+  }
 `
