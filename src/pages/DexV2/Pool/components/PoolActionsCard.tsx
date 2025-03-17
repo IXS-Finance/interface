@@ -6,8 +6,6 @@ import { routes } from 'utils/routes'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { Pool } from 'services/pool/types'
 
-
-
 export interface PoolActionsCardProps {
   pool: Pool | undefined
   missingPrices: boolean
@@ -60,8 +58,6 @@ export default PoolActionsCard
 const Container = styled.div`
   padding: 1rem;
   width: 100%;
-  background-color: #f9fafb;
-  border-top: 1px solid #e5e7eb;
 `
 const Grid = styled.div`
   display: grid;
