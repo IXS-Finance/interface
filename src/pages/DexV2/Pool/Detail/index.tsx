@@ -57,13 +57,13 @@ const PoolDetail: React.FC = () => {
   const isStakablePool: boolean =
     POOLS.Stakable.VotingGaugePools.includes(poolId) || POOLS.Stakable.AllowList.includes(poolId)
 
-  console.log('isLoadingPool', isLoadingPool)
+  console.log('titleTokens', titleTokens)
   return (
     <DexV2Layout>
       <Container>
         <GridContainer>
           <Flex flexDirection="column" css={{ gap: '20px' }}>
-            <BalCard shadow="none" noBorder className="p-8">
+            <BalCard shadow="none" noBorder className="p-4">
               {loadingPool ? (
                 <LoadingBlock darker rounded="lg" className="h-20" />
               ) : (
@@ -86,34 +86,45 @@ const PoolDetail: React.FC = () => {
               </Box>
             </BalCard>
 
-            <Flex
-              alignItems="center"
-              alignSelf="stretch"
-              css={{
-                gap: '20px',
-              }}
-            >
-              <Info>
-                <div className="label">Pool Value</div>
-                <div className="value">$199,696</div>
-              </Info>
-              <Info>
-                <div className="label">Volume (24h)</div>
-                <div className="value">$0.00</div>
-              </Info>
-              <Info>
-                <div className="label">Fees (24h)</div>
-                <div className="value">$0.00</div>
-              </Info>
-              <Info>
-                <div className="label">APR</div>
-                <div className="value">$0.00</div>
-              </Info>
-            </Flex>
+            {!loadingPool ? (
+              <Flex
+                alignItems="center"
+                alignSelf="stretch"
+                css={{
+                  gap: '20px',
+                }}
+              >
+                <Info>
+                  <div className="label">Pool Value</div>
+                  <div className="value">$199,696</div>
+                </Info>
+                <Info>
+                  <div className="label">Volume (24h)</div>
+                  <div className="value">$0.00</div>
+                </Info>
+                <Info>
+                  <div className="label">Fees (24h)</div>
+                  <div className="value">$0.00</div>
+                </Info>
+                <Info>
+                  <div className="label">APR</div>
+                  <div className="value">$0.00</div>
+                </Info>
+              </Flex>
+            ) : null}
           </Flex>
 
           <div>
-            <MyPoolBalancesCard pool={pool} missingPrices={missingPrices} />
+            {loadingPool ? (
+              <LoadingBlock darker rounded="lg" className="h-375" />
+            ) : (
+              <MyPoolBalancesCard
+                pool={pool}
+                missingPrices={missingPrices}
+                titleTokens={titleTokens}
+                isStableLikePool={isStableLikePool}
+              />
+            )}
           </div>
         </GridContainer>
       </Container>
@@ -127,6 +138,7 @@ const Container = styled.div`
   @media (min-width: 1280px) {
     max-width: 1536px;
     margin: 0 auto;
+    width: 1536px;
   }
   @media (min-width: 1024px) {
     padding-left: 1rem;
@@ -141,8 +153,8 @@ const Container = styled.div`
     height: 375px;
   }
 
-  .p-8 {
-    padding: 2rem;
+  .p-4 {
+    padding: 1rem;
   }
 `
 

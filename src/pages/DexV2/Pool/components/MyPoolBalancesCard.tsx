@@ -1,81 +1,126 @@
 import React from 'react'
 import styled from 'styled-components'
+import { Box, Flex } from 'rebass'
 
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
-import useNumbers from 'hooks/dex-v2/useNumbers'
+import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import PoolActionsCard from './PoolActionsCard'
-import { Pool } from 'services/pool/types'
+import { Pool, PoolToken } from 'services/pool/types'
+import { bnum } from 'lib/utils'
+import { fiatValueOf } from 'hooks/dex-v2/usePoolHelpers'
+import BalCard from 'pages/DexV2/common/Card'
+import { Copy } from 'react-feather'
+import Asset from 'pages/DexV2/common/Asset'
 
 interface MyPoolBalancesCardProps {
-  pool: Pool | undefined
+  pool: Pool
   missingPrices: boolean
+  titleTokens: PoolToken[]
+  isStableLikePool: boolean
 }
 
-const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = ({ pool, missingPrices }) => {
-  const { balanceFor } = useTokens()
+const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
+  const { pool, missingPrices, titleTokens, isStableLikePool } = props
+  const { balanceFor, getToken } = useTokens()
   const { fNum } = useNumbers()
   const { isWalletReady } = useWeb3()
 
+  const bptBalance = bnum(balanceFor(pool.address)).plus('0').toString()
+  const fiatValue = (() => {
+    return fiatValueOf(pool, bptBalance)
+  })()
+
+  function symbolFor(titleTokenIndex: number): string {
+    const token = titleTokens[titleTokenIndex]
+    return getToken(token.address)?.symbol || token.symbol || '---'
+  }
+
   return (
-    <Card>
-      <Header>
+    <Flex flexDirection="column" css={{ gap: '20px' }}>
+      <BalCard shadow="none" noBorder className="p-4">
         <Title>My pool balance</Title>
-        <Value>-</Value>
-      </Header>
-      {/* <ButtonWrapper>
-        <Button>Migrate Liquidity</Button>
-      </ButtonWrapper> */}
-      <Footer>
+        <Value> {isWalletReady ? fNum(fiatValue, FNumFormats.fiat) : '-'}</Value>
+
+        <div>
+          {titleTokens.map(({ address, weight }, i) => (
+            <Flex
+              key={i}
+              alignItems="center"
+              justifyContent="space-between"
+              css={{
+                gap: '8px',
+                padding: '1rem 0',
+                borderBottom: '1px solid rgba(230, 230, 255, 0.6)',
+                fontSize: '14px',
+                color: 'rgba(41, 41, 51, 0.90)',
+                fontWeight: 500,
+              }}
+            >
+              <Flex css={{ gap: 10 }} alignItems="center">
+                <Asset address={address} size={24} />
+                <Box>
+                  {!isStableLikePool && !!weight && weight !== '0' ? (
+                    <span>
+                      {fNum(weight || '0', {
+                        style: 'percent',
+                        maximumFractionDigits: 0,
+                      })}
+                    </span>
+                  ) : null}{' '}
+                  {symbolFor(i)}
+                </Box>
+              </Flex>
+
+              <Flex flexDirection="column">
+                <div>{fNum(balanceFor(address), FNumFormats.token)}</div>
+                <Box css={{ color: '#B8B8D2' }}>{fNum(fiatValueOf(pool, balanceFor(address)), FNumFormats.fiat)}</Box>
+              </Flex>
+            </Flex>
+          ))}
+        </div>
+
+        <Box mt={3}>
+          <Box color="#B8B8D2" fontSize="14px" fontWeight={500}>
+            Pool address
+          </Box>
+          <Flex alignItems="center" color="rgba(41, 41, 51, 0.90)" fontSize="14px" fontWeight={500} mt="4px">
+            0x3de2...9F29{'  '}
+            <Box ml="4px" css={{ cursor: 'pointer' }}>
+              <Copy size="14px" color="#B8B8D2" />
+            </Box>
+          </Flex>
+        </Box>
+      </BalCard>
+
+      <BalCard shadow="none" noBorder className="p-4">
         <PoolActionsCard pool={pool} missingPrices={missingPrices} />
-      </Footer>
-    </Card>
+      </BalCard>
+    </Flex>
   )
 }
 
 export default MyPoolBalancesCard
 
-const Card = styled.div`
-  border-radius: 0.75rem;
-  box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1);
-  background: white;
-  overflow: hidden;
-`
-
-const Header = styled.div`
-  padding: 1rem;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #374151;
-`
-
 const Title = styled.div`
-  font-size: 1rem;
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.48px;
 `
 
 const Value = styled.div`
-  font-size: 1.5rem;
-`
-
-const ButtonWrapper = styled.div`
-  padding: 0.5rem 1rem;
-`
-
-const Button = styled.button`
-  width: 100%;
-  padding: 0.75rem;
-  border-radius: 0.375rem;
+  color: rgba(41, 41, 51, 0.9);
+  text-align: right;
+  font-family: Inter;
+  font-size: 32px;
+  font-style: normal;
   font-weight: 600;
-  text-align: center;
-  cursor: pointer;
-  border: none;
-  background: #3b82f6;
-  color: white;
-`
-
-const Footer = styled.div`
-  padding: 1rem;
-  border-top: 1px solid #374151;
+  line-height: normal;
+  letter-spacing: -0.96px;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(230, 230, 255, 0.6);
 `
