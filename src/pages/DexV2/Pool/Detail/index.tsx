@@ -12,17 +12,20 @@ import usePoolAprQuery from 'hooks/dex-v2/queries/usePoolAprQuery'
 import { includesAddress } from 'lib/utils'
 import { PoolToken } from 'services/pool/types'
 import { POOLS } from 'constants/dexV2/pools'
-import MyPoolBalancesCard from '../components/MyPoolBalancesCard'
+import MyPoolBalancesCard from './components/MyPoolBalancesCard'
 import PoolPageHeader from './components/PoolPageHeader'
 import DexV2Layout from '../../common/Layout'
 import { Box, Flex } from 'rebass'
 import chartImg from 'assets/images/dex-v2/chart-fake.svg'
 import BalCard from 'pages/DexV2/common/Card'
+import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
+import PoolStatCards from './components/PoolStatCards'
+import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
 
 const PoolDetail: React.FC = () => {
   const params = useParams<any>()
   const poolId = (params.id as string).toLowerCase()
-
+  const { fNum } = useNumbers()
   const { pool, isLoadingPool } = usePool(poolId)
   const { isWalletReady } = useWeb3()
   const { balanceQueryLoading, prices } = useTokens()
@@ -40,7 +43,7 @@ const PoolDetail: React.FC = () => {
     refetchOnWindowFocus: false,
   })
   const aprQuery = usePoolAprQuery(poolId)
-  const loadingApr = aprQuery.isLoading || Boolean(aprQuery.error)
+  const loadingApr = isQueryLoading(aprQuery)
   const poolApr = aprQuery.data
 
   const missingPrices = (() => {
@@ -54,10 +57,6 @@ const PoolDetail: React.FC = () => {
 
   const titleTokens: PoolToken[] = pool?.tokens ? orderedPoolTokens(pool, pool.tokens) : []
 
-  const isStakablePool: boolean =
-    POOLS.Stakable.VotingGaugePools.includes(poolId) || POOLS.Stakable.AllowList.includes(poolId)
-
-  console.log('titleTokens', titleTokens)
   return (
     <DexV2Layout>
       <Container>
@@ -86,32 +85,7 @@ const PoolDetail: React.FC = () => {
               </Box>
             </BalCard>
 
-            {!loadingPool ? (
-              <Flex
-                alignItems="center"
-                alignSelf="stretch"
-                css={{
-                  gap: '20px',
-                }}
-              >
-                <Info>
-                  <div className="label">Pool Value</div>
-                  <div className="value">$199,696</div>
-                </Info>
-                <Info>
-                  <div className="label">Volume (24h)</div>
-                  <div className="value">$0.00</div>
-                </Info>
-                <Info>
-                  <div className="label">Fees (24h)</div>
-                  <div className="value">$0.00</div>
-                </Info>
-                <Info>
-                  <div className="label">APR</div>
-                  <div className="value">$0.00</div>
-                </Info>
-              </Flex>
-            ) : null}
+            <PoolStatCards pool={pool} poolApr={poolApr} loading={loadingPool} loadingApr={loadingApr} />
           </Flex>
 
           <div>
@@ -151,6 +125,10 @@ const Container = styled.div`
 
   .h-375 {
     height: 375px;
+  }
+
+  .h-120 {
+    height: 120px;
   }
 
   .p-4 {
