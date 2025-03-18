@@ -78,50 +78,6 @@ const PoolStatCards: React.FC<Props> = ({ pool = null, poolApr = null, loading =
       ))}
     </Flex>
   )
-
-  // return (
-  //   <GridContainer>
-  //     {stats.map((stat) => (
-  //       <StatWrapper key={stat.id}>
-  //         {(stat.loading || !pool) ? (
-  //           <BalLoadingBlock className="h-24" />
-  //         ) : (
-  //           <BalCard>
-  //             <Header>
-  //               <span>{stat.label}</span>
-  //               {stat.id === 'apr' && poolApr && !shouldHideAprs(pool?.id || '') && (
-  //                 <>
-  //                   {isLBP(pool?.poolType) ? (
-  //                     <BalTooltip
-  //                       text={t('lbpAprTooltip')}
-  //                       width={36}
-  //                       iconSize="sm"
-  //                       iconClass="ml-1"
-  //                     />
-  //                   ) : (
-  //                     <APRTooltip pool={pool} poolApr={poolApr} />
-  //                   )}
-  //                 </>
-  //               )}
-  //             </Header>
-  //             <ValueContainer
-  //               isLBP={stat.id === 'apr' && pool ? isLBP(pool.poolType) : false}
-  //             >
-  //               <ValueText hasTooltip={!!stat.tooltip}>{stat.value}</ValueText>
-  //               {stat.tooltip && (
-  //                 <BalTooltip text={stat.tooltip}>
-  //                   <Activator>
-  //                     <BalIcon name="info" size="sm" />
-  //                   </Activator>
-  //                 </BalTooltip>
-  //               )}
-  //             </ValueContainer>
-  //           </BalCard>
-  //         )}
-  //       </StatWrapper>
-  //     ))}
-  //   </GridContainer>
-  // );
 }
 
 export default PoolStatCards
