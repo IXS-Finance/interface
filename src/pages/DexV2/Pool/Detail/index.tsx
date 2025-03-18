@@ -21,6 +21,7 @@ import BalCard from 'pages/DexV2/common/Card'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import PoolStatCards from './components/PoolStatCards'
 import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
+import PoolCompositionCard from './components/PoolCompositionCard'
 
 const PoolDetail: React.FC = () => {
   const params = useParams<any>()
@@ -100,6 +101,12 @@ const PoolDetail: React.FC = () => {
               />
             )}
           </div>
+
+          <div>
+            <h3>Pool composition</h3>
+
+            {loadingPool ? <LoadingBlock darker rounded="lg" className="h-375" /> : <PoolCompositionCard pool={pool} />}
+          </div>
         </GridContainer>
       </Container>
     </DexV2Layout>
@@ -133,6 +140,10 @@ const Container = styled.div`
 
   .p-4 {
     padding: 1rem;
+  }
+
+  .h-64 {
+    height: 16rem;
   }
 `
 

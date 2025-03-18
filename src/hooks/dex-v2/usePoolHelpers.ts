@@ -356,6 +356,29 @@ export function fiatValueOf(pool: Pool, shares: string): string {
 }
 
 /**
+ * Updates the passed subPool by removing the preminted token from tokens and updating mainIndex accordingly.
+ */
+export function removeBptFromTokens(pool: SubPool) {
+  if (!pool.tokens) {
+    return;
+  }
+
+  const premintedIndex = pool.tokens.findIndex(token =>
+    isSameAddress(pool.address, token.address)
+  );
+
+  if (premintedIndex === -1) return;
+
+  // Remove preminted token by index
+  pool.tokens.splice(premintedIndex, 1);
+
+  // Fix mainIndex after removing premintedBPT
+  if (pool.mainIndex && premintedIndex < pool.mainIndex) {
+    pool.mainIndex -= 1;
+  }
+}
+
+/**
  * Should recovery exits be the only option for this pool?
  *
  * @param {Pool} pool - The pool to check
@@ -363,11 +386,47 @@ export function fiatValueOf(pool: Pool, shares: string): string {
 export function isRecoveryExitsOnly(pool: Pool): boolean {
   const isInRecoveryAndPausedMode = !!pool.isInRecoveryMode && !!pool.isPaused
   const isVulnCsPoolAndInRecoveryMode =
-    usePoolWarning(pool.id).isAffectedBy(PoolWarning.CspPoolVulnWarning) && !!pool.isInRecoveryMode
+    poolWarning(pool.id).isAffectedBy(PoolWarning.CspPoolVulnWarning) && !!pool.isInRecoveryMode
   const isNotDeepAndCsV1 = !isDeep(pool) && isComposableStableV1(pool)
 
   return isInRecoveryAndPausedMode || isVulnCsPoolAndInRecoveryMode || isNotDeepAndCsV1
 }
+
+/**
+ * Updates the passed subPool by removing its pre-minted tokens.
+ */
+export function removeBptFromPoolTokenTree(pool: SubPool) {
+  if (pool.tokens) {
+    removeBptFromTokens(pool);
+
+    pool.tokens.forEach(token => {
+      if (token.token?.pool) {
+        removeBptFromPoolTokenTree(token.token.pool);
+      }
+    });
+  }
+  return pool;
+}
+
+/**
+ * Returns a new (cloned) pool with pre-minted pool tokens removed from both tokensList and tokenTree.
+ */
+export function removeBptFrom(pool: Pool): Pool {
+  const newPool = cloneDeep(pool);
+  newPool.tokensList = tokensListExclBpt(pool);
+
+  newPool.tokens = newPool.tokens.filter(
+    token => !isSameAddress(newPool.address, token.address)
+  );
+
+  newPool.tokens.forEach(token => {
+    if (token.token?.pool) {
+      removeBptFromPoolTokenTree(token.token.pool);
+    }
+  });
+  return newPool;
+}
+
 
 export function usePoolHelpers(pool: AnyPool | undefined) {
   const { fNum } = useNumbers()
