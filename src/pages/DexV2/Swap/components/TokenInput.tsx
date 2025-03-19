@@ -309,7 +309,7 @@ const StyledInput = styled.input`
   border: none;
   background: transparent;
   min-width: 50px;
-  max-width: 170px;
+  max-width: 234px;
 `
 
 const StyledNumber = styled.div`
