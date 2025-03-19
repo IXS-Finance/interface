@@ -4,30 +4,36 @@ import styled from 'styled-components'
 import ChooseWeights from './components/Steps/ChooseWeights'
 import SetPoolFees from './components/Steps/SetPoolFees'
 import InitialLiquidity from './components/Steps/InitialLiquidity'
-import { useWeb3React } from 'hooks/useWeb3React'
 import PreviewPool from './components/Steps/PreviewPool'
 
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
-import UnknownTokenPriceModal from '../../common/modals/UnknownTokenPriceModal'
+import UnknownTokenPriceModal from './components/UnknownTokenPriceModal'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { StepState } from 'types'
 import VerticleSteps from '../components/VerticleSteps'
 import TokenPrices from '../components/TokenPrices'
 import SimilarPool from './components/Steps/SimilarPool'
 import DexV2Layout from 'pages/DexV2/common/Layout'
+import { selectByAddress } from 'lib/utils'
 
 const Create: React.FC = () => {
   const { activeStep, similarPools, tokensList, seedTokens, hasRestoredFromSavedState } = usePoolCreation()
-  const { priceFor, getToken, injectTokens } = useTokens()
+  const { priceFor, getToken, injectTokens, injectedPrices } = useTokens()
 
   const [isUnknownTokenModalVisible, setIsUnknownTokenModalVisible] = useState(false)
 
   const validTokens = tokensList.filter((t: string) => t !== '')
+  const unknownTokens = validTokens.filter((token) => {
+    return priceFor(token) === 0 || selectByAddress(injectedPrices, token)
+  })
+
   const doSimilarPoolsExist = similarPools.length > 0
   const hasUnknownToken = validTokens.some((t: any) => priceFor(t) === 0)
 
-  console.log('similarPools', similarPools)
-  console.log('activeStep', activeStep)
+  console.log('validTokens', validTokens)
+  console.log('unknownTokens', unknownTokens)
+  console.log('hasUnknownToken', hasUnknownToken)
+
   /**
    * FUNCTIONS
    */
@@ -99,7 +105,7 @@ const Create: React.FC = () => {
   }
 
   useEffect(() => {
-    if (hasUnknownToken && !hasRestoredFromSavedState) {
+    if (hasUnknownToken) {
       showUnknownTokenModal()
     }
   }, [activeStep])
@@ -121,7 +127,13 @@ const Create: React.FC = () => {
           ) : null}
         </LayoutContainer>
 
-        <UnknownTokenPriceModal visible={isUnknownTokenModalVisible} onClose={handleUnknownModalClose} />
+        {isUnknownTokenModalVisible ? (
+          <UnknownTokenPriceModal
+            visible={isUnknownTokenModalVisible}
+            unknownTokens={unknownTokens}
+            onClose={handleUnknownModalClose}
+          />
+        ) : null}
       </WidthFull>
     </DexV2Layout>
   )
@@ -161,7 +173,9 @@ const LeftContent = styled.div`
   display: none;
 
   @media (min-width: 1024px) {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 `
 
@@ -201,20 +215,6 @@ const RightContent = styled.div`
   backdrop-filter: blur(40px);
 `
 
-const Card = styled.div`
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0px 30px 48px 0px rgba(63, 63, 132, 0.05);
-  padding: 24px;
-
-  @media (min-width: 640px) {
-    padding: 32px;
-  }
-
-  @media (min-width: 1024px) {
-    padding: 48px;
-  }
-`
 export const Line = styled.div`
   border: 1px solid #e6e6ff;
   margin-top: 16px;

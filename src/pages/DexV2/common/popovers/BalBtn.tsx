@@ -47,11 +47,11 @@ const defaultProps: Partial<BalBtnProps> = {
 
 // Simple mapping for standard colors.
 const colorMapping: Record<string, string> = {
-  primary: '#3b82f6',
+  primary: '#66F',
   gray: '#6b7280',
   red: '#ef4444',
   white: '#f9fafb',
-  blue: '#3b82f6',
+  blue: '#66F',
   yellow: '#facc15',
   black: '#000000',
   transparent: 'transparent',
@@ -178,7 +178,6 @@ const ContentWrapper = styled.div`
   justify-content: center;
   width: 100%;
   height: 100%;
-  color: black;
 `
 
 export type BalBtnComponent = React.FC<BalBtnProps>

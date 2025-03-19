@@ -48,7 +48,7 @@
       },
       {
         "chainId": 84532,
-        "address": "0xbed7ef47506556b96839e6607ddee9b49de55fdb",
+        "address": "0xbeD7ef47506556B96839E6607DDEe9B49de55fDB",
         "name": "KDA",
         "symbol": "KDA",
         "decimals": 18
@@ -65,6 +65,20 @@
         "address": "0x00A276Ae9b8A3Ca5128B7aba8EAeF62E4C59F871",
         "name": "TIGER",
         "symbol": "TIGER",
+        "decimals": 18
+      },
+      {
+        "chainId": 84532,
+        "address": "0x887415624B9be539702b79158Ad4796ba4750324",
+        "name": "Moon",
+        "symbol": "MOON",
+        "decimals": 18
+      },
+      {
+        "chainId": 84532,
+        "address": "0x80C3908e6Aec64099392a50ae3bD8fe84db94274",
+        "name": "LUNC",
+        "symbol": "LUNC",
         "decimals": 18
       }
     ]
