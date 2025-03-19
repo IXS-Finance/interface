@@ -7,14 +7,15 @@ import { ReactComponent as CrossIcon } from 'assets/launchpad/svg/close.svg'
 interface ModalProps {
   children: React.ReactNode
   onClose: () => void
+  noPadding?: boolean
 }
 
-const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
+const Modal: React.FC<ModalProps> = ({ noPadding, children, onClose }) => {
   return (
     <Portal>
       <ModalBackdrop>
-        <ModalContainer>
-          <ExitIconContainer onClick={onClose}>
+        <ModalContainer noPadding={noPadding}>
+          <ExitIconContainer noPadding={noPadding} onClick={onClose}>
             <CrossIcon />
           </ExitIconContainer>
           {children}
@@ -39,7 +40,7 @@ const ModalBackdrop = styled.div<{ width?: string; height?: string }>`
   z-index: 10;
 `
 
-const ModalContainer = styled.div`
+const ModalContainer = styled.div<{ noPadding?: boolean }>`
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
@@ -47,14 +48,14 @@ const ModalContainer = styled.div`
   position: relative;
   width: 480px;
   background: ${(props) => props.theme.launchpad.colors.background};
-  border-radius: 8px;
-  padding: 2rem;
+  border-radius: 16px;
+  padding: ${(props) => (props.noPadding ? '0' : '2rem')};
 `
 
-export const ExitIconContainer = styled.div`
+export const ExitIconContainer = styled.div<{ noPadding?: boolean }>`
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: ${(props) => (props.noPadding ? '1.5rem' : '1rem')};
+  right: ${(props) => (props.noPadding ? '1.5rem' : '1rem')};
   cursor: pointer;
 
   svg {

@@ -11,6 +11,7 @@ import {
   TransactionReceiptNotFoundError,
 } from 'viem'
 import { waitForTransactionReceipt } from '@wagmi/core'
+import { initial } from 'lodash';
 import pkg from '../../../package.json'
 
 import { retry, RetryableError } from 'lib/utils/retry'
@@ -36,6 +37,20 @@ export function shortenLabel(str: string, segLength = 4) {
   const firstSegment = str.substring(0, segLength + 2)
   const lastSegment = str.substring(str.length, str.length - segLength)
   return `${firstSegment}...${lastSegment}`
+}
+
+/**
+ *  creates a sentence readable list for an array for string
+ *  e.g. 'UBT, DSB and BAL' for [UBT, DSB, BAL]
+ */
+export function formatWordListAsSentence(words: string[]) {
+  if (!words.length) return ''
+  if (words.length >= 2) {
+    const commaSeperatedWords = initial(words)
+    return `${commaSeperatedWords.join(', ')} and ${words[words.length - 1]}`
+  }
+  // only one word, so just return that
+  return words[0]
 }
 
 /**
@@ -65,11 +80,10 @@ export async function forChange<T>(
   checkLimit = 20
 ): Promise<void> {
   console.log(checkCount)
-  if (reactiveVar === expected || checkCount >= checkLimit) return;
-  await sleep(checkDelay);
-  await forChange(reactiveVar, expected, checkCount+1);
+  if (reactiveVar === expected || checkCount >= checkLimit) return
+  await sleep(checkDelay)
+  await forChange(reactiveVar, expected, checkCount + 1)
 }
-
 
 /**
  * Sums and array of string numbers and returns as BigNumber

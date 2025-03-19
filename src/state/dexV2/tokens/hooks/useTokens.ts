@@ -341,10 +341,14 @@ export const useTokens = () => {
    * @param pricesToInject A map of <address, price> to inject
    */
   function injectPrices(pricesToInject: TokenPrices) {
-    state.injectedPrices = {
-      ...state.injectedPrices,
-      ...pricesToInject,
-    }
+    dispatch(
+      setTokensState({
+        injectedPrices: {
+          ...state.injectedPrices,
+          ...pricesToInject,
+        },
+      })
+    )
   }
 
   /**
@@ -372,15 +376,14 @@ export const useTokens = () => {
    */
   function priceFor(address: string): number {
     try {
-      const price = selectByAddressFast(prices, getAddress(address))
-
+      const price = selectByAddressFast(prices, getAddress(address));
       if (!price) {
-        return 0
+        return 0;
       }
 
-      return typeof price === 'number' ? price : 0
+      return price;
     } catch {
-      return 0
+      return 0;
     }
   }
 
