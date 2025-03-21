@@ -1,45 +1,64 @@
 // src/store/tokenListsSlice.ts
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { getChainId } from '@wagmi/core'
+import { getAddress } from '@ethersproject/address'
 
-import { TokenListMap } from 'types/TokenList'
+import { TokenInfoMap, TokenListMap, TokenInfo } from 'types/TokenList'
 import { wagmiConfig } from 'components/Web3Provider'
 import { tokenListService } from 'services/token-list/token-list.service'
+import { networkConfig } from 'hooks/dex-v2/useNetwork'
 
 interface TokenListsState {
   allTokenLists: TokenListMap
   isTestMode: boolean
   activeListKeys: string[]
+  allTokens: TokenInfoMap
 }
 
 const { uris } = tokenListService
-const chainId = getChainId(wagmiConfig)
 
-function filterTokensList(tokensList: TokenListMap, networkId: any): TokenListMap {
-  return Object.keys(tokensList).reduce((acc: TokenListMap, key) => {
-    const data = tokensList[key]
-    if (data.tokens)
-      acc[key] = {
-        ...data,
-        tokens: data.tokens.filter((token) => token.chainId === networkId),
-      }
+/**
+ * METHODS
+ */
+/**
+ * Create token map from a token list tokens array.const isEmpty = Object.keys(person).length === 0;
+ */
+function mapTokens(allTokens: TokenInfo[]): TokenInfoMap {
+  const isEmpty = allTokens.length === 0
+  if (isEmpty) return {}
+
+  const tokens: TokenInfo[] = allTokens
+
+  const tokensMap = tokens.reduce<TokenInfoMap>((acc, token) => {
+    const address: string = getAddress(token.address)
+
+    // Don't include if already included
+    if (acc[address]) return acc
+
+    // Don't include if not on app network
+    if (token.chainId !== networkConfig.chainId) return acc
+
+    acc[address] = token
     return acc
   }, {})
+
+  return tokensMap
 }
 
 export const fetchTokenLists = createAsyncThunk('tokenLists/fetchTokenLists', async () => {
-  const tokensListPromise = import(`assets/data/tokenlists/tokens-${chainId}.json`)
+  const data: any = await tokenListService.get(
+    `https://raw.githubusercontent.com/IX-Swap/ixs-tokenlist-v2/refs/heads/master/baseSepolia.json`
+  )
+  const allTokens = mapTokens([...data.cryptos, ...data.rwas])
 
-  const module = await tokensListPromise
-
-  const tokenLists = module.default as TokenListMap
-  return filterTokensList(tokenLists, chainId)
+  return allTokens
 })
 
 const initialState: TokenListsState = {
   allTokenLists: {},
   isTestMode: process.env.NODE_ENV === 'test',
   activeListKeys: [uris.Balancer.Allowlisted],
+  allTokens: {},
 }
 
 const tokenListsSlice = createSlice({
@@ -52,7 +71,7 @@ const tokenListsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchTokenLists.fulfilled, (state, action) => {
-      state.allTokenLists = action.payload
+      state.allTokens = action.payload
     })
   },
 })
