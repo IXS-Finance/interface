@@ -27,7 +27,7 @@ export const useTokens = () => {
   const dispatch = useDispatch()
   const { networkConfig } = useConfig()
   const { isWalletReady } = useWeb3()
-  const { allTokenLists, activeTokenLists, balancerTokenLists } = useTokenLists()
+  const { allTokenLists, activeTokenLists, balancerTokenLists, allTokens } = useTokenLists()
   const { allowances, balances } = state
 
   /**
@@ -49,7 +49,8 @@ export const useTokens = () => {
   const allTokenListTokens: TokenInfoMap = {
     [networkConfig.nativeAsset.address]: nativeAsset,
     ...state.injectedTokens,
-    ...mapTokenListTokens(allTokenLists),
+    // ...mapTokenListTokens(allTokenLists),
+    ...allTokens,
   }
 
   /**
@@ -113,6 +114,7 @@ export const useTokens = () => {
     isEnabled: true,
   })
 
+  console.log('balanceData', balanceData)
   const prices: TokenPrices = priceData ? priceData : {}
 
   useEffect(() => {
@@ -151,6 +153,34 @@ export const useTokens = () => {
     if (isEmpty) return {}
 
     const tokens = [...Object.values(tokenListMap)].map((list) => list.tokens).flat()
+
+    const tokensMap = tokens.reduce<TokenInfoMap>((acc, token) => {
+      const address: string = getAddress(token.address)
+
+      // Don't include if already included
+      if (acc[address]) return acc
+
+      // Don't include if not on app network
+      if (token.chainId !== networkConfig.chainId) return acc
+
+      acc[address] = token
+      return acc
+    }, {})
+
+    return tokensMap
+  }
+
+  /**
+   * METHODS
+   */
+  /**
+   * Create token map from a token list tokens array.const isEmpty = Object.keys(person).length === 0;
+   */
+  function mapTokenforceAllTokens(forceAllTokens: TokenInfo[]): TokenInfoMap {
+    const isEmpty = forceAllTokens.length === 0
+    if (isEmpty) return {}
+
+    const tokens: TokenInfo[] = forceAllTokens
 
     const tokensMap = tokens.reduce<TokenInfoMap>((acc, token) => {
       const address: string = getAddress(token.address)
@@ -376,14 +406,14 @@ export const useTokens = () => {
    */
   function priceFor(address: string): number {
     try {
-      const price = selectByAddressFast(prices, getAddress(address));
+      const price = selectByAddressFast(prices, getAddress(address))
       if (!price) {
-        return 0;
+        return 0
       }
 
-      return price;
+      return price
     } catch {
-      return 0;
+      return 0
     }
   }
 
@@ -465,5 +495,6 @@ export const useTokens = () => {
     injectPrices,
     getMaxBalanceFor,
     isWethOrEth,
+    mapTokenforceAllTokens,
   }
 }
