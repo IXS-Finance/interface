@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -22,6 +22,7 @@ import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import PoolStatCards from './components/PoolStatCards'
 import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
 import PoolCompositionCard from './components/PoolCompositionCard'
+import StakingIncentivesCard from '../Staking/StakingIncentivesCard'
 
 const PoolDetail: React.FC = () => {
   const params = useParams<any>()
@@ -47,6 +48,8 @@ const PoolDetail: React.FC = () => {
   const loadingApr = isQueryLoading(aprQuery)
   const poolApr = aprQuery.data
 
+  const [isRestakePreviewVisible, setIsRestakePreviewVisible] = useState(false)
+
   const missingPrices = (() => {
     if (pool && prices && !priceQueryLoading) {
       const tokensWithPrice = Object.keys(prices)
@@ -56,7 +59,15 @@ const PoolDetail: React.FC = () => {
     return false
   })()
 
+  console.log('POOLS', POOLS)
+  // const isStakablePool = POOLS.Stakable.VotingGaugePools.includes(poolId) || POOLS.Stakable.AllowList.includes(poolId)
+  const isStakablePool = true;
+
   const titleTokens: PoolToken[] = pool?.tokens ? orderedPoolTokens(pool, pool.tokens) : []
+
+  function setRestakeVisibility(value: boolean): void {
+    setIsRestakePreviewVisible(value)
+  }
 
   return (
     <DexV2Layout>
@@ -100,6 +111,18 @@ const PoolDetail: React.FC = () => {
                 isStableLikePool={isStableLikePool}
               />
             )}
+
+            <Box mt={2}>
+              {loadingPool ? (
+                <LoadingBlock darker rounded="lg" className="h-375" />
+              ) : (
+                <>
+                  {isStakablePool && !loadingPool && pool && isWalletReady ? (
+                    <StakingIncentivesCard pool={pool} onSetRestakeVisibility={setRestakeVisibility} />
+                  ) : null}
+                </>
+              )}
+            </Box>
           </div>
 
           <div>
