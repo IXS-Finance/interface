@@ -25,6 +25,7 @@ interface StackProps {
   justify?: Alignment | null; // Justify items (affects justify-content)
   expandChildren?: boolean; // Force children to occupy full width (or height)
   children?: React.ReactNode;
+  style?: any;
 }
 
 interface StackItemProps {
