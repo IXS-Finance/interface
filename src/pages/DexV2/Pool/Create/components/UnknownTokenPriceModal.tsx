@@ -4,7 +4,6 @@ import styled from 'styled-components'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { TokenPrices } from 'hooks/dex-v2/queries/useTokenPricesQuery'
-import { Pool } from 'services/pool/types'
 import BalStack from '../../../common/BalStack'
 import { isLessThanOrEqualTo } from 'lib/utils/validations'
 import BalBtn from '../../../common/popovers/BalBtn'
@@ -121,8 +120,3 @@ const UnknownTokenPriceModal: React.FC<UnknownTokenPriceModalProps> = ({ visible
 }
 
 export default UnknownTokenPriceModal
-
-// A styled span for font–semibold.
-const SemiboldSpan = styled.span`
-  font-weight: 600;
-`

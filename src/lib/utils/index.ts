@@ -11,7 +11,7 @@ import {
   TransactionReceiptNotFoundError,
 } from 'viem'
 import { waitForTransactionReceipt } from '@wagmi/core'
-import { initial } from 'lodash';
+import { initial } from 'lodash'
 import pkg from '../../../package.json'
 
 import { retry, RetryableError } from 'lib/utils/retry'

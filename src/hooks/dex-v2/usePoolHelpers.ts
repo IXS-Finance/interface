@@ -7,7 +7,7 @@ import useNumbers, { FNumFormats, numF } from './useNumbers'
 import { configService } from 'services/config/config.service'
 import { bnum, includesAddress, isSameAddress, removeAddress, selectByAddress } from 'lib/utils'
 import { poolWarning, usePoolWarning } from './usePoolWarning'
-import { PoolWarning } from 'types/pools'
+import { DeprecatedDetails, PoolWarning } from 'types/pools'
 import { APR_THRESHOLD } from 'constants/dexV2/pools'
 import { isPoolBoostsEnabled } from './useNetwork'
 
@@ -159,6 +159,15 @@ export function isSwappingHaltable(poolType: PoolType): boolean {
  */
 export function isDeep(pool: Pool): boolean {
   return configService.network.pools.Deep.includes(pool.id)
+}
+
+/**
+ * Checks if pool ID is included in the list of deprecated pools
+ * @param {string} id - The pool ID to check
+ * @returns {boolean} True if included in list
+ */
+export function deprecatedDetails(id: string): DeprecatedDetails | undefined {
+  return POOLS.Deprecated?.[id.toLowerCase()]
 }
 
 /**
@@ -360,21 +369,19 @@ export function fiatValueOf(pool: Pool, shares: string): string {
  */
 export function removeBptFromTokens(pool: SubPool) {
   if (!pool.tokens) {
-    return;
+    return
   }
 
-  const premintedIndex = pool.tokens.findIndex(token =>
-    isSameAddress(pool.address, token.address)
-  );
+  const premintedIndex = pool.tokens.findIndex((token) => isSameAddress(pool.address, token.address))
 
-  if (premintedIndex === -1) return;
+  if (premintedIndex === -1) return
 
   // Remove preminted token by index
-  pool.tokens.splice(premintedIndex, 1);
+  pool.tokens.splice(premintedIndex, 1)
 
   // Fix mainIndex after removing premintedBPT
   if (pool.mainIndex && premintedIndex < pool.mainIndex) {
-    pool.mainIndex -= 1;
+    pool.mainIndex -= 1
   }
 }
 
@@ -397,36 +404,33 @@ export function isRecoveryExitsOnly(pool: Pool): boolean {
  */
 export function removeBptFromPoolTokenTree(pool: SubPool) {
   if (pool.tokens) {
-    removeBptFromTokens(pool);
+    removeBptFromTokens(pool)
 
-    pool.tokens.forEach(token => {
+    pool.tokens.forEach((token) => {
       if (token.token?.pool) {
-        removeBptFromPoolTokenTree(token.token.pool);
+        removeBptFromPoolTokenTree(token.token.pool)
       }
-    });
+    })
   }
-  return pool;
+  return pool
 }
 
 /**
  * Returns a new (cloned) pool with pre-minted pool tokens removed from both tokensList and tokenTree.
  */
 export function removeBptFrom(pool: Pool): Pool {
-  const newPool = cloneDeep(pool);
-  newPool.tokensList = tokensListExclBpt(pool);
+  const newPool = cloneDeep(pool)
+  newPool.tokensList = tokensListExclBpt(pool)
 
-  newPool.tokens = newPool.tokens.filter(
-    token => !isSameAddress(newPool.address, token.address)
-  );
+  newPool.tokens = newPool.tokens.filter((token) => !isSameAddress(newPool.address, token.address))
 
-  newPool.tokens.forEach(token => {
+  newPool.tokens.forEach((token) => {
     if (token.token?.pool) {
-      removeBptFromPoolTokenTree(token.token.pool);
+      removeBptFromPoolTokenTree(token.token.pool)
     }
-  });
-  return newPool;
+  })
+  return newPool
 }
-
 
 export function usePoolHelpers(pool: AnyPool | undefined) {
   const { fNum } = useNumbers()

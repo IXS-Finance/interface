@@ -180,9 +180,7 @@ const ContentWrapper = styled.div`
   height: 100%;
 `
 
-export type BalBtnComponent = React.FC<BalBtnProps>
-
-const BalBtn: BalBtnComponent = (incomingProps) => {
+const BalBtn: React.FC<BalBtnProps> = (incomingProps) => {
   const {
     tag = 'button',
     loading,
