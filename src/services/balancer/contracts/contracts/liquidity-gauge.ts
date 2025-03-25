@@ -12,6 +12,8 @@ import { walletService as walletServiceInstance } from 'services/web3/wallet.ser
 import { getOldMulticaller } from 'dependencies/OldMulticaller'
 import { EthersContract, getEthersContract } from 'dependencies/EthersContract'
 import { TransactionBuilder } from 'services/web3/transactions/transaction.builder'
+import { getEthersSigner } from 'hooks/useEthersProvider'
+import { wagmiConfig } from 'components/Web3Provider'
 
 const MAX_REWARD_TOKENS = 8
 
@@ -38,22 +40,35 @@ export class LiquidityGauge {
     this.instance = new Contract(this.address, this.abi, this.provider)
   }
 
+  async getTransactionBuilder(): Promise<TransactionBuilder> {
+    const getSigner = () => getEthersSigner(wagmiConfig)
+    const signer = await getSigner()
+    return new TransactionBuilder(signer)
+  }
+
   async stake(amount: BigNumber): Promise<TransactionResponse> {
-    return await this.walletService.txBuilder.contract.sendTransaction({
+    const txBuilder = await this.getTransactionBuilder()
+
+    const res = await txBuilder.contract.sendTransaction({
       contractAddress: this.address,
       abi: this.abi,
       action: 'deposit(uint256)',
       params: [amount],
     })
+    return res
   }
 
   async unstake(amount: BigNumber): Promise<TransactionResponse> {
-    return await this.walletService.txBuilder.contract.sendTransaction({
+    const txBuilder = await this.getTransactionBuilder()
+
+    const res = await txBuilder.contract.sendTransaction({
       contractAddress: this.address,
       abi: this.abi,
       action: 'withdraw(uint256)',
       params: [amount],
     })
+
+    return res
   }
 
   async balance(account: string): Promise<BigNumber> {

@@ -8,11 +8,13 @@ import useNumbers from 'hooks/dex-v2/useNumbers'
 // import StakeSummary from './StakeSummary'
 import FeedbackCard from 'pages/DexV2/common/FeedbackCard'
 import ConfirmationIndicator from 'pages/DexV2/common/ConfirmationIndicator'
-import BalActionSteps from '../Withdraw/components/BalActionSteps'
 import { StakeAction, useStakePreview } from './hooks/useStakePreview'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { useHistory } from 'react-router-dom'
+import AssetSet from 'pages/DexV2/common/AssetSet'
+import StakeSummary from './StakeSummary'
+import ActionSteps from 'pages/DexV2/Swap/components/ActionSteps'
 
 // ----- Main Component Props -----
 type Props = {
@@ -36,7 +38,7 @@ const StakePreview: React.FC<Props> = ({ pool, action, onClose, onSuccess }) => 
     currentShares,
     stakeActions,
     // totalUserPoolSharePct,
-    handleSuccess,
+    // handleSuccess,
     handleClose,
     isStakeAndZero,
   } = useStakePreview({ pool, action, onClose, onSuccess })
@@ -65,24 +67,20 @@ const StakePreview: React.FC<Props> = ({ pool, action, onClose, onSuccess }) => 
             <h5>{fNum(currentShares)} LP tokens</h5>
             <span>{getToken(pool.address)?.symbol}</span>
           </VStackInner>
-          <BalAssetSet addresses={tokensListExclBpt(pool)} width={assetRowWidth} size={32} />
+          <AssetSet addresses={tokensListExclBpt(pool)} width={assetRowWidth} size={32} />
         </HStack>
       </Card>
-      {/*
-      <StakeSummary
-        action={action}
-        fiatValue={fiatValueOf(pool, currentShares)}
-        sharePercentage={totalUserPoolSharePct}
-      /> */}
+
+      <StakeSummary action={action} fiatValue={fiatValueOf(pool, currentShares)} sharePercentage={'0'} />
 
       {!isActionConfirmed && (
-        <BalActionSteps
-          actions={stakeActions}
+        <ActionSteps
+          requiredActions={stakeActions}
           primaryActionType={action}
           isLoading={isLoading}
-          disabled={isStakeAndZero || isMismatchedNetwork}
-          onSuccess={handleSuccess}
-          onFailed={() => {}}
+          disabled={isStakeAndZero || !!isMismatchedNetwork}
+          // onSuccess={handleSuccess}
+          // onFailed={() => {}}
         />
       )}
 

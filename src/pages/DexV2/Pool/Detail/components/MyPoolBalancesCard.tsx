@@ -93,10 +93,6 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
           </Flex>
         </Box>
       </BalCard>
-
-      <BalCard shadow="none" noBorder className="p-4">
-        <PoolActionsCard pool={pool} missingPrices={missingPrices} />
-      </BalCard>
     </Flex>
   )
 }
