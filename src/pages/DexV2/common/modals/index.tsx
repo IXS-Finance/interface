@@ -43,7 +43,6 @@ const ModalBackdrop = styled.div<{ width?: string; height?: string }>`
 const ModalContainer = styled.div<{ noPadding?: boolean }>`
   display: flex;
   flex-flow: column nowrap;
-  align-items: center;
   gap: 1rem;
   position: relative;
   width: 480px;

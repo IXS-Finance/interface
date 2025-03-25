@@ -26,7 +26,6 @@ const WithdrawPreviewModal: React.FC<WithdrawPreviewModalProps> = ({ pool, onClo
   const { networkSlug } = useNetwork()
   const { getToken } = useTokens()
 
-  console.log('pool', pool)
   // Destructure values from your exit pool hook.
   const {
     bptIn,
