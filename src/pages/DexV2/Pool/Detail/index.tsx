@@ -41,7 +41,6 @@ const PoolDetail: React.FC = () => {
     isNewPoolAvailable,
   } = usePoolHelpers(pool)
 
-  console.log('pool', pool)
 
   const loadingPool = isLoadingPool || !pool || balanceQueryLoading
   const poolSnapshotsQuery = usePoolSnapshotsQuery(poolId, undefined, {

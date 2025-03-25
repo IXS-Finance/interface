@@ -49,7 +49,7 @@ const defaultProps: Partial<BalBtnProps> = {
 const colorMapping: Record<string, string> = {
   primary: '#66F',
   gray: '#6b7280',
-  red: '#ef4444',
+  red: '#FF6161',
   white: '#f9fafb',
   blue: '#66F',
   yellow: '#facc15',

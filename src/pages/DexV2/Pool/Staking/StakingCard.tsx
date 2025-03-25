@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { getAddress } from '@ethersproject/address'
+import { formatUnits } from '@ethersproject/units'
 import { bnum } from 'lib/utils'
 import { Pool } from 'services/pool/types'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
@@ -13,11 +14,16 @@ import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import BalStack from 'pages/DexV2/common/BalStack'
 import BalTooltip from 'pages/DexV2/common/BalTooltip'
-import { Check, Lock, X } from 'react-feather'
+import { Check, Lock, Unlock, X } from 'react-feather'
 import BalCard from 'pages/DexV2/common/Card'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 import StakePreviewModal from './StakePreviewModal'
 import usePoolGaugeQuery, { PoolGauge } from 'hooks/dex-v2/queries/usePoolGaugeQuery'
+import { LiquidityGauge } from 'services/balancer/contracts/contracts/liquidity-gauge'
+import useWeb3 from 'hooks/dex-v2/useWeb3'
+import { Box, Flex } from 'rebass'
+import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
+import { Tooltip } from './Tooltip'
 
 // ─── MAIN COMPONENT PROPS & DEFINITION ─────────────────────────────
 type Props = {
@@ -28,31 +34,45 @@ type Props = {
 const StakingCard: React.FC<Props> = ({ pool, onSetRestakeVisibility }) => {
   const [isStakePreviewVisible, setIsStakePreviewVisible] = useState(false)
   const [stakeAction, setStakeAction] = useState<StakeAction>('stake')
+  const [stakedBalance, setStakedBalance] = useState('0')
+  const [isFetchingStakedBalance, setIsFetchingStakedBalance] = useState(false)
 
   // COMPOSABLES (hooks)
   const { fNum } = useNumbers()
-  const { balanceFor } = useTokens()
+  const { balanceFor, getToken } = useTokens()
   const poolGaugeQuery = usePoolGaugeQuery(pool.id)
+  const { account } = useWeb3()
 
-  const {
-    isLoading: isLoadingStakingData,
-    isRefetchingStakedShares,
-    stakedShares,
-    preferentialGaugeAddress,
-    isStakablePool,
-    injectPoolGaugeQuery,
-  } = usePoolStaking()
+  const { isRefetchingStakedShares, stakedShares, preferentialGaugeAddress, isStakablePool, injectPoolGaugeQuery } =
+    usePoolStaking()
   const { isAffected } = usePoolWarning(pool.id)
   const { networkId } = useNetwork()
+
+  const isLoadingStakingData = poolGaugeQuery ? isQueryLoading(poolGaugeQuery) : false
+
+  console.log('pool', pool)
 
   useEffect(() => {
     injectPoolGaugeQuery(poolGaugeQuery)
   }, [poolGaugeQuery?.data])
 
-  // COMPUTED (calculated inline)
+  useEffect(() => {
+    async function getBalance() {
+      setIsFetchingStakedBalance(true)
+      const gauge = new LiquidityGauge(preferentialGaugeAddress)
+      const balanceBpt = await gauge.balance(account)
+      const stackedBalance = formatUnits(balanceBpt.toString(), pool?.onchain?.decimals || 18)
+      setStakedBalance(stackedBalance)
+      setIsFetchingStakedBalance(false)
+    }
+    if (preferentialGaugeAddress) {
+      getBalance()
+    }
+  }, [preferentialGaugeAddress])
+
   const fiatValueOfStakedShares = bnum(pool.totalLiquidity)
     .div(pool.totalShares)
-    .times((stakedShares || 0).toString())
+    .times((stakedBalance || 0).toString())
     .toString()
 
   const fiatValueOfUnstakedShares = bnum(pool.totalLiquidity)
@@ -72,7 +92,7 @@ const StakingCard: React.FC<Props> = ({ pool, onSetRestakeVisibility }) => {
   }
 
   function showUnstakePreview() {
-    if (fiatValueOfStakedShares === '0') return
+    if (stakedBalance === '0') return
     setStakeAction('unstake')
     setIsStakePreviewVisible(true)
   }
@@ -85,50 +105,73 @@ const StakingCard: React.FC<Props> = ({ pool, onSetRestakeVisibility }) => {
     return <LoadingBlock darker rounded="lg" style={{ height: 238 }} />
   }
 
-  console.log('isStakablePool', isStakablePool)
-
   if (!isStakablePool) {
     return null
   }
 
   return (
     <BalCard shadow="none" noBorder className="p-4">
-      <Title>Current APR</Title>
-      <Description>Start earning rewards </Description>
+      <Flex justifyContent="space-between">
+        <Title>Staking LP Token</Title>
+        <Title>24.8%</Title>
+      </Flex>
+      <Flex justifyContent="space-between" mt="4px">
+        <Description>Start earning rewards</Description>
+        <Description>APR</Description>
+      </Flex>
 
-      <BalStack vertical spacing="sm">
-        <BalStack horizontal justify="between">
-          <span>
-            {t('staked')} {t('lpTokens')}
-          </span>
-          <BalStack horizontal spacing="sm" align="center">
-            <AnimatePresence isVisible={isRefetchingStakedShares}>
-              <BalLoadingBlock style={{ height: '1.25rem' }} />
-            </AnimatePresence>
-            <AnimatePresence isVisible={!isRefetchingStakedShares}>
-              <span>{fNum(fiatValueOfStakedShares, FNumFormats.fiat)}</span>
-            </AnimatePresence>
-            <BalTooltip
-              text="The fiat value of LP tokens you have staked in this pool."
-              iconSize="sm"
-              className="ml-2"
-            />
-          </BalStack>
-        </BalStack>
-        <BalStack horizontal justify="between">
-          <span>
-            {t('unstaked')} {t('lpTokens')}
-          </span>
-          <BalStack horizontal spacing="sm" align="center">
-            <AnimatePresence isVisible={isRefetchingStakedShares}>
-              <BalLoadingBlock style={{ height: '1.25rem' }} />
-            </AnimatePresence>
-            <AnimatePresence isVisible={!isRefetchingStakedShares}>
-              <span>{fNum(fiatValueOfUnstakedShares, FNumFormats.fiat)}</span>
-            </AnimatePresence>
-            <BalTooltip text="The fiat value of LP tokens you can stake." iconSize="sm" className="ml-2" />
-          </BalStack>
-        </BalStack>
+      <Line />
+
+      <Flex alignItems="center" justifyContent="space-between">
+        <Box fontSize="14px" fontWeight={500} color="rgba(41, 41, 51, 0.90)">
+          Staked LP Tokens
+        </Box>
+        <Flex alignItems="center">
+          {isFetchingStakedBalance ? (
+            <BalLoadingBlock style={{ height: '1.25rem' }} />
+          ) : (
+            <>
+              <Box fontSize="14px" fontWeight={500} color="#B8B8D2" mr="4px">
+                {fNum(fiatValueOfStakedShares, FNumFormats.fiat)}
+              </Box>
+              <Tooltip text="The fiat value of LP tokens you have staked in this pool." />
+            </>
+          )}
+        </Flex>
+      </Flex>
+
+      <Line />
+
+      <Flex alignItems="center" justifyContent="space-between">
+        <Box fontSize="14px" fontWeight={500} color="rgba(41, 41, 51, 0.90)">
+          Unstaked LP Tokens
+        </Box>
+        <Flex alignItems="center">
+          {isFetchingStakedBalance ? (
+            <BalLoadingBlock style={{ height: '1.25rem' }} />
+          ) : (
+            <>
+              <Box fontSize="14px" fontWeight={500} color="#B8B8D2" mr="4px">
+                {fNum(fiatValueOfUnstakedShares, FNumFormats.fiat)}
+              </Box>
+              <Tooltip text="The fiat value of LP tokens you can stake." />
+            </>
+          )}
+        </Flex>
+      </Flex>
+
+      <Line />
+
+      <Grid>
+        <BalBtn
+          color="red"
+          disabled={stakedBalance === '0'}
+          onClick={showUnstakePreview}
+          style={{ fontSize: '14px', width: '100%' }}
+        >
+          <Unlock size={14} />
+          <span style={{ marginLeft: 4 }}>Unstake</span>
+        </BalBtn>
 
         <BalBtn
           color="blue"
@@ -137,10 +180,11 @@ const StakingCard: React.FC<Props> = ({ pool, onSetRestakeVisibility }) => {
           style={{ fontSize: '14px', width: '100%' }}
         >
           <Lock size={14} />
-          <span style={{ marginLeft: 4 }}>Stake LP Token</span>
+          <span style={{ marginLeft: 4 }}>Stake</span>
         </BalBtn>
+      </Grid>
 
-        {/* {hasNonPrefGaugeBalance && !isAffected ? (
+      {/* {hasNonPrefGaugeBalance && !isAffected ? (
           <BalStack horizontal spacing="sm" style={{ marginTop: '8px' }}>
             <BalBtn color="gradient" onClick={() => onSetRestakeVisibility(true)}>
               {t('restake')}
@@ -159,12 +203,11 @@ const StakingCard: React.FC<Props> = ({ pool, onSetRestakeVisibility }) => {
             </BalBtn>
           </BalStack>
         )} */}
-        {/* {hasNonPrefGaugeBalance && networkId === 'MAINNET' && (
+      {/* {hasNonPrefGaugeBalance && networkId === 'MAINNET' && (
                     <BalAlert style={{ marginTop: '8px' }} title={t('staking.restakeGauge')}>
                       {t('staking.restakeGaugeDescription')}
                     </BalAlert>
                   )} */}
-      </BalStack>
 
       <StakePreviewModal
         isVisible={isStakePreviewVisible}
@@ -218,4 +261,16 @@ const Description = styled.div`
   font-weight: 500;
   line-height: normal;
   letter-spacing: -0.42px;
+`
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+`
+
+const Line = styled.div`
+  border-top: solid 1px rgba(230, 230, 255, 0.6);
+  margin-top: 1rem;
+  padding-top: 1rem;
 `

@@ -13,8 +13,9 @@ import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { useHistory } from 'react-router-dom'
 import AssetSet from 'pages/DexV2/common/AssetSet'
-import StakeSummary from './StakeSummary'
-import ActionSteps from 'pages/DexV2/Swap/components/ActionSteps'
+import ActionSteps from './ActionSteps'
+import { Box, Flex } from 'rebass'
+import BalCard from 'pages/DexV2/common/Card'
 
 // ----- Main Component Props -----
 type Props = {
@@ -51,40 +52,40 @@ const StakePreview: React.FC<Props> = ({ pool, action, onClose, onSuccess }) => 
   const t = (key: string) => key
 
   return (
-    <VStack spacing="md">
-      <HStack align="center" spacing="sm">
-        {isActionConfirmed && (
-          <Circle size={8} bgColor="green">
-            <Icon name="check" />
-          </Circle>
+    <Box>
+      <Flex
+        p="32px"
+        bg="#F5F5FF"
+        flexDirection="column"
+        css={{ borderTopLeftRadius: '16px', borderTopRightRadius: '16px', gap: '16px' }}
+      >
+        <Title>{action} LP tokens</Title>
+
+        <BalCard shadow="none" noBorder className="p-4">
+          <Flex alignItems="center" css={{ gap: '8px' }}>
+            <AssetSet addresses={tokensListExclBpt(pool)} width={assetRowWidth} size={24} />
+
+            <Box fontSize="14px" fontWeight={500}>
+              {getToken(pool.address)?.symbol}
+            </Box>
+          </Flex>
+        </BalCard>
+      </Flex>
+
+      <Box p="32px">
+        {!isActionConfirmed && (
+          <ActionSteps
+            requiredActions={stakeActions}
+            primaryActionType={action}
+            isLoading={isLoading}
+            disabled={isStakeAndZero || !!isMismatchedNetwork}
+            // onSuccess={handleSuccess}
+            // onFailed={() => {}}
+          />
         )}
-        <h4>{action} LP tokens</h4>
-      </HStack>
+      </Box>
 
-      <Card>
-        <HStack justify="space-between" align="center">
-          <VStackInner>
-            <h5>{fNum(currentShares)} LP tokens</h5>
-            <span>{getToken(pool.address)?.symbol}</span>
-          </VStackInner>
-          <AssetSet addresses={tokensListExclBpt(pool)} width={assetRowWidth} size={32} />
-        </HStack>
-      </Card>
-
-      <StakeSummary action={action} fiatValue={fiatValueOf(pool, currentShares)} sharePercentage={'0'} />
-
-      {!isActionConfirmed && (
-        <ActionSteps
-          requiredActions={stakeActions}
-          primaryActionType={action}
-          isLoading={isLoading}
-          disabled={isStakeAndZero || !!isMismatchedNetwork}
-          // onSuccess={handleSuccess}
-          // onFailed={() => {}}
-        />
-      )}
-
-      {isActionConfirmed && confirmationReceipt && (
+      {/* {isActionConfirmed && confirmationReceipt && (
         <VStack spacing="sm">
           <ConfirmationIndicator txReceipt={confirmationReceipt} />
           {action === 'stake' ? (
@@ -99,8 +100,8 @@ const StakePreview: React.FC<Props> = ({ pool, action, onClose, onSuccess }) => 
         </VStack>
       )}
 
-      {(isActionConfirming || isActionConfirmed) && <FeedbackCard />}
-    </VStack>
+      {(isActionConfirming || isActionConfirmed) && <FeedbackCard />} */}
+    </Box>
   )
 }
 
@@ -187,3 +188,14 @@ const BalAssetSet: React.FC<BalAssetSetProps> = ({ addresses, width, size }) => 
     </div>
   )
 }
+
+const Title = styled.div`
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.6px;
+  text-transform: capitalize;
+`
