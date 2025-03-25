@@ -38,7 +38,6 @@ const StakePreviewModal: React.FC<StakeModalProps> = ({ isVisible, pool, action,
 
   if (!isVisible) return null
 
-  console.log('pool', pool)
   return (
     <Modal noPadding onClose={onClose}>
       <div>

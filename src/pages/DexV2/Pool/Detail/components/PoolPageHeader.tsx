@@ -37,7 +37,6 @@ const PoolPageHeader: React.FC<PoolPageHeaderProps> = ({ pool, titleTokens, miss
     return getToken(token.address)?.symbol || token.symbol || '---'
   }
 
-  console.log('poolMetadata?.name ', pool)
   return (
     <Container>
       <Flex mb={2}>

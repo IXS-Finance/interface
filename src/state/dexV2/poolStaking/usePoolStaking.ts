@@ -21,15 +21,13 @@ export const usePoolStaking = () => {
 
   // COMPOSABLES / HOOKS
   const { balanceFor } = useTokens()
-  const { account, isWalletReady, getProvider } = useWeb3()
+  const { account, isWalletReady } = useWeb3()
 
   const poolGauge = poolGaugeQuery?.data as PoolGauge
   // The current preferential gauge for the specified pool.
   const preferentialGaugeAddress = poolGauge?.pool?.gauge?.address
   const poolId = poolGauge?.pool?.id
-  const poolAddress = getAddressFromPoolId(poolId)
-
-  console.log('poolGauge', poolGauge)
+  const poolAddress = poolGauge?.pool?.address
 
   const refetchPoolGauges = poolGaugeQuery?.refetch
 
@@ -74,7 +72,6 @@ export const usePoolStaking = () => {
 
   const stake = async () => {
     if (!preferentialGaugeAddress) throw new Error(`No preferential gauge found for this pool: ${poolId}`)
-    const provider = await getProvider()
     const gauge = new LiquidityGauge(preferentialGaugeAddress)
     // User's full BPT balance for this pool.
     const userBptBalance = parseUnits(balanceFor(getAddress(poolAddress)))
