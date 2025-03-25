@@ -14,15 +14,15 @@ interface StakeModalProps {
   onSuccess: () => void
 }
 
-const StakeModal: React.FC<StakeModalProps> = ({ isVisible, pool, action, onClose, onSuccess }) => {
+const StakePreviewModal: React.FC<StakeModalProps> = ({ isVisible, pool, action, onClose, onSuccess }) => {
   // State to control fireworks display
   const [showFireworks, setShowFireworks] = useState(false)
-  const { setCurrentPool } = usePoolStaking()
+  // const { setCurrentPool } = usePoolStaking()
 
-  // Set the current pool when component mounts or when pool changes
-  useEffect(() => {
-    setCurrentPool(pool.id)
-  }, [pool, setCurrentPool])
+  // // Set the current pool when component mounts or when pool changes
+  // useEffect(() => {
+  //   setCurrentPool(pool.id)
+  // }, [pool, setCurrentPool])
 
   // Handle modal close
   const handleClose = () => {
@@ -38,14 +38,15 @@ const StakeModal: React.FC<StakeModalProps> = ({ isVisible, pool, action, onClos
 
   if (!isVisible) return null
 
+  console.log('pool', pool)
   return (
     <Modal noPadding onClose={onClose}>
       <div>
         {/* <BalModal show={isVisible} fireworks={showFireworks} onClose={handleClose}> */}
-        <StakePreview pool={pool} action={action} onClose={handleClose} onSuccess={handleSuccess} />
+       <StakePreview pool={pool} action={action} onClose={handleClose} onSuccess={handleSuccess} />
       </div>
     </Modal>
   )
 }
 
-export default StakeModal
+export default StakePreviewModal

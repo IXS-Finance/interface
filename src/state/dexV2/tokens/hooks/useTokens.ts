@@ -114,7 +114,6 @@ export const useTokens = () => {
     isEnabled: true,
   })
 
-  console.log('balanceData', balanceData)
   const prices: TokenPrices = priceData ? priceData : {}
 
   useEffect(() => {
