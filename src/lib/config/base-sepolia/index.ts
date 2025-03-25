@@ -28,9 +28,9 @@ const config: Config = {
   subgraph: 'https://api.studio.thegraph.com/query/27946/v2-basesepolia/version/latest',
   poolsUrlV2: '',
   subgraphs: {
-    main: ['https://api.studio.thegraph.com/query/24660/balancer-sepolia-v2/version/latest'],
+    main: ['https://api.studio.thegraph.com/query/80624/dex-reward-v2-basesepolia/version/latest'],
     aave: '',
-    gauge: 'https://api.studio.thegraph.com/query/24660/balancer-gauges-sepolia-beta/version/latest',
+    gauge: 'https://api.studio.thegraph.com/query/80624/dex-reward-v2-basesepolia/version/latest',
     blocks: '',
   },
   bridgeUrl: '',

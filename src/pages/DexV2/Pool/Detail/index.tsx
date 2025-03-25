@@ -22,7 +22,8 @@ import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import PoolStatCards from './components/PoolStatCards'
 import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
 import PoolCompositionCard from './components/PoolCompositionCard'
-import StakingIncentivesCard from '../Staking/StakingIncentivesCard'
+import StakingCard from '../Staking/StakingCard'
+import PoolActionsCard from '../components/PoolActionsCard'
 
 const PoolDetail: React.FC = () => {
   const params = useParams<any>()
@@ -39,6 +40,8 @@ const PoolDetail: React.FC = () => {
     isDeprecatedPool,
     isNewPoolAvailable,
   } = usePoolHelpers(pool)
+
+  console.log('pool', pool)
 
   const loadingPool = isLoadingPool || !pool || balanceQueryLoading
   const poolSnapshotsQuery = usePoolSnapshotsQuery(poolId, undefined, {
@@ -59,9 +62,8 @@ const PoolDetail: React.FC = () => {
     return false
   })()
 
-  console.log('POOLS', POOLS)
   // const isStakablePool = POOLS.Stakable.VotingGaugePools.includes(poolId) || POOLS.Stakable.AllowList.includes(poolId)
-  const isStakablePool = true;
+  const isStakablePool = true
 
   const titleTokens: PoolToken[] = pool?.tokens ? orderedPoolTokens(pool, pool.tokens) : []
 
@@ -100,7 +102,7 @@ const PoolDetail: React.FC = () => {
             <PoolStatCards pool={pool} poolApr={poolApr} loading={loadingPool} loadingApr={loadingApr} />
           </Flex>
 
-          <div>
+          <Flex flexDirection="column" css={{ gap: '20px' }}>
             {loadingPool ? (
               <LoadingBlock darker rounded="lg" className="h-375" />
             ) : (
@@ -112,18 +114,22 @@ const PoolDetail: React.FC = () => {
               />
             )}
 
-            <Box mt={2}>
-              {loadingPool ? (
-                <LoadingBlock darker rounded="lg" className="h-375" />
-              ) : (
-                <>
-                  {isStakablePool && !loadingPool && pool && isWalletReady ? (
-                    <StakingIncentivesCard pool={pool} onSetRestakeVisibility={setRestakeVisibility} />
-                  ) : null}
-                </>
-              )}
-            </Box>
-          </div>
+            {loadingPool ? (
+              <LoadingBlock darker rounded="lg" style={{ height: 238 }} />
+            ) : (
+              <>
+                {isStakablePool && !loadingPool && pool && isWalletReady ? (
+                  <StakingCard pool={pool} onSetRestakeVisibility={setRestakeVisibility} />
+                ) : null}
+              </>
+            )}
+
+            {loadingPool ? (
+              <LoadingBlock darker rounded="lg" style={{ height: 238 }} />
+            ) : (
+              <PoolActionsCard pool={pool} missingPrices={missingPrices} />
+            )}
+          </Flex>
 
           <div>
             <h3>Pool composition</h3>

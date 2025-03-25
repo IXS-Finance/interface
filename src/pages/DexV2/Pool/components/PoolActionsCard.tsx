@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { routes } from 'utils/routes'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { Pool } from 'services/pool/types'
+import BalCard from 'pages/DexV2/common/Card'
 
 export interface PoolActionsCardProps {
   pool: Pool | undefined
@@ -28,7 +29,7 @@ const PoolActionsCard: React.FC<PoolActionsCardProps> = ({ pool, missingPrices }
   }
 
   return (
-    <Container>
+    <BalCard shadow="none" noBorder className="p-4">
       {!isWalletReady ? (
         <Button color="gradient" disabled>
           Connect Wallet
@@ -49,7 +50,7 @@ const PoolActionsCard: React.FC<PoolActionsCardProps> = ({ pool, missingPrices }
           </Text>
         </div>
       )}
-    </Container>
+    </BalCard>
   )
 }
 

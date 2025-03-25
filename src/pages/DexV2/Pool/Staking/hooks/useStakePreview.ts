@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 // import { ApprovalAction } from 'composables/approvals/types'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { bnum } from 'lib/utils'
@@ -47,14 +47,12 @@ export function useStakePreview(props: UseStakePreviewProps) {
     preferentialGaugeAddress,
   } = usePoolStaking()
 
+  console.log('preferentialGaugeAddress', preferentialGaugeAddress)
   // Determine current shares: if action is 'stake', use token balance; otherwise use staked shares.
-  const currentShares = props.action === 'stake' ? balanceFor(getAddress(props.pool.address)) : stakedShares // assumed to be a string
+  const currentShares = balanceFor(getAddress(props.pool.address))
 
   // Define the stake and unstake actions.
-  async function txWithNotification(
-    actionFn: () => any,
-    actionType: StakeAction
-  ): Promise<TransactionResponse> {
+  async function txWithNotification(actionFn: () => any, actionType: StakeAction): Promise<TransactionResponse> {
     try {
       const tx = await actionFn()
       setIsActionConfirming(true)
@@ -110,26 +108,28 @@ export function useStakePreview(props: UseStakePreviewProps) {
     },
   ]
 
+  console.log(currentShares)
   const isLoading = isLoadingApprovalsForGauge || isPoolStakingLoading
 
   // METHODS
-  async function loadApprovalsForGauge() {
-    const approvalActions = await (async () => {
-      setIsLoadingApprovalsForGauge(true)
-      const res = await getTokenApprovalActions({
-        amountsToApprove: amountsToApprove,
-        spender: preferentialGaugeAddress,
+  const loadApprovalsForGauge = useCallback(async () => {
+    setIsLoadingApprovalsForGauge(true)
+    try {
+      const approvalActions = await getTokenApprovalActions({
+        amountsToApprove,
+        spender: preferentialGaugeAddress, // dependency handled here
         actionType: ApprovalAction.Staking,
       })
-
+      debugger
+      if (approvalActions) {
+        setStakeActions((prev) => [...approvalActions, ...prev])
+      }
+    } catch (error) {
+      console.error('Error loading approvals:', error)
+    } finally {
       setIsLoadingApprovalsForGauge(false)
-      return res
-    })()
-
-    if (approvalActions) {
-      setStakeActions((prev) => [...approvalActions, ...prev])
     }
-  }
+  }, [preferentialGaugeAddress])
 
   async function handleSuccess(receipt: TransactionReceipt) {
     setIsActionConfirmed(true)
@@ -166,19 +166,11 @@ export function useStakePreview(props: UseStakePreviewProps) {
       if (props.action === 'unstake') return
       await loadApprovalsForGauge()
     }
-    run()
-  }, [preferentialGaugeAddress, props.action])
 
-  // On mount: load approvals if needed.
-  useEffect(() => {
-    async function run() {
-      if (props.action !== 'unstake') {
-        await loadApprovalsForGauge()
-      }
+    if (preferentialGaugeAddress) {
+      run()
     }
-    run()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [preferentialGaugeAddress, props.action])
 
   return {
     // State values
