@@ -41,7 +41,6 @@ const PoolDetail: React.FC = () => {
     isNewPoolAvailable,
   } = usePoolHelpers(pool)
 
-
   const loadingPool = isLoadingPool || !pool || balanceQueryLoading
   const poolSnapshotsQuery = usePoolSnapshotsQuery(poolId, undefined, {
     refetchOnWindowFocus: false,
@@ -116,11 +115,7 @@ const PoolDetail: React.FC = () => {
             {loadingPool ? (
               <LoadingBlock darker rounded="lg" style={{ height: 238 }} />
             ) : (
-              <>
-                {isStakablePool && !loadingPool && pool && isWalletReady ? (
-                  <StakingCard pool={pool} onSetRestakeVisibility={setRestakeVisibility} />
-                ) : null}
-              </>
+              <>{isStakablePool && !loadingPool && pool && isWalletReady ? <StakingCard pool={pool} /> : null}</>
             )}
 
             {loadingPool ? (

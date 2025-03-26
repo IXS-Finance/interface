@@ -29,3 +29,17 @@ export type TransactionActionInfo = {
   isStakeAction?: boolean;
   isUnstakeAction?: boolean;
 };
+
+export type TransactionActionStakingInfo = {
+  label: string;
+  loadingLabel: string;
+  confirmingLabel: string;
+  stepTooltip: string;
+  action: (amount: string) => Promise<TransactionResponse>;
+  postActionValidation?: () => Promise<boolean>;
+  actionInvalidReason?: TransactionError;
+  isSignAction?: boolean;
+  isStakeAction?: boolean;
+  isUnstakeAction?: boolean;
+};
+
