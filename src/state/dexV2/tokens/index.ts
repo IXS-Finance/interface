@@ -78,10 +78,15 @@ const tokensSlice = createSlice({
 
       return newState
     },
+    //Add more ContractAllowancesMap to current allowances
+    setAllowances(state, action) {
+      state.allowances = { ...state.allowances, ...action.payload }
+    },
   },
 })
 
-export const { setTokens, setSpenders, setAllowanceLoading, setBalanceLoading, setTokensState } = tokensSlice.actions
+export const { setTokens, setSpenders, setAllowanceLoading, setBalanceLoading, setTokensState, setAllowances } =
+  tokensSlice.actions
 
 export const selectWrappedNativeAsset = (state: { tokens: TokensState }) =>
   state.tokens.tokens[TOKENS.Addresses.wNativeAsset]

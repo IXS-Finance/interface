@@ -67,7 +67,7 @@ function getSizeStyles(size: 'xs' | 'sm' | 'md' | 'lg'): string {
     case 'lg':
       return 'padding: 0 1.25rem; height: 4.5rem; font-size: 1.125rem;'
     default:
-      return 'padding: 0 1rem; height: 3rem; font-size: 1rem;'
+      return 'padding: 0 1rem; height: 3rem; font-size: 14px;'
   }
 }
 
@@ -195,7 +195,7 @@ const BalBtn: React.FC<BalBtnProps> = (incomingProps) => {
     <StyledButton as={tag} disabled={disabled || loading} {...rest}>
       {loading ? (
         <ContentWrapper style={{ justifyContent: 'center' }}>
-          <BalLoadingIcon size={rest.size} color="gray" />
+          <BalLoadingIcon size={rest.size} color="white" />
           {loadingLabel && <span style={{ marginLeft: '0.5rem' }}>{loadingLabel}</span>}
         </ContentWrapper>
       ) : (

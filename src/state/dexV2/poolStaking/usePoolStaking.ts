@@ -1,27 +1,32 @@
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { formatUnits } from '@ethersproject/units'
+import { parseUnits } from 'ethers/lib/utils'
+
 import usePoolGaugeQuery, { PoolGauge } from 'hooks/dex-v2/queries/usePoolGaugeQuery'
 import { isQueryLoading } from 'hooks/dex-v2//queries/useQueryHelpers'
 import { bnum, getAddressFromPoolId, isSameAddress } from 'lib/utils'
 import { LiquidityGauge } from 'services/balancer/contracts/contracts/liquidity-gauge'
-import { getAddress } from '@ethersproject/address'
-import { parseUnits } from '@ethersproject/units'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { POOLS } from 'constants/dexV2/pools'
 import { subgraphRequest } from 'lib/utils/subgraph'
 import { configService } from 'services/config/config.service'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from '../tokens/hooks/useTokens'
-import { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+
 import { AppState } from 'state'
-import { setPoolGaugeQuery } from '.'
+import { setPoolGaugeQuery, setPoolStakingState } from '.'
+import { Pool } from 'services/pool/types'
+import { overflowProtected } from 'pages/DexV2/Pool/components/helpers'
 
 export const usePoolStaking = () => {
-  const { poolGaugeQuery } = useSelector((state: AppState) => state.dexV2Staking)
-  const dispatch = useDispatch()
+  const [isFetchingStakedBalance, setIsFetchingStakedBalance] = useState(false)
+  const [stakedBalance, setStakedBalance] = useState('0')
 
-  // COMPOSABLES / HOOKS
+  const { poolGaugeQuery, currentPool } = useSelector((state: AppState) => state.dexV2Staking)
+  const dispatch = useDispatch()
   const { balanceFor } = useTokens()
-  const { account, isWalletReady } = useWeb3()
+  const { account } = useWeb3()
 
   const poolGauge = poolGaugeQuery?.data as PoolGauge
   // The current preferential gauge for the specified pool.
@@ -30,21 +35,6 @@ export const usePoolStaking = () => {
   const poolAddress = poolGauge?.pool?.address
 
   const refetchPoolGauges = poolGaugeQuery?.refetch
-
-  // const { userGaugeSharesQuery, userBoostsQuery, stakedSharesQuery } = useUserData()
-  // const userGaugeShares = userGaugeSharesQuery.data
-  const userGaugeShares: any = []
-  // const refetchUserGaugeShares = userGaugeSharesQuery.refetch
-
-  // const boostsMap = userBoostsQuery.data
-  // const refetchUserBoosts = userBoostsQuery.refetch
-
-  // const _stakedShares: any = stakedSharesQuery.data
-  // const refetchStakedShares = stakedSharesQuery.refetch
-  // const isRefetchingStakedShares = stakedSharesQuery.isRefetching
-  const isRefetchingStakedShares = false
-
-  // COMPUTED VALUES (recalculated every render)
   const isLoading = poolGaugeQuery ? isQueryLoading(poolGaugeQuery) : false
   // ||
   // (isWalletReady &&
@@ -53,13 +43,7 @@ export const usePoolStaking = () => {
   //     isQueryLoading(userBoostsQuery)))
 
   const isStakablePool = preferentialGaugeAddress
-
-  // const stakedShares = poolId ? _stakedShares?.[poolId] || '0' : '0'
-  const stakedShares = '0'
-  // const boost = !boostsMap || !poolId ? '1' : boostsMap[poolId] || '1'
-
-  // METHODS
-  const setCurrentPool = (id: string) => {}
+  const unstakeBalance = poolAddress ? balanceFor(poolAddress) : '0'
 
   const refetchAllPoolStakingData = async () => {
     return Promise.all([
@@ -70,21 +54,21 @@ export const usePoolStaking = () => {
     ])
   }
 
-  const stake = async () => {
+  const stake = async (amount: string) => {
     if (!preferentialGaugeAddress) throw new Error(`No preferential gauge found for this pool: ${poolId}`)
     const gauge = new LiquidityGauge(preferentialGaugeAddress)
-    // User's full BPT balance for this pool.
-    const userBptBalance = parseUnits(balanceFor(getAddress(poolAddress)))
-    return await gauge.stake(userBptBalance)
+    const balance = parseUnits(overflowProtected(amount, 18), 18)
+
+    return await gauge.stake(balance)
   }
 
-  const unstake = async () => {
-    // if (!poolGauge?.pool?.gauges) throw new Error('Unable to unstake, no pool gauges')
-    // const gaugesWithUserBalance = await filterGaugesWhereUserHasBalance(poolGauge, account)
-    // const firstGaugeWithUserBalance = gaugesWithUserBalance[0]
-    // const gauge = new LiquidityGauge(firstGaugeWithUserBalance.id)
-    // const balance = await gauge.balance(account)
-    // return await gauge.unstake(balance)
+  const unstake = async (amount: string) => {
+    if (!preferentialGaugeAddress) throw new Error('Unable to unstake, no pool gauges')
+    const gauge = new LiquidityGauge(preferentialGaugeAddress)
+
+    const balance = parseUnits(overflowProtected(amount, 18), 18)
+
+    return await gauge.unstake(balance)
   }
 
   const fetchPreferentialGaugeAddress = async (poolAddress: string): Promise<string> => {
@@ -116,22 +100,40 @@ export const usePoolStaking = () => {
     dispatch(setPoolGaugeQuery(poolGaugeQuery))
   }
 
+  const injectCurrentPool = (pool: Pool | undefined) => {
+    dispatch(setPoolStakingState({ currentPool: pool }))
+  }
+
+  useEffect(() => {
+    async function getBalance() {
+      setIsFetchingStakedBalance(true)
+      const gauge = new LiquidityGauge(preferentialGaugeAddress)
+      const balanceBpt = await gauge.balance(account)
+      const stackedBalance = formatUnits(balanceBpt.toString(), currentPool?.onchain?.decimals || 18)
+      setStakedBalance(stackedBalance)
+      setIsFetchingStakedBalance(false)
+    }
+    if (preferentialGaugeAddress) {
+      getBalance()
+    }
+  }, [preferentialGaugeAddress])
+
   return {
     // STATE/COMPUTED
     isLoading,
-    stakedShares,
     isStakablePool,
     preferentialGaugeAddress,
     // boost,
-    isRefetchingStakedShares,
     poolGauge,
     // METHODS
-    setCurrentPool,
-    // refetchStakedShares,
     refetchAllPoolStakingData,
     stake,
     unstake,
     fetchPreferentialGaugeAddress,
     injectPoolGaugeQuery,
+    isFetchingStakedBalance,
+    stakedBalance,
+    injectCurrentPool,
+    unstakeBalance,
   }
 }

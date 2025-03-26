@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import styled, { keyframes } from 'styled-components'
 import { getAddress } from '@ethersproject/address'
-import { formatUnits } from '@ethersproject/units'
+
 import { bnum } from 'lib/utils'
 import { Pool } from 'services/pool/types'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
@@ -23,52 +24,44 @@ import { LiquidityGauge } from 'services/balancer/contracts/contracts/liquidity-
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { Box, Flex } from 'rebass'
 import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
-import { Tooltip } from './Tooltip'
+import Tooltip from 'pages/DexV2/common/Tooltip'
+import useAllowancesQuery from 'hooks/dex-v2/queries/useAllowancesQuery'
+import { setAllowances, setTokensState } from 'state/dexV2/tokens'
 
 // ─── MAIN COMPONENT PROPS & DEFINITION ─────────────────────────────
 type Props = {
   pool: Pool
-  onSetRestakeVisibility: (value: boolean) => void
 }
 
-const StakingCard: React.FC<Props> = ({ pool, onSetRestakeVisibility }) => {
+const StakingCard: React.FC<Props> = ({ pool }) => {
   const [isStakePreviewVisible, setIsStakePreviewVisible] = useState(false)
   const [stakeAction, setStakeAction] = useState<StakeAction>('stake')
-  const [stakedBalance, setStakedBalance] = useState('0')
-  const [isFetchingStakedBalance, setIsFetchingStakedBalance] = useState(false)
 
-  // COMPOSABLES (hooks)
   const { fNum } = useNumbers()
   const { balanceFor, getToken } = useTokens()
   const poolGaugeQuery = usePoolGaugeQuery(pool.id)
-  const { account } = useWeb3()
+  const dispatch = useDispatch()
 
-  const { isRefetchingStakedShares, stakedShares, preferentialGaugeAddress, isStakablePool, injectPoolGaugeQuery } =
-    usePoolStaking()
-  const { isAffected } = usePoolWarning(pool.id)
-  const { networkId } = useNetwork()
+  const {
+    stakedBalance,
+    isFetchingStakedBalance,
+    preferentialGaugeAddress,
+    isStakablePool,
+    injectPoolGaugeQuery,
+    injectCurrentPool,
+  } = usePoolStaking()
+  const lpTokenInfo = { address: pool.address, decimals: pool.onchain?.decimals } as any
+  const { data: allowanceData } = useAllowancesQuery({
+    tokens: { [pool?.address]: lpTokenInfo },
+    contractAddresses: [preferentialGaugeAddress],
+    isEnabled: !!(pool?.address && preferentialGaugeAddress),
+  })
 
   const isLoadingStakingData = poolGaugeQuery ? isQueryLoading(poolGaugeQuery) : false
-
-  console.log('pool', pool)
 
   useEffect(() => {
     injectPoolGaugeQuery(poolGaugeQuery)
   }, [poolGaugeQuery?.data])
-
-  useEffect(() => {
-    async function getBalance() {
-      setIsFetchingStakedBalance(true)
-      const gauge = new LiquidityGauge(preferentialGaugeAddress)
-      const balanceBpt = await gauge.balance(account)
-      const stackedBalance = formatUnits(balanceBpt.toString(), pool?.onchain?.decimals || 18)
-      setStakedBalance(stackedBalance)
-      setIsFetchingStakedBalance(false)
-    }
-    if (preferentialGaugeAddress) {
-      getBalance()
-    }
-  }, [preferentialGaugeAddress])
 
   const fiatValueOfStakedShares = bnum(pool.totalLiquidity)
     .div(pool.totalShares)
@@ -80,9 +73,9 @@ const StakingCard: React.FC<Props> = ({ pool, onSetRestakeVisibility }) => {
     .times(balanceFor(getAddress(pool.address)))
     .toString()
 
-  const isStakeDisabled = Boolean(
-    deprecatedDetails(pool.id) || fiatValueOfUnstakedShares === '0' || !preferentialGaugeAddress
-  )
+  const isStakeDisabled = Boolean(fiatValueOfUnstakedShares === '0' || !preferentialGaugeAddress)
+
+  const isUnstakeDisabled = Boolean(fiatValueOfStakedShares === '0' || !preferentialGaugeAddress)
 
   // METHODS
   function showStakePreview() {
@@ -100,6 +93,18 @@ const StakingCard: React.FC<Props> = ({ pool, onSetRestakeVisibility }) => {
   function handlePreviewClose() {
     setIsStakePreviewVisible(false)
   }
+
+  useEffect(() => {
+    if (pool) {
+      injectCurrentPool(pool)
+    }
+  }, [JSON.stringify(pool)])
+
+  useEffect(() => {
+    if (Object.keys(allowanceData).length > 0) {
+      dispatch(setAllowances(allowanceData))
+    }
+  }, [JSON.stringify(allowanceData)])
 
   if (isLoadingStakingData) {
     return <LoadingBlock darker rounded="lg" style={{ height: 238 }} />
@@ -165,7 +170,7 @@ const StakingCard: React.FC<Props> = ({ pool, onSetRestakeVisibility }) => {
       <Grid>
         <BalBtn
           color="red"
-          disabled={stakedBalance === '0'}
+          disabled={isUnstakeDisabled}
           onClick={showUnstakePreview}
           style={{ fontSize: '14px', width: '100%' }}
         >
@@ -184,59 +189,20 @@ const StakingCard: React.FC<Props> = ({ pool, onSetRestakeVisibility }) => {
         </BalBtn>
       </Grid>
 
-      {/* {hasNonPrefGaugeBalance && !isAffected ? (
-          <BalStack horizontal spacing="sm" style={{ marginTop: '8px' }}>
-            <BalBtn color="gradient" onClick={() => onSetRestakeVisibility(true)}>
-              {t('restake')}
-            </BalBtn>
-            <BalBtn outline color="blue" disabled={fiatValueOfStakedShares === '0'} onClick={showUnstakePreview}>
-              {t('unstake')}
-            </BalBtn>
-          </BalStack>
-        ) : (
-          <BalStack horizontal spacing="sm" style={{ marginTop: '8px' }}>
-            <BalBtn color="gradient" disabled={isStakeDisabled} onClick={showStakePreview}>
-              {t('stake')}
-            </BalBtn>
-            <BalBtn outline color="blue" disabled={fiatValueOfStakedShares === '0'} onClick={showUnstakePreview}>
-              {t('unstake')}
-            </BalBtn>
-          </BalStack>
-        )} */}
-      {/* {hasNonPrefGaugeBalance && networkId === 'MAINNET' && (
-                    <BalAlert style={{ marginTop: '8px' }} title={t('staking.restakeGauge')}>
-                      {t('staking.restakeGaugeDescription')}
-                    </BalAlert>
-                  )} */}
-
-      <StakePreviewModal
-        isVisible={isStakePreviewVisible}
-        pool={pool}
-        action={stakeAction}
-        onClose={handlePreviewClose}
-        onSuccess={() => handlePreviewClose()}
-      />
+      {isStakePreviewVisible ? (
+        <StakePreviewModal
+          isVisible={isStakePreviewVisible}
+          pool={pool}
+          action={stakeAction}
+          onClose={handlePreviewClose}
+          onSuccess={handlePreviewClose}
+        />
+      ) : null}
     </BalCard>
   )
 }
 
 export default StakingCard
-
-// ─── DUMMY TRANSLATION FUNCTION ────────────────────────────────
-// Replace this with your own i18n solution.
-const t = (key: string) => key
-
-// ─── DUMMY COMPONENTS (Replace these with your own implementations) ─────────────────
-// For illustration purposes only.
-const AnimatePresence = ({
-  isVisible,
-  children,
-  unmountInstantly,
-}: {
-  isVisible: boolean
-  children: React.ReactNode
-  unmountInstantly?: boolean
-}) => <>{isVisible ? children : null}</>
 
 const BalLoadingBlock = styled.div`
   background: #eee;

@@ -1,26 +1,26 @@
 import React from 'react';
-import styled, { keyframes, css } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
 // Define allowed sizes and colors.
-export type BalLoadingIconProps = {
+export type ClipLoaderProps = {
   color?: 'gray' | 'primary' | 'white';
   size?: 'xs' | 'sm' | 'md' | 'lg';
 };
 
-const defaultProps: Partial<BalLoadingIconProps> = {
-  color: 'gray',
+const defaultProps: Partial<ClipLoaderProps> = {
+  color: 'primary',
   size: 'md',
 };
 
-// Keyframes for the bounce animation.
-const skBounce = keyframes`
-  0%, 100% { transform: scale(0); }
-  50% { transform: scale(1); }
+// Keyframes for the spin animation.
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 `;
 
-// Spinner container with dynamic size.
-const Spinner = styled.div<{ size: 'xs' | 'sm' | 'md' | 'lg' }>`
-  position: relative;
+// Spinner styled-component with dynamic size, border thickness, and color.
+const Spinner = styled.div<{ size: 'xs' | 'sm' | 'md' | 'lg'; color: 'gray' | 'primary' | 'white' }>`
+  display: inline-block;
   width: ${({ size }) => {
     switch (size) {
       case 'xs':
@@ -47,42 +47,36 @@ const Spinner = styled.div<{ size: 'xs' | 'sm' | 'md' | 'lg' }>`
         return '22px';
     }
   }};
-`;
-
-// Bounce element with dynamic color and optional animation delay.
-const Bounce = styled.div<{ color: 'gray' | 'primary' | 'white'; delay?: string }>`
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  opacity: 0.6;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color: ${({ color }) => {
+  border: ${({ size }) => {
+    // Adjust the border width relative to the size.
+    switch (size) {
+      case 'xs':
+        return '2px';
+      case 'sm':
+        return '2.5px';
+      case 'lg':
+        return '4px';
+      case 'md':
+      default:
+        return '3px';
+    }
+  }} solid ${({ color }) => {
     const mapping: Record<string, string> = {
       white: '#ffffff',
       gray: '#9ca3af',
       primary: '#3b82f6',
     };
-    return mapping[color] || '#9ca3af';
+    return mapping[color] || '#3b82f6';
   }};
-  animation: ${skBounce} 2s infinite ease-in-out;
-  ${({ delay }) =>
-    delay &&
-    css`
-      animation-delay: ${delay};
-    `}
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
 `;
 
-const BalLoadingIcon: React.FC<BalLoadingIconProps> = (incomingProps) => {
+const BalLoadingIcon: React.FC<ClipLoaderProps> = (incomingProps) => {
   const { color, size } = { ...defaultProps, ...incomingProps };
 
-  return (
-    <Spinner size={size!}>
-      <Bounce color={color!} delay="0s" />
-      <Bounce color={color!} delay="-1s" />
-    </Spinner>
-  );
+  return <Spinner size={size!} color={color!} />;
 };
 
 export default BalLoadingIcon;
