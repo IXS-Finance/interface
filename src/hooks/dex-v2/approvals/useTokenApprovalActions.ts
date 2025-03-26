@@ -62,7 +62,7 @@ export default function useTokenApprovalActions() {
       case ApprovalAction.Locking:
         return `Approve ${symbol} for locking`
       case ApprovalAction.Staking:
-        return `Approve ${symbol} for staking`
+        return `Approve LP Token`
       case ApprovalAction.Swapping:
         return `Approve ${symbol} for swapping`
       case ApprovalAction.Unapprove:
@@ -79,15 +79,15 @@ export default function useTokenApprovalActions() {
       case ApprovalAction.Locking:
         return `You must approve ${symbol} to lock this token. Approvals are required once per token, per wallet.`
       case ApprovalAction.Staking:
-        return `You must approve ${symbol} to stake this token on Balancer. Approvals are required once per token, per wallet.`
+        return `You must approve ${symbol} to stake this token on IXSwap. Approvals are required once per token, per wallet.`
       case ApprovalAction.Swapping:
-        return `You must approve ${symbol} to swap this token on Balancer. Approvals are required once per token, per wallet.`
+        return `You must approve ${symbol} to swap this token on IXSwap. Approvals are required once per token, per wallet.`
       case ApprovalAction.Unapprove:
         return `You must unapprove ${symbol} before a new approval value can be set`
       case ApprovalAction.Unwrapping:
         return `You must approve ${symbol} to unwrap this token. Approvals are required once per token, per wallet.`
       default:
-        return `You must approve ${symbol} to add liquidity for this token on Balancer. Approvals are required once per token, per wallet.`
+        return `You must approve ${symbol} to add liquidity for this token on IXSwap. Approvals are required once per token, per wallet.`
     }
   }
 
@@ -99,7 +99,7 @@ export default function useTokenApprovalActions() {
   async function getApprovalsRequired(
     amountsToApprove: AmountToApprove[],
     spender: string,
-    skipAllowanceCheck = false
+    skipAllowanceCheck = false,
   ): Promise<AmountToApprove[]> {
     if (!skipAllowanceCheck) {
       await updateAllowancesFor(spender)

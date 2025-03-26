@@ -2,17 +2,22 @@ import React, { useEffect, useState } from 'react'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider'
 import { useDispatch } from 'react-redux'
 
-import { TransactionActionInfo, TransactionActionState } from 'pages/DexV2/types/transactions'
+import { TransactionActionState } from 'pages/DexV2/types/transactions'
 import HorizSteps, { Step, StepState } from './HorizSteps'
 import { NavigationButtons, NextButton } from 'pages/DexV2/Pool/Create'
 import { captureBalancerException, useErrorMsg } from 'lib/utils/errors'
 import Loader from 'components/Loader'
 import useEthers from 'hooks/dex-v2/useEthers'
-import { TransactionAction, postConfirmationDelay } from 'hooks/dex-v2/useTransactions'
+import { postConfirmationDelay } from 'hooks/dex-v2/useTransactions'
 import { dateTimeLabelFor } from 'hooks/dex-v2/useTime'
 import { BalAlert } from 'pages/DexV2/common/BalAlert'
 import { useSwapState } from 'state/dexV2/swap/useSwapState'
 import { setActionStates } from 'state/dexV2/swap'
+import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
+import { TransactionActionStakingInfo } from 'types/transactions'
+import { StakeAction, useStakePreview } from './hooks/useStakePreview'
+import { AnyPool } from 'services/pool/types'
+import { Box } from 'rebass'
 
 export type BalStepAction = {
   label: string
@@ -24,15 +29,13 @@ export type BalStepAction = {
 }
 
 interface ActionStepsProps {
-  requiredActions: TransactionActionInfo[]
-  primaryActionType: TransactionAction
+  pool: AnyPool
+  primaryActionType: StakeAction
   disabled?: boolean
-  // override action state loading prop and show
-  // loading for all steps
+  amountToSubmit: string
   isLoading?: boolean
-  // override action state loading label
-  // for all steps
   loadingLabel?: string
+  onClose: () => void
 }
 
 const defaultActionState: TransactionActionState = {
@@ -43,21 +46,26 @@ const defaultActionState: TransactionActionState = {
 }
 
 const ActionSteps: React.FC<ActionStepsProps> = ({
+  pool,
   disabled = false,
   isLoading = false,
-  loadingLabel = '',
-  requiredActions,
+  amountToSubmit,
   primaryActionType,
+  onClose,
 }) => {
   const dispatch = useDispatch()
   const { txListener, getTxConfirmedAt } = useEthers()
   const { formatErrorMsg } = useErrorMsg()
+  const onSuccess = () => {}
   const { actionStates, updateActionState } = useSwapState()
+  const { stakeActions } = useStakePreview({ amountToSubmit, pool, action: primaryActionType, onClose, onSuccess })
+
+  console.log('stakeActions', stakeActions)
 
   const [loading, setLoading] = useState(false)
   const [currentActionIndex, setCurrentActionIndex] = useState(0)
 
-  const actions: any = requiredActions
+  const actions: any = stakeActions
     .map((actionInfo, idx) => {
       const actionState = actionStates[idx]
       if (!actionState) return null
@@ -80,8 +88,6 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   const lastActionState: TransactionActionState = actionStates[actionStates.length - 1]
   const steps: Step[] = actions.map((action: any) => action.step)
 
-  const _loadingLabel: string = currentAction?.pending ? currentAction.loadingLabel : loadingLabel || 'Fetching data...'
-
   function getStepState(actionState: TransactionActionState, index: number): StepState {
     if (currentActionIndex < index) return StepState.Todo
     else if (actionState.confirming) return StepState.Pending
@@ -99,7 +105,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   async function handleTransaction(
     tx: TransactionResponse,
     state: TransactionActionState,
-    actionInfo: TransactionActionInfo,
+    actionInfo: TransactionActionStakingInfo,
     actionIndex: number
   ): Promise<void> {
     const { postActionValidation, actionInvalidReason } = actionInfo
@@ -117,6 +123,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
           updateActionState(actionIndex, { confirmedAt: dateTimeLabelFor(confirmedAt), confirmed: true })
           if (currentActionIndex >= actions.length - 1) {
             console.log('success', receipt, state.confirmedAt)
+            onClose()
           } else {
             setCurrentActionIndex(currentActionIndex + 1)
           }
@@ -126,24 +133,27 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
           }
           updateActionState(actionIndex, { init: false })
         }
+        setLoading(false)
         updateActionState(actionIndex, { confirming: false })
       },
       onTxFailed: () => {
         updateActionState(actionIndex, { confirming: false, error: actionInvalidReason })
+        setLoading(false)
       },
     })
   }
 
   async function submit(
-    actionInfo: TransactionActionInfo,
+    actionInfo: TransactionActionStakingInfo,
     state: TransactionActionState,
     actionIndex: number
   ): Promise<void> {
     const { action } = actionInfo
     try {
+      setLoading(true)
       updateActionState(actionIndex, { init: true, error: null })
 
-      const tx = await action()
+      const tx = await action(amountToSubmit)
 
       updateActionState(actionIndex, { init: false, confirming: true })
 
@@ -160,16 +170,17 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
         action: primaryActionType,
         context: { level: 'fatal' },
       })
+      setLoading(false)
     }
   }
 
   useEffect(() => {
-    const actionStatesData = requiredActions.map(() => ({ ...defaultActionState }))
+    const actionStatesData = stakeActions.map(() => ({ ...defaultActionState }))
     dispatch(setActionStates(actionStatesData))
-  }, [JSON.stringify(requiredActions)])
+  }, [JSON.stringify(stakeActions)])
 
   return (
-    <div>
+    <Box mt="16px">
       {currentActionState && currentActionState?.error && !isLoading ? (
         <BalAlert type="error" title={currentActionState?.error?.title ?? 'Error'} className="mb-4">
           {currentActionState?.error?.description ?? 'An error occurred'}
@@ -179,13 +190,22 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
       {actions && actions.length > 1 && !lastActionState?.confirmed && !disabled ? <HorizSteps steps={steps} /> : null}
       {!lastActionState?.confirmed ? (
         <NavigationButtons>
-          <NextButton onClick={() => currentAction?.promise()} disabled={disabled || currentAction?.pending || loading}>
-            {loading || disabled ? <Loader /> : null}
-            {!disabled ? currentAction?.label : _loadingLabel}
-          </NextButton>
+          <BalBtn outline block onClick={onClose} disabled={disabled || loading}>
+            Cancel
+          </BalBtn>
+          <BalBtn
+            block
+            color={currentAction?.label === 'Unstake' ? 'red' : 'blue'}
+            onClick={() => currentAction?.promise()}
+            disabled={disabled}
+            loading={loading}
+            loadingLabel={currentAction?.loadingLabel}
+          >
+            {currentAction?.label}
+          </BalBtn>
         </NavigationButtons>
       ) : null}
-    </div>
+    </Box>
   )
 }
 
