@@ -171,27 +171,56 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
   const priceImpactClass = props.priceImpact && props.priceImpact >= 0.01 ? 'text-red-500' : ''
 
   function handleAmountChange(val: string) {
-    const regex = /^-?\d*[.,]?\d*$/
+    // Remove commas from the input.
     const value = val.split(',').join('')
 
+    // If the input is empty, clear everything and exit early.
+    if (value === '') {
+      setDisplayValue('')
+      setAmount('')
+      props.updateAmount('')
+      return
+    }
+
+    const regex = /^-?\d*[.,]?\d*$/
     if (regex.test(value)) {
-      const amountFinal = numeral(value).value()
-      const safeAmount = overflowProtected(amountFinal || 0, decimalLimit)
+      const tokenDecimals = decimalLimit
+      const decimalPattern = '0'.repeat(tokenDecimals)
+      const formatString = `0.[${decimalPattern}]`
+
+      let amountFinal = numeral(value).format(formatString)
+      if (amountFinal === 'NaN') {
+        amountFinal = '0'
+      }
+      const safeAmount = overflowProtected(amountFinal || '0', decimalLimit)
+
       setAmount(safeAmount)
       props.updateAmount(safeAmount)
 
+      // Prevent multiple leading zeros.
       if (val.length >= 2 && val.charAt(0) === '0' && val.charAt(1) === '0') {
         return setDisplayValue('0')
       }
 
+      // Handle cases where a decimal point exists.
       if (value.indexOf('.') > -1) {
-        const decimal = value.substring(value.indexOf('.') + 1, value.indexOf('.') + decimalLimit + 1)
-        const int = value.substring(0, value.indexOf('.'))
-        const data = displayNumeralNoDecimal(int) + '.' + decimal
-        return setDisplayValue(data)
+        const integerPart = value.substring(0, value.indexOf('.'))
+        const decimalPart = value.substring(value.indexOf('.') + 1, value.indexOf('.') + tokenDecimals + 1)
+        const formattedInteger = displayNumeralNoDecimal(integerPart)
+
+        // Preserve the trailing decimal if user types "0." or "1.".
+        if (value.endsWith('.')) {
+          return setDisplayValue(`${formattedInteger}.`)
+        }
+        // If there is a decimal part, combine it.
+        if (decimalPart) {
+          return setDisplayValue(`${formattedInteger}.${decimalPart}`)
+        }
+        return setDisplayValue(formattedInteger)
       }
 
-      setDisplayValue(value && Number(value) ? numeral(value).format('0,0') : '')
+      // For values without a decimal, display the formatted number.
+      setDisplayValue(numeral(value).format('0,0'))
     }
   }
 
