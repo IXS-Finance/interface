@@ -78,8 +78,6 @@ export function calcPriceImpact(
   const sellTokenScaled = parseFixed(sellTokenAmount.toString(), buyTokenDecimals)
   const buyTokenScaled = parseFixed(buyTokenAmount.toString(), sellTokenDecimals)
 
-  console.log('buyTokenScaled', buyTokenScaled)
-
   const SCALE = 18
   const scalingFactor = BigNumber.from(10).pow(SCALE)
 
@@ -319,19 +317,16 @@ export default function useSor({
           isInputToken: false,
         })
 
-        console.log('swapReturn.returnAmount', swapReturn.returnAmount)
-        console.log('tokenOutAmount', tokenOutAmount)
-        const priceImpactCalc =
-          !tokenOutAmount.eq(Zero)
-            ? calcPriceImpact(
-                tokenInAmountScaled,
-                tokenInDecimals,
-                tokenOutAmount,
-                tokenOutDecimals,
-                SwapType.SwapExactIn,
-                swapReturn.marketSpNormalised
-              )
-            : 0
+        const priceImpactCalc = !tokenOutAmount.eq(Zero)
+          ? calcPriceImpact(
+              tokenInAmountScaled,
+              tokenInDecimals,
+              tokenOutAmount,
+              tokenOutDecimals,
+              SwapType.SwapExactIn,
+              swapReturn.marketSpNormalised
+            )
+          : 0
         dispatch(setSwapState({ priceImpact: Math.max(Number(formatUnits(priceImpactCalc)), MIN_PRICE_IMPACT) }))
       }
     } else {
