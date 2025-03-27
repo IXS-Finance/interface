@@ -103,6 +103,8 @@ const Container = styled.section`
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
+  max-width: 1180px;
+  margin: 0 auto;
 
   @media (max-width: 991px) {
     padding: 20px;
