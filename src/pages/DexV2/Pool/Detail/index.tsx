@@ -175,36 +175,3 @@ const GridContainer = styled.div`
   grid-template-columns: 2fr 1fr;
   gap: 2rem;
 `
-
-const Info = styled.div`
-  display: flex;
-  padding: 32px;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  flex: 1 0 0;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.3);
-  box-shadow: 0px 30px 48px 0px rgba(63, 63, 132, 0.05);
-
-  .label {
-    color: #b8b8d2;
-    font-family: Inter;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    letter-spacing: -0.42px;
-  }
-
-  .value {
-    align-self: stretch;
-    color: rgba(41, 41, 51, 0.9);
-    font-family: Inter;
-    font-size: 24px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
-    letter-spacing: -0.72px;
-  }
-`
