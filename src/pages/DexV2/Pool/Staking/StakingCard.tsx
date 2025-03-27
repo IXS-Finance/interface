@@ -1,34 +1,26 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import styled, { keyframes } from 'styled-components'
+import styled from 'styled-components'
 import { getAddress } from '@ethersproject/address'
+import { Box, Flex } from 'rebass'
 
 import { bnum } from 'lib/utils'
 import { Pool } from 'services/pool/types'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { StakeAction } from './hooks/useStakePreview'
-import useNetwork from 'hooks/dex-v2/useNetwork'
-import { usePoolWarning } from 'hooks/dex-v2/usePoolWarning'
-import { deprecatedDetails } from 'hooks/dex-v2/usePoolHelpers'
 import { usePoolStaking } from 'state/dexV2/poolStaking/usePoolStaking'
 import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
-import BalStack from 'pages/DexV2/common/BalStack'
-import BalTooltip from 'pages/DexV2/common/BalTooltip'
-import { Check, Lock, Unlock, X } from 'react-feather'
+import { Lock, Unlock, X } from 'react-feather'
 import BalCard from 'pages/DexV2/common/Card'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 import StakePreviewModal from './StakePreviewModal'
-import usePoolGaugeQuery, { PoolGauge } from 'hooks/dex-v2/queries/usePoolGaugeQuery'
-import { LiquidityGauge } from 'services/balancer/contracts/contracts/liquidity-gauge'
-import useWeb3 from 'hooks/dex-v2/useWeb3'
-import { Box, Flex } from 'rebass'
+import usePoolGaugeQuery from 'hooks/dex-v2/queries/usePoolGaugeQuery'
 import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
 import Tooltip from 'pages/DexV2/common/Tooltip'
 import useAllowancesQuery from 'hooks/dex-v2/queries/useAllowancesQuery'
-import { setAllowances, setTokensState } from 'state/dexV2/tokens'
+import { setAllowances } from 'state/dexV2/tokens'
 
-// ─── MAIN COMPONENT PROPS & DEFINITION ─────────────────────────────
 type Props = {
   pool: Pool
 }
@@ -38,7 +30,7 @@ const StakingCard: React.FC<Props> = ({ pool }) => {
   const [stakeAction, setStakeAction] = useState<StakeAction>('stake')
 
   const { fNum } = useNumbers()
-  const { balanceFor, getToken } = useTokens()
+  const { balanceFor } = useTokens()
   const poolGaugeQuery = usePoolGaugeQuery(pool.id)
   const dispatch = useDispatch()
 

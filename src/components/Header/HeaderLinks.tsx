@@ -99,8 +99,18 @@ const DexV2Popover = () => {
       </Row>
 
       <Column style={{ gap: 3 }}>
-        <SubMenuLink style={{ fontSize: '13px' }} id={`staking`} to={routes.dexV2Dashboard}>
+        <SubMenuLink style={{ fontSize: '13px' }} id={`dashboard`} to={routes.dexV2Dashboard}>
           <Trans>Dashboard</Trans>
+        </SubMenuLink>
+      </Column>
+
+      <Row style={{ padding: '0', margin: '5px 0' }}>
+        <Line />
+      </Row>
+
+      <Column style={{ gap: 3 }}>
+        <SubMenuLink style={{ fontSize: '13px' }} id={`vote`} to={routes.dexV2Vote}>
+          <Trans>Vote</Trans>
         </SubMenuLink>
       </Column>
     </PopOverContent>
