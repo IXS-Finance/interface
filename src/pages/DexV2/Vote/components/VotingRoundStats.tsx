@@ -68,13 +68,13 @@ export const VotingRoundStats = () => {
   )
 }
 
-const MainContainer = styled.article`
+const MainContainer = styled.div`
   border-radius: 16px;
   background-color: rgba(255, 255, 255, 1);
   box-shadow: 0px 30px 48px rgba(63, 63, 132, 0.05);
   padding: 48px;
   font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
-  max-width: 1180px;
+  width: 1180px;
   margin: 0 auto;
 
   @media (max-width: 991px) {
@@ -192,23 +192,23 @@ const StatsGrid = styled.div`
   align-items: start;
   gap: 16px;
   justify-content: start;
-  flex-wrap: wrap;
+  align-self: stretch;
+
   @media (max-width: 991px) {
     max-width: 100%;
+    flex-wrap: wrap;
   }
 `
 
-const CardWrapper = styled.figure`
+const CardWrapper = styled.div`
   border-radius: 8px;
   background-color: rgba(255, 255, 255, 1);
   border: 1px solid rgba(230, 230, 255, 1);
   padding: 16px;
-  flex: 1;
-  flex-shrink: 1;
-  flex-basis: 0%;
+  width: 100%;
 `
 
-const StatLabel = styled.figcaption`
+const StatLabel = styled.div`
   color: rgba(184, 184, 210, 1);
   font-size: 14px;
   font-weight: 500;
