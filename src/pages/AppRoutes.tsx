@@ -76,6 +76,7 @@ const DexV2PoolWithdraw = lazy(() => import('pages/DexV2/Pool/Withdraw'))
 const DexV2Swap = lazy(() => import('pages/DexV2/Swap'))
 const DexV2Lock = lazy(() => import('pages/DexV2/Lock'))
 const DexV2Dashboard = lazy(() => import('pages/DexV2/Dashboard'))
+const DexV2Vote = lazy(() => import('pages/DexV2/Vote'))
 
 export interface RouteMapEntry {
   path: string
@@ -183,6 +184,7 @@ export const routeConfigs: RouteMapEntry[] = [
   { path: routes.dexV2Swap, component: DexV2Swap },
   { path: routes.dexV2Lock, component: DexV2Lock },
   { path: routes.dexV2Dashboard, component: DexV2Dashboard },
+  { path: routes.dexV2Vote, component: DexV2Vote },
   { path: routes.faucet, component: Faucet },
 
   { path: routes.securityToken(), component: SecTokenDetails },
