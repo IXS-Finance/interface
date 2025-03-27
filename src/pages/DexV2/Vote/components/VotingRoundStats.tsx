@@ -74,6 +74,9 @@ const MainContainer = styled.article`
   box-shadow: 0px 30px 48px rgba(63, 63, 132, 0.05);
   padding: 48px;
   font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+  max-width: 1180px;
+  margin: 0 auto;
+
   @media (max-width: 991px) {
     padding: 20px;
   }
