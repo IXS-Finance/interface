@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import VotingModal from './VoteModal'
 
 interface LockCardProps {
   lockNumber: string
@@ -90,6 +91,8 @@ export const VotingCard = () => {
           <VoteButton />
         </ContentLayout>
       </Wrapper>
+
+      <VotingModal isVisible={false} onClose={() => {}} onSuccess={() => {}} />
     </Container>
   )
 }

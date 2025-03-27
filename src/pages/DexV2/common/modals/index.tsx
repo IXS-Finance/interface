@@ -8,6 +8,7 @@ interface ModalProps {
   children: React.ReactNode
   onClose: () => void
   noPadding?: boolean
+  size?: 'small' | 'medium' | 'large'
 }
 
 const Modal: React.FC<ModalProps> = ({ noPadding, children, onClose }) => {
