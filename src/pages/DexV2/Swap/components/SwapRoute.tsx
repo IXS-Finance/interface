@@ -213,6 +213,7 @@ const SwapRoute: React.FC<Props> = (props) => {
 
   if (!routes || routes.length === 0) return null
 
+  console.log('routes', routes)
   return (
     <Card shadow="none">
       <ToggleHeader onClick={toggleVisible}>
