@@ -10,8 +10,8 @@ import { Pool, PoolToken } from 'services/pool/types'
 import { bnum } from 'lib/utils'
 import { fiatValueOf } from 'hooks/dex-v2/usePoolHelpers'
 import BalCard from 'pages/DexV2/common/Card'
-import { Copy } from 'react-feather'
 import Asset from 'pages/DexV2/common/Asset'
+import Copy from 'components/AccountDetails/Copy'
 
 interface MyPoolBalancesCardProps {
   pool: Pool
@@ -88,7 +88,7 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
             </a>
 
             <Box ml="4px" css={{ cursor: 'pointer' }}>
-              <Copy size="14px" color="#B8B8D2" />
+              <Copy toCopy={explorer.addressLink(pool?.address || '')} />
             </Box>
           </Flex>
         </Box>
