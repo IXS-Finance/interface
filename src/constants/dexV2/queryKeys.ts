@@ -74,15 +74,15 @@ const QUERY_KEYS = {
         singleAmountOut: unknown,
         relayerSignature: string | undefined
       ) => [
-        ...QUERY_EXIT_ROOT_KEY,
-        {
-          account,
-          bptIn,
-          isSingleAssetExit,
-          singleAmountOut,
-          relayerSignature,
-        },
-      ],
+          ...QUERY_EXIT_ROOT_KEY,
+          {
+            account,
+            bptIn,
+            isSingleAssetExit,
+            singleAmountOut,
+            relayerSignature,
+          },
+        ],
       SingleAssetMax: (bptBalance: string, isSingleAssetExit: unknown, singleAmountOut: unknown) => [
         POOLS_ROOT_KEY,
         'singleAssetMax',
@@ -97,6 +97,7 @@ const QUERY_KEYS = {
   },
   Pool: {
     Gauge: (poolId: string | undefined) => ['pool', 'gauge', { poolId }],
+    Gauges: (poolIds: string[]) => ['pool', 'gauges', { poolIds }],
     Decorated: (poolId: string | undefined) => ['pool', 'decorated', { poolId }],
   },
   User: {
@@ -136,16 +137,16 @@ const QUERY_KEYS = {
       nativeAsset: NativeAsset,
       wrappedNativeAsset: TokenInfo
     ) => [
-      'pairPriceData',
-      {
-        tokenInAddress,
-        tokenOutAddress,
-        activeTimespan,
-        userNetworkId,
-        nativeAsset,
-        wrappedNativeAsset,
-      },
-    ],
+        'pairPriceData',
+        {
+          tokenInAddress,
+          tokenOutAddress,
+          activeTimespan,
+          userNetworkId,
+          nativeAsset,
+          wrappedNativeAsset,
+        },
+      ],
     Prices: (networkId: Network, pricesToInject: TokenPrices) => ['tokens', 'prices', { networkId, pricesToInject }],
     AllPrices: ['tokens', 'prices'],
     VeBAL: (networkId: Network, account: string) => ['tokens', 'veBAL', { networkId, account }],

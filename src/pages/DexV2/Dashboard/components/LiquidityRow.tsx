@@ -5,31 +5,32 @@ import { Line } from 'components/Line'
 import Big from 'big.js'
 import { ReactComponent as InfoIcon } from 'assets/images/info.svg'
 import { useCurrency } from 'hooks/Tokens'
-import CurrencyLogo from 'components/CurrencyLogo'
 import { NewApproveButton, PinnedContentButton } from 'components/Button'
 import { Card } from './Card'
 import { JoinExitsType, TokenType } from '../graphql/dashboard'
 import CurrencyLogoSet from 'components/CurrencyLogoSet'
-import { Address } from 'viem'
+import { Address, zeroAddress } from 'viem'
 import { formatAmount } from 'utils/formatCurrencyAmount'
 import { BigNumber } from 'ethers'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
+import Asset from 'pages/DexV2/common/Asset'
+import { StakeAction } from 'pages/DexV2/Pool/Staking/hooks/useStakePreview'
 
 type LiquidityRowProps = {
   data: JoinExitsType
-  stakedBalance?: BigNumber
+  userBalanceByPool?: BigNumber
   lpSupply?: BigNumber
-  unstakedBalance?: BigNumber
+  gaugesByPool: Record<Address, Address>
 }
 
-const LiquidityRow = ({ data, stakedBalance, lpSupply, unstakedBalance }: LiquidityRowProps) => {
+const LiquidityRow = ({ data, userBalanceByPool, lpSupply, gaugesByPool }: LiquidityRowProps) => {
   return (
     <Card>
       <TableHeader />
       <Box my={3}>
         <Line />
       </Box>
-      <TableBody data={data} stakedBalance={stakedBalance} lpSupply={lpSupply} unstakedBalance={unstakedBalance} />
+      <TableBody data={data} userBalanceByPool={userBalanceByPool} lpSupply={lpSupply} gaugesByPool={gaugesByPool} />
     </Card>
   )
 }
@@ -53,47 +54,28 @@ const TableHeader = () => {
   )
 }
 
-const TableBody = ({ data, stakedBalance, lpSupply, unstakedBalance }: LiquidityRowProps) => {
+const TableBody = ({ data, userBalanceByPool, lpSupply, gaugesByPool }: LiquidityRowProps) => {
   const theme = useTheme()
+  const [stakeAction, setStakeAction] = useState<StakeAction | null>(null)
+
   const tokens = data.pool.tokens
   const tokenAddresses = tokens.map((token) => token.address as Address)
-  const poolName = data.pool.tokens.map((token) => token.symbol).join('/')
-  const poolWeight = data.pool.tokens.map((token) => +token.weight * 100).join('/')
+  const poolName = tokens.map((token) => token.symbol).join('/')
+  const poolWeight = tokens.map((token) => +(token.weight || 0) * 100).join('/')
+  const isHasGauge = gaugesByPool[data.pool.address as Address] !== zeroAddress
 
-  const tokenShare = useCallback(
-    (token: TokenType) => {
-      if (!lpSupply) {
+  const getStakedAmount = useCallback(
+    (token: TokenType): Big => {
+      if (!userBalanceByPool || !lpSupply || lpSupply.toString() === '0') {
         return new Big(0)
       }
 
-      return new Big(token.balance).div(lpSupply.toString())
+      return new Big(userBalanceByPool.toString()).div(lpSupply.toString()).mul(token.balance)
     },
-    [lpSupply]
+    [userBalanceByPool]
   )
 
-  const getStakedAmount = useCallback(
-    (token: TokenType) => {
-      if (!stakedBalance) {
-        return 0
-      }
-
-      const result = new Big(stakedBalance.toString()).mul(tokenShare(token))
-      return +result.toString()
-    },
-    [stakedBalance]
-  )
-
-  const getUnstakedAmount = useCallback(
-    (token: TokenType) => {
-      if (!unstakedBalance) {
-        return 0
-      }
-
-      const result = new Big(unstakedBalance?.toString()).mul(tokenShare(token))
-      return +result.toString()
-    },
-    [unstakedBalance]
-  )
+  const handlePreviewClose = () => setStakeAction(null)
 
   return (
     <Grid container spacing={2} alignItems="center">
@@ -126,7 +108,7 @@ const TableBody = ({ data, stakedBalance, lpSupply, unstakedBalance }: Liquidity
             ? tokens.map((token) => (
                 <StyledLiquidItem
                   token={token.address}
-                  amount={getStakedAmount(token)}
+                  amount={getStakedAmount(token).toNumber()}
                   key={`staked-${token.address}`}
                 />
               ))
@@ -135,40 +117,41 @@ const TableBody = ({ data, stakedBalance, lpSupply, unstakedBalance }: Liquidity
       </Grid>
       <Grid item xs={2}>
         <Stack gap={1}>
-          {tokens
-            ? tokens.map((token) => (
-                <StyledLiquidItem
-                  token={token.address}
-                  amount={getUnstakedAmount(token)}
-                  key={`unstaked-${token.address}`}
-                />
-              ))
-            : null}
+          {tokens?.map((token) => (
+            <StyledLiquidItem
+              token={token.address}
+              amount={new Big(token.balance).minus(getStakedAmount(token)).toNumber()}
+              key={`unstaked-${token.address}`}
+            />
+          )) || null}
         </Stack>
       </Grid>
       <Grid item xs={3}>
-        <Stack direction="row" gap={2}>
-          <NewApproveButton
-            style={{
-              color: theme.primary1,
-              border: `1px solid ${theme.bg24}`,
-              width: 'auto',
-              paddingTop: 12,
-              paddingBottom: 12,
-            }}
-          >
-            Withdraw
-          </NewApproveButton>
-          <PinnedContentButton
-            style={{
-              width: 'auto',
-              paddingTop: 12,
-              paddingBottom: 12,
-            }}
-          >
-            Stake
-          </PinnedContentButton>
-        </Stack>
+        {isHasGauge ? (
+          <Stack direction="row" gap={2}>
+            <NewApproveButton
+              style={{
+                color: theme.primary1,
+                border: `1px solid ${theme.bg24}`,
+                width: 'auto',
+                paddingTop: 12,
+                paddingBottom: 12,
+              }}
+            >
+              Withdraw
+            </NewApproveButton>
+            <PinnedContentButton
+              style={{
+                width: 'auto',
+                paddingTop: 12,
+                paddingBottom: 12,
+              }}
+              onClick={() => setStakeAction('stake')}
+            >
+              Stake
+            </PinnedContentButton>
+          </Stack>
+        ) : null}
       </Grid>
     </Grid>
   )
@@ -179,7 +162,7 @@ const StyledLiquidItem = ({ token, amount = 0 }: { token: Address; amount?: numb
 
   return (
     <Stack direction="row" alignItems="center" gap={1}>
-      <CurrencyLogo currency={currency} size="20px" />
+      <Asset address={token} />
       <TYPE.subHeader1 color="text6">{currency?.symbol}</TYPE.subHeader1>
       <TYPE.subHeader1>{formatAmount(amount, 4)}</TYPE.subHeader1>
     </Stack>
