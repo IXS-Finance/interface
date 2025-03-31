@@ -484,6 +484,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
   html {
     color: ${({ theme }) => theme.text1};
     background-color: ${({ theme }) => theme.bg0} !important;
+    font-family: "Inter", sans-serif;
   }
 
   a {
@@ -504,7 +505,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
 
   /* svg{
     ${({ theme }) =>
-    theme.config.elements &&
+      theme.config.elements &&
       css`
         stroke: ${({ theme }) => theme.config.elements.main};
       `};

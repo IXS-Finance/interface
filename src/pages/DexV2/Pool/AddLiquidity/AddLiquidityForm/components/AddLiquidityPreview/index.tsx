@@ -14,11 +14,10 @@ import BalAlert from 'pages/DexV2/Pool/components/BalAlert'
 import TokenAmounts from 'pages/DexV2/common/forms/TokenAmounts'
 import { Flex } from 'rebass'
 import BalCircle from 'pages/DexV2/common/BalCircle'
-import Actions from './components/Actions'
+import AddLiquidityActions from './components/AddLiquidityActions'
 
 // import Summary from './components/Summary';
 // import TokenAmounts from '@/components/forms/pool_actions/shared/TokenAmounts';
-// import Actions from './components/Actions';
 // import BalModal from '@/components/BalModal';
 // import BalCircle from '@/components/BalCircle';
 // import BalIcon from '@/components/BalIcon';
@@ -33,16 +32,9 @@ interface AddLiquidityModalProps {
   queryJoinQuery: any
   pool: Pool
   onClose: () => void
-  onShowStakeModal: () => void
 }
 
-const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({
-  isLoadingQuery,
-  queryJoinQuery,
-  pool,
-  onClose,
-  onShowStakeModal,
-}) => {
+const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({ isLoadingQuery, queryJoinQuery, pool, onClose }) => {
   // Local state
   const [confirmed, setConfirmed] = useState(false)
 
@@ -115,11 +107,6 @@ const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({
     onClose()
   }
 
-  const handleShowStakeModal = () => {
-    handleClose()
-    onShowStakeModal()
-  }
-
   // // Periodically refetch join pool query every 10 seconds if conditions allow
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -130,29 +117,9 @@ const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({
   //   return () => clearInterval(interval)
   // }, [isLoadingQuery, txInProgress, JSON.stringify(allowances)])
 
-
-
   return (
     <Modal onClose={handleClose}>
-      <Flex alignItems="center">
-        {confirmed ? (
-          <BalCircle size="8" color="green" className="mr-2 text-white">
-            <svg
-              stroke="currentColor"
-              fill="currentColor"
-              strokeWidth="0"
-              viewBox="0 0 512 512"
-              height="1em"
-              width="1em"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
-            </svg>
-          </BalCircle>
-        ) : null}
-
-        <h4>{title}</h4>
-      </Flex>
+      <Title>{title}</Title>
 
       <TokenAmounts
         title="You’re providing"
@@ -162,6 +129,7 @@ const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({
         fiatTotal={fiatValueIn}
         hideAmountShare={isSingleAssetJoin}
       />
+
       <TokenAmounts
         showZeroAmounts
         title="You’re expected to receive"
@@ -200,20 +168,19 @@ const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({
         />
       ) : null}
 
-      <Actions
-        pool={pool}
-        className="mt-4"
-        onSuccess={() => setConfirmed(true)}
-        onShowStakeModal={handleShowStakeModal}
-      />
+      <AddLiquidityActions pool={pool} onSuccess={() => setConfirmed(true)} />
     </Modal>
   )
 }
 
 export default AddLiquidityPreview
 
-// A styled header container for the modal
-const HeaderContainer = styled.div`
-  display: flex;
-  align-items: center;
+const Title = styled.div`
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.6px;
 `

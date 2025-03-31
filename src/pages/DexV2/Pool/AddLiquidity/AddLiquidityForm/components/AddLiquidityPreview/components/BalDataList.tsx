@@ -1,39 +1,45 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from 'react'
+import styled from 'styled-components'
 
 type Props = {
-  title?: string;
-  children?: React.ReactNode;
-};
+  title?: string
+  children?: React.ReactNode
+}
 
 const Container = styled.div`
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #e6e6ff;
+  background: #fff;
   overflow: hidden;
   width: 100%;
-`;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+`
 
 const Header = styled.div`
-  padding: 0.5rem; /* p-2 */
-  border-bottom: 1px solid #e5e7eb; /* divide-y */
-`;
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 200%; /* 28px */
+  letter-spacing: -0.28px;
+`
 
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0.5rem 0; /* py-2 */
-`;
+`
 
-const BalDataList: React.FC<Props> = ({
-  title = 'Summary',
-  children,
-}) => {
+const BalDataList: React.FC<Props> = ({ title = 'Summary', children }) => {
   return (
     <Container>
       <Header>{title}</Header>
       <Content>{children}</Content>
     </Container>
-  );
-};
+  )
+}
 
-export default BalDataList;
+export default BalDataList
