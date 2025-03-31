@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import { getAddress } from '@ethersproject/address'
 
 import { routes } from 'utils/routes'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
@@ -8,9 +9,11 @@ import { Pool } from 'services/pool/types'
 import BalCard from 'pages/DexV2/common/Card'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { bnum } from 'lib/utils'
+import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
+import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
 
 export interface PoolActionsCardProps {
-  pool: Pool | undefined
+  pool: Pool
   missingPrices: boolean
 }
 
@@ -20,6 +23,12 @@ const PoolActionsCard: React.FC<PoolActionsCardProps> = ({ pool, missingPrices }
   const params = useParams<any>()
   const poolId = (params.id as string).toLowerCase()
   const { balanceFor } = useTokens()
+  const { fNum } = useNumbers()
+
+  const fiatValueOfUnstakedShares = bnum(pool.totalLiquidity)
+    .div(pool.totalShares)
+    .times(balanceFor(getAddress(pool.address)))
+    .toString()
 
   const hasBpt = pool?.address ? bnum(balanceFor(pool?.address)).gt(0) : false
 
@@ -33,7 +42,6 @@ const PoolActionsCard: React.FC<PoolActionsCardProps> = ({ pool, missingPrices }
     history.push(path)
   }
 
-  console.log('hasBpt', hasBpt)
   return (
     <BalCard shadow="none" noBorder className="p-4">
       {!isWalletReady ? (
@@ -42,13 +50,19 @@ const PoolActionsCard: React.FC<PoolActionsCardProps> = ({ pool, missingPrices }
         </Button>
       ) : (
         <div>
+          <Title>You can invest</Title>
+          <Description>Based on pool tokens in your wallet</Description>
+
+          <AmountText>{fNum(fiatValueOfUnstakedShares, FNumFormats.fiat)}</AmountText>
+
           <Grid>
-            <Button color="gradient" onClick={handleAddLiquidity}>
-              Add Liquidity
-            </Button>
-            <Button color="blue" disabled={!hasBpt} onClick={handleWithdraw}>
+            <BalBtn color="blue" outline disabled={!hasBpt} onClick={handleWithdraw}>
               Withdraw
-            </Button>
+            </BalBtn>
+
+            <BalBtn color="blue" onClick={handleAddLiquidity}>
+              Add Liquidity
+            </BalBtn>
           </Grid>
         </div>
       )}
@@ -79,14 +93,37 @@ const Button = styled.button`
   pointer-events: ${({ disabled }) => (disabled ? 'none' : 'auto')};
 `
 
-const Text = styled.div`
-  padding-top: 1rem;
-  font-size: 0.75rem;
-  color: #6b7280;
+const Title = styled.div`
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.48px;
 `
 
-const Link = styled.a`
+const Description = styled.div`
+  color: #b8b8d2;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
   font-weight: 500;
-  cursor: pointer;
-  color: #2563eb;
+  line-height: normal;
+  letter-spacing: -0.42px;
+`
+
+const AmountText = styled.div`
+  color: rgba(41, 41, 51, 0.9);
+  text-align: right;
+  font-family: Inter;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.96px;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(230, 230, 255, 0.6);
 `
