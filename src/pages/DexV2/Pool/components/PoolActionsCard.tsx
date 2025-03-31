@@ -6,6 +6,8 @@ import { routes } from 'utils/routes'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { Pool } from 'services/pool/types'
 import BalCard from 'pages/DexV2/common/Card'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import { bnum } from 'lib/utils';
 
 export interface PoolActionsCardProps {
   pool: Pool | undefined
@@ -17,6 +19,9 @@ const PoolActionsCard: React.FC<PoolActionsCardProps> = ({ pool, missingPrices }
   const history = useHistory()
   const params = useParams<any>()
   const poolId = (params.id as string).toLowerCase()
+  const { balanceFor } = useTokens();
+
+  const hasBpt = pool?.address ? bnum(balanceFor(pool?.address)).gt(0) : false
 
   const handleAddLiquidity = () => {
     const path = routes.dexV2PoolAddLiquidity.replace(':id', poolId)
@@ -28,6 +33,7 @@ const PoolActionsCard: React.FC<PoolActionsCardProps> = ({ pool, missingPrices }
     history.push(path)
   }
 
+  console.log('hasBpt', hasBpt)
   return (
     <BalCard shadow="none" noBorder className="p-4">
       {!isWalletReady ? (
@@ -40,7 +46,7 @@ const PoolActionsCard: React.FC<PoolActionsCardProps> = ({ pool, missingPrices }
             <Button color="gradient" onClick={handleAddLiquidity}>
               Add Liquidity
             </Button>
-            <Button color="blue" onClick={handleWithdraw}>
+            <Button color="blue" disabled={!hasBpt} onClick={handleWithdraw}>
               Withdraw
             </Button>
           </Grid>
@@ -56,10 +62,6 @@ const PoolActionsCard: React.FC<PoolActionsCardProps> = ({ pool, missingPrices }
 
 export default PoolActionsCard
 
-const Container = styled.div`
-  padding: 1rem;
-  width: 100%;
-`
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);

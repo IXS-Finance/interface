@@ -1,9 +1,11 @@
+import { PoolsHasGauge } from 'hooks/dex-v2/queries/usePoolsHasGaugeQuery'
+import AssetSet from 'pages/DexV2/common/AssetSet'
 import React from 'react'
-import { Flex } from 'rebass'
+import { Box, Flex } from 'rebass'
 import styled from 'styled-components'
 
 interface PoolRowProps {
-  poolImage: string
+  tokensList: string[]
   poolName: string
   poolType: string
   feePercentage: string
@@ -24,41 +26,8 @@ interface PoolRowProps {
   selectIcon: string
 }
 
-const PoolHeader = () => {
-  return (
-    <Flex justifyContent="space-between" alignItems="center" mb="32px">
-      <TitleSection>
-        <Title>Select Liquidity Pools for Voting</Title>
-        <InfoIcon
-          src="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/4c6fcca4b8ec92940647be870007194ef36e67ff?placeholderIfAbsent=true"
-          alt="Info"
-        />
-      </TitleSection>
-      <SearchSection>
-        <SearchText>Symbol or address</SearchText>
-        <SearchIcon
-          src="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/1dadf1269dac5077059f9c4814f64c59624465cf?placeholderIfAbsent=true"
-          alt="Search"
-        />
-      </SearchSection>
-    </Flex>
-  )
-}
-
-const PoolTableHeader = () => {
-  return (
-    <HeaderContainer>
-      <Column>Pools</Column>
-      <Column>Fees</Column>
-      <Column>Incentives</Column>
-      <Column>Total Rewards</Column>
-      <Column>vAPR</Column>
-    </HeaderContainer>
-  )
-}
-
 const PoolRow = ({
-  poolImage,
+  tokensList,
   poolName,
   poolType,
   feePercentage,
@@ -83,7 +52,9 @@ const PoolRow = ({
       <PoolInfo>
         <PoolDetails>
           <div>
-            <PoolLogo src={poolImage} alt={poolName} />
+            <Box mb="16px">
+              <AssetSet width={72} addresses={tokensList} />
+            </Box>
             <PoolNameSection>
               <PoolName>{poolName}</PoolName>
               <PoolTypeInfo>
@@ -147,105 +118,61 @@ const PoolRow = ({
   )
 }
 
-const Pagination = () => {
-  return (
-    <PaginationContainer>
-      <PaginationContent>
-        <PaginationIcon
-          src="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/6937ddf0-c0d4-4dec-b666-df4389a0efbb?placeholderIfAbsent=true"
-          alt=""
-        />
-        <span>1-5 of 45</span>
-      </PaginationContent>
-    </PaginationContainer>
-  )
+interface Props {
+  pools: PoolsHasGauge[]
 }
 
-export const LiquidityPoolSelector = () => {
+export const LiquidityPoolSelector: React.FC<Props> = ({ pools }) => {
   return (
     <Container>
       <ContentWrapper>
-        <PoolHeader />
+        <Flex justifyContent="space-between" alignItems="center" mb="32px">
+          <TitleSection>
+            <Title>Select Liquidity Pools for Voting</Title>
+            <InfoIcon
+              src="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/4c6fcca4b8ec92940647be870007194ef36e67ff?placeholderIfAbsent=true"
+              alt="Info"
+            />
+          </TitleSection>
+          <SearchSection>
+            <SearchText>Symbol or address</SearchText>
+            <SearchIcon
+              src="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/1dadf1269dac5077059f9c4814f64c59624465cf?placeholderIfAbsent=true"
+              alt="Search"
+            />
+          </SearchSection>
+        </Flex>
         <TableSection>
-          <PoolTableHeader />
-          <PoolRow
-            poolImage="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/5bcd03608093c612976a347c2cebf73674dbb0f1?placeholderIfAbsent=true"
-            poolName="IXS - USDC"
-            poolType="Basic Volatile"
-            feePercentage="0.3%"
-            infoIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/3e6491bb023b2011254f1ef8bb4e49195f155c40?placeholderIfAbsent=true"
-            tvlAmount="$12,596.86"
-            feesAmount="$30.04"
-            feesTokens="5,461.07 IXS"
-            incentivesAmount="$5,284.83"
-            incentivesTokens="960,656.02 IXS"
-            totalRewardsAmount="$5,314.87"
-            totalRewardsLabel="Fees + Incentives"
-            aprPercentage="165.82%"
-            aprTrendIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/af8ef3758e21ab63d18dfeb3f0c08ae8620815d0?placeholderIfAbsent=true"
-            votesPercentage="0.0421% Votes"
-            votesAmount="347,677.19 vIXS"
-            selectIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/ed5aa2c6bdd4ca6c8d9de4453e8e8dfc266972cd?placeholderIfAbsent=true"
-          />
-          <PoolRow
-            poolImage="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/14251b4ac29a5a0b8a7330f752aa5aacacf5a5a3?placeholderIfAbsent=true"
-            poolName="OP - USDC"
-            poolType="Basic Volatile"
-            feePercentage="0.3%"
-            infoIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/3e6491bb023b2011254f1ef8bb4e49195f155c40?placeholderIfAbsent=true"
-            tvlAmount="$12,596.86"
-            feesAmount="$161.8"
-            feesTokens="5,461.07 IXS"
-            incentivesLabel="No available incentives"
-            incentivesAction="Add incentives"
-            totalRewardsAmount="$161.8"
-            totalRewardsLabel="Fees + Incentives"
-            aprPercentage="121.58%"
-            aprTrendIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/c8f763c3ceeb42cab91e7c74da30d9063c453b3f?placeholderIfAbsent=true"
-            votesPercentage="0.0421% Votes"
-            votesAmount="347,677.19 vIXS"
-            selectIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/ed5aa2c6bdd4ca6c8d9de4453e8e8dfc266972cd?placeholderIfAbsent=true"
-          />
-          <PoolRow
-            poolImage="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/b87209d17e0e5060c42c515cfd7b202c1a6cce95?placeholderIfAbsent=true"
-            poolName="APT - USDT"
-            poolType="Basic Volatile"
-            feePercentage="0.3%"
-            infoIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/6688e16f17ac8603b2a43377365d83c9d8655767?placeholderIfAbsent=true"
-            tvlAmount="$12,596.86"
-            feesAmount="$1,343.14"
-            feesTokens="5,461.07 IXS"
-            incentivesAmount="$112.02"
-            incentivesTokens="960,656.02 IXS"
-            totalRewardsAmount="$113.36"
-            totalRewardsLabel="Fees + Incentives"
-            aprPercentage="127.61%"
-            aprTrendIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/46fdaca13d8367da194b565f056a168a188a0bea?placeholderIfAbsent=true"
-            votesPercentage="0.0421% Votes"
-            votesAmount="347,677.19 vIXS"
-            selectIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/ed5aa2c6bdd4ca6c8d9de4453e8e8dfc266972cd?placeholderIfAbsent=true"
-          />
-          <PoolRow
-            poolImage="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/4ecbc5e9b4d111a991a86de96a529be6fce1e372?placeholderIfAbsent=true"
-            poolName="HBAR - USDC"
-            poolType="Basic Volatile"
-            feePercentage="0.3%"
-            infoIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/6688e16f17ac8603b2a43377365d83c9d8655767?placeholderIfAbsent=true"
-            tvlAmount="$12,596.86"
-            feesAmount="$144.73"
-            feesTokens="5,461.07 IXS"
-            incentivesAmount="$2,284.83"
-            incentivesTokens="960,656.02 IXS"
-            totalRewardsAmount="$2,314.87"
-            totalRewardsLabel="Fees + Incentives"
-            aprPercentage="148.41%"
-            aprTrendIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/2830ad0dfdebc2a2b6bb62286c5d1c43f53766b2?placeholderIfAbsent=true"
-            votesPercentage="0.0421% Votes"
-            votesAmount="347,677.19 vIXS"
-            selectIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/ed5aa2c6bdd4ca6c8d9de4453e8e8dfc266972cd?placeholderIfAbsent=true"
-          />
+          <HeaderContainer>
+            <Column>Pools</Column>
+            <Column>Fees</Column>
+            <Column>Incentives</Column>
+            <Column>Total Rewards</Column>
+            <Column>vAPR</Column>
+          </HeaderContainer>
+          {pools.map((pool) => (
+            <PoolRow
+              key={pool.id}
+              tokensList={pool.tokensList}
+              poolName={pool.name}
+              poolType="Basic Volatile"
+              feePercentage="0.3%"
+              infoIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/3e6491bb023b2011254f1ef8bb4e49195f155c40?placeholderIfAbsent=true"
+              tvlAmount="$12,596.86"
+              feesAmount="$30.04"
+              feesTokens="5,461.07 IXS"
+              incentivesAmount="$5,284.83"
+              incentivesTokens="960,656.02 IXS"
+              totalRewardsAmount="$5,314.87"
+              totalRewardsLabel="Fees + Incentives"
+              aprPercentage="165.82%"
+              aprTrendIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/af8ef3758e21ab63d18dfeb3f0c08ae8620815d0?placeholderIfAbsent=true"
+              votesPercentage="0.0421% Votes"
+              votesAmount="347,677.19 vIXS"
+              selectIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/ed5aa2c6bdd4ca6c8d9de4453e8e8dfc266972cd?placeholderIfAbsent=true"
+            />
+          ))}
         </TableSection>
-        <Pagination />
       </ContentWrapper>
     </Container>
   )
@@ -260,8 +187,8 @@ const Container = styled.section`
   align-items: stretch;
   font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
 
-  @media (max-width: 991px) {
-    padding: 80px 20px;
+  @media (max-width: 1440px) {
+    padding: 80px 32px;
   }
 `
 
@@ -521,42 +448,5 @@ const SelectButton = styled.button`
 const SelectIcon = styled.img`
   width: 5px;
   aspect-ratio: 1.67;
-  object-fit: contain;
-`
-
-const PaginationContainer = styled.div`
-  display: flex;
-  margin-top: 10px;
-  min-height: 64px;
-  width: 100%;
-  padding: 24px 0;
-  flex-direction: column;
-  align-items: flex-end;
-  font-size: 13px;
-  color: #b8b8cc;
-  font-weight: 500;
-  letter-spacing: -0.26px;
-  justify-content: center;
-
-  @media (max-width: 991px) {
-    max-width: 100%;
-  }
-`
-
-const PaginationContent = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  position: relative;
-  width: 97px;
-
-  @media (max-width: 991px) {
-    padding-right: 20px;
-  }
-`
-
-const PaginationIcon = styled.img`
-  width: 24px;
-  height: 24px;
   object-fit: contain;
 `
