@@ -27,6 +27,7 @@ export default DexV2Layout
 
 const Container = styled.div`
   margin-top: 80px;
+  width: 100%;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin-top: 48px;

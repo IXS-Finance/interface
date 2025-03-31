@@ -23,6 +23,13 @@ const QUERY_KEYS = {
         filterOptions,
       },
     ],
+    PoolsHasGauge: (networkId: Network) => [
+      POOLS_ROOT_KEY,
+      'poolsHasGauge',
+      {
+        networkId,
+      },
+    ],
     User: (networkId: Network, account: string, gaugeAddresses: string[]) => [
       POOLS_ROOT_KEY,
       'user',

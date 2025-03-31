@@ -4,16 +4,30 @@ import { Flex } from 'rebass'
 import VotingRoundStats from './components/VotingRoundStats'
 import VotingCard from './components/VotingCard'
 import { LiquidityPoolSelector } from './components/LiquidityPoolSelector'
+import usePoolsHasGaugeQuery from 'hooks/dex-v2/queries/usePoolsHasGaugeQuery'
+import DexV2Layout from '../common/Layout'
 
 interface VoteProps {}
 
 const Vote: React.FC<VoteProps> = () => {
+  const {
+    data: poolsData,
+    isSuccess: poolsQuerySuccess,
+    isLoading: poolsQueryLoading,
+    isRefetching: poolsQueryRefetching,
+    isError: poolsQueryError,
+    refetch: refetchPools,
+  } = usePoolsHasGaugeQuery()
+
+  const pools = poolsData?.pools || []
   return (
-    <Flex flexDirection="column" mt="48px" css={{ gap: '48px', width: '100%' }}>
-      <VotingRoundStats />
-      <LiquidityPoolSelector />
-      <VotingCard />
-    </Flex>
+    <DexV2Layout>
+      <Flex flexDirection="column" mt="48px" css={{ gap: '48px', width: '100%' }}>
+        <VotingRoundStats />
+        <LiquidityPoolSelector pools={pools} />
+        <VotingCard />
+      </Flex>
+    </DexV2Layout>
   )
 }
 
