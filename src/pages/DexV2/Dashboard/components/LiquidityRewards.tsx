@@ -9,7 +9,7 @@ import { JoinExitsType } from '../graphql/dashboard'
 import useLiquidityPool from '../hooks/useLiquidityPool'
 
 const LiquidityRewards = () => {
-  const { positionsData, lpSupplyByPool, stakedBalanceByPool, unstakedBalanceByPool } = useLiquidityPool()
+  const { positionsData, lpSupplyByPool, userBalanceByPool, gaugesByPool } = useLiquidityPool()
   const liquidityData = (positionsData?.data as { data: { joinExits: JoinExitsType[] } })?.data?.joinExits
 
   return (
@@ -27,10 +27,10 @@ const LiquidityRewards = () => {
         {liquidityData?.map((data) => (
           <LiquidityRow
             data={data}
-            stakedBalance={stakedBalanceByPool?.[data.pool.address]}
+            userBalanceByPool={userBalanceByPool?.[data.pool.address]}
             lpSupply={lpSupplyByPool?.[data.pool.address]}
-            unstakedBalance={unstakedBalanceByPool?.[data.pool.address]}
             key={data.pool.id}
+            gaugesByPool={gaugesByPool}
           />
         ))}
       </Stack>

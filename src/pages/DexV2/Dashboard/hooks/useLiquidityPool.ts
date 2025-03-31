@@ -51,7 +51,7 @@ const useLiquidityPool = () => {
 
   const contracts = pools?.flatMap((pool) => [
     {
-      address: gaugesByPool[pool.address as Address],
+      address: gaugesByPool[pool.address],
       abi: gaugeABI,
       functionName: 'balanceOf',
       args: [_account],
@@ -60,12 +60,6 @@ const useLiquidityPool = () => {
       address: pool.address,
       abi: erc20ABI,
       functionName: 'totalSupply',
-    },
-    {
-      address: pool.address,
-      abi: erc20ABI,
-      functionName: 'balanceOf',
-      args: [_account],
     },
   ])
 
@@ -77,30 +71,26 @@ const useLiquidityPool = () => {
       enabled: !!_account && !!pools && Object.keys(gaugesByPool).length > 0,
     },
   })
-  const stakedBalanceIndex = (i: number) => i * contracts.length
-  const lpSupplyIndex = (i: number) => i * contracts.length + 1
-  const unstakedBalanceIndex = (i: number) => i * contracts.length + 2
 
-  const stakedBalanceByPool = pools?.reduce((acc, pool, index) => {
-    acc[pool.address as Address] = data?.[stakedBalanceIndex(index)]?.result as BigNumber
+  const contractEntitiesPerPool = contracts?.length / pools?.length
+  const userLpBalanceIndex = (i: number) => i * contractEntitiesPerPool
+  const lpSupplyIndex = (i: number) => i * contractEntitiesPerPool + 1
+
+  const userBalanceByPool = pools?.reduce((acc, pool, index) => {
+    acc[pool.address as Address] = data?.[userLpBalanceIndex(index)]?.result as BigNumber
     return acc
   }, {} as Record<Address, BigNumber>)
 
   const lpSupplyByPool = pools?.reduce((acc, pool, index) => {
-    acc[pool.address as Address] = data?.[lpSupplyIndex(index)]?.result as BigNumber
-    return acc
-  }, {} as Record<Address, BigNumber>)
-
-  const unstakedBalanceByPool = pools?.reduce((acc, pool, index) => {
-    acc[pool.address as Address] = data?.[unstakedBalanceIndex(index)]?.result as BigNumber
+    acc[pool.address as Address] = BigNumber.from(data?.[lpSupplyIndex(index)]?.result || 0)
     return acc
   }, {} as Record<Address, BigNumber>)
 
   return {
     positionsData,
     lpSupplyByPool,
-    stakedBalanceByPool,
-    unstakedBalanceByPool,
+    userBalanceByPool,
+    gaugesByPool,
   }
 }
 
