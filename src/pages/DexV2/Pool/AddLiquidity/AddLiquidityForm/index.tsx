@@ -20,7 +20,6 @@ import { ButtonPrimary } from 'pages/DexV2/common'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { AmountIn, useJoinPool } from 'state/dexV2/pool/useJoinPool'
-import StakePreviewModal from './components/StakePreviewModal'
 import AddLiquidityPreview from './components/AddLiquidityPreview'
 import { useDispatch } from 'react-redux'
 import { setValueOfAmountIn } from 'state/dexV2/pool'
@@ -197,28 +196,8 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
           queryJoinQuery={queryJoinQuery}
           pool={pool}
           onClose={() => setShowPreview(false)}
-          onShowStakeModal={() => setShowStakeModal(true)}
         />
       ) : null}
-
-      {/* <StakePreviewModal onClose={() => setShowStakeModal(false)} /> */}
-
-      {/* Render modals (using React portals or an equivalent modal manager) */}
-      {/* {showPreview && (
-        <AddLiquidityPreview
-          pool={pool}
-          onClose={() => setShowPreview(false)}
-          onShowStakeModal={() => setShowStakeModal(true)}
-        />
-      )}
-      {showStakeModal && (
-        <StakePreviewModal
-          pool={pool}
-          isVisible={showStakeModal}
-          action="stake"
-          onClose={() => setShowStakeModal(false)}
-        />
-      )} */}
     </Container>
   )
 }

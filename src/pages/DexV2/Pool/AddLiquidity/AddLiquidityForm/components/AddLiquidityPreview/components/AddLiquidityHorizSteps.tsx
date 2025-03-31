@@ -1,9 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-
-import { MouseoverTooltip } from 'components/Tooltip'
-import checkImg from 'assets/images/dex-v2/check.svg'
-import { Box, Flex } from 'rebass'
+import { Flex } from 'rebass'
 
 /**
  * STEP TYPES
@@ -34,7 +31,7 @@ const defaultSteps: Step[] = [
   { tooltip: 'Do this next', state: StepState.Todo },
 ]
 
-const HorizSteps: React.FC<Props> = ({ steps = defaultSteps, spacerWidth = 16 }) => {
+const AddLiquidityHorizSteps: React.FC<Props> = ({ steps = defaultSteps, spacerWidth = 16 }) => {
   return (
     <Flex alignItems="center" justifyContent="center" css={{ cursor: 'pointer' }}>
       {steps.map((step, i) => (
@@ -43,7 +40,6 @@ const HorizSteps: React.FC<Props> = ({ steps = defaultSteps, spacerWidth = 16 })
           <Tooltip data-tooltip={step.tooltip}>
             <StepCircle state={step.state}>
               {step.state === StepState.Success ? (
-                // Replace with your check icon component or image
                 <IconCheck>
                   <polyline points="20 6 9 17 4 12" />
                 </IconCheck>
@@ -174,4 +170,4 @@ const Tooltip = styled.div`
   }
 `
 
-export default HorizSteps
+export default AddLiquidityHorizSteps

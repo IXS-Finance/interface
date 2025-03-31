@@ -1,4 +1,4 @@
-// Actions.tsx
+// AddLiquidityActions.tsx
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider'
@@ -24,14 +24,11 @@ import FeedbackCard from 'pages/DexV2/common/FeedbackCard'
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   pool: Pool
   onSuccess: (receipt: TransactionReceipt) => void
-  onShowStakeModal: () => void
 }
 
-const Container = styled.div`
-  /* Add any container styles if needed */
-`
+const Container = styled.div``
 
-const Actions: React.FC<Props> = ({ pool, onSuccess, onShowStakeModal }) => {
+const AddLiquidityActions: React.FC<Props> = ({ pool, onSuccess }) => {
   // Hooks / Providers
   const { fNum } = useNumbers()
   const { addTransaction } = useTransactions()
@@ -123,17 +120,6 @@ const Actions: React.FC<Props> = ({ pool, onSuccess, onShowStakeModal }) => {
       ) : (
         <div>
           {/* <ConfirmationIndicator txReceipt={txState.receipt} /> */}
-          {/* {isStakablePool ? (
-            <BalBtn
-              color="gradient"
-              block
-              style={{ display: 'flex', marginTop: '0.5rem' }}
-              onClick={onShowStakeModal}
-            >
-              <StarsIcon style={{ marginRight: '0.5rem', height: '1.25rem', color: '#F97316' }} />
-              {t('stakeToGetExtra')}
-            </BalBtn>
-          ) : null} */}
 
           {/* <BalBtn as="a" href={`/pool/${pool.id}`} color="gray" outline block size="sm" style={{ marginTop: '0.5rem' }}>
             {t('returnToPool')}
@@ -141,9 +127,9 @@ const Actions: React.FC<Props> = ({ pool, onSuccess, onShowStakeModal }) => {
         </div>
       )}
 
-      {(txState.confirming || txState.confirmed) && <FeedbackCard style={{ marginTop: '0.75rem' }} />}
+      {/* {(txState.confirming || txState.confirmed) && <FeedbackCard style={{ marginTop: '0.75rem' }} />} */}
     </Container>
   )
 }
 
-export default Actions
+export default AddLiquidityActions

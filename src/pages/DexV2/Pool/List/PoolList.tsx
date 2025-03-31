@@ -2,7 +2,7 @@ import React from 'react'
 import { Flex } from 'rebass'
 import { BodyRow, HeaderRow, Table } from 'components/Table'
 import { BodyContainer } from 'components/TmPayoutHistory/styleds'
-import { Fragment, memo } from 'react'
+import { Fragment } from 'react'
 import { Line } from 'components/Line'
 import { Pagination } from 'components/Pagination'
 import styled from 'styled-components'
@@ -14,14 +14,11 @@ import { TYPE } from 'theme'
 import useTheme from 'hooks/useTheme'
 import { useCurrency } from 'lib/balancer/hooks/useCurrency'
 import { fNum } from 'lib/balancer/utils/numbers'
-import CurrencyLogo from 'components/CurrencyLogo'
-import { useSafeCurrency } from 'hooks/Tokens'
 import { usePoolFilter } from './FilterProvider'
 import { adminOffset } from 'state/admin/constants'
 import { LoadingIndicator } from 'components/LoadingIndicator'
 import { useHistory } from 'react-router-dom'
 import Asset from 'pages/DexV2/common/Asset'
-import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 export default function PoolList() {
   const { pools } = usePoolList()
@@ -85,32 +82,15 @@ const Header = () => {
   )
 }
 
-type TokenIconProps = {
-  address: string
-}
-
-const TokenIcon = ({ address }: TokenIconProps) => {
-  const currency = useSafeCurrency(address)
-  return <CurrencyLogo currency={currency} size={'24px'} />
-}
-
-const MemoTokenIcon = memo(TokenIcon, (prevProps: TokenIconProps, nextProps: TokenIconProps) => {
-  return prevProps.address === nextProps.address
-})
-
 const Row = ({ pool }: { pool: any }) => {
   const theme = useTheme()
   const { toCurrency } = useCurrency()
   const history = useHistory()
-  const { getToken } = useTokens()
 
   return (
     <StyledBodyRow onClick={() => history.push(`/v2/pool/${pool.id}`)}>
       <Flex flexWrap="wrap">
         {pool?.tokens?.map((token: any) => {
-          const tokenInfo = getToken(token.address)
-
-          console.log('tokenInfo', tokenInfo)
           return (
             <Flex key={token.ticker} alignItems="center" className="token">
               <Asset address={token.address} />

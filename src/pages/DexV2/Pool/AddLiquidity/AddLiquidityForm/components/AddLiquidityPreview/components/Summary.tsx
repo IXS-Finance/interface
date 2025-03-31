@@ -9,6 +9,7 @@ import BalDataList from './BalDataList'
 import BalDataListRow from './BalDataListRow'
 import Tooltip from 'pages/DexV2/common/Tooltip'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
+import { Flex } from 'rebass'
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   pool: Pool
@@ -34,21 +35,21 @@ const Summary: React.FC<Props> = ({
     <Container>
       <BalDataList title={summaryTitle}>
         <BalDataListRow label="Total">
-          <div>
+          <Flex alignItems="center">
             {fNum(fiatTotal, FNumFormats.fiat)}
             <Tooltip
               text={`The total value in ${currency.toUpperCase()} you’ll be adding into this pool.`}
               iconSize="sm"
               className="ml-2"
             />
-          </div>
+          </Flex>
         </BalDataListRow>
         <BalDataListRow label="Price impact" className={highPriceImpact ? 'bg-red-50 text-red-500' : ''}>
           <div>
             {isLoadingPriceImpact ? (
               <LoadingBlock className="w-10 h-6" />
             ) : (
-              <>
+              <Flex alignItems="center">
                 {fNum(priceImpact, FNumFormats.percent)}
                 <Tooltip
                   text="Price impact from adding liquidity results when the value of each token added is not proportional to the weights of the pool. Adding non-proportional amounts causes the internal prices of the pool to change, as if you were swapping tokens. The higher the price impact, the worse price you’ll get to enter your position."
@@ -58,7 +59,7 @@ const Summary: React.FC<Props> = ({
                   width="72"
                   className="ml-2"
                 />
-              </>
+              </Flex>
             )}
           </div>
         </BalDataListRow>
