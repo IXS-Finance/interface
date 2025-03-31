@@ -7,7 +7,7 @@ import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { Pool } from 'services/pool/types'
 import BalCard from 'pages/DexV2/common/Card'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
-import { bnum } from 'lib/utils';
+import { bnum } from 'lib/utils'
 
 export interface PoolActionsCardProps {
   pool: Pool | undefined
@@ -19,7 +19,7 @@ const PoolActionsCard: React.FC<PoolActionsCardProps> = ({ pool, missingPrices }
   const history = useHistory()
   const params = useParams<any>()
   const poolId = (params.id as string).toLowerCase()
-  const { balanceFor } = useTokens();
+  const { balanceFor } = useTokens()
 
   const hasBpt = pool?.address ? bnum(balanceFor(pool?.address)).gt(0) : false
 
@@ -50,10 +50,6 @@ const PoolActionsCard: React.FC<PoolActionsCardProps> = ({ pool, missingPrices }
               Withdraw
             </Button>
           </Grid>
-          <Text>
-            Liquidity Providers encounter risks when using DeFi and Balancer pools. Before proceeding, view this
-            <Link> pool's risks.</Link>.
-          </Text>
         </div>
       )}
     </BalCard>
