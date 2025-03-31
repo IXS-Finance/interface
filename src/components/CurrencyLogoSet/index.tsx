@@ -1,9 +1,8 @@
 import React from 'react'
 import styled from 'styled-components/macro'
-import CurrencyLogo from '../CurrencyLogo'
 import { isMobile } from 'react-device-detect'
-import { useCurrency } from 'hooks/Tokens'
 import { Address } from 'viem'
+import Asset from 'pages/DexV2/common/Asset'
 
 const Wrapper = styled.div<{ margin: boolean; sizeraw: number }>`
   position: relative;
@@ -18,15 +17,10 @@ export interface DoubleCurrencyLogoProps {
   tokens?: Address[]
 }
 
-const StyledLogo = styled(CurrencyLogo)<{ left: number }>`
+const StyledAsset = styled(Asset)<{ left: number }>`
   position: absolute;
   left: ${({ left }) => left}px;
 `
-
-function LogoWrapper({ token, left, size }: { token: Address; left: number; size: string }) {
-  const currency = useCurrency(token)
-  return <StyledLogo currency={currency} left={left} size={size} />
-}
 
 export default function CurrencyLogoSet({
   tokens,
@@ -44,8 +38,8 @@ export default function CurrencyLogoSet({
 
   return (
     <Wrapper sizeraw={size} margin={margin}>
-      {tokens?.map((token, i) => (
-        <LogoWrapper key={token} token={token} left={leftOffsetFor(i)} size={size + 'px'} />
+      {tokens?.map((tokenAddress, i) => (
+        <StyledAsset address={tokenAddress} key={`asset-${tokenAddress}`} left={leftOffsetFor(i)} />
       ))}
     </Wrapper>
   )

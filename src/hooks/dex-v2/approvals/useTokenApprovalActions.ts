@@ -11,6 +11,7 @@ import { flatten } from 'lodash'
 import { bnum, forChange } from 'lib/utils'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useWeb3 from '../useWeb3'
+import { safeParseUnits } from 'utils/formatCurrencyAmount'
 
 /**
  * TYPES
@@ -30,7 +31,7 @@ interface Params {
 
 interface ApproveTokenParams {
   token: TokenInfo
-  normalizedAmount: string
+  normalizedAmount: string | number
   spender: string
   actionType: ApprovalAction
   forceMax?: boolean
@@ -138,7 +139,7 @@ export default function useTokenApprovalActions() {
     actionType,
     forceMax = true,
   }: ApproveTokenParams): Promise<TransactionResponse> {
-    const amount = forceMax ? MaxUint256.toString() : parseUnits(normalizedAmount, token.decimals).toString()
+    const amount = forceMax ? MaxUint256.toString() : safeParseUnits(+normalizedAmount, token.decimals).toString()
 
     const signer = await getSigner()
     const txBuilder = new TransactionBuilder(signer)
