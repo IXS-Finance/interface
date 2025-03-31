@@ -8,7 +8,6 @@ import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 import { oneSecondInMs } from 'hooks/dex-v2/useTime'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import BalCard from 'pages/DexV2/common/BalCard'
-import { configService } from 'services/config/config.service'
 import { Flex } from 'rebass'
 import { SwapSettingsContext } from 'pages/DexV2/common/SwapSettingsPopover'
 import SwapSettingsPopover from 'pages/DexV2/common/popovers/SwapSettingsPopover'
@@ -33,14 +32,11 @@ const Withdraw: FC = () => {
   const poolId = (params.id as string).toLowerCase()
   const { pool, isLoadingPool, refetchOnchainPoolData } = usePool(poolId)
   useInterval(refetchOnchainPoolData, oneSecondInMs * 20)
-  const { tokens, balanceQueryLoading } = useTokens()
+  const { balanceQueryLoading } = useTokens()
   const { resetTabs } = useWithdrawPageTabs()
   const dispatch = useDispatch()
 
-  const { network } = configService
-
-  const isLoading =
-    isLoadingPool || balanceQueryLoading || !pool || !pool.address || !tokens || Object.keys(tokens).length === 0
+  const isLoading = isLoadingPool || !pool || balanceQueryLoading
 
   useEffect(() => {
     resetTabs()
@@ -55,7 +51,6 @@ const Withdraw: FC = () => {
         ) : (
           <BalCard shadow="xl" exposeOverflow noBorder>
             <div className="w-full">
-              <div>{network.chainName}</div>
               <Flex justifyContent="space-between" alignItems="center">
                 <div>Withdraw from pool</div>
                 <SwapSettingsPopover context={SwapSettingsContext.invest} />
@@ -79,5 +74,5 @@ const Container = styled.div`
   padding: 0 1rem;
   margin: 0 auto;
   width: 100%;
-  max-width: 462px;
+  max-width: 480px;
 `

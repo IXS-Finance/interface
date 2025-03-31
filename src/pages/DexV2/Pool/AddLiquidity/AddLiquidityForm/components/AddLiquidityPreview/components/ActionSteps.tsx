@@ -3,7 +3,7 @@ import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract
 import { useDispatch } from 'react-redux'
 
 import { TransactionActionInfo, TransactionActionState } from 'pages/DexV2/types/transactions'
-import HorizSteps, { Step, StepState } from './HorizSteps'
+import AddLiquidityHorizSteps, { Step, StepState } from './AddLiquidityHorizSteps'
 import { NavigationButtons, NextButton } from 'pages/DexV2/Pool/Create'
 import { captureBalancerException, useErrorMsg } from 'lib/utils/errors'
 import Loader from 'components/Loader'
@@ -181,7 +181,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
         </BalAlert>
       ) : null}
 
-      {actions && actions.length > 1 && !lastActionState?.confirmed && !disabled ? <HorizSteps steps={steps} /> : null}
+      {actions && actions.length > 1 && !lastActionState?.confirmed && !disabled ? <AddLiquidityHorizSteps steps={steps} /> : null}
       {!lastActionState?.confirmed ? (
         <NavigationButtons>
           <NextButton onClick={() => currentAction?.promise()} disabled={disabled || currentAction?.pending || loading}>

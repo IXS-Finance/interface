@@ -12,20 +12,6 @@ import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 import Tooltip from 'pages/DexV2/common/Tooltip'
 import { AlertTriangle, Info } from 'react-feather'
 
-// Dummy translation function (replace with your i18n solution if needed)
-const t = (key: string) => {
-  const translations: { [key: string]: string } = {
-    total: 'Total',
-    maxed: 'Maxed',
-    max: 'Max',
-    priceImpact: 'Price Impact',
-    optimize: 'Optimize',
-    optimized: 'Optimized',
-    customAmountsTip: 'Custom amounts tip',
-  }
-  return translations[key] || key
-}
-
 interface Props {
   pool: Pool
   isLoadingQuery: boolean
@@ -71,7 +57,11 @@ const JoinPoolDataTable: React.FC<Props> = ({ pool, isLoadingQuery }) => {
         <Cell>LP tokens</Cell>
         <NumberCell>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            {!isLoadingQuery ? <strong>{fNum(bptOut, FNumFormats.token)}</strong> : <LoadingBlock className="w-40" />}
+            {!isLoadingQuery ? (
+              <strong style={{ marginRight: 4 }}>{fNum(bptOut, FNumFormats.token)}</strong>
+            ) : (
+              <LoadingBlock className="w-40" />
+            )}
             <Tooltip
               text={`LP tokens you are expected to receive, not including possible slippage (${fNum(
                 slippage,
@@ -92,11 +82,11 @@ const JoinPoolDataTable: React.FC<Props> = ({ pool, isLoadingQuery }) => {
         </NumberCell>
       </SecondaryRow>
       <SecondaryRow className={clsx(priceImpactClasses)}>
-        <Cell>{t('priceImpact')}</Cell>
+        <Cell>Price Impact</Cell>
         <NumberCell>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {!isLoadingQuery ? (
-              <strong>{fNum(priceImpact, FNumFormats.percent)}</strong>
+              <strong style={{ marginRight: 4 }}>{fNum(priceImpact, FNumFormats.percent)}</strong>
             ) : (
               <LoadingBlock className="w-40" />
             )}
