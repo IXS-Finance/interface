@@ -1,4 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
+import { formatUnits } from '@ethersproject/units'
 
 import VeSugarV2Abi from 'lib/abi/VeSugarV2.json'
 import { configService } from 'services/config/config.service'
@@ -38,8 +39,17 @@ export class VeSugar {
   }
 
   async byAccount(address: string): Promise<any> {
-    const data = await this.instance.byAccount(address)
+    const output = await this.instance.byAccount(address)
+    console.log('output', output)
 
-    return data
+    const result = output.map((item: any) => ({
+      id: item.id.toString(),
+      amount: formatUnits(item.amount, item.decimals),
+      votingAmount: formatUnits(item.votingAmount, item.decimals),
+      expiresAt: item.expiresAt.toString(),
+      decimals: item.decimals,
+    }))
+
+    return result || []
   }
 }
