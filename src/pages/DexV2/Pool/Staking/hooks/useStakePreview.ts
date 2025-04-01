@@ -13,7 +13,7 @@ import { usePoolStaking } from 'state/dexV2/poolStaking/usePoolStaking'
 import useTransactions from 'hooks/dex-v2/useTransactions'
 import { fiatValueOf } from 'hooks/dex-v2/usePoolHelpers'
 import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
-import { LiquidityGauge } from 'services/balancer/contracts/contracts/liquidity-gauge'
+import { LiquidityGauge } from 'services/balancer/contracts/liquidity-gauge'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 
 export type StakeAction = 'stake' | 'unstake'
