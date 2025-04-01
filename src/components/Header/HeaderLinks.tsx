@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { Trans } from '@lingui/macro'
 import { darken } from 'polished'
 import { NavLink } from 'react-router-dom'
@@ -22,101 +22,6 @@ import { useKyc, useRole } from 'state/user/hooks'
 
 const activeClassName = 'ACTIVE'
 
-const HeaderPopover = () => {
-  const { config } = useWhitelabelState()
-  const stakingUrl = process.env.REACT_APP_STAKING_URL || 'https://staking.ixs.finance'
-
-  const isAllowed = useCallback(
-    (path: string): boolean => {
-      if (!config || !config.pages || config.pages.length === 0) {
-        return true
-      }
-
-      return config.pages.includes(path)
-    },
-    [config]
-  )
-
-  return (
-    <PopOverContent
-      onClick={(e: any) => (e ? e.stopPropagation() : null)}
-      onMouseDown={(e: any) => (e ? e.stopPropagation() : null)}
-    >
-      <Column style={{ gap: 3 }}>
-        <SubMenuExternalLink style={{ fontSize: '13px' }} href={stakingUrl || ``}>
-          <Trans>Staking on Base</Trans>
-        </SubMenuExternalLink>
-      </Column>
-
-      <Row style={{ padding: '0', margin: '5px 0' }}>
-        <Line />
-      </Row>
-
-      <Column style={{ gap: 3 }}>
-        {isAllowed(routes.vesting) && (
-          <SubMenuLink style={{ fontSize: '13px' }} id={`vesting-nav-link`} to={routes.vesting}>
-            <Trans>Token Sale Distribution</Trans>
-          </SubMenuLink>
-        )}
-      </Column>
-    </PopOverContent>
-  )
-}
-
-const DexV2Popover = () => {
-  return (
-    <PopOverContent
-      onClick={(e: any) => (e ? e.stopPropagation() : null)}
-      onMouseDown={(e: any) => (e ? e.stopPropagation() : null)}
-    >
-      <Column style={{ gap: 3 }}>
-        <SubMenuLink style={{ fontSize: '13px' }} id={`pools`} to={routes.dexV2Pools}>
-          <Trans>Pools</Trans>
-        </SubMenuLink>
-      </Column>
-
-      <Row style={{ padding: '0', margin: '5px 0' }}>
-        <Line />
-      </Row>
-
-      <Column style={{ gap: 3 }}>
-        <SubMenuLink style={{ fontSize: '13px' }} id={`swap`} to={routes.dexV2Swap}>
-          <Trans>Swap</Trans>
-        </SubMenuLink>
-      </Column>
-
-      <Row style={{ padding: '0', margin: '5px 0' }}>
-        <Line />
-      </Row>
-
-      <Column style={{ gap: 3 }}>
-        <SubMenuLink style={{ fontSize: '13px' }} id={`staking`} to={routes.dexV2Lock}>
-          <Trans>Staking</Trans>
-        </SubMenuLink>
-      </Column>
-      <Row style={{ padding: '0', margin: '5px 0' }}>
-        <Line />
-      </Row>
-
-      <Column style={{ gap: 3 }}>
-        <SubMenuLink style={{ fontSize: '13px' }} id={`dashboard`} to={routes.dexV2Dashboard}>
-          <Trans>Dashboard</Trans>
-        </SubMenuLink>
-      </Column>
-
-      <Row style={{ padding: '0', margin: '5px 0' }}>
-        <Line />
-      </Row>
-
-      <Column style={{ gap: 3 }}>
-        <SubMenuLink style={{ fontSize: '13px' }} id={`vote`} to={routes.dexV2Vote}>
-          <Trans>Vote</Trans>
-        </SubMenuLink>
-      </Column>
-    </PopOverContent>
-  )
-}
-
 export const HeaderLinks = () => {
   const [open, toggle] = useToggle(false)
   const [openV2, toggleV2] = useToggle(false)
@@ -133,6 +38,101 @@ export const HeaderLinks = () => {
   useOnClickOutside(farmNode, open ? toggle : undefined)
   useOnClickOutside(v2Node, openV2 ? toggleV2 : undefined)
   useOnClickOutside(nftNode, openNFT ? toggleNFT : undefined)
+
+  const HeaderPopover = () => {
+    const { config } = useWhitelabelState()
+
+    const isAllowed = useCallback(
+      (path: string): boolean => {
+        if (!config || !config.pages || config.pages.length === 0) {
+          return true
+        }
+
+        return config.pages.includes(path)
+      },
+      [config]
+    )
+
+    //
+    return (
+      <PopOverContent
+        onClick={(e: any) => (e ? e.stopPropagation() : null)}
+        onMouseDown={(e: any) => (e ? e.stopPropagation() : null)}
+      >
+        <Column style={{ gap: 3 }}>
+          <SubMenuExternalLink style={{ fontSize: '13px' }} href={`https://staking.ixswap.io/`}>
+            <Trans>Staking on Base</Trans>
+          </SubMenuExternalLink>
+        </Column>
+
+        <Row style={{ padding: '0', margin: '5px 0' }}>
+          <Line />
+        </Row>
+
+        <Column style={{ gap: 3 }}>
+          {isAllowed(routes.vesting) && (
+            <SubMenuLink style={{ fontSize: '13px' }} id={`vesting-nav-link`} to={routes.vesting} onClick={toggle}>
+              <Trans>Token Sale Distribution</Trans>
+            </SubMenuLink>
+          )}
+        </Column>
+      </PopOverContent>
+    )
+  }
+
+  const DexV2Popover = () => {
+    return (
+      <PopOverContent
+        onClick={(e: any) => (e ? e.stopPropagation() : null)}
+        onMouseDown={(e: any) => (e ? e.stopPropagation() : null)}
+      >
+        <Column style={{ gap: 3 }}>
+          <SubMenuLink style={{ fontSize: '13px' }} id={`pools`} to={routes.dexV2Pools} onClick={toggleV2}>
+            <Trans>Pools</Trans>
+          </SubMenuLink>
+        </Column>
+
+        <Row style={{ padding: '0', margin: '5px 0' }}>
+          <Line />
+        </Row>
+
+        <Column style={{ gap: 3 }}>
+          <SubMenuLink style={{ fontSize: '13px' }} id={`swap`} to={routes.dexV2Swap} onClick={toggleV2}>
+            <Trans>Swap</Trans>
+          </SubMenuLink>
+        </Column>
+
+        <Row style={{ padding: '0', margin: '5px 0' }}>
+          <Line />
+        </Row>
+
+        <Column style={{ gap: 3 }}>
+          <SubMenuLink style={{ fontSize: '13px' }} id={`staking`} to={routes.dexV2Lock} onClick={toggleV2}>
+            <Trans>Staking</Trans>
+          </SubMenuLink>
+        </Column>
+        <Row style={{ padding: '0', margin: '5px 0' }}>
+          <Line />
+        </Row>
+
+        <Column style={{ gap: 3 }}>
+          <SubMenuLink style={{ fontSize: '13px' }} id={`dashboard`} to={routes.dexV2Dashboard} onClick={toggleV2}>
+            <Trans>Dashboard</Trans>
+          </SubMenuLink>
+        </Column>
+
+        <Row style={{ padding: '0', margin: '5px 0' }}>
+          <Line />
+        </Row>
+
+        <Column style={{ gap: 3 }}>
+          <SubMenuLink style={{ fontSize: '13px' }} id={`vote`} to={routes.dexV2Vote} onClick={toggleV2}>
+            <Trans>Vote</Trans>
+          </SubMenuLink>
+        </Column>
+      </PopOverContent>
+    )
+  }
 
   const isWhitelisted = isUserWhitelisted({ account, chainId })
 
@@ -239,7 +239,7 @@ export const HeaderLinks = () => {
           <Popover hideArrow show={openV2} content={<DexV2Popover />} placement="bottom-start">
             <RowFixed onClick={toggleV2}>
               <Trans>Dex V2</Trans>
-              <ChevronElement marginLeft={5} showMore={open} />
+              <ChevronElement marginLeft={5} showMore={openV2} />
             </RowFixed>
           </Popover>
         </StyledNavLink>
