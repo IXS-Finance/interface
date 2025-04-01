@@ -1,4 +1,5 @@
 import { PoolsHasGauge } from 'hooks/dex-v2/queries/usePoolsHasGaugeQuery'
+import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import AssetSet from 'pages/DexV2/common/AssetSet'
 import React from 'react'
 import { Box, Flex } from 'rebass'
@@ -123,6 +124,8 @@ interface Props {
 }
 
 export const LiquidityPoolSelector: React.FC<Props> = ({ pools }) => {
+  const { fNum } = useNumbers()
+
   return (
     <Container>
       <ContentWrapper>
@@ -158,7 +161,7 @@ export const LiquidityPoolSelector: React.FC<Props> = ({ pools }) => {
               poolType="Basic Volatile"
               feePercentage="0.3%"
               infoIcon="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/3e6491bb023b2011254f1ef8bb4e49195f155c40?placeholderIfAbsent=true"
-              tvlAmount="$12,596.86"
+              tvlAmount={fNum(pool.totalLiquidity, FNumFormats.fiat)}
               feesAmount="$30.04"
               feesTokens="5,461.07 IXS"
               incentivesAmount="$5,284.83"
