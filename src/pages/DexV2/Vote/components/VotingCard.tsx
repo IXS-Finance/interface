@@ -1,6 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
+import dayjs from 'dayjs'
+
 import VotingModal from './VoteModal'
+import { VeSugar } from 'services/balancer/contracts/VeSugar'
+import useWeb3 from 'hooks/dex-v2/useWeb3'
+import lockImg from 'assets/images/dex-v2/lockIcon.png'
 
 interface LockCardProps {
   lockNumber: string
@@ -8,8 +13,7 @@ interface LockCardProps {
   percentage: string
   poolSelected: boolean
   poolNumber: number
-  imageUrl: string
-  lockImageUrl: string
+  expiresAt: string
 }
 
 interface PoolIndicatorProps {
@@ -25,28 +29,34 @@ const PoolIndicator: React.FC<PoolIndicatorProps> = ({ number, active }) => {
   )
 }
 
-const LockCard: React.FC<LockCardProps> = ({
-  lockNumber,
-  amount,
-  percentage,
-  poolSelected,
-  poolNumber,
-  imageUrl,
-  lockImageUrl,
-}) => {
+const LockCard: React.FC<LockCardProps> = ({ lockNumber, amount, percentage, poolSelected, poolNumber, expiresAt }) => {
+  let lockDuration = dayjs.unix(Number(expiresAt)).diff(dayjs(), 'year')
+  let lockMessage = `${amount} IXS Locked for ${lockDuration} years`
+  if (lockDuration === 0) {
+    lockDuration = dayjs.unix(Number(expiresAt)).diff(dayjs(), 'day')
+    lockMessage = `${amount} IXS Locked for ${lockDuration} days`
+  }
   return (
     <Card>
       <CardContent>
         <LockInfo>
           <ImageWrapper>
-            <Avatar src={imageUrl} alt="Lock avatar" />
+            <Avatar src={lockImg} alt="Lock avatar" />
           </ImageWrapper>
           <LockDetails>
             <LockHeader>
               <LockTitle>Lock #{lockNumber}</LockTitle>
-              <LockIcon src={lockImageUrl} alt="Lock icon" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="15" viewBox="0 0 11 15" fill="none">
+                <path
+                  d="M8.5 7.5H9.55C9.79855 7.5 10 7.70145 10 7.95V13.05C10 13.2985 9.79855 13.5 9.55 13.5H1.45C1.20147 13.5 1 13.2985 1 13.05V7.95C1 7.70145 1.20147 7.5 1.45 7.5H2.5M8.5 7.5V4.5C8.5 3.5 7.9 1.5 5.5 1.5C3.1 1.5 2.5 3.5 2.5 4.5V7.5M8.5 7.5H2.5"
+                  stroke="#B8B8D2"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </LockHeader>
-            <LockDuration>{amount} IXS Locked for 4 years</LockDuration>
+            <LockDuration>{lockMessage}</LockDuration>
           </LockDetails>
         </LockInfo>
         <StatusInfo>
@@ -61,34 +71,37 @@ const LockCard: React.FC<LockCardProps> = ({
   )
 }
 
-const VoteButton: React.FC = () => {
-  return <StyledButton>Vote</StyledButton>
-}
-
 export const VotingCard = () => {
+  const veSugar = new VeSugar()
+  const { account } = useWeb3()
+  const [lockedList, setLockedList] = React.useState<any[]>([])
+
+  useEffect(() => {
+    if (account) {
+      veSugar.byAccount(account).then((data) => {
+        setLockedList(data)
+      })
+    }
+  }, [account])
+
+  console.log('Locked List:', lockedList)
   return (
     <Container>
       <Wrapper>
         <ContentLayout>
-          <LockCard
-            lockNumber="63492"
-            amount="0.0048"
-            percentage="100.0"
-            poolSelected={true}
-            poolNumber={1}
-            imageUrl="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/1d10ed749d0d7e12072633f75ab828346dc6d163?placeholderIfAbsent=true"
-            lockImageUrl="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/43a1086188e23c0f12daa0de44a714f634bae2f3?placeholderIfAbsent=true"
-          />
-          <LockCard
-            lockNumber="65129"
-            amount="0.0048"
-            percentage="100.0"
-            poolSelected={false}
-            poolNumber={0}
-            imageUrl="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/1d10ed749d0d7e12072633f75ab828346dc6d163?placeholderIfAbsent=true"
-            lockImageUrl="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/43a1086188e23c0f12daa0de44a714f634bae2f3?placeholderIfAbsent=true"
-          />
-          <VoteButton />
+          {lockedList.map((lock) => (
+            <LockCard
+              key={lock.id}
+              lockNumber={lock.id}
+              amount={lock.amount}
+              expiresAt={lock.expiresAt}
+              percentage="100.0"
+              poolSelected={true}
+              poolNumber={1}
+            />
+          ))}
+
+          <StyledButton>Vote</StyledButton>
         </ContentLayout>
       </Wrapper>
 
@@ -144,8 +157,6 @@ const Card = styled.article`
   align-items: start;
   gap: 6px;
   justify-content: start;
-  flex: 1;
-  flex-basis: 0%;
 
   @media (max-width: 991px) {
     max-width: 100%;
