@@ -135,15 +135,21 @@ export function useStakePreview(props: UseStakePreviewProps) {
         forceMax: false,
       })
 
-      if (approvalActions) {
+      if (approvalActions.length > 0) {
         setStakeActions((prev) => [...approvalActions, ...prev])
+      } else {
+        if (props.action === 'stake') {
+          setStakeActions([stakeActionObj])
+        } else if (props.action === 'unstake') {
+          setStakeActions([unstakeActionObj])
+        }
       }
     } catch (error) {
       console.error('Error loading approvals:', error)
     } finally {
       setIsLoadingApprovalsForGauge(false)
     }
-  }, [preferentialGaugeAddress, props.amountToSubmit])
+  }, [preferentialGaugeAddress, props.amountToSubmit, props.action])
 
   async function handleSuccess(receipt: TransactionReceipt) {
     setIsActionConfirmed(true)
@@ -172,7 +178,6 @@ export function useStakePreview(props: UseStakePreviewProps) {
   // Watch for changes in the preferentialGaugeAddress.
   useEffect(() => {
     async function run() {
-      debugger;
       if (props.action === 'unstake') return
       await loadApprovalsForGauge()
     }
