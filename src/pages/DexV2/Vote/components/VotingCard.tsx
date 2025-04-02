@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import dayjs from 'dayjs'
 
 import VotingModal from './VoteModal'
-import { VeSugar } from 'services/balancer/contracts/VeSugar'
+import { VeSugar } from 'services/balancer/contracts/ve-sugar'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import lockImg from 'assets/images/dex-v2/lockIcon.png'
 

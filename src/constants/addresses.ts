@@ -252,9 +252,9 @@ export const VOTING_ESCROW_ADDRESS = {
 } as ContractAddressRecord
 
 export const IXVOTER_ADDRESS = {
-  [84532]: '0xa32b464f6370a0093fafffafd77968242791187e',
+  [84532]: '0x4cdadf69b9F12e72418671Cf0BF024C24aC2007D',
 } as ContractAddressRecord
 
 export const LP_SUGAR_ADDRESS = {
-  [84532]: '0xa4488ac2e8c4a25DF5aB3303E68883Ba7D8d480b',
+  [84532]: '0xD995BFf833aA5bd5E81F200D70aB40afc4572B0e',
 } as ContractAddressRecord
