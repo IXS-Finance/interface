@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { formatUnits } from '@ethersproject/units'
 
 import VeSugarV2Abi from 'lib/abi/VeSugarV2.json'
@@ -6,17 +5,17 @@ import { configService } from 'services/config/config.service'
 import { rpcProviderService } from 'services/rpc-provider/rpc-provider.service'
 import { walletService as walletServiceInstance } from 'services/web3/wallet.service'
 import { EthersContract, getEthersContract } from 'dependencies/EthersContract'
+import { LP_SUGAR_ADDRESS } from 'constants/addresses'
 import { TransactionBuilder } from 'services/web3/transactions/transaction.builder'
 import { getEthersSigner } from 'hooks/useEthersProvider'
 import { wagmiConfig } from 'components/Web3Provider'
 
-export type RewardTokenData = {
-  distributor: string
-  integral: BigNumber
-  last_update: BigNumber
-  period_finish: BigNumber
-  rate: BigNumber
-  token: string
+export type LockedData = {
+  id: string
+  amount: string
+  votingAmount: string
+  expiresAt: string
+  decimals: number
 }
 export class VeSugar {
   instance: EthersContract
@@ -29,7 +28,7 @@ export class VeSugar {
   ) {
     const Contract = getEthersContract()
     // @ts-ignore
-    this.instance = new Contract('0xD995BFf833aA5bd5E81F200D70aB40afc4572B0e', this.abi, this.provider)
+    this.instance = new Contract(LP_SUGAR_ADDRESS[config.network.key], this.abi, this.provider)
   }
 
   async getTransactionBuilder(): Promise<TransactionBuilder> {
@@ -38,7 +37,7 @@ export class VeSugar {
     return new TransactionBuilder(signer)
   }
 
-  async byAccount(address: string): Promise<any> {
+  async byAccount(address: string): Promise<LockedData[]> {
     const output = await this.instance.byAccount(address)
     console.log('output', output)
 
