@@ -49,6 +49,7 @@ const StakingCard: React.FC<Props> = ({ pool }) => {
     isEnabled: !!(pool?.address && preferentialGaugeAddress),
   })
 
+  console.log('allowanceData', allowanceData)
   const isLoadingStakingData = poolGaugeQuery ? isQueryLoading(poolGaugeQuery) : false
 
   useEffect(() => {
