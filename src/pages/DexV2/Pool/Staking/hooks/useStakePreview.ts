@@ -143,7 +143,7 @@ export function useStakePreview(props: UseStakePreviewProps) {
     } finally {
       setIsLoadingApprovalsForGauge(false)
     }
-  }, [preferentialGaugeAddress])
+  }, [preferentialGaugeAddress, props.amountToSubmit])
 
   async function handleSuccess(receipt: TransactionReceipt) {
     setIsActionConfirmed(true)
@@ -172,14 +172,15 @@ export function useStakePreview(props: UseStakePreviewProps) {
   // Watch for changes in the preferentialGaugeAddress.
   useEffect(() => {
     async function run() {
+      debugger;
       if (props.action === 'unstake') return
       await loadApprovalsForGauge()
     }
 
-    if (preferentialGaugeAddress && props.amountToSubmit !== '0' && allowances?.[preferentialGaugeAddress]) {
+    if (preferentialGaugeAddress && props.amountToSubmit !== '0') {
       run()
     }
-  }, [preferentialGaugeAddress, props.action, props.amountToSubmit, allowances?.[preferentialGaugeAddress]])
+  }, [preferentialGaugeAddress, props.action, props.amountToSubmit])
 
   return {
     isActionConfirmed,
