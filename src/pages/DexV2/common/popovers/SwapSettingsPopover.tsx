@@ -45,6 +45,7 @@ const SwapSettingsPopover: React.FC<Props> = ({ context, isGasless = false }) =>
           size="sm"
           className="mb-2 text-secondary icon-spin-anim"
           onClick={onActivatorClick}
+          style={{color: '#B8B8CC'}}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
