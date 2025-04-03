@@ -6,6 +6,7 @@ import VotingModal from './VoteModal'
 import { VeSugar } from 'services/balancer/contracts/ve-sugar'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import lockImg from 'assets/images/dex-v2/lockIcon.png'
+import { Voter } from 'services/balancer/contracts/voter'
 
 interface LockCardProps {
   lockNumber: string
@@ -73,8 +74,18 @@ const LockCard: React.FC<LockCardProps> = ({ lockNumber, amount, percentage, poo
 
 export const VotingCard = () => {
   const veSugar = new VeSugar()
+  const voter = new Voter()
   const { account } = useWeb3()
   const [lockedList, setLockedList] = React.useState<any[]>([])
+
+  const handleVote = async () => {
+    try{
+      const res = await voter.vote('4', ['0xf7a3f0297d24807ba74d5db92b10aa12af70b548'], ['25000000000000000000'])
+      console.log('Vote Response:', res)
+    } catch (error) {
+      console.error('Error during voting:', error)
+    }
+  }
 
   useEffect(() => {
     if (account) {
@@ -85,6 +96,11 @@ export const VotingCard = () => {
   }, [account])
 
   console.log('Locked List:', lockedList)
+
+  if (lockedList.length === 0) {
+    return null;
+  }
+
   return (
     <Container>
       <Wrapper>
@@ -101,7 +117,7 @@ export const VotingCard = () => {
             />
           ))}
 
-          <StyledButton>Vote</StyledButton>
+         <StyledButton onClick={handleVote}>Vote</StyledButton>
         </ContentLayout>
       </Wrapper>
 

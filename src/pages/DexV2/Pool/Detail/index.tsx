@@ -11,14 +11,13 @@ import usePoolSnapshotsQuery from 'hooks/dex-v2/queries/usePoolSnapshotsQuery'
 import usePoolAprQuery from 'hooks/dex-v2/queries/usePoolAprQuery'
 import { includesAddress } from 'lib/utils'
 import { PoolToken } from 'services/pool/types'
-import { POOLS } from 'constants/dexV2/pools'
 import MyPoolBalancesCard from './components/MyPoolBalancesCard'
 import PoolPageHeader from './components/PoolPageHeader'
 import DexV2Layout from '../../common/Layout'
 import { Box, Flex } from 'rebass'
 import chartImg from 'assets/images/dex-v2/chart-fake.svg'
 import BalCard from 'pages/DexV2/common/Card'
-import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
+import useNumbers from 'hooks/dex-v2/useNumbers'
 import PoolStatCards from './components/PoolStatCards'
 import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
 import PoolCompositionCard from './components/PoolCompositionCard'
@@ -28,28 +27,19 @@ import PoolActionsCard from '../components/PoolActionsCard'
 const PoolDetail: React.FC = () => {
   const params = useParams<any>()
   const poolId = (params.id as string).toLowerCase()
-  const { fNum } = useNumbers()
   const { pool, isLoadingPool } = usePool(poolId)
   const { isWalletReady } = useWeb3()
   const { balanceQueryLoading, prices } = useTokens()
   const priceQueryLoading = false // TODO: implement
   const {
     isStableLikePool,
-    isLiquidityBootstrappingPool,
-    isComposableStableLikePool,
-    isDeprecatedPool,
-    isNewPoolAvailable,
   } = usePoolHelpers(pool)
 
   const loadingPool = isLoadingPool || !pool || balanceQueryLoading
-  const poolSnapshotsQuery = usePoolSnapshotsQuery(poolId, undefined, {
-    refetchOnWindowFocus: false,
-  })
   const aprQuery = usePoolAprQuery(poolId)
   const loadingApr = isQueryLoading(aprQuery)
   const poolApr = aprQuery.data
 
-  const [isRestakePreviewVisible, setIsRestakePreviewVisible] = useState(false)
 
   const missingPrices = (() => {
     if (pool && prices && !priceQueryLoading) {
@@ -65,10 +55,7 @@ const PoolDetail: React.FC = () => {
 
   const titleTokens: PoolToken[] = pool?.tokens ? orderedPoolTokens(pool, pool.tokens) : []
 
-  function setRestakeVisibility(value: boolean): void {
-    setIsRestakePreviewVisible(value)
-  }
-
+  console.log('pool', pool)
   return (
     <DexV2Layout>
       <Container>
