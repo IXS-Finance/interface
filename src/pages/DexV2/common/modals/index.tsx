@@ -50,6 +50,8 @@ const ModalContainer = styled.div<{ noPadding?: boolean }>`
   background: ${(props) => props.theme.launchpad.colors.background};
   border-radius: 16px;
   padding: ${(props) => (props.noPadding ? '0' : '2rem')};
+  max-height: 90vh;
+  overflow-y: auto;
 `
 
 export const ExitIconContainer = styled.div<{ noPadding?: boolean }>`
