@@ -88,7 +88,7 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
             </a>
 
             <Box ml="4px" css={{ cursor: 'pointer' }}>
-              <Copy toCopy={explorer.addressLink(pool?.address || '')} />
+              <Copy toCopy={pool?.address || ''} />
             </Box>
           </Flex>
         </Box>

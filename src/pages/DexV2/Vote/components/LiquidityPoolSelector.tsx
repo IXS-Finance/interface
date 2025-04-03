@@ -126,6 +126,7 @@ interface Props {
 export const LiquidityPoolSelector: React.FC<Props> = ({ pools }) => {
   const { fNum } = useNumbers()
 
+  console.log('pools', pools)
   return (
     <Container>
       <ContentWrapper>
