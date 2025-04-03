@@ -84,7 +84,7 @@ const SwapPair: React.FC<Props> = ({ exactIn, priceImpact, swapLoading, amountCh
           amount={tokenInAmount}
           address={tokenInAddress}
           name="tokenIn"
-          excludedTokens={[]}
+          excludedTokens={[tokenOutAddress]}
           autoFocus
           updateAmount={handleInAmountChange}
           updateAddress={handleInputTokenChange}
@@ -121,7 +121,7 @@ const SwapPair: React.FC<Props> = ({ exactIn, priceImpact, swapLoading, amountCh
             amount={tokenOutAmount}
             address={tokenOutAddress}
             name="tokenOut"
-            excludedTokens={[]}
+            excludedTokens={[tokenInAddress]}
             noRules
             noMax
             disableNativeAssetBuffer
