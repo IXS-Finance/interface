@@ -21,6 +21,7 @@ const Vote: React.FC<VoteProps> = () => {
 
   const pools = poolsData?.pools || []
 
+  console.log('pools', pools)
   return (
     <DexV2Layout>
       <Flex flexDirection="column" mt="48px" css={{ gap: '48px', width: '100%' }}>

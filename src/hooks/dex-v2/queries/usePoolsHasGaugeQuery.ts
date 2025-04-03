@@ -12,6 +12,7 @@ import useWeb3 from '../useWeb3'
 export type PoolsHasGauge = {
   name: string
   id: string
+  address: string
   totalLiquidity: string
   tokensList: string[]
   gauge: {
@@ -50,6 +51,7 @@ export default function usePoolsHasGaugeQuery() {
       pools: {
         __args: queryArgs,
         id: true,
+        address: true,
         totalLiquidity: true,
         name: true,
         tokensList: true,
