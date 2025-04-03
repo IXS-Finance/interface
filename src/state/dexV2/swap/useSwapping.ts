@@ -154,13 +154,11 @@ export default function useSwapping(
   // WATCHERS / EFFECTS
   useEffect(() => {
     setInputAsset(tokenInAddressInput)
-    handleAmountChange()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenInAddressInput])
 
   useEffect(() => {
     setOutputAsset(tokenOutAddressInput)
-    handleAmountChange()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenOutAddressInput])
 

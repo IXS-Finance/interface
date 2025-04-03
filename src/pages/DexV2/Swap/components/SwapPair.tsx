@@ -40,12 +40,15 @@ const SwapPair: React.FC<Props> = ({ exactIn, priceImpact, swapLoading, amountCh
   }
 
   function handleTokenSwitch(): void {
-    setExactIn(!exactIn)
-    setTokenInAmount(tokenOutAmount)
     setTokenInAddress(tokenOutAddress)
-    setTokenOutAmount(tokenInAmount)
     setTokenOutAddress(tokenInAddress)
-    amountChange()
+
+    if (exactIn) {
+      setTokenOutAmount(tokenInAmount)
+    } else {
+      setTokenInAmount(tokenOutAmount)
+    }
+    setExactIn(!exactIn)
   }
 
   async function handleInputTokenChange(newTokenIn: string) {
