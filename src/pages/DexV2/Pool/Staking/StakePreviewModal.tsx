@@ -1,19 +1,40 @@
 import React from 'react'
 
-import { Pool } from 'services/pool/types'
 import { StakeAction } from './hooks/useStakePreview'
 import Modal from 'pages/DexV2/common/modals'
-import StakePreview from './StakePreview'
+import StakePreview, { StakePreviewPoolProps } from './StakePreview'
+import { Address } from 'viem'
+import { LP_DECIMALS } from './constants'
 
 interface StakeModalProps {
   isVisible: boolean
-  pool: Pool
+  pool: StakePreviewPoolProps
+  gaugeAddress: Address
+  currentShares: string
+  unstakeBalance: bigint
+  stakedBalance: bigint
   action: StakeAction
   onClose: () => void
   onSuccess: () => void
 }
 
-const StakePreviewModal: React.FC<StakeModalProps> = ({ isVisible, pool, action, onClose, onSuccess }) => {
+const StakePreviewModal: React.FC<StakeModalProps> = ({
+  isVisible,
+  pool,
+  gaugeAddress,
+  currentShares,
+  action,
+  onClose,
+  onSuccess,
+  stakedBalance,
+  unstakeBalance,
+}) => {
+  const lpToken = {
+    address: pool.address,
+    symbol: pool.name,
+    decimals: LP_DECIMALS,
+  }
+
   const handleClose = () => {
     onClose()
   }
@@ -28,7 +49,17 @@ const StakePreviewModal: React.FC<StakeModalProps> = ({ isVisible, pool, action,
   return (
     <Modal noPadding onClose={onClose}>
       <div>
-        <StakePreview pool={pool} action={action} onClose={handleClose} onSuccess={handleSuccess} />
+        <StakePreview
+          currentShares={currentShares}
+          pool={pool}
+          lpToken={lpToken}
+          gaugeAddress={gaugeAddress}
+          action={action}
+          onClose={handleClose}
+          onSuccess={handleSuccess}
+          stakedBalance={stakedBalance}
+          unstakeBalance={unstakeBalance}
+        />
       </div>
     </Modal>
   )

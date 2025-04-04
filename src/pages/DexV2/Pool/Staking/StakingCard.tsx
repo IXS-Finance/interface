@@ -11,7 +11,7 @@ import { StakeAction } from './hooks/useStakePreview'
 import { usePoolStaking } from 'state/dexV2/poolStaking/usePoolStaking'
 import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
-import { Lock, Unlock, X } from 'react-feather'
+import { Lock, Unlock } from 'react-feather'
 import BalCard from 'pages/DexV2/common/Card'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 import StakePreviewModal from './StakePreviewModal'
@@ -20,6 +20,8 @@ import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
 import Tooltip from 'pages/DexV2/common/Tooltip'
 import useAllowancesQuery from 'hooks/dex-v2/queries/useAllowancesQuery'
 import { setAllowances } from 'state/dexV2/tokens'
+import { parseUnits } from 'viem'
+import { LP_DECIMALS } from './constants'
 
 type Props = {
   pool: Pool
@@ -34,22 +36,23 @@ const StakingCard: React.FC<Props> = ({ pool }) => {
   const poolGaugeQuery = usePoolGaugeQuery(pool.id)
   const dispatch = useDispatch()
 
+  const gaugeAddress = poolGaugeQuery.data?.pool?.gauge?.address
   const {
     stakedBalance,
+    unstakeBalance,
     isFetchingStakedBalance,
-    preferentialGaugeAddress,
     isStakablePool,
     injectPoolGaugeQuery,
     injectCurrentPool,
-  } = usePoolStaking()
-  const lpTokenInfo = { address: pool.address, decimals: pool.onchain?.decimals } as any
+  } = usePoolStaking({
+    gaugeAddress,
+  })
   const { data: allowanceData } = useAllowancesQuery({
-    tokens: { [pool?.address]: lpTokenInfo },
-    contractAddresses: [preferentialGaugeAddress],
-    isEnabled: !!(pool?.address && preferentialGaugeAddress),
+    tokenAddresses: [pool?.address],
+    contractAddresses: [gaugeAddress],
+    isEnabled: !!(pool?.address && gaugeAddress),
   })
 
-  console.log('allowanceData', allowanceData)
   const isLoadingStakingData = poolGaugeQuery ? isQueryLoading(poolGaugeQuery) : false
 
   useEffect(() => {
@@ -66,9 +69,9 @@ const StakingCard: React.FC<Props> = ({ pool }) => {
     .times(balanceFor(getAddress(pool.address)))
     .toString()
 
-  const isStakeDisabled = Boolean(fiatValueOfUnstakedShares === '0' || !preferentialGaugeAddress)
+  const isStakeDisabled = Boolean(fiatValueOfUnstakedShares === '0' || !gaugeAddress)
 
-  const isUnstakeDisabled = Boolean(fiatValueOfStakedShares === '0' || !preferentialGaugeAddress)
+  const isUnstakeDisabled = Boolean(fiatValueOfStakedShares === '0' || !gaugeAddress)
 
   // METHODS
   function showStakePreview() {
@@ -186,6 +189,10 @@ const StakingCard: React.FC<Props> = ({ pool }) => {
         <StakePreviewModal
           isVisible={isStakePreviewVisible}
           pool={pool}
+          gaugeAddress={gaugeAddress}
+          currentShares={balanceFor(getAddress(pool.address))}
+          stakedBalance={parseUnits(stakedBalance, LP_DECIMALS)}
+          unstakeBalance={parseUnits(unstakeBalance, LP_DECIMALS)}
           action={stakeAction}
           onClose={handlePreviewClose}
           onSuccess={handlePreviewClose}

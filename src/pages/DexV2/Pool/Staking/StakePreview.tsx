@@ -4,30 +4,52 @@ import styled from 'styled-components'
 import { tokensListExclBpt } from 'hooks/dex-v2/usePoolHelpers'
 import { AnyPool } from 'services/pool/types'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
-import { StakeAction, useStakePreview } from './hooks/useStakePreview'
+import { LpToken, StakeAction, useStakePreview } from './hooks/useStakePreview'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
-import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import AssetSet from 'pages/DexV2/common/AssetSet'
 import ActionSteps from './ActionSteps'
 import { Box, Flex } from 'rebass'
 import BalCard from 'pages/DexV2/common/Card'
 import { bnum } from 'lib/utils'
+import { Address } from 'viem'
+import { LP_DECIMALS } from './constants'
+import { BigNumber } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils'
 
 const FIXED_OPTIONS = ['0.25', '0.5', '0.75', '1']
 
+export type StakePreviewPoolProps = Pick<AnyPool, 'totalLiquidity' | 'totalShares' | 'address' | 'tokensList' | 'name'>
+
 type Props = {
-  pool: AnyPool
+  pool: StakePreviewPoolProps
+  lpToken: LpToken
+  gaugeAddress: Address
+  currentShares: string
   action: StakeAction
   onClose: () => void
   onSuccess: () => void
+  unstakeBalance: bigint
+  stakedBalance: bigint
 }
 
-const StakePreview: React.FC<Props> = ({ pool, action, onClose, onSuccess }) => {
-  const { getToken } = useTokens()
+const StakePreview: React.FC<Props> = ({
+  pool,
+  lpToken,
+  gaugeAddress,
+  currentShares,
+  action,
+  onClose,
+  onSuccess,
+  stakedBalance,
+  unstakeBalance,
+}) => {
   const { fNum } = useNumbers()
   const { isMismatchedNetwork } = useWeb3()
-  const { isActionConfirmed, isLoading, isStakeAndZero, stakedBalance, unstakeBalance } = useStakePreview({
+
+  const { isActionConfirmed, isLoading, isStakeAndZero } = useStakePreview({
+    currentShares,
     pool,
+    lpToken,
     action,
     onClose,
     onSuccess,
@@ -35,11 +57,12 @@ const StakePreview: React.FC<Props> = ({ pool, action, onClose, onSuccess }) => 
 
   const [amountPercent, setAmountPercent] = useState<string>('0.5')
 
-  const amountToSubmit = useMemo(() => {
+  const amountToSubmit = useMemo((): BigNumber => {
     const balance = action === 'stake' ? unstakeBalance : stakedBalance
-
-    return bnum(balance).times(bnum(amountPercent)).toString()
-  }, [stakedBalance, amountPercent])
+    const amountPercentPrecision = 18
+    const scaledFloat = BigInt(Math.round(+amountPercent * 10 ** amountPercentPrecision)) // 0.5 * 10^18
+    return BigNumber.from((balance * scaledFloat) / BigInt(10 ** amountPercentPrecision))
+  }, [action, unstakeBalance, stakedBalance, amountPercent])
 
   const options: any[] = FIXED_OPTIONS.map((option) => ({
     label: fNum(option, {
@@ -53,7 +76,8 @@ const StakePreview: React.FC<Props> = ({ pool, action, onClose, onSuccess }) => 
 
   const fiatValueOfStakedShares = bnum(pool.totalLiquidity)
     .div(pool.totalShares)
-    .times((amountToSubmit || 0).toString())
+    .times(amountToSubmit.toString())
+    .div(10 ** LP_DECIMALS)
     .toString()
 
   const assetRowWidth = (tokensListExclBpt(pool).length * 32) / 1.5
@@ -73,7 +97,7 @@ const StakePreview: React.FC<Props> = ({ pool, action, onClose, onSuccess }) => 
             <AssetSet addresses={tokensListExclBpt(pool)} width={assetRowWidth} size={24} />
 
             <Box fontSize="14px" fontWeight={500}>
-              {getToken(pool.address)?.symbol}
+              {pool.name}
             </Box>
           </Flex>
         </BalCard>
@@ -87,7 +111,7 @@ const StakePreview: React.FC<Props> = ({ pool, action, onClose, onSuccess }) => 
                 {action === 'stake' ? 'Amount to Stake' : 'Amount to Unstake'}
               </Box>
               <Box fontSize="20px" fontWeight={600}>
-                {fNum(amountToSubmit, FNumFormats.token)} LP
+                {fNum(formatUnits(amountToSubmit, LP_DECIMALS), FNumFormats.token)} LP
               </Box>
               <Box color="#B8B8D2" fontWeight={500}>
                 {fNum(fiatValueOfStakedShares, FNumFormats.fiat)}
@@ -150,7 +174,7 @@ const StakePreview: React.FC<Props> = ({ pool, action, onClose, onSuccess }) => 
               }}
             >
               <Box color="#B8B8D2">Total Staked</Box>
-              <Box>{fNum(stakedBalance, FNumFormats.token)} LP</Box>
+              <Box>{fNum(formatUnits(stakedBalance, LP_DECIMALS), FNumFormats.token)} LP</Box>
             </Flex>
           </Flex>
         </Flex>
@@ -158,6 +182,9 @@ const StakePreview: React.FC<Props> = ({ pool, action, onClose, onSuccess }) => 
         {!isActionConfirmed && (
           <ActionSteps
             pool={pool}
+            lpToken={lpToken}
+            currentShares={currentShares}
+            gaugeAddress={gaugeAddress}
             amountToSubmit={amountToSubmit}
             primaryActionType={action}
             isLoading={isLoading}

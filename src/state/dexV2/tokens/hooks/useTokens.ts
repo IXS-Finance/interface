@@ -1,11 +1,11 @@
 import { useDispatch } from 'react-redux'
-import { compact, omit, pick } from 'lodash'
+import { omit, pick } from 'lodash'
 import { getAddress, isAddress } from '@ethersproject/address'
 
-import { bnum, forChange, getAddressFromPoolId, includesAddress, isSameAddress, selectByAddressFast } from 'lib/utils'
+import { bnum, getAddressFromPoolId, includesAddress, isSameAddress, selectByAddressFast } from 'lib/utils'
 import { NativeAsset, TokenInfo, TokenInfoMap, TokenListMap } from 'types/TokenList'
 import { useTokensState } from '.'
-import { setTokensState } from '..'
+import { setAllowances, setTokensState } from '..'
 import useConfig from 'hooks/dex-v2/useConfig'
 import TokenService from 'services/token/token.service'
 import { tokenListService } from 'services/token-list/token-list.service'
@@ -15,10 +15,10 @@ import { TOKENS } from 'constants/dexV2/tokens'
 import useAllowancesQuery from 'hooks/dex-v2/queries/useAllowancesQuery'
 import useTokenPricesQuery, { TokenPrices } from 'hooks/dex-v2/queries/useTokenPricesQuery'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
-import { BalanceMap } from 'services/token/concerns/balances.concern'
 import { ContractAllowancesMap } from 'services/token/concerns/allowances.concern'
 import { AmountToApprove } from 'hooks/dex-v2/approvals/useTokenApprovalActions'
 import { useEffect, useState } from 'react'
+import { BigNumber } from 'ethers'
 
 const { uris: tokenListUris } = tokenListService
 
@@ -109,7 +109,7 @@ export const useTokens = () => {
     isError: allowancesQueryError,
     refetch: refetchAllowances,
   } = useAllowancesQuery({
-    tokens,
+    tokenAddresses: Object.keys(tokens),
     contractAddresses: spenders,
     isEnabled: true,
   })
@@ -124,7 +124,7 @@ export const useTokens = () => {
   }, [balanceQueryRefetching])
   useEffect(() => {
     if (Object.keys(allowanceData).length > 0) {
-      dispatch(setTokensState({ allowances: allowanceData }))
+      dispatch(setAllowances(allowanceData))
     }
   }, [JSON.stringify(allowanceData)])
   useEffect(() => {
@@ -294,8 +294,8 @@ export const useTokens = () => {
    * Returns the allowance for a token, scaled by token decimals
    *  (so 1 ETH = 1, 1 GWEI = 0.000000001)
    */
-  function allowanceFor(tokenAddress: string, spenderAddress: string): any {
-    return bnum((allowances[getAddress(spenderAddress)] || {})[getAddress(tokenAddress)])
+  function allowanceFor(tokenAddress: string, spenderAddress: string): BigNumber | undefined {
+    return (allowances[getAddress(spenderAddress)] || {})[getAddress(tokenAddress)]
   }
 
   /**
@@ -307,7 +307,7 @@ export const useTokens = () => {
     spenderAddress: string,
     newAllowances: ContractAllowancesMap
   ): any {
-    return bnum((newAllowances[getAddress(spenderAddress)] || {})[getAddress(tokenAddress)])
+    return (newAllowances[getAddress(spenderAddress)] || {})[getAddress(tokenAddress)]
   }
 
   /**
@@ -316,31 +316,31 @@ export const useTokens = () => {
    */
   function approvalRequiredWithAllowances(
     tokenAddress: string,
-    amount: string,
+    amount: BigNumber,
     spenderAddress: string,
     newAllowances: ContractAllowancesMap
   ): boolean {
-    if (!amount || bnum(amount).eq(0)) return false
+    if (!amount || amount.eq(0)) return false
     if (!spenderAddress) return false
     if (isSameAddress(tokenAddress, nativeAsset.address)) return false
 
     const allowance = allowanceForWithAllowances(tokenAddress, spenderAddress, newAllowances)
 
-    return allowance.lt(bnum(amount))
+    return allowance.lt(amount)
   }
 
   /**
    * Check if approval is required for given contract address
    * for a token and amount.
    */
-  function approvalRequired(tokenAddress: string, amount: string, spenderAddress: string): boolean {
-    if (!amount || bnum(amount).eq(0)) return false
+  function approvalRequired(tokenAddress: string, amount: BigNumber, spenderAddress: string): boolean {
+    if (!amount || amount.eq(0)) return false
     if (!spenderAddress) return false
     if (isSameAddress(tokenAddress, nativeAsset.address)) return false
 
     const allowance = allowanceFor(tokenAddress, spenderAddress)
 
-    return allowance.lt(bnum(amount))
+    return !!allowance?.lt(amount)
   }
 
   /**

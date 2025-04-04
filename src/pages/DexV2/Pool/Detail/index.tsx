@@ -31,15 +31,12 @@ const PoolDetail: React.FC = () => {
   const { isWalletReady } = useWeb3()
   const { balanceQueryLoading, prices } = useTokens()
   const priceQueryLoading = false // TODO: implement
-  const {
-    isStableLikePool,
-  } = usePoolHelpers(pool)
+  const { isStableLikePool } = usePoolHelpers(pool)
 
   const loadingPool = isLoadingPool || !pool || balanceQueryLoading
   const aprQuery = usePoolAprQuery(poolId)
   const loadingApr = isQueryLoading(aprQuery)
   const poolApr = aprQuery.data
-
 
   const missingPrices = (() => {
     if (pool && prices && !priceQueryLoading) {
@@ -55,7 +52,6 @@ const PoolDetail: React.FC = () => {
 
   const titleTokens: PoolToken[] = pool?.tokens ? orderedPoolTokens(pool, pool.tokens) : []
 
-  console.log('pool', pool)
   return (
     <DexV2Layout>
       <Container>

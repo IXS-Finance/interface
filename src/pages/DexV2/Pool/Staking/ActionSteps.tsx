@@ -4,9 +4,8 @@ import { useDispatch } from 'react-redux'
 
 import { TransactionActionState } from 'pages/DexV2/types/transactions'
 import HorizSteps, { Step, StepState } from './HorizSteps'
-import { NavigationButtons, NextButton } from 'pages/DexV2/Pool/Create'
+import { NavigationButtons } from 'pages/DexV2/Pool/Create'
 import { captureBalancerException, useErrorMsg } from 'lib/utils/errors'
-import Loader from 'components/Loader'
 import useEthers from 'hooks/dex-v2/useEthers'
 import { postConfirmationDelay } from 'hooks/dex-v2/useTransactions'
 import { dateTimeLabelFor } from 'hooks/dex-v2/useTime'
@@ -15,9 +14,10 @@ import { useSwapState } from 'state/dexV2/swap/useSwapState'
 import { setActionStates } from 'state/dexV2/swap'
 import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
 import { TransactionActionStakingInfo } from 'types/transactions'
-import { StakeAction, useStakePreview } from './hooks/useStakePreview'
-import { AnyPool } from 'services/pool/types'
+import { LpToken, StakeAction, StakePreviewPoolProps, useStakePreview } from './hooks/useStakePreview'
 import { Box } from 'rebass'
+import { Address } from 'viem'
+import { BigNumber } from 'ethers'
 
 export type BalStepAction = {
   label: string
@@ -29,10 +29,13 @@ export type BalStepAction = {
 }
 
 interface ActionStepsProps {
-  pool: AnyPool
+  pool: StakePreviewPoolProps
+  gaugeAddress: Address
+  lpToken: LpToken
   primaryActionType: StakeAction
   disabled?: boolean
-  amountToSubmit: string
+  amountToSubmit: BigNumber
+  currentShares: string
   isLoading?: boolean
   loadingLabel?: string
   onClose: () => void
@@ -47,9 +50,12 @@ const defaultActionState: TransactionActionState = {
 
 const ActionSteps: React.FC<ActionStepsProps> = ({
   pool,
+  lpToken,
   disabled = false,
   isLoading = false,
   amountToSubmit,
+  currentShares,
+  gaugeAddress,
   primaryActionType,
   onClose,
 }) => {
@@ -58,9 +64,16 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   const { formatErrorMsg } = useErrorMsg()
   const onSuccess = () => {}
   const { actionStates, updateActionState } = useSwapState()
-  const { stakeActions } = useStakePreview({ amountToSubmit, pool, action: primaryActionType, onClose, onSuccess })
-
-  console.log('stakeActions', stakeActions)
+  const { stakeActions } = useStakePreview({
+    lpToken,
+    gaugeAddress,
+    currentShares,
+    amountToSubmit,
+    pool,
+    action: primaryActionType,
+    onClose,
+    onSuccess,
+  })
 
   const [loading, setLoading] = useState(false)
   const [currentActionIndex, setCurrentActionIndex] = useState(0)
