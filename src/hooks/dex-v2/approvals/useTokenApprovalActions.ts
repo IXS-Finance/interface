@@ -3,23 +3,26 @@ import { TransactionActionInfo } from 'types/transactions'
 import { ApprovalAction } from './types'
 import { TransactionBuilder } from 'services/web3/transactions/transaction.builder'
 import { TokenInfo } from 'types/TokenList'
-import { parseUnits } from '@ethersproject/units'
 import { TransactionResponse } from '@ethersproject/providers'
 import useTransactions from '../useTransactions'
 import { configService } from 'services/config/config.service'
 import { flatten } from 'lodash'
-import { bnum, forChange } from 'lib/utils'
+import { bnum } from 'lib/utils'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useWeb3 from '../useWeb3'
 import { safeParseUnits } from 'utils/formatCurrencyAmount'
+import { useAllowanceV2 } from 'hooks/useApproveCallback'
+import { BigNumber } from 'ethers'
 
 /**
  * TYPES
  */
 export type AmountToApprove = {
   address: string
-  amount: string // normalized amount
+  amount: BigNumber // normalized amount
 }
+
+export type TokenProps = Pick<TokenInfo, 'address' | 'symbol' | 'decimals'>
 
 interface Params {
   amountsToApprove: AmountToApprove[]
@@ -27,11 +30,12 @@ interface Params {
   actionType: ApprovalAction
   forceMax?: boolean
   skipAllowanceCheck?: boolean
+  tokens: Record<string, TokenProps>
 }
 
 interface ApproveTokenParams {
-  token: TokenInfo
-  normalizedAmount: string | number
+  token: TokenProps
+  amount: BigNumber
   spender: string
   actionType: ApprovalAction
   forceMax?: boolean
@@ -43,12 +47,9 @@ export default function useTokenApprovalActions() {
    */
   const {
     allowances,
-    allowanceQueryRefetching,
-    tokens,
     refetchAllowances,
     approvalsRequired,
     approvalRequiredWithAllowances,
-    getToken,
     injectSpenders,
     allowanceFor,
   } = useTokens()
@@ -110,7 +111,7 @@ export default function useTokenApprovalActions() {
   }
 
   async function isApprovalValid(amountToApprove: AmountToApprove, spender: string): Promise<boolean> {
-    if (bnum(amountToApprove.amount).eq(0)) return true
+    if (amountToApprove.amount.eq(0)) return true
 
     const { data } = await updateAllowancesFor(spender)
 
@@ -134,12 +135,12 @@ export default function useTokenApprovalActions() {
    */
   async function approveToken({
     token,
-    normalizedAmount,
+    amount,
     spender,
     actionType,
     forceMax = true,
   }: ApproveTokenParams): Promise<TransactionResponse> {
-    const amount = forceMax ? MaxUint256.toString() : safeParseUnits(+normalizedAmount, token.decimals).toString()
+    const _amount = forceMax ? MaxUint256.toString() : amount.toString()
 
     const signer = await getSigner()
     const txBuilder = new TransactionBuilder(signer)
@@ -147,7 +148,7 @@ export default function useTokenApprovalActions() {
       contractAddress: token.address,
       abi: ['function approve(address spender, uint256 amount) public returns (bool)'],
       action: 'approve',
-      params: [spender, amount],
+      params: [spender, _amount],
     })
 
     addTransaction({
@@ -172,14 +173,14 @@ export default function useTokenApprovalActions() {
   function isDoubleApprovalRequired(token: any, spender: any): boolean {
     return !!(
       configService.network.tokens.DoubleApprovalRequired?.includes(token.address) &&
-      allowanceFor(token.address, spender).gt(0)
+      allowanceFor(token.address, spender)?.gt(0)
     )
   }
 
   /**
    * Create an action for BalActionSteps that approves a token for spending.
    * @param {TokenInfo} token The token to approve.
-   * @param {string} normalizedAmount The amount to approve, normalized, if
+   * @param {string} amount The amount to approve, BigNumber, if
    * forceMax is false.
    * @param {string} spender The contract address to give the approval too,
    * typically the vault.
@@ -191,7 +192,7 @@ export default function useTokenApprovalActions() {
    */
   function createApprovalAction({
     token,
-    normalizedAmount,
+    amount,
     spender,
     actionType,
     forceMax = true,
@@ -204,14 +205,14 @@ export default function useTokenApprovalActions() {
       action: () => {
         return approveToken({
           token,
-          normalizedAmount,
+          amount,
           spender,
           actionType,
           forceMax,
         })
       },
       postActionValidation: () => {
-        return isApprovalValid({ address: token.address, amount: normalizedAmount }, spender)
+        return isApprovalValid({ address: token.address, amount }, spender)
       },
       actionInvalidReason: {
         title: 'Approval insufficient',
@@ -240,14 +241,13 @@ export default function useTokenApprovalActions() {
     actionType,
     forceMax = true,
     skipAllowanceCheck = false,
+    tokens,
   }: Params): Promise<TransactionActionInfo[]> {
     const approvalsRequired = await getApprovalsRequired(amountsToApprove, spender, skipAllowanceCheck)
 
     return flatten(
       approvalsRequired.map((amountToApprove) => {
-        const token = getToken(amountToApprove.address)
-        console.log('tokens', tokens)
-
+        const token = tokens[amountToApprove.address]
         const actions: TransactionActionInfo[] = []
 
         /**
@@ -258,7 +258,7 @@ export default function useTokenApprovalActions() {
           actions.push(
             createApprovalAction({
               token,
-              normalizedAmount: '0',
+              amount: BigNumber.from('0'),
               spender,
               actionType: ApprovalAction.Unapprove,
               forceMax: false,
@@ -269,7 +269,7 @@ export default function useTokenApprovalActions() {
         actions.push(
           createApprovalAction({
             token,
-            normalizedAmount: amountToApprove.amount,
+            amount: amountToApprove.amount,
             spender,
             actionType,
             forceMax,

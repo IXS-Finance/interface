@@ -1,34 +1,40 @@
 import { useState, useEffect, useCallback } from 'react'
-// import { ApprovalAction } from 'composables/approvals/types'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
-import { formatUnits } from '@ethersproject/units'
-import { bnum } from 'lib/utils'
 import { AnyPool } from 'services/pool/types'
 import { TransactionActionStakingInfo } from 'types/transactions'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider'
-import { getAddress } from '@ethersproject/address'
 import useTokenApprovalActions from 'hooks/dex-v2/approvals/useTokenApprovalActions'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { usePoolStaking } from 'state/dexV2/poolStaking/usePoolStaking'
 import useTransactions from 'hooks/dex-v2/useTransactions'
 import { fiatValueOf } from 'hooks/dex-v2/usePoolHelpers'
 import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
+import { Address } from 'viem'
+import { TokenInfo } from 'types/TokenList'
+import { BigNumber } from 'ethers'
 
 export type StakeAction = 'stake' | 'unstake'
+export type StakePreviewPoolProps = Pick<AnyPool, 'totalLiquidity' | 'totalShares' | 'address' | 'name'>
 export type StakePreviewProps = {
-  pool: AnyPool
+  pool: StakePreviewPoolProps
   action: StakeAction
 }
 
+export type LpToken = Pick<TokenInfo, 'address' | 'symbol' | 'decimals'>
+
 // In React we pass callbacks instead of using Vue emits.
 export type UseStakePreviewProps = StakePreviewProps & {
-  amountToSubmit?: string
+  currentShares: string
+  gaugeAddress?: Address
+  lpToken: LpToken
+  amountToSubmit?: BigNumber
   onSuccess: () => void
   onClose: () => void
 }
 
 export function useStakePreview(props: UseStakePreviewProps) {
   // STATE
+  const { currentShares, gaugeAddress, lpToken } = props
   const [isLoadingApprovalsForGauge, setIsLoadingApprovalsForGauge] = useState(false)
   const [isActionConfirmed, setIsActionConfirmed] = useState(false)
   const [isActionConfirming, setIsActionConfirming] = useState(false)
@@ -36,7 +42,7 @@ export function useStakePreview(props: UseStakePreviewProps) {
   const [stakeActions, setStakeActions] = useState<TransactionActionStakingInfo[]>([])
 
   // COMPOSABLES (React hooks)
-  const { balanceFor, refetchBalances, allowances } = useTokens()
+  const { refetchBalances } = useTokens()
   const { fNum } = useNumbers()
   const { addTransaction } = useTransactions()
   const { getTokenApprovalActions } = useTokenApprovalActions()
@@ -45,16 +51,15 @@ export function useStakePreview(props: UseStakePreviewProps) {
     stake,
     unstake,
     refetchAllPoolStakingData,
-    preferentialGaugeAddress,
     stakedBalance,
     unstakeBalance,
     isFetchingStakedBalance,
-  } = usePoolStaking()
+  } = usePoolStaking({
+    gaugeAddress,
+  })
 
-  // Determine current shares: if action is 'stake', use token balance; otherwise use staked shares.
-  const currentShares = balanceFor(getAddress(props.pool.address))
   // Define the stake and unstake actions.
-  async function handleStake(amount: string): Promise<TransactionResponse> {
+  async function handleStake(amount: BigNumber): Promise<TransactionResponse> {
     try {
       const tx = await stake(amount)
       setIsActionConfirming(true)
@@ -62,7 +67,7 @@ export function useStakePreview(props: UseStakePreviewProps) {
         id: tx.hash,
         type: 'tx',
         action: 'stake',
-        summary: `${fNum(fiatValueOf(props.pool, currentShares), FNumFormats.fiat)} in ${props.pool.symbol}`,
+        summary: `${fNum(fiatValueOf(props.pool, currentShares), FNumFormats.fiat)} in ${props.pool.name}`,
         details: {
           total: fNum(fiatValueOf(props.pool, currentShares), FNumFormats.fiat),
           pool: props.pool,
@@ -75,7 +80,7 @@ export function useStakePreview(props: UseStakePreviewProps) {
     }
   }
 
-  async function handleUnstake(amount: string): Promise<TransactionResponse> {
+  async function handleUnstake(amount: BigNumber): Promise<TransactionResponse> {
     try {
       const tx = await unstake(amount)
       setIsActionConfirming(true)
@@ -83,7 +88,7 @@ export function useStakePreview(props: UseStakePreviewProps) {
         id: tx.hash,
         type: 'tx',
         action: 'unstake',
-        summary: `${fNum(fiatValueOf(props.pool, currentShares), FNumFormats.fiat)} from ${props.pool.symbol}`,
+        summary: `${fNum(fiatValueOf(props.pool, currentShares), FNumFormats.fiat)} from ${props.pool.name}`,
         details: {
           total: fNum(fiatValueOf(props.pool, currentShares), FNumFormats.fiat),
           pool: props.pool,
@@ -100,7 +105,7 @@ export function useStakePreview(props: UseStakePreviewProps) {
     label: 'Stake',
     loadingLabel: 'Staking...',
     confirmingLabel: 'Confirming..',
-    action: (amount: string) => handleStake(amount),
+    action: (amount: BigNumber) => handleStake(amount),
     stepTooltip: 'Confirm staking of LP tokens to earn liquidity mining incentives on this pool',
   }
 
@@ -108,7 +113,7 @@ export function useStakePreview(props: UseStakePreviewProps) {
     label: 'Unstake',
     loadingLabel: 'Unstaking...',
     confirmingLabel: 'Confirming..',
-    action: (amount: string) => handleUnstake(amount),
+    action: (amount: BigNumber) => handleUnstake(amount),
     stepTooltip: `Confirm unstaking of LP tokens. You'll lose eligibility to earn liquidity mining incentives for this pool.`,
   }
 
@@ -117,18 +122,20 @@ export function useStakePreview(props: UseStakePreviewProps) {
   const amountsToApprove = [
     {
       address: props.pool.address,
-      amount: props.amountToSubmit || '0',
+      amount: props.amountToSubmit || BigNumber.from('0'),
     },
   ]
 
   const isLoading = isLoadingApprovalsForGauge || isPoolStakingLoading
 
   const loadApprovalsForGauge = useCallback(async () => {
+    if (!gaugeAddress) return
     setIsLoadingApprovalsForGauge(true)
     try {
       const approvalActions = await getTokenApprovalActions({
+        tokens: { [lpToken.address]: lpToken },
         amountsToApprove,
-        spender: preferentialGaugeAddress, // dependency handled here
+        spender: gaugeAddress, // dependency handled here
         actionType: ApprovalAction.Staking,
         forceMax: false,
       })
@@ -147,7 +154,7 @@ export function useStakePreview(props: UseStakePreviewProps) {
     } finally {
       setIsLoadingApprovalsForGauge(false)
     }
-  }, [preferentialGaugeAddress, props.amountToSubmit, props.action])
+  }, [gaugeAddress, props.amountToSubmit, props.action])
 
   async function handleSuccess(receipt: TransactionReceipt) {
     setIsActionConfirmed(true)
@@ -180,10 +187,10 @@ export function useStakePreview(props: UseStakePreviewProps) {
       await loadApprovalsForGauge()
     }
 
-    if (preferentialGaugeAddress && props.amountToSubmit !== '0') {
+    if (gaugeAddress && props.amountToSubmit?.gt(0)) {
       run()
     }
-  }, [preferentialGaugeAddress, props.action, props.amountToSubmit])
+  }, [gaugeAddress, props.action, props.amountToSubmit])
 
   return {
     isActionConfirmed,

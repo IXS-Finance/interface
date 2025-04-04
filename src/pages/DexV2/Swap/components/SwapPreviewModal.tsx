@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import Portal from '@reach/portal'
 import styled from 'styled-components'
-import { formatUnits } from '@ethersproject/units'
+import { formatUnits, parseEther } from '@ethersproject/units'
 import { mapValues } from 'lodash'
 
 import { CenteredFixed } from 'components/LaunchpadMisc/styled'
@@ -31,6 +31,7 @@ import ActionSteps from './ActionSteps'
 import SwapRoute from './SwapRoute'
 import Modal from 'pages/DexV2/common/modals'
 import { BalAlert } from 'pages/DexV2/common/BalAlert'
+import { safeParseUnits } from 'utils/formatCurrencyAmount'
 
 interface SwapSettingsModalProps {
   swapping: UseSwapping
@@ -242,11 +243,13 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
   // Lifecycle: on mount, fetch token approval actions
   useEffect(() => {
     async function fetchTokenApprovalActions() {
-      let amountToApprove = bnum(swapping.tokenInAmountInput).plus(1).toString()
+      let amountToApprove = safeParseUnits(+swapping.tokenInAmountInput, swapping.tokenIn.decimals)
+
       if (!swapping.exactIn) {
-        amountToApprove = bnum(swapping.tokenInAmountInput)
-          .times(bnum(1).plus(slippage)).plus(1)
-          .toString()
+        const amountPercentPrecision = 6
+        amountToApprove = amountToApprove
+          .mul(+slippage * 10 ** amountPercentPrecision)
+          .div(10 ** amountPercentPrecision)
       }
 
       const actions = await getTokenApprovalActions({
@@ -256,6 +259,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
             amount: amountToApprove,
           },
         ],
+        tokens: { [swapping.tokenIn.address]: swapping.tokenIn },
         spender: tokenApprovalSpender,
         actionType: ApprovalAction.Swapping,
         forceMax: false,

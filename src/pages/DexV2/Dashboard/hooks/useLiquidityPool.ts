@@ -61,6 +61,12 @@ const useLiquidityPool = () => {
       abi: erc20ABI,
       functionName: 'totalSupply',
     },
+    {
+      address: pool.address,
+      abi: erc20ABI,
+      functionName: 'balanceOf',
+      args: [_account],
+    },
   ])
 
   // @ts-ignore
@@ -73,23 +79,30 @@ const useLiquidityPool = () => {
   })
 
   const contractEntitiesPerPool = contracts?.length / pools?.length
-  const userLpBalanceIndex = (i: number) => i * contractEntitiesPerPool
+  const userGaugeBalanceIndex = (i: number) => i * contractEntitiesPerPool
   const lpSupplyIndex = (i: number) => i * contractEntitiesPerPool + 1
+  const userLpBalanceIndex = (i: number) => i * contractEntitiesPerPool + 2
 
-  const userBalanceByPool = pools?.reduce((acc, pool, index) => {
-    acc[pool.address as Address] = data?.[userLpBalanceIndex(index)]?.result as BigNumber
+  const userGaugeBalanceByPool = pools?.reduce((acc, pool, index) => {
+    acc[pool.address as Address] = data?.[userGaugeBalanceIndex(index)]?.result as bigint
     return acc
-  }, {} as Record<Address, BigNumber>)
+  }, {} as Record<Address, bigint>)
 
   const lpSupplyByPool = pools?.reduce((acc, pool, index) => {
     acc[pool.address as Address] = BigNumber.from(data?.[lpSupplyIndex(index)]?.result || 0)
     return acc
   }, {} as Record<Address, BigNumber>)
 
+  const userLpBalanceByPool = pools?.reduce((acc, pool, index) => {
+    acc[pool.address as Address] = data?.[userLpBalanceIndex(index)]?.result as bigint
+    return acc
+  }, {} as Record<Address, bigint>)
+
   return {
     positionsData,
     lpSupplyByPool,
-    userBalanceByPool,
+    userLpBalanceByPool,
+    userGaugeBalanceByPool,
     gaugesByPool,
   }
 }

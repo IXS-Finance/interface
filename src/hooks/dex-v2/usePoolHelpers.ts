@@ -251,7 +251,8 @@ export function flatTokenTree(
  * @param {Pool} pool - Pool to get tokensList from.
  * @returns tokensList excluding pre-minted BPT address.
  */
-export function tokensListExclBpt(pool: Pool): string[] {
+type TokensListExclBptPoolProps = Pick<Pool, 'address' | 'tokensList'>
+export function tokensListExclBpt(pool: TokensListExclBptPoolProps): string[] {
   return removeAddress(pool.address, pool.tokensList)
 }
 
@@ -351,7 +352,8 @@ export function noInitLiquidity(pool: AnyPool): boolean {
  *
  * @returns USD value of 1 BPT
  */
-export function bptPriceFor(pool: Pool): string {
+type BptPriceForPool = Pick<Pool, 'totalLiquidity' | 'totalShares'>
+export function bptPriceFor(pool: BptPriceForPool): string {
   return bnum(pool.totalLiquidity).div(pool.totalShares).toString()
 }
 
@@ -360,7 +362,7 @@ export function bptPriceFor(pool: Pool): string {
  *
  * @returns USD value of shares.
  */
-export function fiatValueOf(pool: Pool, shares: string): string {
+export function fiatValueOf(pool: BptPriceForPool, shares: string): string {
   return bnum(shares).times(bptPriceFor(pool)).toString()
 }
 

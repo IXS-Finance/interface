@@ -2,6 +2,7 @@ import {
   TransactionReceipt,
   TransactionResponse,
 } from '@ethersproject/abstract-provider';
+import { BigNumber } from 'ethers';
 
 export type TransactionError = {
   title: string;
@@ -35,7 +36,7 @@ export type TransactionActionStakingInfo = {
   loadingLabel: string;
   confirmingLabel: string;
   stepTooltip: string;
-  action: (amount: string) => Promise<TransactionResponse>;
+  action: (amount: BigNumber) => Promise<TransactionResponse>;
   postActionValidation?: () => Promise<boolean>;
   actionInvalidReason?: TransactionError;
   isSignAction?: boolean;

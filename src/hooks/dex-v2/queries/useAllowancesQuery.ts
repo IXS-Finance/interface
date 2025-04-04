@@ -2,17 +2,15 @@ import { useQuery } from '@tanstack/react-query'
 
 import QUERY_KEYS from 'constants/dexV2/queryKeys'
 import TokenService from 'services/token/token.service'
-import { TokenInfoMap } from 'types/TokenList'
 
 import useNetwork from '../useNetwork'
-import { useMemo } from 'react'
 import useWeb3 from '../useWeb3'
 
 /**
  * TYPES
  */
 interface QueryInputs {
-  tokens: TokenInfoMap
+  tokenAddresses: string[]
   contractAddresses: string[]
   isEnabled?: boolean
 }
@@ -20,7 +18,7 @@ interface QueryInputs {
 /**
  * Fetches all allowances for given tokens for each provided contract address.
  */
-export default function useAllowancesQuery({ tokens, contractAddresses, isEnabled = true }: QueryInputs) {
+export default function useAllowancesQuery({ tokenAddresses, contractAddresses, isEnabled = true }: QueryInputs) {
   /**
    * COMPOSABLES
    */
@@ -31,7 +29,6 @@ export default function useAllowancesQuery({ tokens, contractAddresses, isEnable
    * COMPUTED
    */
   const enabled: boolean = isWalletReady && isEnabled
-  const tokenAddresses: string[] = Object.keys(tokens)
 
   /**
    * QUERY INPUTS
@@ -39,8 +36,7 @@ export default function useAllowancesQuery({ tokens, contractAddresses, isEnable
   const queryKey = QUERY_KEYS.Account.Allowances(networkId, account, contractAddresses, tokenAddresses)
 
   const queryFn = async () => {
-    const allowances = await new TokenService().allowances.get(account, contractAddresses, tokens)
-    console.log('Fetching', tokenAddresses.length)
+    const allowances = await new TokenService().allowances.get(account, contractAddresses, tokenAddresses)
     return allowances
   }
 

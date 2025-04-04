@@ -9,28 +9,37 @@ import { NewApproveButton, PinnedContentButton } from 'components/Button'
 import { Card } from './Card'
 import { JoinExitsType, TokenType } from '../graphql/dashboard'
 import CurrencyLogoSet from 'components/CurrencyLogoSet'
-import { Address, zeroAddress } from 'viem'
+import { Address, formatUnits, parseUnits, zeroAddress } from 'viem'
 import { formatAmount } from 'utils/formatCurrencyAmount'
 import { BigNumber } from 'ethers'
 import { useCallback, useState } from 'react'
 import Asset from 'pages/DexV2/common/Asset'
 import { StakeAction } from 'pages/DexV2/Pool/Staking/hooks/useStakePreview'
+import StakePreviewModal from 'pages/DexV2/Pool/Staking/StakePreviewModal'
+import { LP_DECIMALS } from 'pages/DexV2/Pool/Staking/constants'
 
 type LiquidityRowProps = {
   data: JoinExitsType
-  userBalanceByPool?: BigNumber
+  userLpBalance?: bigint
+  userGaugeBalance?: bigint
   lpSupply?: BigNumber
   gaugesByPool: Record<Address, Address>
 }
 
-const LiquidityRow = ({ data, userBalanceByPool, lpSupply, gaugesByPool }: LiquidityRowProps) => {
+const LiquidityRow = ({ data, userLpBalance, userGaugeBalance, lpSupply, gaugesByPool }: LiquidityRowProps) => {
   return (
     <Card>
       <TableHeader />
       <Box my={3}>
         <Line />
       </Box>
-      <TableBody data={data} userBalanceByPool={userBalanceByPool} lpSupply={lpSupply} gaugesByPool={gaugesByPool} />
+      <TableBody
+        data={data}
+        userLpBalance={userLpBalance}
+        userGaugeBalance={userGaugeBalance}
+        lpSupply={lpSupply}
+        gaugesByPool={gaugesByPool}
+      />
     </Card>
   )
 }
@@ -54,7 +63,7 @@ const TableHeader = () => {
   )
 }
 
-const TableBody = ({ data, userBalanceByPool, lpSupply, gaugesByPool }: LiquidityRowProps) => {
+const TableBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, gaugesByPool }: LiquidityRowProps) => {
   const theme = useTheme()
   const [stakeAction, setStakeAction] = useState<StakeAction | null>(null)
 
@@ -66,13 +75,13 @@ const TableBody = ({ data, userBalanceByPool, lpSupply, gaugesByPool }: Liquidit
 
   const getStakedAmount = useCallback(
     (token: TokenType): Big => {
-      if (!userBalanceByPool || !lpSupply || lpSupply.toString() === '0') {
+      if (!userGaugeBalance || !lpSupply || lpSupply.toString() === '0') {
         return new Big(0)
       }
 
-      return new Big(userBalanceByPool.toString()).div(lpSupply.toString()).mul(token.balance)
+      return new Big(userGaugeBalance.toString()).div(lpSupply.toString()).mul(token.balance)
     },
-    [userBalanceByPool]
+    [userGaugeBalance]
   )
 
   const handlePreviewClose = () => setStakeAction(null)
@@ -137,6 +146,7 @@ const TableBody = ({ data, userBalanceByPool, lpSupply, gaugesByPool }: Liquidit
                 paddingTop: 12,
                 paddingBottom: 12,
               }}
+              onClick={() => setStakeAction('unstake')}
             >
               Withdraw
             </NewApproveButton>
@@ -153,6 +163,19 @@ const TableBody = ({ data, userBalanceByPool, lpSupply, gaugesByPool }: Liquidit
           </Stack>
         ) : null}
       </Grid>
+      {stakeAction ? (
+        <StakePreviewModal
+          isVisible
+          pool={data.pool}
+          gaugeAddress={data.pool?.gauge.address}
+          currentShares={formatUnits(userLpBalance ?? BigInt(0), LP_DECIMALS)}
+          stakedBalance={userGaugeBalance ?? BigInt(0)}
+          unstakeBalance={userLpBalance ?? BigInt(0)}
+          action={stakeAction}
+          onClose={handlePreviewClose}
+          onSuccess={handlePreviewClose}
+        />
+      ) : null}
     </Grid>
   )
 }
