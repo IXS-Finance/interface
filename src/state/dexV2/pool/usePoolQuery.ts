@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { GraphQLArgs } from '@ixswap1/dex-v2-sdk'
 
 import { poolsStoreService } from 'services/pool/pools-store.service'
@@ -79,7 +79,7 @@ export default function usePoolQuery(id: string, isEnabled: boolean = true, opti
 
   const queryOptions = {
     enabled,
-    placeholderData: true,
+    placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
     ...options,
   }

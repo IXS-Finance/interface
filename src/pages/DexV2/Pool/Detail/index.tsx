@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -7,7 +7,6 @@ import { usePool } from 'state/dexV2/pool/usePool'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { tokenTreeLeafs, usePoolHelpers, orderedPoolTokens } from 'hooks/dex-v2/usePoolHelpers'
-import usePoolSnapshotsQuery from 'hooks/dex-v2/queries/usePoolSnapshotsQuery'
 import usePoolAprQuery from 'hooks/dex-v2/queries/usePoolAprQuery'
 import { includesAddress } from 'lib/utils'
 import { PoolToken } from 'services/pool/types'
@@ -17,7 +16,6 @@ import DexV2Layout from '../../common/Layout'
 import { Box, Flex } from 'rebass'
 import chartImg from 'assets/images/dex-v2/chart-fake.svg'
 import BalCard from 'pages/DexV2/common/Card'
-import useNumbers from 'hooks/dex-v2/useNumbers'
 import PoolStatCards from './components/PoolStatCards'
 import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
 import PoolCompositionCard from './components/PoolCompositionCard'
@@ -29,11 +27,14 @@ const PoolDetail: React.FC = () => {
   const poolId = (params.id as string).toLowerCase()
   const { pool, isLoadingPool } = usePool(poolId)
   const { isWalletReady } = useWeb3()
-  const { balanceQueryLoading, prices } = useTokens()
+  const { prices } = useTokens()
   const priceQueryLoading = false // TODO: implement
   const { isStableLikePool } = usePoolHelpers(pool)
 
-  const loadingPool = isLoadingPool || !pool || balanceQueryLoading
+  const loadingPool = isLoadingPool || !pool
+
+  console.log('loadingPool', loadingPool)
+  console.log('pool', pool)
   const aprQuery = usePoolAprQuery(poolId)
   const loadingApr = isQueryLoading(aprQuery)
   const poolApr = aprQuery.data
