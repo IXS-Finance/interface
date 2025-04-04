@@ -3,12 +3,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { formatUnits } from '@ethersproject/units'
 import { parseUnits } from 'ethers/lib/utils'
 
-import usePoolGaugeQuery, { PoolGauge } from 'hooks/dex-v2/queries/usePoolGaugeQuery'
+import { PoolGauge } from 'hooks/dex-v2/queries/usePoolGaugeQuery'
 import { isQueryLoading } from 'hooks/dex-v2//queries/useQueryHelpers'
-import { bnum, getAddressFromPoolId, isSameAddress } from 'lib/utils'
 import { LiquidityGauge } from 'services/balancer/contracts/liquidity-gauge'
-import { TransactionResponse } from '@ethersproject/abstract-provider'
-import { POOLS } from 'constants/dexV2/pools'
 import { subgraphRequest } from 'lib/utils/subgraph'
 import { configService } from 'services/config/config.service'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
@@ -18,8 +15,15 @@ import { AppState } from 'state'
 import { setPoolGaugeQuery, setPoolStakingState } from '.'
 import { Pool } from 'services/pool/types'
 import { overflowProtected } from 'pages/DexV2/Pool/components/helpers'
+import { Address } from 'viem'
+import { BigNumber } from 'ethers'
 
-export const usePoolStaking = () => {
+export type UsePoolStakingProps = {
+  gaugeAddress?: Address // The current preferential gauge for the specified pool.
+}
+
+export const usePoolStaking = (props: UsePoolStakingProps) => {
+  const { gaugeAddress } = props
   const [isFetchingStakedBalance, setIsFetchingStakedBalance] = useState(false)
   const [stakedBalance, setStakedBalance] = useState('0')
 
@@ -30,7 +34,7 @@ export const usePoolStaking = () => {
 
   const poolGauge = poolGaugeQuery?.data as PoolGauge
   // The current preferential gauge for the specified pool.
-  const preferentialGaugeAddress = poolGauge?.pool?.gauge?.address
+  // const preferentialGaugeAddress = poolGauge?.pool?.gauge?.address
   const poolId = poolGauge?.pool?.id
   const poolAddress = poolGauge?.pool?.address
 
@@ -42,7 +46,7 @@ export const usePoolStaking = () => {
   //     isQueryLoading(userGaugeSharesQuery) ||
   //     isQueryLoading(userBoostsQuery)))
 
-  const isStakablePool = preferentialGaugeAddress
+  const isStakablePool = gaugeAddress
   const unstakeBalance = poolAddress ? balanceFor(poolAddress) : '0'
 
   const refetchAllPoolStakingData = async () => {
@@ -54,21 +58,18 @@ export const usePoolStaking = () => {
     ])
   }
 
-  const stake = async (amount: string) => {
-    if (!preferentialGaugeAddress) throw new Error(`No preferential gauge found for this pool: ${poolId}`)
-    const gauge = new LiquidityGauge(preferentialGaugeAddress)
-    const balance = parseUnits(overflowProtected(amount, 18), 18)
+  const stake = async (amount: BigNumber) => {
+    if (!gaugeAddress) throw new Error(`No preferential gauge found for this pool: ${poolId}`)
+    const gauge = new LiquidityGauge(gaugeAddress)
 
-    return await gauge.stake(balance)
+    return await gauge.stake(amount)
   }
 
-  const unstake = async (amount: string) => {
-    if (!preferentialGaugeAddress) throw new Error('Unable to unstake, no pool gauges')
-    const gauge = new LiquidityGauge(preferentialGaugeAddress)
+  const unstake = async (amount: BigNumber) => {
+    if (!gaugeAddress) throw new Error('Unable to unstake, no pool gauges')
+    const gauge = new LiquidityGauge(gaugeAddress)
 
-    const balance = parseUnits(overflowProtected(amount, 18), 18)
-
-    return await gauge.unstake(balance)
+    return await gauge.unstake(amount)
   }
 
   const fetchPreferentialGaugeAddress = async (poolAddress: string): Promise<string> => {
@@ -106,23 +107,22 @@ export const usePoolStaking = () => {
 
   useEffect(() => {
     async function getBalance() {
+      if (!account || !gaugeAddress) return
+
       setIsFetchingStakedBalance(true)
-      const gauge = new LiquidityGauge(preferentialGaugeAddress)
+      const gauge = new LiquidityGauge(gaugeAddress)
       const balanceBpt = await gauge.balance(account)
       const stackedBalance = formatUnits(balanceBpt.toString(), currentPool?.onchain?.decimals || 18)
       setStakedBalance(stackedBalance)
       setIsFetchingStakedBalance(false)
     }
-    if (preferentialGaugeAddress) {
-      getBalance()
-    }
-  }, [preferentialGaugeAddress])
+    getBalance()
+  }, [gaugeAddress])
 
   return {
     // STATE/COMPUTED
     isLoading,
     isStakablePool,
-    preferentialGaugeAddress,
     // boost,
     poolGauge,
     // METHODS

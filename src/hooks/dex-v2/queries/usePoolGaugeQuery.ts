@@ -4,6 +4,7 @@ import QUERY_KEYS from 'constants/dexV2/queryKeys'
 import { subgraphRequest } from 'lib/utils/subgraph'
 import { configService } from 'services/config/config.service'
 import { PoolType } from 'pages/DexV2/Dashboard/graphql/dashboard'
+import { Address } from 'viem'
 
 export type PoolGauge = {
   __name: 'PoolGauge'
@@ -14,7 +15,7 @@ export type PoolGauge = {
     poolTypeVersion: number
     gauge: {
       id: string
-      address: string
+      address: Address
     }
   }
 }
@@ -65,5 +66,5 @@ export default function usePoolGaugeQuery(poolId?: string, options: any = {}) {
     ...options,
   }
 
-  return useQuery({ queryKey, queryFn, ...queryOptionsFinal })
+  return useQuery<PoolGauge>({ queryKey, queryFn, ...queryOptionsFinal })
 }

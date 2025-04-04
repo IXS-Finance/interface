@@ -103,6 +103,7 @@ export const useJoinPool = (pool: any) => {
   const setApprovalActions = async () => {
     const tokenApprovalActions = await getTokenApprovalActions({
       amountsToApprove,
+      tokens: { [pool.address]: { address: pool.address, decimals: pool.decimals, symbol: pool.name } },
       spender: appNetworkConfig.addresses.vault,
       actionType: ApprovalAction.AddLiquidity,
       skipAllowanceCheck: true,

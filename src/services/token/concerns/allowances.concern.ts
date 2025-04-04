@@ -1,16 +1,14 @@
 import { getAddress } from '@ethersproject/address';
 import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
-import { formatUnits } from '@ethersproject/units';
 
 import { default as erc20Abi } from 'lib/abi/ERC20.json';
 import { isSameAddress } from 'lib/utils';
 import { getMulticall } from 'dependencies/multicall';
-import { TokenInfoMap } from 'types/TokenList';
 
 import TokenService from '../token.service';
 
 // TYPES
-export type AllowanceMap = { [address: string]: string };
+export type AllowanceMap = { [address: string]: BigNumber };
 export type ContractAllowancesMap = { [address: string]: AllowanceMap };
 
 export default class AllowancesConcern {
@@ -24,17 +22,17 @@ export default class AllowancesConcern {
   async get(
     account: string,
     contractAddresses: string[],
-    tokens: TokenInfoMap
+    tokenAddresses: string[],
   ): Promise<ContractAllowancesMap> {
     try {
       // Filter out eth (or native asset) since it's not relevant for allowances.
-      const tokenAddresses = Object.keys(tokens).filter(
+      const _tokenAddresses = tokenAddresses.filter(
         address => !isSameAddress(address, this.nativeAssetAddress)
       );
 
       const allContractAllowances = await Promise.all(
         contractAddresses.map(contractAddress =>
-          this.getForContract(account, contractAddress, tokenAddresses, tokens)
+          this.getForContract(account, contractAddress, _tokenAddresses)
         )
       );
 
@@ -55,7 +53,6 @@ export default class AllowancesConcern {
     account: string,
     contractAddress: string,
     tokenAddresses: string[],
-    tokens: TokenInfoMap
   ): Promise<AllowanceMap> {
     const network = this.service.configService.network.key;
     const provider = this.service.rpcProviderService.jsonProvider;
@@ -76,7 +73,7 @@ export default class AllowancesConcern {
     return Object.fromEntries(
       tokenAddresses.map((token, i) => [
         getAddress(token),
-        formatUnits(allowances[i], tokens[token].decimals),
+        allowances[i],
       ])
     );
   }

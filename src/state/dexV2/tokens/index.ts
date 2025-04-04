@@ -1,6 +1,7 @@
 // src/store/tokensSlice.ts
 import { createSlice } from '@reduxjs/toolkit'
 import { getChainId } from '@wagmi/core'
+import _merge from 'lodash/merge'
 
 import { TokenInfoMap, TokenInfo } from 'types/TokenList'
 import { wagmiConfig } from 'components/Web3Provider'
@@ -80,7 +81,7 @@ const tokensSlice = createSlice({
     },
     //Add more ContractAllowancesMap to current allowances
     setAllowances(state, action) {
-      state.allowances = { ...state.allowances, ...action.payload }
+      state.allowances = _merge(state.allowances, action.payload)
     },
   },
 })

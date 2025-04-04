@@ -1,21 +1,22 @@
 import React from 'react'
 import _get from 'lodash/get'
 
-import { Box, Container } from '@mui/material'
+import { Container } from '@mui/material'
 import LiquidityRewards from './components/LiquidityRewards'
 import LockRewards from './components/LockRewards'
 import VotingRewards from './components/VotingRewards'
 import { DashProvider } from './DashProvider'
+import DexV2Layout from '../common/Layout'
 
 const Dashboard: React.FC = () => {
   return (
     <DashProvider>
       <Container>
-        <Box mt={3}>
+        <DexV2Layout>
           <LiquidityRewards />
           <LockRewards />
           <VotingRewards />
-        </Box>
+        </DexV2Layout>
       </Container>
     </DashProvider>
   )

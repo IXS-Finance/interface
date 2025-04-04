@@ -9,6 +9,7 @@ import ActionSteps from './ActionSteps'
 import { useTokensState } from 'state/dexV2/tokens/hooks'
 import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import { safeParseUnits } from 'utils/formatCurrencyAmount'
 
 interface Props {
   tokenAddresses: string[]
@@ -19,10 +20,10 @@ interface Props {
 }
 
 const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => {
-  const { needsSeeding, poolId, hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
+  const { needsSeeding, hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
   const { getTokenApprovalActions } = useTokenApprovalActions()
-  const { account, chainId } = useWeb3React()
-  const { allowanceLoading, allowances } = useTokensState()
+  const { chainId } = useWeb3React()
+  const { allowanceLoading } = useTokensState()
   const { tokens } = useTokens()
   const [loading, setLoading] = useState(false)
 
@@ -49,9 +50,10 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
   const [actions, setActions] = useState<TransactionActionInfo[]>(initActions)
 
   const amountsToApprove = amounts.map((amount, index) => {
+    const tokenAddress = tokenAddresses[index]
     return {
-      address: tokenAddresses[index],
-      amount,
+      address: tokenAddress,
+      amount: safeParseUnits(+amount, tokens[tokenAddress].decimals),
     }
   })
 
@@ -65,6 +67,7 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
   const getActions = async () => {
     setLoading(true)
     const approvalActions = await getTokenApprovalActions({
+      tokens,
       amountsToApprove,
       spender: networkConfig.addresses.vault,
       actionType: ApprovalAction.AddLiquidity,

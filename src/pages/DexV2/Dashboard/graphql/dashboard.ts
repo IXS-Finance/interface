@@ -18,6 +18,10 @@ export type PoolType = {
   name: string
   totalLiquidity: string
   totalShares: string
+  gauge: {
+    address: Address
+  }
+  tokensList: string[]
   tokens: TokenType[]
 }
 
@@ -64,6 +68,10 @@ export const GET_LIQUIDITY_POSITIONS = `
         name
         totalLiquidity
         totalShares
+        tokensList
+        gauge {
+          address
+        }
         tokens {
           id
           symbol
