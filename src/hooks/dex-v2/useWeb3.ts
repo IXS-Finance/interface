@@ -4,7 +4,7 @@ import { useConnectModal } from '@rainbow-me/rainbowkit'
 
 import { wagmiConfig } from 'components/Web3Provider'
 import { configService } from 'services/config/config.service'
-import { rpcProviderService } from 'services/rpc-provider/rpc-provider.service'
+// import { rpcProviderService } from 'services/rpc-provider/rpc-provider.service'
 import { getEthersProvider, getEthersSigner } from 'hooks/useEthersProvider'
 
 export default function useWeb3() {
