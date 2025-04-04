@@ -88,6 +88,9 @@ function getCircleSizeStyles(size: 'xs' | 'sm' | 'md' | 'lg'): string {
 // Returns background CSS based on the props.
 function getBackgroundStyles(props: BalBtnProps): string {
   if (props.outline) {
+    if (props.disabled) {
+      return 'background: #d1d5db; color: white;'
+    }
     return 'background: transparent; &:hover { background: #f3f4f6; }'
   }
   if (props.color && props.color.includes('gradient')) {
@@ -139,6 +142,7 @@ function getBorderStyles(props: BalBtnProps): string {
 
 // Returns text color.
 function getTextColor(props: BalBtnProps): string {
+  if (props.disabled) return 'white'
   if (props.outline || props.flat) return colorMapping[props.color || 'primary']
   return 'white'
 }

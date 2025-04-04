@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AmountIn } from './useJoinPool'
 import { AmountOut } from './useExitPool'
 import { TransactionActionInfo, TransactionActionState } from 'types/transactions'
+import { Pool } from 'services/pool/types'
 
 export enum Tab {
   PoolTokens,
@@ -26,6 +27,7 @@ interface PoolState {
   priceImpact: number
   approvalActions: TransactionActionInfo[]
   actionStates: TransactionActionState[]
+  pools: Pool[] | null
 }
 
 const initialState: PoolState = {
@@ -46,6 +48,7 @@ const initialState: PoolState = {
   priceImpact: 0,
   approvalActions: [],
   actionStates: [],
+  pools: null,
 }
 
 const poolSlice = createSlice({
