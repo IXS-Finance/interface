@@ -84,6 +84,7 @@ export const routes = {
   dexV2Pools: '/v2/pools',
   dexV2Swap: '/v2/swap',
   dexV2Lock: '/v2/lock',
+  dexV2LockDetail: '/v2/lock/:id',
   dexV2PoolDetail: '/v2/pool/:id',
   dexV2PoolAddLiquidity: '/v2/pool/:id/add-liquidity',
   dexV2PoolWithdraw: '/v2/pool/:id/withdraw',

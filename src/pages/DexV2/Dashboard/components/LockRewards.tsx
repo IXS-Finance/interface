@@ -10,9 +10,16 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { NewApproveButton, PinnedContentButton } from 'components/Button'
 import { LockItem } from '../graphql/dashboard'
 import { formatDate } from 'utils/time'
-import { WEEK } from 'pages/DexV2/Lock/constants'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import useLocksQuery from 'hooks/dex-v2/queries/useLocksQuery'
+import { routes } from 'utils/routes'
+import { useHistory } from 'react-router-dom'
+import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
+dayjs.extend(duration)
+dayjs.extend(relativeTime)
 
 const LockRewards: React.FC = () => {
   const { account } = useWeb3()
@@ -63,25 +70,28 @@ const TableHeader = ({ id }: { id: number }) => {
 const TableBody = ({ data }: { data: LockItem }) => {
   const theme = useTheme()
   const currency = useCurrency(data.token)
+  const history = useHistory()
 
-  const lockDuration = useMemo(() => {
-    if (Number(data.votedAt) === 0) {
-      return 0
-    }
-    return Number(data.expiresAt) - Number(data.votedAt)
-  }, [data.expiresAt, data.votedAt])
-
-  const weekToShow = Math.round(lockDuration / WEEK)
   const durationLabel = useMemo(() => {
-    if (Number(data.votedAt) === 0) {
-      return 'N/A'
-    }
-    return weekToShow > 1 ? `${weekToShow} weeks` : `${weekToShow} week`
-  }, [weekToShow])
+    const durationMs = dayjs(+data.expiresAt * 1000).diff(dayjs())
+    return dayjs.duration(durationMs, 'milliseconds').humanize()
+  }, [data.expiresAt])
 
-  const handleIncrease = () => {}
+  const handleIncrease = () => {
+    const searchParams = new URLSearchParams()
+    searchParams.set('increase', 'true')
 
-  const handleExtend = () => {}
+    const path = routes.dexV2LockDetail.replace(':id', data.id)
+    history.push(`${path}?${searchParams.toString()}`)
+  }
+
+  const handleExtend = () => {
+    const searchParams = new URLSearchParams()
+    searchParams.set('extend', 'true')
+
+    const path = routes.dexV2LockDetail.replace(':id', data.id)
+    history.push(`${path}?${searchParams.toString()}`)
+  }
 
   return (
     <Grid container spacing={2} alignItems="center">
