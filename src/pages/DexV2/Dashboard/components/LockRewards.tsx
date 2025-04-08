@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react'
 import { Box, Grid, Stack, Tooltip } from '@mui/material'
 import { TYPE } from 'theme'
 import { useTheme } from 'styled-components'
@@ -7,18 +8,15 @@ import { useCurrency } from 'hooks/Tokens'
 import { Line } from 'components/Line'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { NewApproveButton, PinnedContentButton } from 'components/Button'
-import useLockReward from '../hooks/useLockReward'
-import { VeNFT } from '../graphql/dashboard'
+import { LockItem } from '../graphql/dashboard'
 import { formatDate } from 'utils/time'
-import { safeTokenFormat } from 'lib/balancer/utils/numbers'
 import { WEEK } from 'pages/DexV2/Lock/constants'
+import useWeb3 from 'hooks/dex-v2/useWeb3'
+import useLocksQuery from 'hooks/dex-v2/queries/useLocksQuery'
 
-const LockRewards = () => {
-  const { lockData } = useLockReward()
-
-  const filteredLockData = (lockData?.data as { result: VeNFT[] }[])
-    ?.filter((data) => Number(data.result[0]?.expires_at) > 0)
-    .map((data) => data.result[0])
+const LockRewards: React.FC = () => {
+  const { account } = useWeb3()
+  const { lockRewards } = useLocksQuery(account)
 
   return (
     <Box mb={8}>
@@ -28,7 +26,7 @@ const LockRewards = () => {
           <InfoIcon />
         </Tooltip>
       </Stack>
-      {filteredLockData?.map((data) => (
+      {lockRewards?.map((data) => (
         <Box mb={1} key={`lock-${data.id}`}>
           <Card>
             <TableHeader id={Number(data.id)} />
@@ -62,27 +60,42 @@ const TableHeader = ({ id }: { id: number }) => {
   )
 }
 
-const TableBody = ({ data }: { data: VeNFT }) => {
+const TableBody = ({ data }: { data: LockItem }) => {
   const theme = useTheme()
   const currency = useCurrency(data.token)
 
-  const lockDuration = Number(data.expires_at) - Number(data.voted_at)
+  const lockDuration = useMemo(() => {
+    if (Number(data.votedAt) === 0) {
+      return 0
+    }
+    return Number(data.expiresAt) - Number(data.votedAt)
+  }, [data.expiresAt, data.votedAt])
+
   const weekToShow = Math.round(lockDuration / WEEK)
-  const durationLabel = `${weekToShow} ${weekToShow > 1 ? 'weeks' : 'week'}`
+  const durationLabel = useMemo(() => {
+    if (Number(data.votedAt) === 0) {
+      return 'N/A'
+    }
+    return weekToShow > 1 ? `${weekToShow} weeks` : `${weekToShow} week`
+  }, [weekToShow])
+
+  const handleIncrease = () => {}
+
+  const handleExtend = () => {}
 
   return (
     <Grid container spacing={2} alignItems="center">
       <Grid item xs={3}>
         <Stack direction="row" alignItems="center" gap={1}>
-          <CurrencyLogo currency={currency} size="20px" />
-          <TYPE.subHeader1>veIXS</TYPE.subHeader1>
+          <CurrencyLogo currency={currency} size="32px" />
+          <TYPE.subHeader1 fontSize={16}>veIXS</TYPE.subHeader1>
         </Stack>
       </Grid>
       <Grid item xs={2}>
-        <TYPE.subHeader1>{formatDate(Number(data.voted_at))}</TYPE.subHeader1>
+        <TYPE.subHeader1>{data.votedAt === '0' ? 'N/A' : formatDate(Number(data.votedAt))}</TYPE.subHeader1>
       </Grid>
       <Grid item xs={2}>
-        <TYPE.label fontSize={16}>{safeTokenFormat(data.amount, Number(data.decimals))}</TYPE.label>
+        <TYPE.label fontSize={16}>{data.amount}</TYPE.label>
       </Grid>
       <Grid item xs={2}>
         <TYPE.label fontSize={16}>{durationLabel}</TYPE.label>
@@ -97,6 +110,7 @@ const TableBody = ({ data }: { data: VeNFT }) => {
               paddingTop: 12,
               paddingBottom: 12,
             }}
+            onClick={handleIncrease}
           >
             Increase
           </NewApproveButton>
@@ -106,6 +120,7 @@ const TableBody = ({ data }: { data: VeNFT }) => {
               paddingTop: 12,
               paddingBottom: 12,
             }}
+            onClick={handleExtend}
           >
             Extend
           </PinnedContentButton>

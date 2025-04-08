@@ -16,6 +16,8 @@ export type LockedData = {
   votingAmount: string
   expiresAt: string
   decimals: number
+  votedAt: string
+  token: string
 }
 export class VeSugar {
   instance: EthersContract
@@ -39,14 +41,15 @@ export class VeSugar {
 
   async byAccount(address: string): Promise<LockedData[]> {
     const output = await this.instance.byAccount(address)
-    console.log('output', output)
 
     const result = output.map((item: any) => ({
       id: item.id.toString(),
       amount: formatUnits(item.amount, item.decimals),
       votingAmount: formatUnits(item.votingAmount, item.decimals),
       expiresAt: item.expiresAt.toString(),
+      votedAt: item.votedAt.toString(),
       decimals: item.decimals,
+      token: item.token,
     }))
 
     return result || []
