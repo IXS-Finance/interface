@@ -82,6 +82,8 @@ const PoolDetail: React.FC = () => {
             </BalCard>
 
             <PoolStatCards pool={pool} poolApr={poolApr} loading={loadingPool} loadingApr={loadingApr} />
+
+            {loadingPool ? <LoadingBlock darker rounded="lg" className="h-375" /> : <PoolCompositionCard pool={pool} />}
           </Flex>
 
           <Flex flexDirection="column" css={{ gap: '20px' }}>
@@ -108,12 +110,6 @@ const PoolDetail: React.FC = () => {
               <PoolActionsCard pool={pool} missingPrices={missingPrices} />
             )}
           </Flex>
-
-          <div>
-            <h3>Pool composition</h3>
-
-            {loadingPool ? <LoadingBlock darker rounded="lg" className="h-375" /> : <PoolCompositionCard pool={pool} />}
-          </div>
         </GridContainer>
       </Container>
     </DexV2Layout>
@@ -135,6 +131,10 @@ const Container = styled.div`
 
   .h-20 {
     height: 5rem;
+  }
+
+  .h-24 {
+    height: 6rem;
   }
 
   .h-375 {
