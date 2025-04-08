@@ -84,6 +84,17 @@ const TableBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, gaugesByPo
     [userGaugeBalance]
   )
 
+  const getUnstakedAmount = useCallback(
+    (token: TokenType): Big => {
+      if (!userLpBalance || !lpSupply || lpSupply.toString() === '0') {
+        return new Big(0)
+      }
+
+      return new Big(userLpBalance.toString()).div(lpSupply.toString()).mul(token.balance)
+    },
+    [userLpBalance]
+  )
+
   const handlePreviewClose = () => setStakeAction(null)
 
   return (
@@ -129,7 +140,7 @@ const TableBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, gaugesByPo
           {tokens?.map((token) => (
             <StyledLiquidItem
               token={token.address}
-              amount={new Big(token.balance).minus(getStakedAmount(token)).toNumber()}
+              amount={getUnstakedAmount(token).toNumber()}
               key={`unstaked-${token.address}`}
             />
           )) || null}
