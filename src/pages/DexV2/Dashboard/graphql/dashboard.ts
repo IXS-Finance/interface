@@ -55,6 +55,16 @@ export interface VeNFT {
   managed_id: BigNumber;
 }
 
+export interface LockItem {
+  id: string;
+  amount: string;
+  votingAmount: string;
+  expiresAt: string;
+  votedAt: string;
+  decimals: number;
+  token: string;
+}
+
 export const GET_LIQUIDITY_POSITIONS = `
   query GetDexV2Dashboard($account: ID!) {
     joinExits(where: { user: $account, type: Join }) {
