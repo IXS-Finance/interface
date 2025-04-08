@@ -63,11 +63,11 @@ const TokenBreakdown: React.FC<TokenBreakdownProps> = ({
             <Asset address={token.address} size={assetSize} />
           </StyledAssetWrapper>
           <SymbolText>{symbolFor(token)}</SymbolText>
-          <ArrowUpRight size="16" />
+          <ArrowUpRight size="16" color="#B8B8CC" />
         </StyledLink>
         {isWeighted && <GridCell>{tokenData.tokenWeightLabel}</GridCell>}
         <GridCell>{showUserShares ? tokenData.userBalanceLabel : tokenData.balanceLabel}</GridCell>
-        <GridCell>{showUserShares ? tokenData.userFiatLabel : tokenData.fiatLabel}</GridCell>
+        <Value>{showUserShares ? tokenData.userFiatLabel : tokenData.fiatLabel}</Value>
       </Container>
       {isDeepPool &&
         token.token?.pool?.tokens &&
@@ -94,14 +94,23 @@ export default TokenBreakdown
 // The container mimics the grid layout and applies level–specific styles.
 const Container = styled.div<{ level: number; isWeighted: boolean }>`
   display: grid;
-  gap: 1rem; /* gap-y-4 (1rem gap) */
-  padding: 0 1rem; /* px-4 */
   width: 100%;
   align-items: center;
-  border-bottom: 1px solid #e5e7eb; /* light border */
+  border-top: 1px solid rgba(230, 230, 255, 0.6);
   transition: all 300ms ease-in;
   grid-template-columns: ${({ isWeighted }) => (isWeighted ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)')};
+  color: rgba(41, 41, 51, 0.9);
+  text-align: right;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
 
+  &:first-child {
+    border-top: none;
+  }
   /* Level–specific styles */
   ${({ level }) => {
     switch (level) {
@@ -168,6 +177,13 @@ const StyledLink = styled.a`
   display: flex;
   align-items: center;
   text-decoration: none;
+  color: #292933;
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.32px;
 `
 
 // A wrapper for the asset that conditionally applies spacing and z-index.
@@ -196,4 +212,16 @@ const SymbolText = styled.span`
 // Grid cells that align content to the end.
 const GridCell = styled.div`
   justify-self: end;
+`
+
+const Value = styled.div`
+  justify-self: end;
+  color: #292933;
+  text-align: right;
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.32px;
 `
