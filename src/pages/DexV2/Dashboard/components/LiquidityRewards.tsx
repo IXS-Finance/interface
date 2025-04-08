@@ -5,7 +5,6 @@ import { ReactComponent as AddIcon } from 'assets/images/plus-blue.svg'
 import { ReactComponent as InfoIcon } from 'assets/images/info.svg'
 
 import LiquidityRow from './LiquidityRow'
-import { JoinExitsType } from '../graphql/dashboard'
 import useLiquidityPool from '../hooks/useLiquidityPool'
 import useAllowancesQuery from 'hooks/dex-v2/queries/useAllowancesQuery'
 import { useEffect } from 'react'
@@ -14,13 +13,11 @@ import { setAllowances } from 'state/dexV2/tokens'
 
 const LiquidityRewards = () => {
   const dispatch = useDispatch()
-  const { positionsData, lpSupplyByPool, userLpBalanceByPool, userGaugeBalanceByPool, gaugesByPool } =
-    useLiquidityPool()
+  const { lpSupplyByPool, userLpBalanceByPool, userGaugeBalanceByPool, gaugesByPool, pools } = useLiquidityPool()
 
-  const liquidityData = (positionsData?.data as { data: { joinExits: JoinExitsType[] } })?.data?.joinExits
-  const lpTokenAddresses = liquidityData?.map((data) => data.pool.address)
+  const lpTokenAddresses = pools?.map((data) => data.address)
   const gaugeAddresses = lpTokenAddresses?.map((address) => gaugesByPool[address])
-  const { data: allowanceData, isLoading } = useAllowancesQuery({
+  const { data: allowanceData } = useAllowancesQuery({
     tokenAddresses: lpTokenAddresses,
     contractAddresses: gaugeAddresses,
     isEnabled: !!(lpTokenAddresses?.length && gaugeAddresses?.length),
@@ -43,13 +40,13 @@ const LiquidityRewards = () => {
         <StyledButton startIcon={<AddIcon />}>New Deposit</StyledButton>
       </Stack>
       <Stack direction="column" gap={2}>
-        {liquidityData?.map((data) => (
+        {pools?.map((data) => (
           <LiquidityRow
             data={data}
-            userLpBalance={userLpBalanceByPool?.[data.pool.address]}
-            userGaugeBalance={userGaugeBalanceByPool?.[data.pool.address]}
-            lpSupply={lpSupplyByPool?.[data.pool.address]}
-            key={data.pool.id}
+            userLpBalance={userLpBalanceByPool?.[data.address]}
+            userGaugeBalance={userGaugeBalanceByPool?.[data.address]}
+            lpSupply={lpSupplyByPool?.[data.address]}
+            key={data.id}
             gaugesByPool={gaugesByPool}
           />
         ))}

@@ -7,9 +7,9 @@ import { ReactComponent as InfoIcon } from 'assets/images/info.svg'
 import { useCurrency } from 'hooks/Tokens'
 import { NewApproveButton, PinnedContentButton } from 'components/Button'
 import { Card } from './Card'
-import { JoinExitsType, TokenType } from '../graphql/dashboard'
+import { PoolType, TokenType } from '../graphql/dashboard'
 import CurrencyLogoSet from 'components/CurrencyLogoSet'
-import { Address, formatUnits, parseUnits, zeroAddress } from 'viem'
+import { Address, formatUnits, zeroAddress } from 'viem'
 import { formatAmount } from 'utils/formatCurrencyAmount'
 import { BigNumber } from 'ethers'
 import { useCallback, useState } from 'react'
@@ -19,7 +19,7 @@ import StakePreviewModal from 'pages/DexV2/Pool/Staking/StakePreviewModal'
 import { LP_DECIMALS } from 'pages/DexV2/Pool/Staking/constants'
 
 type LiquidityRowProps = {
-  data: JoinExitsType
+  data: PoolType
   userLpBalance?: bigint
   userGaugeBalance?: bigint
   lpSupply?: BigNumber
@@ -67,11 +67,11 @@ const TableBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, gaugesByPo
   const theme = useTheme()
   const [stakeAction, setStakeAction] = useState<StakeAction | null>(null)
 
-  const tokens = data.pool.tokens
+  const tokens = data.tokens
   const tokenAddresses = tokens.map((token) => token.address as Address)
   const poolName = tokens.map((token) => token.symbol).join('/')
   const poolWeight = tokens.map((token) => +(token.weight || 0) * 100).join('/')
-  const isHasGauge = gaugesByPool[data.pool.address as Address] !== zeroAddress
+  const isHasGauge = gaugesByPool[data.address as Address] !== zeroAddress
 
   const getStakedAmount = useCallback(
     (token: TokenType): Big => {
@@ -177,8 +177,8 @@ const TableBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, gaugesByPo
       {stakeAction ? (
         <StakePreviewModal
           isVisible
-          pool={data.pool}
-          gaugeAddress={data.pool?.gauge.address}
+          pool={data}
+          gaugeAddress={data?.gauge?.address}
           currentShares={formatUnits(userLpBalance ?? BigInt(0), LP_DECIMALS)}
           stakedBalance={userGaugeBalance ?? BigInt(0)}
           unstakeBalance={userLpBalance ?? BigInt(0)}
