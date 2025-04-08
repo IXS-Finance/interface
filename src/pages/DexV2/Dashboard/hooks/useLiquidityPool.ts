@@ -2,7 +2,7 @@ import { useReadContracts } from 'wagmi'
 import { SUBGRAPH_QUERY } from 'constants/subgraph'
 import { useSubgraphQuery } from 'hooks/useSubgraphQuery'
 import { useActiveWeb3React } from 'hooks/web3'
-import { GET_LIQUIDITY_POSITIONS, JoinExitsType } from '../graphql/dashboard'
+import { GET_JOIN_EXITS, GET_POOLS, JoinExitsType, PoolType } from '../graphql/dashboard'
 import voterABI from '../../../../abis/voterABI.json'
 import gaugeABI from '../../../../abis/gaugeABI.json'
 import erc20ABI from '../../../../abis/erc20.json'
@@ -14,19 +14,30 @@ const useLiquidityPool = () => {
   const { account, chainId } = useActiveWeb3React()
   const _account = account?.toLowerCase()
 
-  const positionsData = useSubgraphQuery({
-    queryKey: ['GetDexV2Dashboard', SUBGRAPH_QUERY.POOLS, chainId],
+  const joinExits = useSubgraphQuery({
+    queryKey: ['GetDexV2DashboardJoinExits', SUBGRAPH_QUERY.POOLS, chainId],
     feature: SUBGRAPH_QUERY.POOLS,
     chainId,
-    query: GET_LIQUIDITY_POSITIONS,
+    query: GET_JOIN_EXITS,
     variables: {
       account: _account,
     },
   })
-
-  const pools = (positionsData?.data as { data: { joinExits: JoinExitsType[] } })?.data?.joinExits.map(
-    (data) => data.pool
+  const joinExitsData = (joinExits?.data as { data: { joinExits: JoinExitsType[] } })?.data?.joinExits.map(
+    (data) => data.pool.address
   )
+  const poolsData = useSubgraphQuery({
+    queryKey: ['GetDexV2DashboardPools', SUBGRAPH_QUERY.POOLS, joinExitsData],
+    feature: SUBGRAPH_QUERY.POOLS,
+    chainId,
+    query: GET_POOLS,
+    variables: {
+      addresses: joinExitsData,
+    },
+  })
+
+  const pools = (poolsData?.data as { data: { pools: PoolType[] } })?.data?.pools?.map((pool) => pool) ?? []
+
   const voterContract = {
     address: IXVOTER_ADDRESS[chainId],
     abi: voterABI,
@@ -99,7 +110,7 @@ const useLiquidityPool = () => {
   }, {} as Record<Address, bigint>)
 
   return {
-    positionsData,
+    pools,
     lpSupplyByPool,
     userLpBalanceByPool,
     userGaugeBalanceByPool,
