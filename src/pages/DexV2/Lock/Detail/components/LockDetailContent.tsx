@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { Flex } from 'rebass'
@@ -12,17 +12,34 @@ import { Line } from 'components/Line'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import useIXSCurrency from 'hooks/useIXSCurrency'
 import { useWeb3React } from 'hooks/useWeb3React'
+import { CurrencyAmount, Currency } from '@ixswap1/sdk-core'
+import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { useCurrencyBalance } from 'state/wallet/hooks'
 import { LockedData } from 'services/balancer/contracts/ve-sugar'
 import { useLockDetail } from '../LockDetailProvider'
 import LockExtendAutoMaxLockMode from './LockExtendAutoMaxLockMode'
 import LockExtendDurationSlider from './LockExtendDurationSlider'
 import LockExtendExplanation from './LockExtendExplanation'
+import LockIncreaseCurrencyInput from './LockIncreaseCurrencyInput'
+import LockIncreaseExplanation from './LockIncreaseExplanation'
 import LockInfo from './LockInfo'
 
 const LockDetailContent: React.FC<{ lockDetail?: LockedData }> = ({ lockDetail }) => {
   const [isLoading, setIsLoading] = useState(false)
-  const { handleSubmitExtend, approvalState, extended, setExtended, openMaxLockMode, setOpenMaxLockMode } =
-    useLockDetail()
+  const {
+    userInput,
+    setUserInput,
+    handleSubmitIncrease,
+    handleSubmitExtend,
+    approvalState,
+    approve,
+    increased,
+    setIncreased,
+    extended,
+    setExtended,
+    openMaxLockMode,
+    setOpenMaxLockMode,
+  } = useLockDetail()
   const currency = useIXSCurrency()
   const { account } = useWeb3React()
   const { openConnectModal } = useConnectModal()
@@ -33,6 +50,7 @@ const LockDetailContent: React.FC<{ lockDetail?: LockedData }> = ({ lockDetail }
     return new URLSearchParams(location.search)
   }, [location.search])
 
+  const isIncrease = searchParams.get('increase') === 'true'
   const isExtend = searchParams.get('extend') === 'true'
 
   const primaryButtonLabel = useMemo(() => {
@@ -42,6 +60,17 @@ const LockDetailContent: React.FC<{ lockDetail?: LockedData }> = ({ lockDetail }
       return 'Processing...'
     } else if (approvalState !== ApprovalState.APPROVED) {
       return 'Allow IXS'
+    } else if (isIncrease) {
+      if (increased) {
+        return (
+          <Flex alignItems="center" style={{ gap: 6 }}>
+            <CheckedIcon />
+            Lock Increased
+          </Flex>
+        )
+      } else {
+        return 'Add to Lock'
+      }
     } else if (isExtend) {
       if (extended) {
         return (
@@ -55,11 +84,43 @@ const LockDetailContent: React.FC<{ lockDetail?: LockedData }> = ({ lockDetail }
       }
     }
     return 'Lock'
-  }, [account, approvalState, extended, isLoading, isExtend])
+  }, [account, approvalState, increased, extended, isLoading, isIncrease, isExtend])
 
   async function handleProceed() {
-    if (isExtend) {
+    if (isIncrease) {
+      await handleIncrease()
+    } else if (isExtend) {
       await handleExtend()
+    }
+  }
+
+  async function handleIncrease() {
+    try {
+      setIsLoading(true)
+      if (!account) {
+        openConnectModal && openConnectModal()
+      } else if (approvalState === ApprovalState.NOT_APPROVED) {
+        await approve()
+        await handleSubmitIncrease()
+      } else {
+        await handleSubmitIncrease()
+      }
+    } catch (error) {
+      console.error('Error processing', error)
+      if (error instanceof Error && error.message.includes('exceeds max lock duration')) {
+        toast.error('Increase failed! Please update amount and try again!')
+      } else if (error instanceof Error && error.message.includes('insufficient balance')) {
+        toast.error('Increase failed! Please update amount and try again!')
+      } else if (error instanceof Error && error.message.includes('insufficient allowance')) {
+        toast.error('Increase failed! Please update allowance and try again!')
+      } else if (error instanceof Error && error.message.includes('cannot estimate gas')) {
+        toast.error('Increase failed! Please update amount and try again!')
+      } else {
+        toast.error('Increase failed! Please try again!')
+      }
+      setIncreased(false)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -90,32 +151,48 @@ const LockDetailContent: React.FC<{ lockDetail?: LockedData }> = ({ lockDetail }
     }
   }
 
+  const currencyBalance = useCurrencyBalance(account, currency || undefined)
+  const maxInputAmount: CurrencyAmount<Currency> | undefined = maxAmountSpend(currencyBalance)
+
   return (
     <Card>
       <Flex justifyContent="space-between" alignItems="center" mb={2}>
-        <TYPE.label>{isExtend ? 'Extending' : ''} Lock</TYPE.label>
+        <TYPE.label>{isExtend ? 'Extending' : isIncrease ? 'Increase' : ''} Lock</TYPE.label>
         <TYPE.subHeader1 color="text6">Lock #{lockDetail?.id}</TYPE.subHeader1>
       </Flex>
       <Flex flexDirection="column" mt={3} style={{ gap: 32 }}>
         {lockDetail?.token && <LockInfo lockDetail={lockDetail} currency={currency} />}
+
+        {isIncrease && (
+          <LockIncreaseCurrencyInput
+            value={userInput}
+            currency={currency}
+            onUserInput={setUserInput}
+            onMax={() => setUserInput(maxInputAmount?.toExact() ?? '')}
+            fiatValue={undefined}
+          />
+        )}
 
         {isExtend && (
           <LockExtendAutoMaxLockMode openMaxLockMode={openMaxLockMode} setOpenMaxLockMode={setOpenMaxLockMode} />
         )}
         {isExtend && <LockExtendDurationSlider />}
 
-        <Line style={{ margin: 0 }} />
+        {(isIncrease || isExtend) && <Line style={{ margin: 0 }} />}
 
+        {isIncrease && <LockIncreaseExplanation lockDetail={lockDetail} />}
         {isExtend && <LockExtendExplanation />}
 
-        <StyledPrimaryButton
-          onClick={() => handleProceed()}
-          type="button"
-          disabled={approvalState === ApprovalState.PENDING || isLoading}
-          success={isExtend && extended}
-        >
-          {primaryButtonLabel}
-        </StyledPrimaryButton>
+        {(isIncrease || isExtend) && (
+          <StyledPrimaryButton
+            onClick={() => handleProceed()}
+            type="button"
+            disabled={approvalState === ApprovalState.PENDING || isLoading || (isIncrease && !userInput)}
+            success={(isIncrease && increased) || (isExtend && extended)}
+          >
+            {primaryButtonLabel}
+          </StyledPrimaryButton>
+        )}
       </Flex>
     </Card>
   )
