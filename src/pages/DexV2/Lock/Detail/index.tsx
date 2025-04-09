@@ -1,37 +1,32 @@
 import React from 'react'
 import styled from 'styled-components'
+import { useParams } from 'react-router-dom'
 
-import VerticleSteps from './components/VerticleSteps'
-import LockContent from './components/LockContent'
-import { TYPE } from 'theme'
-import { LockProvider } from './LockProvider'
-import LockBenefits from './components/LockBenefits'
+import LockDetailContent from './components/LockDetailContent'
+import { LockDetailProvider } from './LockDetailProvider'
+import useLockQuery from 'hooks/dex-v2/queries/useLockQuery'
 
-const Lock: React.FC = () => {
+const LockDetail: React.FC = () => {
+  const params = useParams<{ id: string }>()
+  const lockId = params.id.toLowerCase()
+  const { lockDetail } = useLockQuery(lockId)
+
   return (
-    <LockProvider>
+    <LockDetailProvider>
       <WidthFull>
         <LayoutContainer>
-          <LeftContent>
-            <VerticleSteps />
-          </LeftContent>
+          <LeftContent>&nbsp;</LeftContent>
           <CenterContent>
-            <Card>
-              <TYPE.label>Lock</TYPE.label>
-
-              <LockContent />
-            </Card>
+            <LockDetailContent lockDetail={lockDetail} />
           </CenterContent>
-          <RightContent>
-            <LockBenefits />
-          </RightContent>
+          <RightContent>&nbsp;</RightContent>
         </LayoutContainer>
       </WidthFull>
-    </LockProvider>
+    </LockDetailProvider>
   )
 }
 
-export default Lock
+export default LockDetail
 
 const WidthFull = styled.div`
   width: 100%;
@@ -91,20 +86,5 @@ const RightContent = styled.div`
 
   @media (min-width: 1024px) {
     display: block;
-  }
-`
-
-const Card = styled.div`
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0px 30px 48px 0px rgba(63, 63, 132, 0.05);
-  padding: 24px;
-
-  @media (min-width: 640px) {
-    padding: 32px;
-  }
-
-  @media (min-width: 1024px) {
-    padding: 48px;
   }
 `

@@ -75,9 +75,9 @@ const DexV2PoolAddLiquidty = lazy(() => import('pages/DexV2/Pool/AddLiquidity'))
 const DexV2PoolWithdraw = lazy(() => import('pages/DexV2/Pool/Withdraw'))
 const DexV2Swap = lazy(() => import('pages/DexV2/Swap'))
 const DexV2Lock = lazy(() => import('pages/DexV2/Lock'))
+const DexV2LockDetail = lazy(() => import('pages/DexV2/Lock/Detail'))
 const DexV2Dashboard = lazy(() => import('pages/DexV2/Dashboard'))
 const DexV2Vote = lazy(() => import('pages/DexV2/Vote'))
-
 export interface RouteMapEntry {
   path: string
   render?: () => JSX.Element
@@ -183,6 +183,7 @@ export const routeConfigs: RouteMapEntry[] = [
   { path: routes.dexV2PoolWithdraw, component: DexV2PoolWithdraw },
   { path: routes.dexV2Swap, component: DexV2Swap },
   { path: routes.dexV2Lock, component: DexV2Lock },
+  { path: routes.dexV2LockDetail, component: DexV2LockDetail },
   { path: routes.dexV2Dashboard, component: DexV2Dashboard },
   { path: routes.dexV2Vote, component: DexV2Vote },
   { path: routes.faucet, component: Faucet },
