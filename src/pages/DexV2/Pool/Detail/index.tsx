@@ -33,8 +33,6 @@ const PoolDetail: React.FC = () => {
 
   const loadingPool = isLoadingPool || !pool
 
-  console.log('loadingPool', loadingPool)
-  console.log('pool', pool)
   const aprQuery = usePoolAprQuery(poolId)
   const loadingApr = isQueryLoading(aprQuery)
   const poolApr = aprQuery.data

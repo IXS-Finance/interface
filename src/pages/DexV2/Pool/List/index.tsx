@@ -14,11 +14,13 @@ import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { fetchTokenLists } from 'state/dexV2/tokenLists'
 
 import { routes } from 'utils/routes'
+import usePools from 'hooks/dex-v2/pools/usePools'
 
 export default function LiquidityPool() {
   const { isWalletReady } = useWeb3()
   const dispatch = useDispatch()
   const history = useHistory()
+  usePools();
 
   useEffect(() => {
     dispatch(fetchTokenLists())
