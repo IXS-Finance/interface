@@ -1,6 +1,7 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import ReactECharts from 'echarts-for-react'
 
 import LoadingBlock from '../../common/LoadingBlock'
 import { usePool } from 'state/dexV2/pool/usePool'
@@ -21,6 +22,7 @@ import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
 import PoolCompositionCard from './components/PoolCompositionCard'
 import StakingCard from '../Staking/StakingCard'
 import PoolActionsCard from '../components/PoolActionsCard'
+import PoolChart from './components/PoolCharts'
 
 const PoolDetail: React.FC = () => {
   const params = useParams<any>()
@@ -73,7 +75,7 @@ const PoolDetail: React.FC = () => {
                   <LoadingBlock darker rounded="lg" className="h-375" />
                 ) : (
                   <Box>
-                    <img src={chartImg} alt="chart" style={{ width: '100%', height: 'auto' }} />
+                    <PoolChart />
                   </Box>
                 )}
               </Box>

@@ -52,7 +52,7 @@ export default function usePoolQuery(id: string, isEnabled: boolean = true, opti
      * it may be if user came to pool page from home page
      */
     const poolInfo = poolsStoreService.findPool(id)
-    debugger
+
     if (poolInfo) {
       pool = poolInfo
     } else {
