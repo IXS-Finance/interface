@@ -57,6 +57,7 @@ const PERSISTED_KEYS: string[] = [
   'wallet',
   'global',
   'userSettings',
+  'dexV2Pool'
 ]
 
 const persistConfig = {

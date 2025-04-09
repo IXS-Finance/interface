@@ -13,12 +13,6 @@ import { configService } from 'services/config/config.service'
 
 export default function usePoolQuery(id: string, isEnabled: boolean = true, options: any = {}) {
   /**
-   * If pool is already downloaded, we can use it instantly
-   * it may be if user came to pool page from home page
-   */
-  const poolInfo = poolsStoreService.findPool(id)
-
-  /**
    * COMPOSABLES
    */
   const { injectTokens, tokens } = useTokens()
@@ -53,6 +47,12 @@ export default function usePoolQuery(id: string, isEnabled: boolean = true, opti
 
   const queryFn = async () => {
     let pool: Pool
+    /**
+     * If pool is already downloaded, we can use it instantly
+     * it may be if user came to pool page from home page
+     */
+    const poolInfo = poolsStoreService.findPool(id)
+    debugger
     if (poolInfo) {
       pool = poolInfo
     } else {
