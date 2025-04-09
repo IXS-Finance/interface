@@ -54,4 +54,17 @@ export class VeSugar {
 
     return result || []
   }
+
+  async byId(id: string): Promise<LockedData> {
+    const output = await this.instance.byId(id)
+    return {
+      id: output.id.toString(),
+      amount: formatUnits(output.amount, output.decimals),
+      votingAmount: formatUnits(output.votingAmount, output.decimals),
+      expiresAt: output.expiresAt.toString(),
+      votedAt: output.votedAt.toString(),
+      decimals: output.decimals,
+      token: output.token,
+    }
+  }
 }
