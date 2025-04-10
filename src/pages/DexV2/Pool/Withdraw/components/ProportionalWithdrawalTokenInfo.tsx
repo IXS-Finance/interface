@@ -19,11 +19,62 @@ export interface ProportionalWithdrawalTokenInfoProps {
   value: string
 }
 
+const ProportionalWithdrawalTokenInfo: React.FC<ProportionalWithdrawalTokenInfoProps> = ({
+  token: tokenProp,
+  weight,
+  address,
+  fiatAmountOut,
+  loading,
+  pool,
+  value,
+}) => {
+  const { fNum } = useNumbers()
+
+  // Compute the pool token from the pool's tokens list.
+  const poolToken: PoolToken | undefined = findByAddress(pool.tokens, address)
+
+  // Determine whether to show the weight percentage.
+  const showWeight = !isStableLike(pool.poolType) && !isDeep(pool) && !isLinear(pool.poolType)
+
+  return (
+    <Container>
+      <LeftContainer>
+        <div style={{ display: 'flex', alignItems: 'center', width: '2rem', marginRight: '0.5rem' }}>
+          <Asset address={address} className="shadow" />
+        </div>
+        <TokenInfoContainer>
+          <TokenSymbol>{tokenProp?.symbol || poolToken?.symbol}</TokenSymbol>
+          <TokenName>
+            {showWeight && Number(weight) > 0 && (
+              <span>{fNum(weight, { style: 'percent', maximumFractionDigits: 0 })}</span>
+            )}
+          </TokenName>
+        </TokenInfoContainer>
+      </LeftContainer>
+      <RightContainer>
+        {loading ? (
+          <LoadingBlock style={{ width: '5rem', height: '3rem' }} />
+        ) : (
+          <>
+            <TokenValue>{fNum(value, FNumFormats.token)}</TokenValue>
+            <FiatValue>{fNum(fiatAmountOut || '0', FNumFormats.fiat)}</FiatValue>
+          </>
+        )}
+      </RightContainer>
+    </Container>
+  )
+}
+
+export default ProportionalWithdrawalTokenInfo
+
 const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem; /* p-4 */
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
 `
 
 const LeftContainer = styled.div`
@@ -35,6 +86,7 @@ const TokenInfoContainer = styled.div`
   display: flex;
   flex-direction: column;
   line-height: 1;
+  gap: 0.125rem; /* gap-0.5 */
 `
 
 const TokenSymbol = styled.div`
@@ -71,52 +123,3 @@ const FiatValue = styled.span`
   font-size: 0.875rem; /* text-sm */
   color: #6b7280; /* text-gray-600 */
 `
-
-const ProportionalWithdrawalTokenInfo: React.FC<ProportionalWithdrawalTokenInfoProps> = ({
-  token: tokenProp,
-  weight,
-  address,
-  fiatAmountOut,
-  loading,
-  pool,
-  value,
-}) => {
-  const { fNum } = useNumbers()
-
-  // Compute the pool token from the pool's tokens list.
-  const poolToken: PoolToken | undefined = findByAddress(pool.tokens, address)
-
-  // Determine whether to show the weight percentage.
-  const showWeight = !isStableLike(pool.poolType) && !isDeep(pool) && !isLinear(pool.poolType)
-
-  return (
-    <Container>
-      <LeftContainer>
-        <div style={{ display: 'flex', alignItems: 'center', width: '2rem', marginRight: '0.5rem' }}>
-          <Asset address={address} className="shadow" />
-        </div>
-        <TokenInfoContainer>
-          <TokenSymbol>
-            {tokenProp?.symbol || poolToken?.symbol}
-            {showWeight && Number(weight) > 0 && (
-              <span>{fNum(weight, { style: 'percent', maximumFractionDigits: 0 })}</span>
-            )}
-          </TokenSymbol>
-          <TokenName>{tokenProp?.name || ''}</TokenName>
-        </TokenInfoContainer>
-      </LeftContainer>
-      <RightContainer>
-        {loading ? (
-          <LoadingBlock style={{ width: '5rem', height: '3rem' }} />
-        ) : (
-          <>
-            <TokenValue>{fNum(value, FNumFormats.token)}</TokenValue>
-            <FiatValue>{fNum(fiatAmountOut || '0', FNumFormats.fiat)}</FiatValue>
-          </>
-        )}
-      </RightContainer>
-    </Container>
-  )
-}
-
-export default ProportionalWithdrawalTokenInfo

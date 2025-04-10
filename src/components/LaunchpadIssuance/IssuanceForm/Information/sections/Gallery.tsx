@@ -37,6 +37,7 @@ export const GalleryBlock: React.FC<Props> = (props) => {
 
   const onFileSelect = React.useCallback(
     (files: File[]) => {
+      // @ts-ignore
       props.setter('images', props.images.concat(files.map((x) => ({ file: x }))))
 
       if (props.touch) {

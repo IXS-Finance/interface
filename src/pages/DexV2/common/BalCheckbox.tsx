@@ -26,8 +26,8 @@ const FlexAlign = styled.div<{ align: string }>`
 const LabelContainer = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: center;
   position: relative;
-  margin-left: 0.75rem; /* ml-3 */
 `
 
 // Styled label.
