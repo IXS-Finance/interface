@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Flex } from 'rebass'
+import { Box, Flex } from 'rebass'
 import _get from 'lodash/get'
+import numeral from 'numeral'
 
 import { ReactComponent as WalletIcon } from 'assets/images/dex-v2/wallet.svg'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
@@ -12,7 +13,7 @@ import { useAccount } from 'wagmi'
 import { isLessThanOrEqualTo, isPositive } from 'lib/utils/validations'
 import { Rules } from 'pages/DexV2/types'
 import { overflowProtected } from 'pages/DexV2/Pool/components/helpers'
-import { useTokensState } from 'state/dexV2/tokens/hooks'
+import useInputValidation from 'pages/DexV2/common/forms/useInputValidation'
 import TokenLPInfo from './TokenLPInfo'
 
 type InputValue = string | number
@@ -49,6 +50,7 @@ type Props = {
   updateAmount: (amount: string) => void
   updateAddress: (address: string) => void
   setMax?: () => void
+  setExactInOnChange?: () => void
 }
 
 const defaultProps: Props = {
@@ -81,8 +83,37 @@ const defaultProps: Props = {
   setMax: () => {},
 }
 
-const TokenInput: React.FC<Props> = (props) => {
-  const finalProps = { ...defaultProps, ...props }
+/**
+ * Returns an array of validation rule functions.
+ *
+ * @param hasToken - Indicates if a token is available.
+ * @param isWalletReady - Indicates if the wallet is ready.
+ * @param props - An object that can include `noRules`, `ignoreWalletBalance`, and an optional `rules` array.
+ * @param tokenBalance - The current token balance.
+ * @param t - A translation function.
+ *
+ * @returns An array of RuleFunction.
+ */
+function getInputRules(
+  hasToken: boolean,
+  isWalletReady: boolean,
+  props: { noRules?: boolean; ignoreWalletBalance?: boolean; rules?: Rules },
+  tokenBalance: string
+): Rules {
+  if (!hasToken || !isWalletReady || props.noRules) {
+    return [isPositive()]
+  }
+
+  const rules = props.rules ? [...props.rules, isPositive()] : [isPositive()]
+  if (!props.ignoreWalletBalance) {
+    rules.push(isLessThanOrEqualTo(tokenBalance, 'Exceeds wallet balance'))
+  }
+  return rules
+}
+
+const displayNumeralNoDecimal = (amount: any) => numeral(amount).format('0,0')
+
+const TokenInput: React.FC<Props> = (props = defaultProps) => {
   const {
     disabled,
     name,
@@ -94,128 +125,204 @@ const TokenInput: React.FC<Props> = (props) => {
     hideFiatValue,
     disableNativeAssetBuffer,
     updateAddress,
-  } = finalProps
+  } = props
   const [address, setAddress] = useState<any>('')
   const [amount, setAmount] = useState<any>('')
+  const [displayValue, setDisplayValue] = useState<string>('')
 
   const { address: account } = useAccount()
   const isWalletReady = account !== null
   const { fNum, toFiat } = useNumbers()
   const { getToken, balanceFor, nativeAsset, getMaxBalanceFor } = useTokens()
-  const { balances } = useTokensState()
 
-  // Derived values (computed inline)
-  const tokenBalance = customBalance ? customBalance : balanceFor(_get(finalProps, 'address', ''))
-  const hasToken = !!finalProps.address
-  const amountBN = bnum(finalProps.amount)
+  /**
+   * COMPUTED
+   */
+  const tokenBalance = customBalance ? customBalance : balanceFor(_get(props, 'address', ''))
+
+  const hasToken = !!props.address
+  const amountBN = bnum(props.amount)
   const tokenBalanceBN = bnum(tokenBalance)
   const hasAmount = amountBN.gt(0)
   const hasBalance = tokenBalanceBN.gt(0)
-  const shouldUseTxBuffer = finalProps.address === nativeAsset.address && !disableNativeAssetBuffer
+  const shouldUseTxBuffer = props.address === nativeAsset.address && !disableNativeAssetBuffer
   const amountExceedsTokenBalance = amountBN.gt(tokenBalance)
   const shouldShowTxBufferMessage =
-    amountExceedsTokenBalance || !shouldUseTxBuffer || !hasBalance || !hasAmount
-      ? false
-      : amountBN.gte(tokenBalanceBN.minus(nativeAsset.minTransactionBuffer))
+    !amountExceedsTokenBalance &&
+    shouldUseTxBuffer &&
+    hasBalance &&
+    hasAmount &&
+    amountBN.gte(tokenBalanceBN.minus(nativeAsset.minTransactionBuffer))
+
   const isMaxed = shouldUseTxBuffer
-    ? finalProps.amount === tokenBalanceBN.minus(nativeAsset.minTransactionBuffer).toString()
-    : finalProps.amount === tokenBalance
-  const token: TokenInfo | undefined = !hasToken ? undefined : getToken(_get(finalProps, 'address', ''))
-  const tokenValue = finalProps.tokenValue ?? toFiat(amount, _get(finalProps, 'address', ''))
-  const inputRules = (() => {
-    if (!hasToken || !isWalletReady || finalProps.noRules) return [isPositive()]
-    const arr = finalProps.rules ? [...finalProps.rules, isPositive()] : [isPositive()]
-    if (!finalProps.ignoreWalletBalance) {
-      arr.push(isLessThanOrEqualTo(tokenBalance, 'exceedsBalance'))
-    }
-    return arr
-  })()
-  const maxPercentage = !hasBalance || !hasAmount ? '0' : amountBN.div(tokenBalance).times(100).toFixed(2)
-  const bufferPercentage = !shouldShowTxBufferMessage
-    ? '0'
-    : bnum(nativeAsset.minTransactionBuffer).div(tokenBalance).times(100).toFixed(2)
-  const barColor = amountExceedsTokenBalance ? 'red' : 'green'
-  const priceImpactSign = _get(finalProps, 'priceImpact', 0) >= 0 ? '-' : '+'
-  const priceImpactClass = _get(finalProps, 'priceImpact', 0) >= 0.01 ? 'text-red-500' : ''
+    ? props.amount === tokenBalanceBN.minus(nativeAsset.minTransactionBuffer).toString()
+    : props.amount === tokenBalance
+
+  const token: TokenInfo | undefined = !hasToken ? undefined : getToken(_get(props, 'address', ''))
+
+  const tokenValue = props.tokenValue ?? toFiat(amount, _get(props, 'address', ''))
+
+  const inputRules = getInputRules(hasToken, isWalletReady, props, tokenBalance)
+
   const decimalLimit = token?.decimals || 18
 
-  function handleAmountChange(amount: InputValue) {
-    const safeAmount = overflowProtected(amount, decimalLimit)
-    setAmount(safeAmount)
-    finalProps.updateAmount(safeAmount)
-  }
+  const priceImpactSign = props.priceImpact && props.priceImpact >= 0 ? '-' : '+'
+  const priceImpactClass = props.priceImpact && props.priceImpact >= 0.01 ? 'text-red-500' : ''
 
-  const setMaxHandler = () => {
-    if (finalProps.disableMax) return
-    const maxAmount = finalProps.customBalance
-      ? finalProps.customBalance
-      : getMaxBalanceFor(_get(finalProps, 'address', ''), finalProps.disableNativeAssetBuffer)
-    handleAmountChange(maxAmount)
-  }
+  function handleAmountChange(val: string) {
+    // Remove commas from the input.
+    const value = val.split(',').join('')
 
-  function blockInvalidChar(event: KeyboardEvent) {
-    if (['e', 'E', '+', '-'].includes(event.key)) {
-      event.preventDefault()
+    // If the input is empty, clear everything and exit early.
+    if (value === '') {
+      setDisplayValue('')
+      setAmount('')
+      props.updateAmount('')
+      return
+    }
+
+    const regex = /^-?\d*[.,]?\d*$/
+    if (regex.test(value)) {
+      const tokenDecimals = decimalLimit
+      const decimalPattern = '0'.repeat(tokenDecimals)
+      const formatString = `0.[${decimalPattern}]`
+
+      let amountFinal = numeral(value).format(formatString)
+      if (amountFinal === 'NaN') {
+        amountFinal = '0'
+      }
+      const safeAmount = overflowProtected(amountFinal || '0', decimalLimit)
+
+      setAmount(safeAmount)
+      props.updateAmount(safeAmount)
+
+      // Prevent multiple leading zeros.
+      if (val.length >= 2 && val.charAt(0) === '0' && val.charAt(1) === '0') {
+        return setDisplayValue('0')
+      }
+
+      // Handle cases where a decimal point exists.
+      if (value.indexOf('.') > -1) {
+        const integerPart = value.substring(0, value.indexOf('.'))
+        const decimalPart = value.substring(value.indexOf('.') + 1, value.indexOf('.') + tokenDecimals + 1)
+        const formattedInteger = displayNumeralNoDecimal(integerPart)
+
+        // Preserve the trailing decimal if user types "0." or "1.".
+        if (value.endsWith('.')) {
+          return setDisplayValue(`${formattedInteger}.`)
+        }
+        // If there is a decimal part, combine it.
+        if (decimalPart) {
+          return setDisplayValue(`${formattedInteger}.${decimalPart}`)
+        }
+        return setDisplayValue(formattedInteger)
+      }
+
+      // For values without a decimal, display the formatted number.
+      setDisplayValue(numeral(value).format('0,0'))
     }
   }
 
-  function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
-    blockInvalidChar(event.nativeEvent)
+  const setMax = () => {
+    if (props.disableMax) return
+    const maxAmount = props.customBalance
+      ? props.customBalance
+      : getMaxBalanceFor(_get(props, 'address', ''), props.disableNativeAssetBuffer)
+    handleAmountChange(maxAmount)
+    props.setExactInOnChange?.()
   }
 
   useEffect(() => {
-    setAddress(finalProps.address)
-    setAmount(finalProps.amount)
-  }, [finalProps.address, finalProps.amount])
+    handleAmountChange(props.amount.toString())
+  }, [props.amount])
+
+  useEffect(() => {
+    if (isSameAddress(address, props.address || '')) return
+    setAddress(props.address)
+  }, [props.address])
+
+  const handleUpdateIsValid = (isValid: boolean) => {
+    console.log('Is valid?', isValid)
+  }
+
+  const { errors, isInvalid, validate } = useInputValidation({
+    rules: inputRules,
+    validateOn: 'input',
+    modelValue: amount,
+    onUpdateIsValid: handleUpdateIsValid,
+  })
+
+  useEffect(() => {
+    validate(amount)
+  }, [address])
 
   return (
-    <Container>
+    <Container isError={isInvalid && !!errors[0]}>
       <Flex justifyContent="space-between" alignItems="center">
-        <StyledInput
-          disabled={disabled}
-          placeholder="0.00"
-          min="0"
-          step="0.01"
-          onKeyDown={onKeyDown}
-          type="text"
-          inputMode="decimal"
-          pattern="[0-9]*[.,]?[0-9]*"
-          value={amount}
-          name={name}
-          autoFocus={autoFocus}
-          onChange={(e) => handleAmountChange(e.target.value)}
-        />
+        <div>
+          <StyledInput
+            disabled={disabled}
+            inputMode="decimal"
+            autoComplete="off"
+            autoCorrect="off"
+            type="text"
+            spellCheck="false"
+            placeholder="0.00"
+            value={displayValue}
+            name={name}
+            autoFocus={autoFocus}
+            onChange={(e) => {
+              handleAmountChange(e.target.value)
+              props.setExactInOnChange?.()
+            }}
+          />
+        </div>
+
         <Flex alignItems="center" style={{ gap: 8 }}>
           <TokenLPInfo modelValue={address as string} />
         </Flex>
       </Flex>
-      <Flex justifyContent="space-between" alignItems="center">
-        {hasAmount && hasToken && !finalProps.hideFiatValue ? (
-          <StyledNumber>{fNum(tokenValue, FNumFormats.fiat)}</StyledNumber>
-        ) : (
-          <div />
-        )}
-        <Flex alignItems="center" style={{ gap: 8 }}>
-          {hasBalance && !finalProps.noMax && !finalProps.disableMax ? (
-            <MaxButton onClick={setMaxHandler}>Max</MaxButton>
-          ) : null}
-          <StyledNumber>{fNum(tokenBalance, FNumFormats.token)}</StyledNumber>
-          <WalletIcon />
+
+      <div>
+        <Flex justifyContent="space-between" alignItems="center">
+          {hasAmount && hasToken ? (
+            <>{!hideFiatValue ? <StyledNumber>{fNum(tokenValue, FNumFormats.fiat)}</StyledNumber> : null}</>
+          ) : (
+            <div />
+          )}
+
+          <Flex alignItems="center" style={{ gap: 8 }}>
+            {hasBalance && !noMax && !disableMax ? <MaxButton onClick={setMax}>Max</MaxButton> : null}
+            <StyledNumber>{fNum(tokenBalance, FNumFormats.token)}</StyledNumber>
+            <WalletIcon />
+          </Flex>
         </Flex>
-      </Flex>
+        {isInvalid && !!errors[0] ? (
+          <Box
+            sx={{
+              fontSize: '12px',
+              color: '#FF8080',
+              mt: 2,
+            }}
+          >
+            {errors[0]}
+          </Box>
+        ) : null}
+      </div>
     </Container>
   )
 }
 
 export default TokenInput
 
-const Container = styled.div`
+const Container = styled.div<{ isError: boolean }>`
   border-radius: 8px;
   background: #f7f7fa;
   display: flex;
   padding: 16px;
   flex-direction: column;
   gap: 8px;
+  border: ${({ isError }) => (isError ? '1px solid rgba(255, 128, 128, 0.50)' : 'none')};
 `
 
 const StyledInput = styled.input`
