@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import { Flex } from 'rebass'
 import _get from 'lodash/get'
 
-import TokenSelectInput from '../../../common/TokenSelectInput'
 import { ReactComponent as WalletIcon } from 'assets/images/dex-v2/wallet.svg'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
@@ -14,6 +13,7 @@ import { isLessThanOrEqualTo, isPositive } from 'lib/utils/validations'
 import { Rules } from 'pages/DexV2/types'
 import { overflowProtected } from 'pages/DexV2/Pool/components/helpers'
 import { useTokensState } from 'state/dexV2/tokens/hooks'
+import TokenLPInfo from './TokenLPInfo'
 
 type InputValue = string | number
 
@@ -83,7 +83,18 @@ const defaultProps: Props = {
 
 const TokenInput: React.FC<Props> = (props) => {
   const finalProps = { ...defaultProps, ...props }
-  const { disabled, name, noMax, disableMax, customBalance, excludedTokens, autoFocus, hideFiatValue, disableNativeAssetBuffer, updateAddress } = finalProps
+  const {
+    disabled,
+    name,
+    noMax,
+    disableMax,
+    customBalance,
+    excludedTokens,
+    autoFocus,
+    hideFiatValue,
+    disableNativeAssetBuffer,
+    updateAddress,
+  } = finalProps
   const [address, setAddress] = useState<any>('')
   const [amount, setAmount] = useState<any>('')
 
@@ -102,12 +113,13 @@ const TokenInput: React.FC<Props> = (props) => {
   const hasBalance = tokenBalanceBN.gt(0)
   const shouldUseTxBuffer = finalProps.address === nativeAsset.address && !disableNativeAssetBuffer
   const amountExceedsTokenBalance = amountBN.gt(tokenBalance)
-  const shouldShowTxBufferMessage = (amountExceedsTokenBalance || !shouldUseTxBuffer || !hasBalance || !hasAmount)
-    ? false
-    : amountBN.gte(tokenBalanceBN.minus(nativeAsset.minTransactionBuffer))
+  const shouldShowTxBufferMessage =
+    amountExceedsTokenBalance || !shouldUseTxBuffer || !hasBalance || !hasAmount
+      ? false
+      : amountBN.gte(tokenBalanceBN.minus(nativeAsset.minTransactionBuffer))
   const isMaxed = shouldUseTxBuffer
-    ? (finalProps.amount === tokenBalanceBN.minus(nativeAsset.minTransactionBuffer).toString())
-    : (finalProps.amount === tokenBalance)
+    ? finalProps.amount === tokenBalanceBN.minus(nativeAsset.minTransactionBuffer).toString()
+    : finalProps.amount === tokenBalance
   const token: TokenInfo | undefined = !hasToken ? undefined : getToken(_get(finalProps, 'address', ''))
   const tokenValue = finalProps.tokenValue ?? toFiat(amount, _get(finalProps, 'address', ''))
   const inputRules = (() => {
@@ -118,9 +130,7 @@ const TokenInput: React.FC<Props> = (props) => {
     }
     return arr
   })()
-  const maxPercentage = (!hasBalance || !hasAmount)
-    ? '0'
-    : amountBN.div(tokenBalance).times(100).toFixed(2)
+  const maxPercentage = !hasBalance || !hasAmount ? '0' : amountBN.div(tokenBalance).times(100).toFixed(2)
   const bufferPercentage = !shouldShowTxBufferMessage
     ? '0'
     : bnum(nativeAsset.minTransactionBuffer).div(tokenBalance).times(100).toFixed(2)
@@ -176,12 +186,7 @@ const TokenInput: React.FC<Props> = (props) => {
           onChange={(e) => handleAmountChange(e.target.value)}
         />
         <Flex alignItems="center" style={{ gap: 8 }}>
-          <TokenSelectInput
-            modelValue={address as string}
-            fixed={finalProps.fixedToken}
-            excludedTokens={excludedTokens}
-            updateAddress={(value) => updateAddress(value)}
-          />
+          <TokenLPInfo modelValue={address as string} />
         </Flex>
       </Flex>
       <Flex justifyContent="space-between" alignItems="center">

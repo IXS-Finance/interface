@@ -52,14 +52,14 @@ const Withdraw: FC = () => {
           <BalCard shadow="xl" exposeOverflow noBorder>
             <div className="w-full">
               <Flex justifyContent="space-between" alignItems="center">
-                <div>Withdraw from pool</div>
+                <Title>Withdraw from pool</Title>
                 <SwapSettingsPopover context={SwapSettingsContext.invest} />
               </Flex>
 
               <WithdrawTabs pool={pool} />
             </div>
 
-            {pool.address ? <WithdrawForm pool={pool} /> : null}
+            <WithdrawForm pool={pool} />
           </BalCard>
         )}
       </Container>
@@ -71,8 +71,17 @@ export default Withdraw
 
 // Styled container similar to "px-4 sm:px-0 mx-auto max-w-md"
 const Container = styled.div`
-  padding: 0 1rem;
   margin: 0 auto;
   width: 100%;
   max-width: 480px;
+`
+
+const Title = styled.div`
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.6px;
 `
