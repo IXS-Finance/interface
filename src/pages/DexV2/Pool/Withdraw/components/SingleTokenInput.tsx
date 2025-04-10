@@ -4,7 +4,7 @@ import { Box, Flex } from 'rebass'
 import _get from 'lodash/get'
 import numeral from 'numeral'
 
-import TokenSelectInput from '../../../../common/TokenSelectInput'
+import TokenSelectInput from 'pages/DexV2/common/TokenSelectInput'
 import { ReactComponent as WalletIcon } from 'assets/images/dex-v2/wallet.svg'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'

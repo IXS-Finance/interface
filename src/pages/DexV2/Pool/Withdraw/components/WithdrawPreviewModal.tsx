@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 
 // import WithdrawSummary from './components/WithdrawSummary'
 // import WithdrawActions from './components/WithdrawActions'
@@ -15,6 +16,7 @@ import BalCircle from 'pages/DexV2/common/BalCircle'
 import TokenAmounts from 'pages/DexV2/common/forms/TokenAmounts'
 import WithdrawSummary from './WithdrawSummary'
 import WithdrawActions from './WithdrawActions'
+import { setDataForSingleAmountOut } from 'state/dexV2/pool'
 
 interface WithdrawPreviewModalProps {
   pool: Pool
@@ -25,6 +27,7 @@ const WithdrawPreviewModal: React.FC<WithdrawPreviewModalProps> = ({ pool, onClo
   const history = useHistory()
   const { networkSlug } = useNetwork()
   const { getToken } = useTokens()
+  const dispatch = useDispatch()
 
   // Destructure values from your exit pool hook.
   const {
@@ -37,6 +40,7 @@ const WithdrawPreviewModal: React.FC<WithdrawPreviewModalProps> = ({ pool, onClo
     isSingleAssetExit,
     shouldExitViaInternalBalance,
     hasBpt,
+    setBptIn,
   } = useExitPool(pool)
 
   // Local state for whether the withdrawal is confirmed.
@@ -69,6 +73,15 @@ const WithdrawPreviewModal: React.FC<WithdrawPreviewModalProps> = ({ pool, onClo
       history.push(`/pool/${pool.id}?networkSlug=${networkSlug}`)
     } else {
       onClose()
+    }
+  }
+
+  const onSuccess = () => {
+    setWithdrawalConfirmed(true)
+    if (showTokensIn) {
+      setBptIn('')
+    } else {
+      dispatch(setDataForSingleAmountOut({ key: 'value', value: '' }))
     }
   }
 
@@ -133,7 +146,7 @@ const WithdrawPreviewModal: React.FC<WithdrawPreviewModalProps> = ({ pool, onClo
       <WithdrawSummary fiatTotal={fiatTotalOut} priceImpact={priceImpact} className="mt-4" />
 
       <div className="mt-4">
-        <WithdrawActions pool={pool} onError={handleClose} onSuccess={() => setWithdrawalConfirmed(true)} />
+        <WithdrawActions pool={pool} onError={handleClose} onSuccess={onSuccess} />
       </div>
     </Modal>
   )

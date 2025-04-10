@@ -8,25 +8,7 @@ import { Pool, PoolToken } from 'services/pool/types'
 import useExitPool from 'state/dexV2/pool/useExitPool'
 import TokenInput from './TokenInput'
 import { overflowProtected } from '../../components/helpers'
-
-// Styled components for labels and token amounts container.
-const Label = styled.div`
-  margin-bottom: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: bold;
-  margin-top: 1rem;
-`
-
-const TokenAmountsContainer = styled.div`
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  background-color: #f9fafb;
-  display: flex;
-  flex-direction: column;
-  & > *:not(:last-child) {
-    border-bottom: 1px solid #e5e7eb;
-  }
-`
+import { Flex } from 'rebass'
 
 type WithdrawFormProps = {
   pool: Pool
@@ -68,8 +50,8 @@ const ProportionalWithdrawalInput: React.FC<WithdrawFormProps> = ({ pool }) => {
   }
 
   return (
-    <div>
-      <Label>You provide</Label>
+    <Flex flexDirection="column" css={{ gap: '1rem' }} mt="32px">
+      <Label>You’re Providing</Label>
       <TokenInput
         // Assume TokenInput is a controlled component with these props.
         amount={bptIn}
@@ -96,8 +78,25 @@ const ProportionalWithdrawalInput: React.FC<WithdrawFormProps> = ({ pool }) => {
           />
         ))}
       </TokenAmountsContainer>
-    </div>
+    </Flex>
   )
 }
 
 export default ProportionalWithdrawalInput
+
+// Styled components for labels and token amounts container.
+const Label = styled.div`
+  color: #b8b8d2;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
+`
+
+const TokenAmountsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`
