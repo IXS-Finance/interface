@@ -21,7 +21,6 @@ interface WithdrawActionsProps {
 
 const WithdrawActions: React.FC<WithdrawActionsProps> = ({ pool, onSuccess, onError }) => {
   const { addTransaction } = useTransactions()
-  const { networkSlug } = useNetwork()
   const { blockNumber, isMismatchedNetwork } = useWeb3()
   const { fNum } = useNumbers()
   const { poolWeightsLabel } = usePoolHelpers(pool)
@@ -39,7 +38,7 @@ const WithdrawActions: React.FC<WithdrawActionsProps> = ({ pool, onSuccess, onEr
     isTxPayloadReady,
   } = useExitPool(pool)
 
-  const redirectLabel: string = shouldExitViaInternalBalance ? 'Manage Vault balances' : 'Return to pool page'
+  const redirectLabel: string = 'Open Pool detail page'
 
   // Build transaction summary string.
   const txSummary = shouldExitViaInternalBalance
@@ -60,9 +59,7 @@ const WithdrawActions: React.FC<WithdrawActionsProps> = ({ pool, onSuccess, onEr
   const actions: TransactionActionInfo[] = [...exitPoolApprovalActions, withdrawalAction]
 
   // Compute return route inline.
-  const returnRoute = shouldExitViaInternalBalance
-    ? { pathname: '/balances', search: `?networkSlug=${networkSlug}` }
-    : { pathname: '/pool', search: `?networkSlug=${networkSlug}&id=${pool.id}` }
+  const returnRoute = { pathname: `/v2/pool/${pool.id}`, search: '' }
 
   // Submit function: executes exit transaction.
   async function submit(): Promise<any> {

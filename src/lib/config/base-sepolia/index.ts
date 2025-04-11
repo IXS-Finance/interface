@@ -24,7 +24,7 @@ const config: Config = {
   rpc: getAlchemyUrlFor('base-sepolia'),
   ws: ``,
   explorer: 'https://sepolia.basescan.org',
-  explorerName: 'Etherscan',
+  explorerName: 'Basescan',
   subgraph: 'https://api.studio.thegraph.com/query/27946/v2-basesepolia/version/latest',
   poolsUrlV2: '',
   subgraphs: {
