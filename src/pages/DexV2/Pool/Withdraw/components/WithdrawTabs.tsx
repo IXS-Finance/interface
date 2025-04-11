@@ -1,20 +1,29 @@
 import React, { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+
 import useWithdrawPageTabs from 'state/dexV2/pool/useWithdrawPageTabs'
 import BalTabs from './BalTabs'
 import useExitPool from 'state/dexV2/pool/useExitPool'
 import { Pool } from 'services/pool/types'
-import { Tab } from 'state/dexV2/pool'
+import { setDataForSingleAmountOut, Tab } from 'state/dexV2/pool'
 
 interface WithdrawTabsProps {
   pool: Pool
 }
 
 const WithdrawTabs: React.FC<WithdrawTabsProps> = ({ pool }) => {
-  const { setIsSingleAssetExit } = useExitPool(pool)
+  const { setIsSingleAssetExit, setBptIn } = useExitPool(pool)
+  const dispatch = useDispatch()
   const { activeTab, tabs, setActiveTab } = useWithdrawPageTabs()
 
   useEffect(() => {
-    setIsSingleAssetExit(activeTab === Tab.SingleToken)
+    if (activeTab === Tab.SingleToken) {
+      setIsSingleAssetExit(true)
+      dispatch(setDataForSingleAmountOut({ key: 'value', value: '' }))
+    } else {
+      setIsSingleAssetExit(false)
+      setBptIn('')
+    }
   }, [activeTab])
 
   return (

@@ -21,6 +21,8 @@ import BalStack from 'pages/DexV2/common/BalStack'
 import BalHorizSteps from 'pages/DexV2/common/BalHorizSteps'
 import { NextButton } from 'pages/DexV2/Pool/Create'
 import Loader from 'components/Loader'
+import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
+import { marginLeft } from 'styled-system'
 
 enum StepState {
   Todo,
@@ -204,7 +206,6 @@ const BalActionSteps: React.FC<Props> = (props) => {
     })
   }
 
-  // --- Render ---
   return (
     <Container>
       {currentActionState.error && !props.isLoading && (
@@ -225,16 +226,16 @@ const BalActionSteps: React.FC<Props> = (props) => {
           />
         )}
         {!lastActionState.confirmed && currentAction && (
-          <NextButton
+          <BalBtn
             disabled={props.disabled}
-            color="gradient"
             onClick={() => {
               if (currentAction && currentAction.promise) {
                 currentAction.promise()
               }
             }}
+            style={{ width: '100%' }}
           >
-            {currentAction.pending || props.isLoading ? <Loader /> : null}
+            {currentAction.pending || props.isLoading ? <Loader style={{ marginRight: '4px' }} stroke="#fff" /> : null}
 
             {currentAction.pending || props.isLoading ? (
               _loadingLabel
@@ -263,7 +264,7 @@ const BalActionSteps: React.FC<Props> = (props) => {
                 {currentAction.isSignAction && <div style={{ width: '2rem' }} />}
               </div>
             )}
-          </NextButton>
+          </BalBtn>
         )}
       </BalStack>
     </Container>
