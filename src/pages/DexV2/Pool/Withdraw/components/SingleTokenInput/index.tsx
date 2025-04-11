@@ -4,7 +4,7 @@ import { Box, Flex } from 'rebass'
 import _get from 'lodash/get'
 import numeral from 'numeral'
 
-import TokenSelectInput from 'pages/DexV2/common/TokenSelectInput'
+import TokenDropdownInput from './TokenDropdownInput'
 import { ReactComponent as WalletIcon } from 'assets/images/dex-v2/wallet.svg'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
@@ -19,6 +19,7 @@ import useInputValidation from 'pages/DexV2/common/forms/useInputValidation'
 type InputValue = string | number
 
 type Props = {
+  tokensList: string[],
   disabled?: boolean
   name: string
   amount: InputValue
@@ -54,6 +55,7 @@ type Props = {
 }
 
 const defaultProps: Props = {
+  tokensList: [],
   name: '',
   amount: '',
   address: '',
@@ -75,7 +77,6 @@ const defaultProps: Props = {
   customBalance: '',
   balanceLabel: '',
   hint: '',
-  excludedTokens: [],
   placeholder: '',
   slider: false,
   updateAmount: () => {},
@@ -115,17 +116,18 @@ const displayNumeralNoDecimal = (amount: any) => numeral(amount).format('0,0')
 
 const TokenInput: React.FC<Props> = (props = defaultProps) => {
   const {
+    tokensList,
     disabled,
     name,
     noMax,
     disableMax,
     customBalance,
-    excludedTokens,
     autoFocus,
     hideFiatValue,
     disableNativeAssetBuffer,
     updateAddress,
   } = props
+
   const [address, setAddress] = useState<any>('')
   const [amount, setAmount] = useState<any>('')
   const [displayValue, setDisplayValue] = useState<string>('')
@@ -279,10 +281,9 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
         </div>
 
         <Flex alignItems="center" style={{ gap: 8 }}>
-          <TokenSelectInput
-            fixed={props.fixedToken}
+          <TokenDropdownInput
             modelValue={address as string}
-            excludedTokens={excludedTokens}
+            options={tokensList}
             updateAddress={(value) => updateAddress(value)}
           />
         </Flex>
