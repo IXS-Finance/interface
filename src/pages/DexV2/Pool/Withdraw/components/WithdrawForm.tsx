@@ -24,11 +24,11 @@ type WithdrawFormProps = {
 }
 
 const WithdrawForm: React.FC<WithdrawFormProps> = ({ pool }) => {
-  const { networkSlug } = useNetwork()
   const { isWalletReady, startConnectWithInjectedProvider, isMismatchedNetwork } = useWeb3()
   const { wrappedNativeAsset, nativeAsset } = useTokens()
   const dispatch = useDispatch()
 
+  console.log('WithdrawForm pool:', pool)
   // Exit pool hook provides state and methods for handling the exit.
   const {
     isSingleAssetExit,
@@ -55,7 +55,6 @@ const WithdrawForm: React.FC<WithdrawFormProps> = ({ pool }) => {
   const [showPreview, setShowPreview] = useState(false)
 
   // Compute validation rules for single asset exit.
-  const singleAssetRules = [isLessThanOrEqualTo(singleAmountOut.max, 'Exceeds pool balance for this token')]
   const hasValidInputs = !!(validAmounts && hasAcceptedHighPriceImpact)
   const disabled = !hasAmountsOut || !hasValidInputs || isMismatchedNetwork || isLoadingQuery || isLoadingMax
 
@@ -69,12 +68,11 @@ const WithdrawForm: React.FC<WithdrawFormProps> = ({ pool }) => {
     return tokensList
   })()
 
-  // Excluded tokens include the pool's address and veBal token if available.
-  const excludedTokens = (() => {
+  const excludedTokens = React.useMemo(() => {
     const tokens = [pool.address]
 
     return tokens
-  })()
+  }, [pool.address])
 
   const handleAmountChange = (value: string): void => {
     if (!value) return
@@ -82,6 +80,10 @@ const WithdrawForm: React.FC<WithdrawFormProps> = ({ pool }) => {
     const safeAmount = overflowProtected(value, pool.onchain?.decimals || 18)
 
     dispatch(setDataForSingleAmountOut({ key: 'value', value: safeAmount }))
+  }
+
+  const updateSingleAmountOut = (address: string): void => {
+    dispatch(setDataForSingleAmountOut({ key: 'address', value: address }))
   }
 
   useEffect(() => {
@@ -103,16 +105,14 @@ const WithdrawForm: React.FC<WithdrawFormProps> = ({ pool }) => {
             address={singleAmountOut.address}
             amount={singleAmountOut.value}
             name={singleAmountOut.address}
-            rules={singleAssetRules}
             customBalance={singleAmountOut.max || '0'}
             balanceLabel="Max"
             balanceLoading={isLoadingMax}
             disableNativeAssetBuffer
-            excludedTokens={excludedTokens}
-            // tokenSelectProps={{ ignoreBalances: true, subsetTokens }}
             ignoreWalletBalance
             updateAmount={handleAmountChange}
-            updateAddress={() => {}}
+            updateAddress={updateSingleAmountOut}
+            tokensList={tokensList}
           />
         </Box>
       )}
