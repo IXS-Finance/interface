@@ -2,10 +2,10 @@ import React from 'react'
 import { Flex } from 'rebass'
 
 import VotingRoundStats from './components/VotingRoundStats'
-import VotingCard from './components/VotingCard'
 import { LiquidityPoolSelector } from './components/LiquidityPoolSelector'
 import usePoolsHasGaugeQuery from 'hooks/dex-v2/queries/usePoolsHasGaugeQuery'
 import DexV2Layout from '../common/Layout'
+import SelectLockToVote from './components/SelectLockToVote'
 
 interface VoteProps {}
 
@@ -24,10 +24,10 @@ const Vote: React.FC<VoteProps> = () => {
   console.log('pools', pools)
   return (
     <DexV2Layout>
-      <Flex flexDirection="column" mt="48px" css={{ gap: '48px', width: '100%' }}>
+      <Flex flexDirection="column" css={{ gap: '48px', width: '100%' }}>
         <VotingRoundStats />
+        <SelectLockToVote />
         <LiquidityPoolSelector pools={pools} />
-        <VotingCard />
       </Flex>
     </DexV2Layout>
   )
