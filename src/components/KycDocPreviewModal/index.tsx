@@ -10,7 +10,8 @@ import RedesignedWideModal from 'components/Modal/RedesignedWideModal'
 import { IconWrapper } from 'components/AccountDetails/styleds'
 import { ButtonGradient } from 'components/Button'
 import { AcceptFiles } from 'components/Upload/types'
-import { getPublicAssetUrl } from 'components/TokenLogo/utils'
+import { getProtectedAssetUrl } from 'components/TokenLogo/utils'
+import apiService from 'services/apiService'
 
 export const Image = styled.img`
   max-width: 100%;
@@ -31,10 +32,12 @@ export const KycDocPreviewModal = ({ isOpen, onClose, data, downloadFile }: Prop
     const convertFiles = async () => {
       const converted = await Promise.all(
         data.map(async ({ asset }) => {
-          const publicUrl = getPublicAssetUrl(asset)
+          const publicUrl = getProtectedAssetUrl(asset)
+          const { data } = await apiService.get(publicUrl, {
+            responseType: 'blob',
+          })
           if (asset.mimeType === 'image/heic') {
-            const blob = await fetch(publicUrl).then((res) => res.blob())
-            const convertedBlobs = await heic2any({ blob })
+            const convertedBlobs = await heic2any({ blob: data })
 
             // Ensure convertedBlobs is always an array
             const blobsArray = Array.isArray(convertedBlobs) ? convertedBlobs : [convertedBlobs]
@@ -42,7 +45,8 @@ export const KycDocPreviewModal = ({ isOpen, onClose, data, downloadFile }: Prop
             const mergedBlob = new Blob(blobsArray, { type: 'image/jpeg' })
             return URL.createObjectURL(mergedBlob)
           }
-          return publicUrl
+
+          return URL.createObjectURL(data)
         })
       )
       setConvertedFiles(converted)
@@ -72,7 +76,7 @@ export const KycDocPreviewModal = ({ isOpen, onClose, data, downloadFile }: Prop
                       {asset.name}
                     </EllipsisText>
                     <StyledDocPreviewButton
-                      onClick={() => downloadFile(getPublicAssetUrl(asset), asset.name, asset.mimeType)}
+                      onClick={() => downloadFile(getProtectedAssetUrl(asset), asset.name, asset.mimeType)}
                     >
                       <IconWrapper style={{ margin: 0 }} size={18}>
                         <StyledDownload />
