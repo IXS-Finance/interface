@@ -1,0 +1,433 @@
+import React, { useCallback, useMemo, useState } from 'react'
+import { Box, Button, Grid, Stack, Tooltip } from '@mui/material'
+import Big from 'big.js'
+import { BigNumber } from 'ethers'
+import { useHistory } from 'react-router-dom'
+import styled, { css } from 'styled-components'
+import { TYPE } from 'theme'
+import { Address, formatUnits, zeroAddress } from 'viem'
+
+import CurrencyLogoSet from 'components/CurrencyLogoSet'
+import { Line } from 'components/Line'
+import { LP_DECIMALS } from 'pages/DexV2/Pool/Staking/constants'
+import { StakeAction } from 'pages/DexV2/Pool/Staking/hooks/useStakePreview'
+import StakePreviewModal from 'pages/DexV2/Pool/Staking/StakePreviewModal'
+import { formatAmount } from 'utils/formatCurrencyAmount'
+import { routes } from 'utils/routes'
+import { PoolType, TokenType } from '../graphql/dashboard'
+import { Card } from './Card'
+
+import { ReactComponent as ChevronDownIcon } from 'assets/images/chevron-down.svg'
+import { ReactComponent as InfoIcon } from 'assets/images/info.svg'
+
+type DepositedStakedLiquidityRowProps = {
+  data: PoolType
+  userLpBalance?: bigint
+  userGaugeBalance?: bigint
+  lpSupply?: BigNumber
+  gaugesByPool: Record<Address, Address>
+  rowIndex?: number
+}
+
+type CardBodyProps = {
+  data: PoolType
+  userLpBalance?: bigint
+  userGaugeBalance?: bigint
+  lpSupply?: BigNumber
+  gaugesByPool: Record<Address, Address>
+  showMore: boolean
+  rowIndex?: number
+}
+
+const DepositedStakedLiquidityRow = ({ data, userLpBalance, userGaugeBalance, lpSupply, gaugesByPool, rowIndex }: DepositedStakedLiquidityRowProps) => {
+  const [showMore, setShowMore] = useState(rowIndex === 0)
+
+  const handleToggleShowMore = (value: boolean) => {
+    setShowMore(value)
+  }
+
+  return (
+    <Card>
+      <Stack direction="row" justifyContent="space-between">
+        <Box>
+          <TYPE.subHeader1 color="text6">Deposit #123</TYPE.subHeader1>
+        </Box>
+        <Stack direction="row" alignItems="center" style={{ userSelect: 'none' }} gap={1} onClick={() => handleToggleShowMore(!showMore)}>
+          <TYPE.subHeader1 color="text6">Show Less</TYPE.subHeader1>
+          <StyledChevronIcon isOpen={!showMore} />
+        </Stack>
+      </Stack>
+      <CardBody
+        data={data}
+        userLpBalance={userLpBalance}
+        userGaugeBalance={userGaugeBalance}
+        lpSupply={lpSupply}
+        gaugesByPool={gaugesByPool}
+        showMore={showMore}
+        rowIndex={rowIndex}
+      />
+    </Card>
+  )
+}
+
+
+const CardBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, gaugesByPool, showMore, rowIndex }: CardBodyProps) => {
+  const [stakeAction, setStakeAction] = useState<StakeAction | null>(null)
+
+  const tokens = data.tokens
+  const tokenAddresses = tokens.map((token) => token.address as Address)
+  const poolName = tokens.map((token) => token.symbol).join('/')
+  const poolWeight = tokens.map((token) => +(token.weight || 0) * 100).join('/')
+  const isHasGauge = gaugesByPool[data.address as Address] !== zeroAddress
+  const history = useHistory()
+
+  const getStakedAmount = useCallback(
+    (token: TokenType): Big => {
+      if (!userGaugeBalance || !lpSupply || lpSupply.toString() === '0') {
+        return new Big(0)
+      }
+
+      return new Big(userGaugeBalance.toString()).div(lpSupply.toString()).mul(token.balance)
+    },
+    [userGaugeBalance]
+  )
+
+  const getUnstakedAmount = useCallback(
+    (token: TokenType): Big => {
+      if (!userLpBalance || !lpSupply || lpSupply.toString() === '0') {
+        return new Big(0)
+      }
+
+      return new Big(userLpBalance.toString()).div(lpSupply.toString()).mul(token.balance)
+    },
+    [userLpBalance]
+  )
+
+  const emissionsAmount: bigint = useMemo(() => {
+    return rowIndex === 0 ? BigInt(4592) : BigInt(0)
+  }, [rowIndex])
+
+  const emissionsSymbol: string = useMemo(() => {
+    return 'veIXS'
+  }, [])
+
+  const tradingFeesAmount: bigint = useMemo(() => {
+    return rowIndex === 0 ? BigInt(4592) : BigInt(0)
+  }, [rowIndex])
+
+  const apr: string = useMemo(() => {
+    return rowIndex === 0 ? '35.75%' : '-'
+  }, [rowIndex])
+
+  const getTradingFees = useCallback((token: TokenType) => {
+    return new Big(token.balance).mul(0.0001)
+  }, [])
+
+  const handlePreviewClose = () => setStakeAction(null)
+
+  const handleShowPoolDetail = () => {
+    const path = routes.dexV2PoolDetail.replace(':id', data.id)
+    history.push(path)
+  }
+
+  return (
+    <Box>
+      <Stack direction="row" alignItems="center" style={{ width: 'max-content', userSelect: 'none' }} gap={1}>
+        <Stack height={40} direction="row" alignItems="center">{tokenAddresses ? <CurrencyLogoSet tokens={tokenAddresses} size={32} /> : null}</Stack>
+        <Box my={1}>
+          <StyledLabel
+            fontSize={16}
+            onClick={handleShowPoolDetail}
+          >
+            {poolName}
+          </StyledLabel>
+        </Box>
+        <Stack direction="row" alignItems="center" gap={1}>
+          <TYPE.subHeader1 color="yellow69">Weighted</TYPE.subHeader1>
+          <Dot />
+          <TYPE.subHeader1 color="text6">{poolWeight}</TYPE.subHeader1>
+          <Tooltip title="Info">
+            <InfoIcon width={12} />
+          </Tooltip>
+        </Stack>
+      </Stack>
+      {showMore && (
+        <Box my={2}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={2.4}>
+              <CardItem
+                title="Pool Total"
+                secondTitle=""
+                tokens={tokens?.map((token) => ({
+                  balance: formatAmount(parseFloat(token.balance), 4),
+                  symbol: token.symbol,
+                  address: token.address,
+                }))}
+              />
+            </Grid>
+            <Grid item xs={2.4}>
+              <CardItem
+                title="Staked"
+                secondTitle=""
+                tokens={tokens?.map((token) => ({
+                  balance: formatAmount(getStakedAmount(token).toNumber(), 4),
+                  symbol: token.symbol,
+                  address: token.address,
+                }))}
+                showUnstakeBtn={isHasGauge}
+                userGaugeBalance={userGaugeBalance}
+                userLpBalance={userLpBalance}
+                handleUnstakeAction={() => {
+                  if (isHasGauge) {
+                    setStakeAction('unstake')
+                  }
+                }}
+              />
+            </Grid>
+            <Grid item xs={2.4}>
+              <CardItem
+                title="Unstaked"
+                secondTitle=""
+                tokens={tokens?.map((token) => ({
+                  balance: formatAmount(getUnstakedAmount(token).toNumber(), 4),
+                  symbol: token.symbol,
+                  address: token.address,
+                }))}
+                showStakeBtn={isHasGauge}
+                showWithdrawBtn={isHasGauge}
+                userGaugeBalance={userGaugeBalance}
+                userLpBalance={userLpBalance}
+                handleStakeAction={() => {
+                  if (isHasGauge) {
+                    setStakeAction('stake')
+                  }
+                }}
+                handleWithdrawAction={() => { }}
+              />
+            </Grid>
+            <Grid item xs={2.4}>
+              <CardItem
+                title="Emissions"
+                secondTitle="APR"
+                emissionsAmount={emissionsAmount}
+                emissionsSymbol={emissionsSymbol}
+                apr={apr}
+                showClaimEmissionsBtn
+                handleClaimEmissionsAction={() => { }}
+              />
+            </Grid>
+            <Grid item xs={2.4}>
+              <CardItem
+                title="Trading Fees"
+                secondTitle=""
+                tokens={tokens?.map((token) => ({
+                  balance: formatAmount(getTradingFees(token).toNumber(), 4),
+                  symbol: token.symbol,
+                  address: token.address,
+                }))}
+                showClaimTradingFeesBtn
+                tradingFeesAmount={tradingFeesAmount}
+                handleClaimTradingFeesAction={() => { }}
+              />
+            </Grid>
+          </Grid>
+        </Box>
+      )}
+      {stakeAction ? (
+        <StakePreviewModal
+          isVisible
+          pool={data}
+          gaugeAddress={data?.gauge?.address}
+          currentShares={formatUnits(userLpBalance ?? BigInt(0), LP_DECIMALS)}
+          stakedBalance={userGaugeBalance ?? BigInt(0)}
+          unstakeBalance={userLpBalance ?? BigInt(0)}
+          action={stakeAction}
+          onClose={handlePreviewClose}
+          onSuccess={handlePreviewClose}
+        />
+      ) : null}
+    </Box>
+  )
+}
+
+interface CardItemProps {
+  title: string
+  secondTitle?: string
+  tokens?: {
+    address: string
+    balance: string
+    symbol: string
+  }[]
+  apr?: string
+  userGaugeBalance?: bigint
+  userLpBalance?: bigint
+  emissionsAmount?: bigint
+  emissionsSymbol?: string
+  tradingFeesAmount?: bigint
+  showStakeBtn?: boolean
+  showWithdrawBtn?: boolean
+  showUnstakeBtn?: boolean
+  showClaimEmissionsBtn?: boolean
+  showClaimTradingFeesBtn?: boolean
+  handleStakeAction?: () => void
+  handleUnstakeAction?: () => void
+  handleWithdrawAction?: () => void
+  handleClaimEmissionsAction?: () => void
+  handleClaimTradingFeesAction?: () => void
+}
+
+const CardItem = ({
+  title,
+  secondTitle,
+  tokens,
+  apr,
+  userGaugeBalance,
+  userLpBalance,
+  emissionsAmount,
+  emissionsSymbol,
+  tradingFeesAmount,
+  showStakeBtn,
+  showWithdrawBtn,
+  showUnstakeBtn,
+  showClaimEmissionsBtn,
+  showClaimTradingFeesBtn,
+  handleStakeAction,
+  handleUnstakeAction,
+  handleWithdrawAction,
+  handleClaimEmissionsAction,
+  handleClaimTradingFeesAction,
+}: CardItemProps) => {
+  return (
+    <CardOutline>
+      <Stack direction="row" justifyContent="space-between" height="22px">
+        <TYPE.subHeader1 color="text6">{secondTitle ? secondTitle : ''}</TYPE.subHeader1>
+        <TYPE.subHeader1 color="text6">{title}</TYPE.subHeader1>
+      </Stack>
+      <Box my={"12px"}>
+        <Line color="bg24" />
+      </Box>
+      <Stack style={{ height: '75px' }} justifyContent="space-between">
+        <Stack direction="row" justifyContent="space-between">
+          <Box>
+            {apr && (
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <TYPE.subHeader1 color="text1">{apr || '-'}</TYPE.subHeader1>
+              </Stack>
+            )}
+          </Box>
+          <Stack direction="column" alignItems="flex-end">
+            {tokens?.map((token) => (
+              <Stack direction="row" alignItems="center" gap={0.5} key={`${token.address}-${token.symbol}`}>
+                <TYPE.subHeader1 color="text1">{token.balance}</TYPE.subHeader1>
+                <TYPE.subHeader1 color="text6">{token.symbol}</TYPE.subHeader1>
+              </Stack>
+            ))}
+            {!!emissionsSymbol && (
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <TYPE.subHeader1 color="text1">{formatAmount(Number(emissionsAmount?.toString() || '0'), 4)}</TYPE.subHeader1>
+                <TYPE.subHeader1 color="text6">{emissionsSymbol}</TYPE.subHeader1>
+              </Stack>
+            )}
+          </Stack>
+        </Stack>
+        <Stack
+          mt={1}
+          direction="row" alignItems="center" justifyContent="flex-end" gap={1}
+        >
+          {showStakeBtn && (
+            <CardButton
+              size="small"
+              disabled={userLpBalance && new Big(userLpBalance?.toString() || '0').gt(0) ? false : true}
+              onClick={() => handleStakeAction?.()}
+            >Stake
+            </CardButton>
+          )}
+          {showStakeBtn && showWithdrawBtn && <Dot />}
+          {showWithdrawBtn && (
+            <CardButton
+              size="small"
+              disabled={userLpBalance && new Big(userLpBalance?.toString() || '0').gt(0) ? false : true}
+              onClick={() => handleWithdrawAction?.()}
+            >Withdraw
+            </CardButton>
+          )}
+          {showUnstakeBtn && (
+            <CardButton
+              size="small"
+              disabled={userGaugeBalance && new Big(userGaugeBalance?.toString() || '0').gt(0) ? false : true}
+              onClick={() => handleUnstakeAction?.()}
+            >Unstake
+            </CardButton>
+          )}
+          {showClaimEmissionsBtn && (
+            <CardButton
+              size="small"
+              disabled={emissionsAmount && new Big(emissionsAmount?.toString() || '0').gt(0) ? false : true}
+              onClick={() => handleClaimEmissionsAction?.()}
+            >Claim
+            </CardButton>
+          )}
+          {showClaimTradingFeesBtn && (
+            <CardButton
+              size="small"
+              disabled={tradingFeesAmount && new Big(tradingFeesAmount?.toString() || '0').gt(0) ? false : true}
+              onClick={() => handleClaimTradingFeesAction?.()}
+            >Claim
+            </CardButton>
+          )}
+        </Stack>
+      </Stack>
+    </CardOutline>
+  )
+}
+
+export default DepositedStakedLiquidityRow
+
+
+const Dot = styled.div`
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.text6};
+`
+
+const CardOutline = styled(Box)`
+  border: 1px solid ${({ theme }) => theme.bg24};
+  padding: 12px 16px;
+  border-radius: 8px;
+  gap: 12px;
+  min-height: 150px;
+`
+
+const CardButton = styled(Button)`
+  &.MuiButton-root {
+    padding: 0;
+    background-color: transparent;
+    text-transform: none;
+    font-size: 14px;
+    color: ${({ theme }) => theme.primary1};
+    min-width: auto;
+  }
+
+  &.MuiButton-root:hover {
+    background-color: transparent;
+    opacity: 0.8;
+  }
+`
+
+const StyledChevronIcon = styled(ChevronDownIcon) <{ isOpen: boolean }>`
+  transform: rotate(180deg);
+  transition: transform 250ms ease-in-out;
+  color: ${({ theme }) => theme.text6};
+  ${({ isOpen }) =>
+    isOpen &&
+    css`
+      transform: rotate(0deg);
+    `}
+`
+
+const StyledLabel = styled(TYPE.label)`
+  &:hover {
+    color: ${({ theme }) => theme.primary1};
+  }
+`
