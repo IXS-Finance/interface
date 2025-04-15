@@ -1,17 +1,15 @@
-import { Box, Button, Stack, Tooltip } from '@mui/material'
+import { Box, Stack, Tooltip } from '@mui/material'
 import { TYPE } from 'theme'
-import styled from 'styled-components'
-import { ReactComponent as AddIcon } from 'assets/images/plus-blue.svg'
 import { ReactComponent as InfoIcon } from 'assets/images/info.svg'
 
-import LiquidityRow from './LiquidityRow'
+import DepositedStakedLiquidityRow from './DepositedStakedLiquidityRow'
 import useLiquidityPool from '../hooks/useLiquidityPool'
 import useAllowancesQuery from 'hooks/dex-v2/queries/useAllowancesQuery'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { setAllowances } from 'state/dexV2/tokens'
 
-const LiquidityRewards = () => {
+const DepositedStakedLiquidity = () => {
   const dispatch = useDispatch()
   const { lpSupplyByPool, userLpBalanceByPool, userGaugeBalanceByPool, gaugesByPool, pools } = useLiquidityPool()
 
@@ -37,17 +35,17 @@ const LiquidityRewards = () => {
             <InfoIcon />
           </Tooltip>
         </Stack>
-        <StyledButton startIcon={<AddIcon />}>New Deposit</StyledButton>
       </Stack>
       <Stack direction="column" gap={2}>
-        {pools?.map((data) => (
-          <LiquidityRow
+        {pools?.map((data, index) => (
+          <DepositedStakedLiquidityRow
             data={data}
             userLpBalance={userLpBalanceByPool?.[data.address]}
             userGaugeBalance={userGaugeBalanceByPool?.[data.address]}
             lpSupply={lpSupplyByPool?.[data.address]}
             key={data.id}
             gaugesByPool={gaugesByPool}
+            rowIndex={index}
           />
         ))}
       </Stack>
@@ -55,16 +53,5 @@ const LiquidityRewards = () => {
   )
 }
 
-export default LiquidityRewards
+export default DepositedStakedLiquidity
 
-const StyledButton = styled(Button)`
-  &.MuiButton-root {
-    background: ${({ theme }) => theme.white};
-    text-transform: unset;
-    padding: 12px 32px;
-  }
-
-  &.MuiButton-root:hover {
-    background: ${({ theme }) => theme.white};
-  }
-`
