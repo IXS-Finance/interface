@@ -26,7 +26,7 @@ const Vote: React.FC<VoteProps> = () => {
     <DexV2Layout>
       <Flex flexDirection="column" css={{ gap: '48px', width: '100%' }}>
         <VotingRoundStats />
-        <SelectLockToVote />
+        <SelectLockToVote pools={pools} />
         <LiquidityPoolSelector pools={pools} />
       </Flex>
     </DexV2Layout>

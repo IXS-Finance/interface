@@ -7,10 +7,13 @@ import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { VeSugar } from 'services/balancer/contracts/ve-sugar'
 import VotingModal from './VoteModal'
+import { PoolsHasGauge } from 'hooks/dex-v2/queries/usePoolsHasGaugeQuery'
 
-interface SelectLockToVoteProps {}
+interface SelectLockToVoteProps {
+  pools: PoolsHasGauge[]
+}
 
-const SelectLockToVote: React.FC<SelectLockToVoteProps> = () => {
+const SelectLockToVote: React.FC<SelectLockToVoteProps> = ({ pools }) => {
   const { account } = useWeb3()
 
   const [lockedList, setLockedList] = useState<any[]>([])
@@ -93,7 +96,12 @@ const SelectLockToVote: React.FC<SelectLockToVoteProps> = () => {
         </BalBtn>
       </Flex>
 
-      <VotingModal isVisible={isOpenVoteingModal} onClose={toggleVotingModal} onSuccess={toggleVotingModal} />
+      <VotingModal
+        isVisible={isOpenVoteingModal}
+        pools={pools}
+        onClose={toggleVotingModal}
+        onSuccess={toggleVotingModal}
+      />
     </MainContainer>
   )
 }
