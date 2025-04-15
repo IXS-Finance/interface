@@ -4,7 +4,7 @@ export const Card = styled.div`
   cursor: pointer;
   border-radius: 16px;
   background: #fff;
-  padding: 48px;
+  padding: 24px;
 
   &:hover {
     background: #FFFFFF4D;

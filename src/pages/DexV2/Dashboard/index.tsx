@@ -1,8 +1,7 @@
 import React from 'react'
-import _get from 'lodash/get'
 
 import { Container } from '@mui/material'
-import LiquidityRewards from './components/LiquidityRewards'
+import DepositedStakedLiquidity from './components/DepositedStakedLiquidity'
 import LockRewards from './components/LockRewards'
 import VotingRewards from './components/VotingRewards'
 import { DashProvider } from './DashProvider'
@@ -13,7 +12,7 @@ const Dashboard: React.FC = () => {
     <DashProvider>
       <Container>
         <DexV2Layout>
-          <LiquidityRewards />
+          <DepositedStakedLiquidity />
           <LockRewards />
           <VotingRewards />
         </DexV2Layout>
