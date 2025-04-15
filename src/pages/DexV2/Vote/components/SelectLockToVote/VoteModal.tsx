@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import Portal from '@reach/portal'
+import { parseUnits } from '@ethersproject/units'
 
 import { ReactComponent as CrossIcon } from 'assets/launchpad/svg/close.svg'
 import { Box, Flex } from 'rebass'
@@ -11,6 +12,8 @@ import { PoolsHasGauge } from 'hooks/dex-v2/queries/usePoolsHasGaugeQuery'
 import SelectPoolModal from './SelectPoolModal'
 import useVote from 'state/dexV2/vote/useVote'
 import { PoolToken } from 'state/dexV2/vote'
+import { Voter } from 'services/balancer/contracts/voter'
+import useWeb3 from 'hooks/dex-v2/useWeb3'
 
 interface Props {
   selectedLock: any
@@ -21,8 +24,19 @@ interface Props {
 }
 
 const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose, onSuccess }) => {
+  const voter = new Voter()
+  const { isWalletReady } = useWeb3()
+
   const { seedTokens, updateTokenWeight, updateLockedWeight, removeTokenWeights } = useVote()
   const [isOpenSelectPoolModal, setIsOpenSelectPoolModal] = useState(false)
+  const totalAllocatedWeight = seedTokens.reduce((acc: number, pool: PoolToken) => acc + Number(pool.weight), 0)
+
+  const isProceedDisabled = (() => {
+    if (!isWalletReady) return true
+    if (totalAllocatedWeight !== 100) return true
+    if (seedTokens.length === 0) return true
+    return false
+  })()
 
   const onCloseSelectPoolModal = () => {
     setIsOpenSelectPoolModal(false)
@@ -46,6 +60,20 @@ const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose,
 
   const handleSuccess = () => {
     onSuccess()
+  }
+
+  const handleVote = async () => {
+    try {
+      const poolVote = seedTokens.map((pool: PoolToken) => pool.tokenAddress)
+      const poolWeights = seedTokens.map((pool: PoolToken) => parseUnits(pool.weight.toString(), 16).toString())
+      console.log('poolVote', poolVote)
+      console.log('poolWeights', poolWeights)
+
+      const res = await voter.vote(selectedLock?.id, poolVote, poolWeights)
+      console.log('Vote Response:', res)
+    } catch (error) {
+      console.error('Error during voting:', error)
+    }
   }
 
   if (!isVisible) return null
@@ -104,7 +132,7 @@ const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose,
               <BalBtn block outline onClick={() => setIsOpenSelectPoolModal(true)}>
                 Add Pool
               </BalBtn>
-              <BalBtn block disabled>
+              <BalBtn block disabled={isProceedDisabled} onClick={handleVote}>
                 Submit
               </BalBtn>
             </Flex>

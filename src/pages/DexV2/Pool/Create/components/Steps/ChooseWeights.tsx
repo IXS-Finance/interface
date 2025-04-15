@@ -68,7 +68,7 @@ const ChooseWeights: React.FC = () => {
   const totalWeight = sumBy(seedTokens, 'weight').toFixed(2)
 
   const isProceedDisabled = (() => {
-    if (!isWalletReady) return false
+    if (!isWalletReady) return true
     if (Number(totalAllocatedWeight) !== 100) return true
     if (seedTokens.length < 2) return true
     if (zeroWeightToken) return true
