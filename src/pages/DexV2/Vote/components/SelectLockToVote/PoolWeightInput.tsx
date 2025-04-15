@@ -12,12 +12,10 @@ interface PoolWeightInputProps {
   fixedToken?: boolean
   hint?: string
   hintAmount?: string
-  excludedTokens: string[]
   showWarningIcon?: boolean
   updateWeight: (weight: string) => void
   updateLocked: (isLocked: boolean) => void
   deleteItem: () => void
-  updateAddress: (address: string) => void
 }
 
 function blockInvalidChar(event: KeyboardEvent) {
