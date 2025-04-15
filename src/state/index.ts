@@ -46,6 +46,7 @@ import swapDexV2 from './dexV2/swap'
 import userSettings from './dexV2/userSettings'
 import dexV2Pool from './dexV2/pool'
 import dexV2Staking from './dexV2/poolStaking'
+import dexV2Vote from './dexV2/vote'
 
 const PERSISTED_KEYS: string[] = [
   'auth',
@@ -109,6 +110,7 @@ const combinedReducer = combineReducers({
   userSettings,
   dexV2Pool,
   dexV2Staking,
+  dexV2Vote,
 })
 
 const rootReducer = (state: any, action: any) => {

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import Portal from '@reach/portal'
@@ -8,19 +9,35 @@ import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
 import PoolWeightInput from './PoolWeightInput'
 import { PoolsHasGauge } from 'hooks/dex-v2/queries/usePoolsHasGaugeQuery'
 import SelectPoolModal from './SelectPoolModal'
+import useVote from 'state/dexV2/vote/useVote'
+import { PoolToken } from 'state/dexV2/vote'
 
 interface Props {
+  selectedLock: any
   pools: PoolsHasGauge[]
   isVisible: boolean
   onClose: () => void
   onSuccess: () => void
 }
 
-const VotingModal: React.FC<Props> = ({ pools, isVisible, onClose, onSuccess }) => {
+const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose, onSuccess }) => {
+  const { seedTokens, updateTokenWeight, updateLockedWeight, removeTokenWeights } = useVote()
   const [isOpenSelectPoolModal, setIsOpenSelectPoolModal] = useState(false)
 
   const onCloseSelectPoolModal = () => {
     setIsOpenSelectPoolModal(false)
+  }
+
+  function handleWeightChange(weight: string, id: number) {
+    updateTokenWeight(id, Number(weight))
+  }
+
+  function handleLockedWeight(isLocked: boolean, id: number) {
+    updateLockedWeight(id, isLocked)
+  }
+
+  function handleRemoveToken(index: number) {
+    removeTokenWeights(index)
   }
 
   const handleClose = () => {
@@ -33,6 +50,7 @@ const VotingModal: React.FC<Props> = ({ pools, isVisible, onClose, onSuccess }) 
 
   if (!isVisible) return null
 
+  console.log('seedTokens', seedTokens)
   return (
     <Portal>
       <ModalBackdrop>
@@ -45,7 +63,7 @@ const VotingModal: React.FC<Props> = ({ pools, isVisible, onClose, onSuccess }) 
             css={{ borderRadius: '16px 16px 0 0' }}
           >
             <Box color="#B8B8D2" fontSize="14px" fontWeight={500}>
-              Lock #63492
+              Lock #{selectedLock?.id}
             </Box>
 
             <ExitIconContainer onClick={onClose}>
@@ -58,37 +76,43 @@ const VotingModal: React.FC<Props> = ({ pools, isVisible, onClose, onSuccess }) 
               Your Allocations
             </Box>
 
-            <Flex flexDirection="column" css={{ gap: '16px' }}>
-              {pools?.map((pool) => (
-                <PoolWeightInput
-                  key={pool.id}
-                  tokensList={pool.tokensList}
-                  label={pool.name}
-                  weight={0}
-                  updateWeight={() => {}}
-                  updateLocked={() => {}}
-                  deleteItem={() => {}}
-                  updateAddress={() => {}}
-                  excludedTokens={[]}
-                />
-              ))}
-            </Flex>
+            {!seedTokens || seedTokens.length === 0 ? (
+              <Box>No pools selected. Let choose "Add pool"!</Box>
+            ) : (
+              <Flex flexDirection="column" css={{ gap: '16px' }}>
+                {seedTokens?.map((pool: PoolToken, i: number) => (
+                  <PoolWeightInput
+                    key={pool.id}
+                    tokensList={pool.tokensList}
+                    weight={pool.weight}
+                    label={pool.name}
+                    updateWeight={(data) => handleWeightChange(data, i)}
+                    updateLocked={(data) => handleLockedWeight(data, i)}
+                    deleteItem={() => handleRemoveToken(i)}
+                  />
+                ))}
+              </Flex>
+            )}
 
-            <Box color="#B8B8D2" fontSize="14px" fontWeight={500}>
-              Total weight must equal 100%
-            </Box>
+            {false ? (
+              <Box color="#B8B8D2" fontSize="14px" fontWeight={500}>
+                Total weight must equal 100%
+              </Box>
+            ) : null}
 
             <Flex alignSelf="stretch" css={{ gap: '8px' }}>
               <BalBtn block outline onClick={() => setIsOpenSelectPoolModal(true)}>
                 Add Pool
               </BalBtn>
-              <BalBtn block>Submit</BalBtn>
+              <BalBtn block disabled>
+                Submit
+              </BalBtn>
             </Flex>
           </Flex>
           {isOpenSelectPoolModal && (
             <SelectPoolModal
               pools={pools}
-              excludedTokens={[]}
+              excludedTokens={seedTokens.map((pool: PoolToken) => pool.tokenAddress)}
               updateAddress={() => {}}
               onClose={onCloseSelectPoolModal}
               ignoreBalances

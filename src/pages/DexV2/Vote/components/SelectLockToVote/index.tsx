@@ -18,9 +18,14 @@ const SelectLockToVote: React.FC<SelectLockToVoteProps> = ({ pools }) => {
 
   const [lockedList, setLockedList] = useState<any[]>([])
   const [isOpenVoteingModal, setIsOpenVotingModal] = useState(false)
+  const [selectedLock, setSelectedLock] = useState<any>(null)
 
   const toggleVotingModal = () => {
     setIsOpenVotingModal(!isOpenVoteingModal)
+  }
+
+  const handleSelectLock = (lock: any) => {
+    setSelectedLock(lock)
   }
 
   useEffect(() => {
@@ -32,7 +37,7 @@ const SelectLockToVote: React.FC<SelectLockToVoteProps> = ({ pools }) => {
     }
   }, [account])
 
-  console.log('Locked List:', lockedList)
+  console.log('selectedLock', selectedLock)
   return (
     <MainContainer
       justifyContent="space-between"
@@ -89,14 +94,15 @@ const SelectLockToVote: React.FC<SelectLockToVoteProps> = ({ pools }) => {
           Select Lock for Voting
         </Box>
 
-        <LockSelect options={lockedList} />
+        <LockSelect options={lockedList} value={selectedLock} onChange={handleSelectLock} />
 
-        <BalBtn style={{ width: '100%' }} onClick={toggleVotingModal}>
+        <BalBtn style={{ width: '100%' }} onClick={toggleVotingModal} disabled={!selectedLock}>
           Vote
         </BalBtn>
       </Flex>
 
       <VotingModal
+        selectedLock={selectedLock}
         isVisible={isOpenVoteingModal}
         pools={pools}
         onClose={toggleVotingModal}

@@ -15,6 +15,8 @@ import TextInput from 'pages/DexV2/common/TextInput'
 import LoadingIcon from 'pages/DexV2/common/LoadingIcon'
 import { PoolsHasGauge } from 'hooks/dex-v2/queries/usePoolsHasGaugeQuery'
 import AssetSet from 'pages/DexV2/common/AssetSet'
+import useVote from 'state/dexV2/vote/useVote'
+import { PoolToken } from 'state/dexV2/vote'
 
 interface SelectPoolModalProps {
   pools: PoolsHasGauge[]
@@ -35,69 +37,30 @@ export function formatAmount(amount: number, maximumFractionDigits = 10) {
 }
 
 const SelectPoolModal: React.FC<SelectPoolModalProps> = (props) => {
-  const {
-    tokens: tokensRaw,
-    getToken,
-    searchTokens,
-    priceFor,
-    balanceFor,
-    dynamicDataLoading,
-    nativeAsset,
-    injectTokens,
-  } = useTokens()
-  const { pools } = props
+  const { pools, excludedTokens } = props
+  const poolsAddress = pools.map((pool) => pool.address)
 
-  const { chainId, provider, account } = useWeb3React()
-  const { balances } = useTokensState()
-  const dispatch = useDispatch()
+  const { addPoolToken } = useVote()
+
+  const excludedSet = new Set(excludedTokens.map((token) => token.toLowerCase()))
+  const finalPools = pools.filter((pool) => !excludedSet.has(pool.address.toLowerCase()))
 
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<any>([])
-  const [loading, setLoading] = useState(false)
 
-  const excludedTokens = [...props.excludedTokens, ...(props.includeEther ? [] : [nativeAsset.address])]
-
-  const tokensWithValues = Object.values(results).map((token: any) => {
-    const balance = balanceFor(token.address)
-    const price = priceFor(token.address)
-    const value = Number(balance) * price
-    return {
-      ...token,
-      price,
-      balance,
-      value,
+  async function onSelectToken(token: PoolsHasGauge): Promise<void> {
+    const paramToken: PoolToken = {
+      tokenAddress: token.address,
+      weight: 0,
+      isLocked: false,
+      id: token.id,
+      tokensList: token.tokensList,
+      name: token.name,
     }
-  })
+    debugger
+    addPoolToken(paramToken)
 
-  const tokens = props.ignoreBalances
-    ? tokensWithValues
-    : orderBy(tokensWithValues, ['value', 'balance'], ['desc', 'desc'])
-
-  async function onSelectToken(token: string): Promise<void> {
-    // Todo: Implement onSelectToken
-    // if (!getToken(token)) {
-    //   await injectTokens([token]);
-    // }
-
-    props.updateAddress(token)
     props.onClose()
   }
-
-  useEffect(() => {
-    async function queryTokens(newQuery: string) {
-      setLoading(true)
-      const results = await searchTokens(newQuery, {
-        excluded: excludedTokens,
-        disableInjection: props.disableInjection ? props.disableInjection : false,
-        subset: props.subset ? props.subset : [],
-      }).finally(() => {
-        setLoading(false)
-      })
-      setResults(results)
-    }
-
-    queryTokens(query)
-  }, [query, JSON.stringify(tokensRaw)])
 
   return (
     <Portal>
@@ -119,11 +82,11 @@ const SelectPoolModal: React.FC<SelectPoolModalProps> = (props) => {
           </HeaderModal>
 
           <BodyModal>
-            {pools.length ? (
+            {finalPools.length ? (
               <TokenList>
-                {pools.map((pool: PoolsHasGauge) => {
+                {finalPools.map((pool: PoolsHasGauge) => {
                   return (
-                    <ItemContainer key={pool.id} onClick={() => onSelectToken(pool.address)}>
+                    <ItemContainer key={pool.id} onClick={() => onSelectToken(pool)}>
                       <Flex css={{ gap: '8px' }} alignItems="center">
                         <AssetSet addresses={pool.tokensList} width={50} />
                         <Box color="#292933" fontSize="14px" fontWeight={600}>
