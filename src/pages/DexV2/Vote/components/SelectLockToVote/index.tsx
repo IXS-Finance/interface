@@ -28,12 +28,22 @@ const SelectLockToVote: React.FC<SelectLockToVoteProps> = ({ pools }) => {
     setSelectedLock(lock)
   }
 
+  const getData = () => {
+    const veSugar = new VeSugar()
+    veSugar.byAccount(account).then((data) => {
+      setLockedList(data)
+    })
+  }
+
+  const onSuccess = () => {
+    getData()
+    setIsOpenVotingModal(false)
+    setSelectedLock(null)
+  }
+
   useEffect(() => {
     if (account) {
-      const veSugar = new VeSugar()
-      veSugar.byAccount(account).then((data) => {
-        setLockedList(data)
-      })
+      getData()
     }
   }, [account])
 
@@ -107,7 +117,7 @@ const SelectLockToVote: React.FC<SelectLockToVoteProps> = ({ pools }) => {
         isVisible={isOpenVoteingModal}
         pools={pools}
         onClose={toggleVotingModal}
-        onSuccess={toggleVotingModal}
+        onSuccess={onSuccess}
       />
     </MainContainer>
   )

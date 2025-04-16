@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import Portal from '@reach/portal'
 import { parseUnits } from '@ethersproject/units'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider'
 
 import { ReactComponent as CrossIcon } from 'assets/launchpad/svg/close.svg'
 import { Box, Flex } from 'rebass'
@@ -11,9 +12,12 @@ import PoolWeightInput from './PoolWeightInput'
 import { PoolsHasGauge } from 'hooks/dex-v2/queries/usePoolsHasGaugeQuery'
 import SelectPoolModal from './SelectPoolModal'
 import useVote from 'state/dexV2/vote/useVote'
-import { PoolToken } from 'state/dexV2/vote'
+import { PoolToken, setVoteState } from 'state/dexV2/vote'
 import { Voter } from 'services/balancer/contracts/voter'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
+import useEthers from 'hooks/dex-v2/useEthers'
+import useTransactions from 'hooks/dex-v2/useTransactions'
+import { useDispatch } from 'react-redux'
 
 interface Props {
   selectedLock: any
@@ -26,8 +30,11 @@ interface Props {
 const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose, onSuccess }) => {
   const voter = new Voter()
   const { isWalletReady } = useWeb3()
+  const { txListener } = useEthers()
+  const { addTransaction } = useTransactions()
+  const { seedTokens, txLoading, txLoadingText, updateTokenWeight, updateLockedWeight, removeTokenWeights } = useVote()
+  const dispatch = useDispatch()
 
-  const { seedTokens, updateTokenWeight, updateLockedWeight, removeTokenWeights } = useVote()
   const [isOpenSelectPoolModal, setIsOpenSelectPoolModal] = useState(false)
   const totalAllocatedWeight = seedTokens.reduce((acc: number, pool: PoolToken) => acc + Number(pool.weight), 0)
 
@@ -60,6 +67,7 @@ const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose,
 
   const handleSuccess = () => {
     onSuccess()
+    onClose()
   }
 
   const handleVote = async () => {
@@ -68,9 +76,44 @@ const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose,
       const poolWeights = seedTokens.map((pool: PoolToken) => parseUnits(pool.weight.toString(), 18).toString())
       console.log('poolVote', poolVote)
       console.log('poolWeights', poolWeights)
+      dispatch(
+        setVoteState({
+          txLoading: true,
+          txLoadingText: 'Voting...',
+        })
+      )
+      const tx = await voter.vote(selectedLock?.id, poolVote, poolWeights)
 
-      const res = await voter.vote(selectedLock?.id, poolVote, poolWeights)
-      console.log('Vote Response:', res)
+      addTransaction({
+        id: tx.hash,
+        type: 'tx',
+        action: 'vote',
+        summary: 'Vote for pools',
+      })
+
+      if (tx) {
+      }
+      await txListener(tx, {
+        onTxConfirmed: async (receipt: TransactionReceipt) => {
+          console.log('receipt', receipt)
+          handleSuccess()
+          dispatch(
+            setVoteState({
+              txLoading: false,
+              txLoadingText: '',
+            })
+          )
+        },
+        onTxFailed: () => {
+          debugger
+          dispatch(
+            setVoteState({
+              txLoading: false,
+              txLoadingText: '',
+            })
+          )
+        },
+      })
     } catch (error) {
       console.error('Error during voting:', error)
     }
@@ -132,8 +175,8 @@ const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose,
               <BalBtn block outline onClick={() => setIsOpenSelectPoolModal(true)}>
                 Add Pool
               </BalBtn>
-              <BalBtn block disabled={isProceedDisabled} onClick={handleVote}>
-                Submit
+              <BalBtn block disabled={isProceedDisabled || txLoading} onClick={handleVote}>
+                {txLoading ? txLoadingText : 'Submit'}
               </BalBtn>
             </Flex>
           </Flex>
