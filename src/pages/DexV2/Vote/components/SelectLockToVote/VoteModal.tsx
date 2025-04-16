@@ -65,7 +65,7 @@ const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose,
   const handleVote = async () => {
     try {
       const poolVote = seedTokens.map((pool: PoolToken) => pool.tokenAddress)
-      const poolWeights = seedTokens.map((pool: PoolToken) => parseUnits(pool.weight.toString(), 16).toString())
+      const poolWeights = seedTokens.map((pool: PoolToken) => parseUnits(pool.weight.toString(), 18).toString())
       console.log('poolVote', poolVote)
       console.log('poolWeights', poolWeights)
 
