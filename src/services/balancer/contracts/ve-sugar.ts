@@ -5,7 +5,6 @@ import { configService } from 'services/config/config.service'
 import { rpcProviderService } from 'services/rpc-provider/rpc-provider.service'
 import { walletService as walletServiceInstance } from 'services/web3/wallet.service'
 import { EthersContract, getEthersContract } from 'dependencies/EthersContract'
-import { LP_SUGAR_ADDRESS } from 'constants/addresses'
 import { TransactionBuilder } from 'services/web3/transactions/transaction.builder'
 import { getEthersSigner } from 'hooks/useEthersProvider'
 import { wagmiConfig } from 'components/Web3Provider'
@@ -19,7 +18,7 @@ export type LockedData = {
   decimals: number
   votedAt: string
   token: string
-  votes: { lp: string, weight: BigNumber }[]
+  votes: { lp: string; weight: BigNumber }[]
 }
 export class VeSugar {
   instance: EthersContract
@@ -32,7 +31,7 @@ export class VeSugar {
   ) {
     const Contract = getEthersContract()
     // @ts-ignore
-    this.instance = new Contract(LP_SUGAR_ADDRESS[config.network.key], this.abi, this.provider)
+    this.instance = new Contract(configService.network.addresses.veSugar, this.abi, this.provider)
   }
 
   async getTransactionBuilder(): Promise<TransactionBuilder> {
