@@ -15,10 +15,14 @@ export type PoolToken = {
 
 export interface VoteState {
   seedTokens: PoolToken[]
+  txLoading: boolean
+  txLoadingText: string
 }
 
 const initialState: VoteState = {
   seedTokens: [] as PoolToken[],
+  txLoading: false,
+  txLoadingText: '',
 }
 
 
@@ -58,7 +62,7 @@ const voteSlice = createSlice({
   name: 'vote',
   initialState,
   reducers: {
-    setPoolCreationState(state, action) {
+    setVoteState(state, action) {
       const newState = { ...state, ...action.payload }
 
       return newState
@@ -99,7 +103,7 @@ const voteSlice = createSlice({
 })
 
 export const {
-  setPoolCreationState,
+  setVoteState,
   resetPoolCreation,
   setTokenWeight,
   distributeWeights,
