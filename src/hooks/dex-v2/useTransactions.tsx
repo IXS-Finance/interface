@@ -41,6 +41,7 @@ export type TransactionAction =
   | 'sync'
   | 'userGaugeCheckpoint'
   | 'claimSubmission'
+  | 'vote'
 
 export type TransactionType = 'order' | 'tx'
 
@@ -303,6 +304,7 @@ export default function useTransactions() {
       sync: 'Sync',
       userGaugeCheckpoint: 'Pool gauge veBAL update',
       claimSubmission: 'Claim submission',
+      vote: 'Vote',
     }
     const transactionStatus: any = {
       cancelled: 'Cancelled',

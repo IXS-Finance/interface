@@ -8,14 +8,22 @@ import { Box, Flex } from 'rebass'
 
 function transformOptions(options: any) {
   if (!options) return []
-
   if (options.length === 0) return []
 
-  return options.map((option: any) => {
-    let lockDuration = dayjs.unix(Number(option.expiresAt)).diff(dayjs(), 'year')
+  // Sort options by id (ascending)
+  const sortedOptions = options.sort(
+    (a: any, b: any) => Number(b.id) - Number(a.id)
+  )
+
+  return sortedOptions.map((option: any) => {
+    const expiresAt = dayjs.unix(Number(option.expiresAt))
+    const now = dayjs()
+    const isExpired = expiresAt.isBefore(now)
+
+    let lockDuration = expiresAt.diff(now, 'year')
     let lockMessage = `${option.amount} IXS Locked for ${lockDuration} years`
     if (lockDuration === 0) {
-      lockDuration = dayjs.unix(Number(option.expiresAt)).diff(dayjs(), 'day')
+      lockDuration = expiresAt.diff(now, 'day')
       lockMessage = `${option.amount} IXS Locked for ${lockDuration} days`
     }
 
@@ -23,6 +31,8 @@ function transformOptions(options: any) {
       value: option.id,
       label: `Lock #${option.id}`,
       lockMessage,
+      isExpired,
+      isVoted: option.votes.length > 0,
       ...option,
     }
   })
@@ -34,21 +44,52 @@ export interface LockSelectProps {
   options: any
 }
 
-// Create a styled container where you want your custom styles applied.
-const StyledMenuItem = styled.div`
+interface BadgeProps {
+  status?: 'success' | 'default' | 'warning' | 'active'
+}
+
+const Badge = styled.div<BadgeProps>`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: ${(props) => {
+    switch (props.status) {
+      case 'success':
+        return '#1DC78A' // green
+      case 'warning':
+        return '#ffc107' // yellow
+      case 'active':
+        return '#007bff' // blue
+      default:
+        return '#a4a4b1'
+    }
+  }};
+  color: ${(props) => (props.status === 'warning' ? '#000' : '#fff')};
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: bold;
+`
+
+interface StyledMenuItemProps {
+  isDisabled?: boolean
+}
+
+const StyledMenuItem = styled.div<StyledMenuItemProps>`
+  position: relative; // for badge positioning.
   border-radius: 8px;
   border: 1px solid #e6e6ff;
-  background: #fff;
+  background: ${({ isDisabled }) => (isDisabled ? '#f9f9f9' : '#fff')};
   padding: 16px;
-  cursor: pointer;
+  cursor: ${({ isDisabled }) => (isDisabled ? 'not-allowed' : 'pointer')};
   display: flex;
   align-items: center;
   gap: 16px;
   &:hover {
-    background: #f0f0ff;
+    background: ${({ isDisabled }) => (isDisabled ? '#f9f9f9' : '#f0f0ff')};
   }
   &:active {
-    background: #e0e0ff;
+    background: ${({ isDisabled }) => (isDisabled ? '#f9f9f9' : '#e0e0ff')};
   }
   &:focus {
     outline: none;
@@ -59,8 +100,17 @@ const CustomMenuList: React.FC<MenuListProps<any, false>> = (props) => {
   return (
     <components.MenuList {...props}>
       {props.options.map((option, index) => {
+        const isDisabled = option.isVoted || option.isExpired
+
         return (
-          <StyledMenuItem key={index} onClick={() => props.selectOption(option)}>
+          <StyledMenuItem key={index} onClick={() => !isDisabled && props.selectOption(option)} isDisabled={isDisabled}>
+            {option.isVoted && (
+              <Badge status="success">Voted</Badge>
+            )}
+
+            {option.isExpired && (
+              <Badge status="default">Expired</Badge>
+            )}
             <img src={lockImg} alt="Lock Icon" width={40} height={40} />
             <Flex flexDirection="column" alignItems="flex-start" justifyContent="center" css={{ gap: '6px' }}>
               <Flex
