@@ -5,7 +5,7 @@ import { LockedData, VeSugar } from 'services/balancer/contracts/ve-sugar'
 export default function useLocksQuery(address: string) {
   const veSugar = new VeSugar()
 
-  const { data: lockRewards, isLoading: isLoadingLockRewards } = useQuery<LockedData[]>({
+  const { data: lockRewards, isLoading: isLoadingLockRewards, refetch } = useQuery<LockedData[]>({
     queryKey: ['lock-rewards', address],
     queryFn: () => new LockService(veSugar).getLockRewards(address),
     enabled: !!address,
@@ -14,5 +14,6 @@ export default function useLocksQuery(address: string) {
   return {
     lockRewards,
     isLoadingLockRewards,
+    refetch,
   }
 }

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Box, Grid, Stack, Tooltip } from '@mui/material'
 import { TYPE } from 'theme'
 import { useTheme } from 'styled-components'
@@ -14,10 +14,12 @@ import useLocksQuery from 'hooks/dex-v2/queries/useLocksQuery'
 import { routes } from 'utils/routes'
 import { useHistory } from 'react-router-dom'
 import dayjs from 'dayjs'
+import { useVotingEscrowContract } from 'hooks/useContract'
+import { useTransactionAdder } from 'state/transactions/hooks'
 
 const LockRewards: React.FC = () => {
   const { account } = useWeb3()
-  const { lockRewards } = useLocksQuery(account)
+  const { lockRewards, refetch } = useLocksQuery(account)
 
   return (
     <Box mb={8}>
@@ -34,7 +36,7 @@ const LockRewards: React.FC = () => {
             <Box my={3}>
               <Line />
             </Box>
-            <TableBody data={data} />
+            <TableBody data={data} refetch={refetch} />
           </Card>
         </Box>
       ))}
@@ -58,10 +60,13 @@ const TableHeader = ({ id }: { id: number }) => {
   )
 }
 
-const TableBody = ({ data }: { data: LockItem }) => {
+const TableBody = ({ data, refetch }: { data: LockItem, refetch: () => void }) => {
   const theme = useTheme()
   const currency = useCurrency(data.token)
   const history = useHistory()
+  const votingEscrowContract = useVotingEscrowContract()
+  const addTransaction = useTransactionAdder()
+  const [withdrawing, setWithdrawing] = useState(false)
 
   const isNotExpired = useMemo(() => {
     const currentTime = Math.floor(Date.now() / 1000)
@@ -89,8 +94,32 @@ const TableBody = ({ data }: { data: LockItem }) => {
     history.push(`${path}?${searchParams.toString()}`)
   }
 
-  const handleWithdraw = () => {
-    console.log('withdraw')
+  const handleWithdraw = async (tokenId: string) => {
+    if (withdrawing) return
+    if (!tokenId) return
+    try {
+      setWithdrawing(true)
+      const tx = await votingEscrowContract?.withdraw(tokenId)
+      await tx.wait()
+
+      if (!tx.hash) {
+        setWithdrawing(false)
+        return
+      }
+      addTransaction(tx, {
+        summary: `Withdraw ${tokenId}`,
+      })
+
+      refetch()
+
+      setTimeout(() => {
+        setWithdrawing(false)
+      }, 3000)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setWithdrawing(false)
+    }
   }
 
   return (
@@ -140,7 +169,8 @@ const TableBody = ({ data }: { data: LockItem }) => {
               paddingTop: 12,
               paddingBottom: 12,
             }}
-            onClick={handleWithdraw}
+            onClick={() => handleWithdraw(data.id)}
+            disabled={withdrawing}
           >
             Withdraw
           </PinnedContentButton>
