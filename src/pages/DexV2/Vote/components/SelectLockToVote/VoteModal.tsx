@@ -67,7 +67,6 @@ const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose,
 
   const handleSuccess = () => {
     onSuccess()
-    onClose()
   }
 
   const handleVote = async () => {
