@@ -34,7 +34,6 @@ type CardBodyProps = {
   userLpBalance?: bigint
   userGaugeBalance?: bigint
   lpSupply?: BigNumber
-  gaugesByPool: Record<Address, Address>
   showMore: boolean
   rowIndex?: number
 }
@@ -53,7 +52,7 @@ const DepositedStakedLiquidityRow = ({ data, userLpBalance, userGaugeBalance, lp
           <TYPE.subHeader1 color="text6">Deposit #123</TYPE.subHeader1>
         </Box>
         <Stack direction="row" alignItems="center" style={{ userSelect: 'none' }} gap={1} onClick={() => handleToggleShowMore(!showMore)}>
-          <TYPE.subHeader1 color="text6">Show Less</TYPE.subHeader1>
+          <TYPE.subHeader1 color="text6">{showMore ? 'Show Less' : 'Show More'}</TYPE.subHeader1>
           <StyledChevronIcon isOpen={!showMore} />
         </Stack>
       </Stack>
@@ -62,7 +61,6 @@ const DepositedStakedLiquidityRow = ({ data, userLpBalance, userGaugeBalance, lp
         userLpBalance={userLpBalance}
         userGaugeBalance={userGaugeBalance}
         lpSupply={lpSupply}
-        gaugesByPool={gaugesByPool}
         showMore={showMore}
         rowIndex={rowIndex}
       />
@@ -71,14 +69,13 @@ const DepositedStakedLiquidityRow = ({ data, userLpBalance, userGaugeBalance, lp
 }
 
 
-const CardBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, gaugesByPool, showMore, rowIndex }: CardBodyProps) => {
+const CardBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, showMore, rowIndex }: CardBodyProps) => {
   const [stakeAction, setStakeAction] = useState<StakeAction | null>(null)
 
   const tokens = data.tokens
   const tokenAddresses = tokens.map((token) => token.address as Address)
   const poolName = tokens.map((token) => token.symbol).join('/')
   const poolWeight = tokens.map((token) => +(token.weight || 0) * 100).join('/')
-  const isHasGauge = gaugesByPool[data.address as Address] !== zeroAddress
   const history = useHistory()
 
   const getStakedAmount = useCallback(
@@ -174,13 +171,11 @@ const CardBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, gaugesByPoo
                   symbol: token.symbol,
                   address: token.address,
                 }))}
-                showUnstakeBtn={isHasGauge}
+                showUnstakeBtn
                 userGaugeBalance={userGaugeBalance}
                 userLpBalance={userLpBalance}
                 handleUnstakeAction={() => {
-                  if (isHasGauge) {
-                    setStakeAction('unstake')
-                  }
+                  setStakeAction('unstake')
                 }}
               />
             </Grid>
@@ -193,14 +188,12 @@ const CardBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, gaugesByPoo
                   symbol: token.symbol,
                   address: token.address,
                 }))}
-                showStakeBtn={isHasGauge}
-                showWithdrawBtn={isHasGauge}
+                showStakeBtn
+                showWithdrawBtn
                 userGaugeBalance={userGaugeBalance}
                 userLpBalance={userLpBalance}
                 handleStakeAction={() => {
-                  if (isHasGauge) {
-                    setStakeAction('stake')
-                  }
+                  setStakeAction('stake')
                 }}
                 handleWithdrawAction={() => { }}
               />
@@ -338,7 +331,11 @@ const CardItem = ({
             <CardButton
               size="small"
               disabled={userLpBalance && new Big(userLpBalance?.toString() || '0').gt(0) ? false : true}
-              onClick={() => handleStakeAction?.()}
+              onClick={() => {
+                if (userLpBalance && new Big(userLpBalance?.toString() || '0').gt(0)) {
+                  handleStakeAction?.()
+                }
+              }}
             >Stake
             </CardButton>
           )}
@@ -347,7 +344,11 @@ const CardItem = ({
             <CardButton
               size="small"
               disabled={userLpBalance && new Big(userLpBalance?.toString() || '0').gt(0) ? false : true}
-              onClick={() => handleWithdrawAction?.()}
+              onClick={() => {
+                if (userLpBalance && new Big(userLpBalance?.toString() || '0').gt(0)) {
+                  handleWithdrawAction?.()
+                }
+              }}
             >Withdraw
             </CardButton>
           )}
@@ -355,7 +356,11 @@ const CardItem = ({
             <CardButton
               size="small"
               disabled={userGaugeBalance && new Big(userGaugeBalance?.toString() || '0').gt(0) ? false : true}
-              onClick={() => handleUnstakeAction?.()}
+              onClick={() => {
+                if (userGaugeBalance && new Big(userGaugeBalance?.toString() || '0').gt(0)) {
+                  handleUnstakeAction?.()
+                }
+              }}
             >Unstake
             </CardButton>
           )}
@@ -363,7 +368,11 @@ const CardItem = ({
             <CardButton
               size="small"
               disabled={emissionsAmount && new Big(emissionsAmount?.toString() || '0').gt(0) ? false : true}
-              onClick={() => handleClaimEmissionsAction?.()}
+              onClick={() => {
+                if (emissionsAmount && new Big(emissionsAmount?.toString() || '0').gt(0)) {
+                  handleClaimEmissionsAction?.()
+                }
+              }}
             >Claim
             </CardButton>
           )}
@@ -371,7 +380,11 @@ const CardItem = ({
             <CardButton
               size="small"
               disabled={tradingFeesAmount && new Big(tradingFeesAmount?.toString() || '0').gt(0) ? false : true}
-              onClick={() => handleClaimTradingFeesAction?.()}
+              onClick={() => {
+                if (tradingFeesAmount && new Big(tradingFeesAmount?.toString() || '0').gt(0)) {
+                  handleClaimTradingFeesAction?.()
+                }
+              }}
             >Claim
             </CardButton>
           )}
