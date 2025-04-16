@@ -9,6 +9,7 @@ import { LP_SUGAR_ADDRESS } from 'constants/addresses'
 import { TransactionBuilder } from 'services/web3/transactions/transaction.builder'
 import { getEthersSigner } from 'hooks/useEthersProvider'
 import { wagmiConfig } from 'components/Web3Provider'
+import { BigNumber } from 'ethers'
 
 export type LockedData = {
   id: string
@@ -18,6 +19,7 @@ export type LockedData = {
   decimals: number
   votedAt: string
   token: string
+  votes: { lp: string, weight: BigNumber }[]
 }
 export class VeSugar {
   instance: EthersContract
@@ -50,6 +52,7 @@ export class VeSugar {
       votedAt: item.votedAt.toString(),
       decimals: item.decimals,
       token: item.token,
+      votes: item.votes,
     }))
 
     return result || []
@@ -65,6 +68,7 @@ export class VeSugar {
       votedAt: output.votedAt.toString(),
       decimals: output.decimals,
       token: output.token,
+      votes: output.votes,
     }
   }
 }
