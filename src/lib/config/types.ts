@@ -1,5 +1,5 @@
 import { Pools } from 'types/pools'
-import { TokenListURLMap } from 'types/TokenList';
+import { TokenListURLMap } from 'types/TokenList'
 
 export type CommonTokens = {
   nativeAsset: string
@@ -23,32 +23,14 @@ export type TokenConstants = {
 }
 
 export interface Contracts {
-  merkleRedeem: string
-  merkleOrchard: string
-  merkleOrchardV2?: string
   multicall: string
   authorizer: string
   vault: string
   weightedPoolFactory: string
-  stablePoolFactory: string
-  lidoRelayer: string
-  balancerHelpers: string
-  batchRelayer: string
-  veBAL: string
-  gaugeController: string
-  gaugeCheckpointer?: string
-  gaugeFactory: string
-  gaugeWorkingBalanceHelper?: string
-  balancerMinter: string
-  tokenAdmin: string
-  veDelegationProxy: string
-  veBALHelpers: string
-  feeDistributor: string
-  feeDistributorDeprecated: string
-  faucet: string
-  gaugeRewardsHelper?: string
-  omniVotingEscrow?: string
-  claimSubmission?: string
+  voter: string
+  veSugar: string
+  votingEscrow: string
+  rewardSugar: string
 }
 
 export interface RateProviders {
@@ -141,6 +123,6 @@ export interface Config {
     type: number
     weight: number
   }
-  tokenlists: TokenListURLMap;
+  tokenlists: TokenListURLMap
   rateProviders: Record<string, Record<string, boolean>>
 }

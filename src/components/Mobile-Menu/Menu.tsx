@@ -30,17 +30,26 @@ export const Menu = ({ close, isAdminMenu }: Props) => {
   const [cookies] = useCookies(['annoucementsSeen'])
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const [anchorElDexV2, setAnchorElDexV2] = React.useState<null | HTMLElement>(null)
 
   const isIxSwap = config?.isIxSwap ?? false
   const bridgeUrl = process.env.REACT_APP_BRIDGE_URL || 'https://bridge.ixs.finance'
   const stakingUrl = process.env.REACT_APP_STAKING_URL || 'https://staking.ixs.finance'
 
   const open = Boolean(anchorEl)
+  const openDexV2 = Boolean(anchorElDexV2)
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
   }
   const handleClose = () => {
     setAnchorEl(null)
+  }
+  const handleClickDexV2 = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElDexV2(event.currentTarget)
+  }
+  const handleCloseDexV2 = () => {
+    setAnchorElDexV2(null)
   }
 
   useEffect(() => {
@@ -300,6 +309,76 @@ export const Menu = ({ close, isAdminMenu }: Props) => {
             </div>
           ) : null}
 
+          <div>
+            <div
+              style={{ fontSize: '20px', fontWeight: '700', marginTop: '20px', height: '40px' }}
+              id="fade-button"
+              aria-controls={openDexV2 ? 'fade-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={openDexV2 ? 'true' : undefined}
+              onClick={handleClickDexV2}
+            >
+              Dex V2
+            </div>
+            <MenuMobile
+              style={{ width: '90vw' }}
+              id="fade-menu"
+              MenuListProps={{
+                'aria-labelledby': 'fade-button',
+              }}
+              anchorEl={anchorElDexV2}
+              open={openDexV2}
+              onClose={handleCloseDexV2}
+              TransitionComponent={Fade}
+            >
+              <MenuItem onClick={handleCloseDexV2}>
+                <ExternalListItem
+                  style={{ fontSize: '15px', margin: '0px', height: '10px', fontWeight: '400' }}
+                  href={routes.dexV2Pools}
+                >
+                  <Trans>Pools</Trans>
+                </ExternalListItem>
+              </MenuItem>
+
+              <MenuItem onClick={handleCloseDexV2}>
+                <ExternalListItem
+                  style={{ fontSize: '15px', margin: '0px', height: '10px', fontWeight: '400' }}
+                  href={routes.dexV2Swap}
+                >
+                  <Trans>Swap</Trans>
+                </ExternalListItem>
+              </MenuItem>
+
+              <MenuItem onClick={handleCloseDexV2}>
+                <ExternalListItem
+                  style={{ fontSize: '15px', margin: '0px', height: '10px', fontWeight: '400' }}
+                  href={routes.dexV2Lock}
+                >
+                  <Trans>Staking</Trans>
+                </ExternalListItem>
+              </MenuItem>
+
+              <MenuItem onClick={handleCloseDexV2}>
+                <ExternalListItem
+                  style={{ fontSize: '15px', margin: '0px', height: '10px', fontWeight: '400' }}
+                  href={routes.dexV2Dashboard}
+                >
+                  <Trans>Dashboard</Trans>
+                </ExternalListItem>
+              </MenuItem>
+
+              <MenuItem onClick={handleCloseDexV2}>
+                <ExternalListItem
+                  style={{ fontSize: '15px', margin: '0px', height: '10px', fontWeight: '400' }}
+                  href={routes.dexV2Vote}
+                >
+                  <Trans>Vote</Trans>
+                </ExternalListItem>
+              </MenuItem>
+            </MenuMobile>
+            <Line />
+          </div>
+
           {showIssuance && (
             <>
               <MenuListItem
@@ -340,7 +419,11 @@ export const Menu = ({ close, isAdminMenu }: Props) => {
             Terms & Conditions
           </a>
 
-          <a href={config?.privacyPolicyUrl || 'https://www.ixs.finance/privacy-policy/'} target="_blank" rel="noreferrer">
+          <a
+            href={config?.privacyPolicyUrl || 'https://www.ixs.finance/privacy-policy/'}
+            target="_blank"
+            rel="noreferrer"
+          >
             Privacy Policy
           </a>
         </div>
