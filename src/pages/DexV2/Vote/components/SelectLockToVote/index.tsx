@@ -38,6 +38,7 @@ const SelectLockToVote: React.FC<SelectLockToVoteProps> = ({ pools }) => {
   }, [account])
 
   console.log('selectedLock', selectedLock)
+  console.log('lockedList', lockedList)
   return (
     <MainContainer
       justifyContent="space-between"
