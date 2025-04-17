@@ -52,7 +52,6 @@ function handleDistributeWeights(seedTokens: PoolToken[]) {
     }
   })
 
-  console.log('normalisedWeights', normalisedWeights)
   unlockedWeights.forEach((tokenWeight: PoolToken, i: number) => {
     tokenWeight.weight = Number((normalisedWeights[i] * 100).toFixed(2))
   })
