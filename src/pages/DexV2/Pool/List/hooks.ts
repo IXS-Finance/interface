@@ -58,7 +58,6 @@ export const usePoolList = () => {
         $first: Int,
       ) {
         pools(
-          where: { totalLiquidity_gt: "0" },
           orderBy: $orderBy,
           orderDirection: $orderDirection,
           skip: $skip,

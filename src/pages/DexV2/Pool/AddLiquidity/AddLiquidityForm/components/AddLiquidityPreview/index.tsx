@@ -71,8 +71,6 @@ const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({ isLoadingQuery,
     [pool.address]: bptOut,
   }
 
-  console.log('bptOut', bptOut)
-
   // Build token maps using getToken()
   const tokenInMap: TokenInfoMap = {}
   Object.keys(amountInMap).forEach((address) => {

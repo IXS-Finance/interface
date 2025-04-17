@@ -64,7 +64,6 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   const [loading, setLoading] = useState(false)
   const [currentActionIndex, setCurrentActionIndex] = useState(0)
 
-  console.log('requiredActions', requiredActions)
   const actions: any = requiredActions
     .map((actionInfo, idx) => {
       const actionState = actionStates[idx]
@@ -84,7 +83,6 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
     .filter((item) => item !== null)
 
   const currentAction: BalStepAction | undefined = actions[currentActionIndex]
-  console.log('actionStates', actionStates)
   const currentActionState: TransactionActionState = actionStates[currentActionIndex]
   const lastActionState: TransactionActionState = actionStates[actionStates.length - 1]
   const steps: Step[] = actions.map((action: any) => action.step)

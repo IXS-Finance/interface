@@ -5,7 +5,7 @@ import { joinTokens, fiatValueOf, isDeep, isStableLike } from 'hooks/dex-v2/useP
 import useNumbers from 'hooks/dex-v2/useNumbers'
 import { useTxState } from 'hooks/dex-v2/useTxState'
 import { HIGH_PRICE_IMPACT, REKT_PRICE_IMPACT } from 'constants/dexV2/poolLiquidity'
-import { bnSum, bnum, isSameAddress } from 'lib/utils'
+import { bnSum, bnum, isSameAddress, scale } from 'lib/utils'
 import { JoinHandler, JoinPoolService } from 'services/balancer/pools/joins/join-pool.service'
 import { TokenInfoMap } from 'types/TokenList'
 import { TransactionActionInfo } from 'types/transactions'
@@ -19,6 +19,9 @@ import useWeb3 from 'hooks/dex-v2/useWeb3'
 import useUserSettings from '../userSettings/useUserSettings'
 import { useDispatch, useSelector } from 'react-redux'
 import { setPoolState } from '.'
+import { BigNumber } from 'ethers'
+import { safeParseUnits } from 'utils/formatCurrencyAmount'
+import { getAddress } from 'viem'
 
 // --- Types ---
 export type AmountIn = {
@@ -42,12 +45,12 @@ export const useJoinPool = (pool: any) => {
   const [relayerApproval, setRelayerApproval] = useState({ isUnlocked: false })
 
   // SERVICES & COMPOSABLES
-  const { fNum, toFiat } = useNumbers()
+  const { toFiat } = useNumbers()
   const { slippageBsp, transactionDeadline } = useUserSettings()
   const { getSigner, appNetworkConfig } = useWeb3()
   const { txState, txInProgress, resetTxState } = useTxState()
   const { getTokenApprovalActions } = useTokenApprovalActions()
-  const { getTokens, priceFor, nativeAsset, wrappedNativeAsset } = useTokens()
+  const { tokens, getTokens, priceFor, nativeAsset, wrappedNativeAsset } = useTokens()
 
   // Create a join pool service instance.
   const joinPoolService = new JoinPoolService(pool)
@@ -66,11 +69,9 @@ export const useJoinPool = (pool: any) => {
   const fiatValueIn = bnSum(amountsIn.map((a: any) => toFiat(a.value || 0, a.address))).toString()
   const fiatValueOut = fiatValueOf(pool, bptOut)
 
-  console.log('hasValidInputs', hasValidInputs)
-  console.log('hasAcceptedHighPriceImpact', hasAcceptedHighPriceImpact)
-  const amountsToApprove = amountsIn.map((amountIn: any) => ({
+  const amountsToApprove = amountsIn.map((amountIn: { address: string, value: string }) => ({
     address: amountIn.address,
-    amount: amountIn.value,
+    amount: BigNumber.from(safeParseUnits(+amountIn.value, tokensIn[getAddress(amountIn.address)]?.decimals)),
     spender: appNetworkConfig.addresses.vault,
   }))
 
@@ -92,18 +93,10 @@ export const useJoinPool = (pool: any) => {
     dispatch(setPoolState({ amountsIn: amountsIn.map((a: any) => ({ ...a, value: '' })) }))
   }
 
-  const resetQueryJoinState = () => {
-    dispatch(setPoolState({ bptOut: '0', priceImpact: 0 }))
-
-    // if (queryJoinQuery.remove) {
-    //   queryJoinQuery.remove()
-    // }
-  }
-
   const setApprovalActions = async () => {
     const tokenApprovalActions = await getTokenApprovalActions({
       amountsToApprove,
-      tokens: { [pool.address]: { address: pool.address, decimals: pool.decimals, symbol: pool.name } },
+      tokens,
       spender: appNetworkConfig.addresses.vault,
       actionType: ApprovalAction.AddLiquidity,
       skipAllowanceCheck: true,
@@ -128,16 +121,6 @@ export const useJoinPool = (pool: any) => {
       await setApprovalActions()
       if (!validateAmountsIn()) return null
       const output = await joinPoolService.queryJoin({
-        amountsIn: amountsInWithValue,
-        tokensIn,
-        signer: await getSigner(),
-        slippageBsp: slippageBsp,
-        relayerSignature: relayerSignature,
-        approvalActions,
-        transactionDeadline: transactionDeadline,
-      })
-
-      console.log('queryJOin params', {
         amountsIn: amountsInWithValue,
         tokensIn,
         signer: await getSigner(),
