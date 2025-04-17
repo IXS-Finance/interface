@@ -18,6 +18,7 @@ import useWeb3 from 'hooks/dex-v2/useWeb3'
 import useEthers from 'hooks/dex-v2/useEthers'
 import useTransactions from 'hooks/dex-v2/useTransactions'
 import { useDispatch } from 'react-redux'
+import { toast } from 'react-toastify'
 
 interface Props {
   selectedLock: any
@@ -104,7 +105,7 @@ const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose,
           )
         },
         onTxFailed: () => {
-          debugger
+          toast.error('Transaction failed')
           dispatch(
             setVoteState({
               txLoading: false,
@@ -114,13 +115,19 @@ const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose,
         },
       })
     } catch (error) {
+      toast.error('Error during voting. Please try again.')
       console.error('Error during voting:', error)
+      dispatch(
+        setVoteState({
+          txLoading: false,
+          txLoadingText: '',
+        })
+      )
     }
   }
 
   if (!isVisible) return null
 
-  console.log('seedTokens', seedTokens)
   return (
     <Portal>
       <ModalBackdrop>
