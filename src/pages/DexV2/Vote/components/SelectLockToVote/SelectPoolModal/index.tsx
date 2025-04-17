@@ -38,7 +38,6 @@ export function formatAmount(amount: number, maximumFractionDigits = 10) {
 
 const SelectPoolModal: React.FC<SelectPoolModalProps> = (props) => {
   const { pools, excludedTokens } = props
-  const poolsAddress = pools.map((pool) => pool.address)
 
   const { addPoolToken } = useVote()
 
@@ -56,9 +55,8 @@ const SelectPoolModal: React.FC<SelectPoolModalProps> = (props) => {
       tokensList: token.tokensList,
       name: token.name,
     }
-    debugger
-    addPoolToken(paramToken)
 
+    addPoolToken(paramToken)
     props.onClose()
   }
 
@@ -99,7 +97,9 @@ const SelectPoolModal: React.FC<SelectPoolModalProps> = (props) => {
               </TokenList>
             ) : (
               <Box display="flex" justifyContent="center" alignItems="center" height="24rem">
-                <LoadingIcon />
+                <Box color="#B8B8D2" fontSize="14px" fontWeight={500}>
+                  No results found
+                </Box>
               </Box>
             )}
           </BodyModal>

@@ -171,9 +171,9 @@ const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose,
               </Flex>
             )}
 
-            {false ? (
+            {seedTokens && seedTokens.length > 0 ? (
               <Box color="#B8B8D2" fontSize="14px" fontWeight={500}>
-                Total weight must equal 100%
+                Total vote weight must be exactly 100% to submit.
               </Box>
             ) : null}
 

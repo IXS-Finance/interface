@@ -47,15 +47,8 @@ const SelectLockToVote: React.FC<SelectLockToVoteProps> = ({ pools }) => {
     }
   }, [account])
 
-  console.log('selectedLock', selectedLock)
-  console.log('lockedList', lockedList)
   return (
-    <MainContainer
-      justifyContent="space-between"
-      alignItems="center"
-      alignSelf="stretch"
-      css={{ margin: '0 auto', marginTop: '48px' }}
-    >
+    <MainContainer justifyContent="space-between" alignItems="center" alignSelf="stretch" css={{ margin: '0 auto' }}>
       <Flex flexDirection="column" alignItems="flex-start">
         <Box
           color="#292933"
