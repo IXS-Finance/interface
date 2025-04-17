@@ -14,7 +14,6 @@ const AddLiquidity: React.FC = () => {
 
   const isLoading: boolean = isLoadingPool
 
-  console.log('isLoading', isLoading)
   return (
     <DexV2Layout>
       <Container>
