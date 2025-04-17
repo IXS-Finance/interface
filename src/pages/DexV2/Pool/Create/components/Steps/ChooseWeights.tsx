@@ -13,7 +13,6 @@ import { useWeb3React } from 'hooks/useWeb3React'
 import config from 'lib/config'
 import { setTokensList } from 'state/dexV2/poolCreation'
 import { useDispatch } from 'react-redux'
-import BalAlert from '../../../components/BalAlert'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
@@ -21,6 +20,7 @@ import { Box, Flex } from 'rebass'
 import BalCard from 'pages/DexV2/common/Card'
 import BalStack from 'pages/DexV2/common/BalStack'
 import { configService } from 'services/config/config.service'
+import BalAlert from 'pages/DexV2/common/BalAlert'
 
 const emptyTokenWeight: PoolSeedToken = {
   tokenAddress: '',
