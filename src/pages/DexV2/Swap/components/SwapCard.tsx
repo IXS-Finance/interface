@@ -22,7 +22,7 @@ import SwapPreviewModal from './SwapPreviewModal'
 import { useIsMounted } from 'hooks/dex-v2/useIsMounted'
 import SwapSettingsPopover, { SwapSettingsContext } from 'pages/DexV2/common/popovers/SwapSettingsPopover'
 import SwapRoute from './SwapRoute'
-import { BalAlert } from 'pages/DexV2/common/BalAlert'
+import BalAlert from 'pages/DexV2/common/BalAlert'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 
 const SwapCard: React.FC = () => {

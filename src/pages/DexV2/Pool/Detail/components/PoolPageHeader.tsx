@@ -10,7 +10,7 @@ import useNumbers from 'hooks/dex-v2/useNumbers'
 import { Flex } from 'rebass'
 import Chip from './Chip'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
-import { BalAlert } from 'pages/DexV2/common/BalAlert'
+import BalAlert from 'pages/DexV2/common/BalAlert'
 import { usePoolHelpers } from 'hooks/dex-v2/usePoolHelpers'
 
 interface PoolPageHeaderProps {
