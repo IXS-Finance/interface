@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TransactionActionInfo } from 'pages/DexV2/types/transactions'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
-import { usePoolCreationState } from 'state/dexV2/poolCreation/hooks'
 import useTokenApprovalActions from 'hooks/dex-v2/approvals/useTokenApprovalActions'
 import { useWeb3React } from 'hooks/useWeb3React'
 import config from 'lib/config'
@@ -87,8 +86,6 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
   if (allowanceLoading) {
     return <div>Loading...</div>
   }
-
-  console.log('requiredActions', requiredActions)
 
   if (loading) {
     return <div>Loading check for approvals...</div>

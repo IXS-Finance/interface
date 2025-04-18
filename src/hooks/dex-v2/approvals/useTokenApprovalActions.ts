@@ -7,11 +7,8 @@ import { TransactionResponse } from '@ethersproject/providers'
 import useTransactions from '../useTransactions'
 import { configService } from 'services/config/config.service'
 import { flatten } from 'lodash'
-import { bnum } from 'lib/utils'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useWeb3 from '../useWeb3'
-import { safeParseUnits } from 'utils/formatCurrencyAmount'
-import { useAllowanceV2 } from 'hooks/useApproveCallback'
 import { BigNumber } from 'ethers'
 
 /**
@@ -19,7 +16,7 @@ import { BigNumber } from 'ethers'
  */
 export type AmountToApprove = {
   address: string
-  amount: BigNumber // normalized amount
+  amount: BigNumber // original amount
 }
 
 export type TokenProps = Pick<TokenInfo, 'address' | 'symbol' | 'decimals'>

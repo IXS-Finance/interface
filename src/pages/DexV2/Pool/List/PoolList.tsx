@@ -48,15 +48,13 @@ interface IBody {
 const Body = ({ items }: IBody) => {
   return (
     <BodyContainer>
-      {items
-        .filter((pool) => +pool.totalLiquidity > 0.001)
-        .map((pool, index) => (
-          <Fragment key={`pool-${pool.id}`}>
-            <Line />
-            <Row pool={pool} />
-            {index === items.length - 1 && <Line />}
-          </Fragment>
-        ))}
+      {items.map((pool, index) => (
+        <Fragment key={`pool-${pool.id}`}>
+          <Line />
+          <Row pool={pool} />
+          {index === items.length - 1 && <Line />}
+        </Fragment>
+      ))}
     </BodyContainer>
   )
 }
