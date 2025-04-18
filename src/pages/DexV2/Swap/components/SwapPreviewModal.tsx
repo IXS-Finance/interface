@@ -30,7 +30,7 @@ import { ButtonPrimary } from 'pages/DexV2/common'
 import ActionSteps from './ActionSteps'
 import SwapRoute from './SwapRoute'
 import Modal from 'pages/DexV2/common/modals'
-import { BalAlert } from 'pages/DexV2/common/BalAlert'
+import BalAlert from 'pages/DexV2/common/BalAlert'
 import { safeParseUnits } from 'utils/formatCurrencyAmount'
 
 interface SwapSettingsModalProps {

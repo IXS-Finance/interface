@@ -11,13 +11,13 @@ import useExitPool from 'state/dexV2/pool/useExitPool'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import useNetwork from 'hooks/dex-v2/useNetwork'
 import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
-import BalAlert from '../../components/BalAlert'
 import WithdrawTotals from './WithdrawTotals'
 import WithdrawPreviewModal from './WithdrawPreviewModal'
 import { overflowProtected } from '../../components/helpers'
 import { setDataForSingleAmountOut } from 'state/dexV2/pool'
 import SingleTokenInput from './SingleTokenInput'
 import { Box } from 'rebass'
+import BalAlert from 'pages/DexV2/common/BalAlert'
 
 type WithdrawFormProps = {
   pool: Pool
