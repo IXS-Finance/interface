@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
+import { AlertTriangle, AlertCircle, AlertOctagon } from 'react-feather'
 
 export type AlertType = 'warning' | 'error' | 'info' | 'tip'
 
@@ -209,9 +210,9 @@ const BalAlert: React.FC<BalAlertProps> = ({
       case 'tip':
         return '#2b6cb0' // blue-700
       case 'warning':
-        return '#ed8936' // orange-500
+        return '#ffbe18' // orange-500
       case 'error':
-        return '#f56565' // red-500
+        return '#FF6565' // red-500
       default:
         return '#4a5568' // secondary
     }
@@ -236,11 +237,13 @@ const BalAlert: React.FC<BalAlertProps> = ({
       <AlertContainer alignItems={alignItems}>
         <IconWrapper size={iconSizeVal} color={iconColorVal}>
           {type === 'tip' ? (
-            // Replace with your LightBulbIcon if available
-            <span style={{ fontSize: iconSizeVal }}>💡</span>
+            <AlertCircle size={iconSizeVal} color={iconColorVal} />
+          ) : type === 'warning' ? (
+            <AlertTriangle size={iconSizeVal} color={iconColorVal} />
+          ) : type === 'error' ? (
+            <AlertOctagon size={iconSizeVal} color={iconColorVal} />
           ) : (
-            // Replace with your alert icon if available
-            <span style={{ fontSize: iconSizeVal }}>⚠️</span>
+            <AlertCircle size={iconSizeVal} color={iconColorVal} />
           )}
         </IconWrapper>
         <ContentWrapper flexDirection={flexDirection} className={contentClass}>
