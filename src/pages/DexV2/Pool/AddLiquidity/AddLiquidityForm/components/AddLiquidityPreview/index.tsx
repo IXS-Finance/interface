@@ -10,11 +10,11 @@ import { useJoinPool } from 'state/dexV2/pool/useJoinPool'
 import { TokenInfoMap } from 'types/TokenList'
 import { oneSecondInMs } from 'hooks/dex-v2/useTime'
 import Summary from './components/Summary'
-import BalAlert from 'pages/DexV2/Pool/components/BalAlert'
 import TokenAmounts from 'pages/DexV2/common/forms/TokenAmounts'
 import { Flex } from 'rebass'
 import BalCircle from 'pages/DexV2/common/BalCircle'
 import AddLiquidityActions from './components/AddLiquidityActions'
+import BalAlert from 'pages/DexV2/common/BalAlert'
 
 // import Summary from './components/Summary';
 // import TokenAmounts from '@/components/forms/pool_actions/shared/TokenAmounts';
