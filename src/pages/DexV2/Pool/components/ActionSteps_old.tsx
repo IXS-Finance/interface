@@ -13,7 +13,7 @@ import useEthers from 'hooks/dex-v2/useEthers'
 import { TransactionAction, postConfirmationDelay } from 'hooks/dex-v2/useTransactions'
 import { dateTimeLabelFor } from 'hooks/dex-v2/useTime'
 import { setActionStates } from 'state/dexV2/poolCreation'
-import BalAlert from './BalAlert'
+import BalAlert from 'pages/DexV2/common/BalAlert'
 
 export type BalStepAction = {
   label: string

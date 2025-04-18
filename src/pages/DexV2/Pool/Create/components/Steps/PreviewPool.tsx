@@ -12,10 +12,10 @@ import { bnum, shortenLabel } from 'lib/utils'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { useWeb3React } from 'hooks/useWeb3React'
-import BalAlert from '../../../components/BalAlert'
 import BalCard from 'pages/DexV2/common/Card'
 import BalStack from 'pages/DexV2/common/BalStack'
 import { configService } from 'services/config/config.service'
+import BalAlert from 'pages/DexV2/common/BalAlert'
 
 const PreviewPool: React.FC = () => {
   const { account } = useWeb3React()

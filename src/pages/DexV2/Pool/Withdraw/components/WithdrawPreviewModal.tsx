@@ -11,12 +11,12 @@ import useExitPool from 'state/dexV2/pool/useExitPool'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNetwork from 'hooks/dex-v2/useNetwork'
 import { Pool } from 'services/pool/types'
-import BalAlert from '../../components/BalAlert'
 import BalCircle from 'pages/DexV2/common/BalCircle'
 import TokenAmounts from 'pages/DexV2/common/forms/TokenAmounts'
 import WithdrawSummary from './WithdrawSummary'
 import WithdrawActions from './WithdrawActions'
 import { setDataForSingleAmountOut } from 'state/dexV2/pool'
+import BalAlert from 'pages/DexV2/common/BalAlert'
 
 interface WithdrawPreviewModalProps {
   pool: Pool

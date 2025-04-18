@@ -9,7 +9,6 @@ import { TransactionAction, postConfirmationDelay } from 'hooks/dex-v2/useTransa
 import { dateTimeLabelFor } from 'hooks/dex-v2/useTime'
 
 // Import UI components (assumed React versions)
-import BalAlert from 'pages/DexV2/Pool/components/BalAlert'
 // import BalHorizSteps from '@/components/BalHorizSteps'
 // import BalBtn from '@/components/BalBtn'
 import signature from '@/assets/images/icons/signature.svg'
@@ -23,6 +22,7 @@ import { NextButton } from 'pages/DexV2/Pool/Create'
 import Loader from 'components/Loader'
 import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
 import { marginLeft } from 'styled-system'
+import BalAlert from 'pages/DexV2/common/BalAlert'
 
 enum StepState {
   Todo,

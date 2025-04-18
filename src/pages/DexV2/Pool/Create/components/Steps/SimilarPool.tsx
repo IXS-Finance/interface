@@ -7,9 +7,9 @@ import BalStack from 'pages/DexV2/common/BalStack'
 import AssetSet from 'pages/DexV2/common/AssetSet'
 import TokenPills from 'pages/DexV2/common/TokenPills'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
-import BalAlert from 'pages/DexV2/Pool/components/BalAlert'
 import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
+import BalAlert from 'pages/DexV2/common/BalAlert'
 
 interface SimilarPoolProps {}
 

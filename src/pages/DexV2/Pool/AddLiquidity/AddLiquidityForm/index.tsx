@@ -15,8 +15,6 @@ import { tokenWeight, usePoolHelpers } from 'hooks/dex-v2/usePoolHelpers'
 // import AddLiquidityPreview from './components/AddLiquidityPreview/AddLiquidityPreview'
 import AddLiquidityTotals from './components/AddLiquidityTotals'
 // import BalCheckbox from '@/components/BalCheckbox'
-import BalAlert from '../../components/BalAlert'
-import { ButtonPrimary } from 'pages/DexV2/common'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { AmountIn, useJoinPool } from 'state/dexV2/pool/useJoinPool'
@@ -29,6 +27,8 @@ import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 import QUERY_KEYS from 'constants/dexV2/queryKeys'
 import BalCheckbox from 'pages/DexV2/common/BalCheckbox'
 import { isRequired } from 'lib/utils/validations'
+import BalAlert from 'pages/DexV2/common/BalAlert'
+import { ButtonPrimary } from 'pages/DexV2/common'
 
 interface AddLiquidityFormProps {
   pool: Pool
@@ -117,6 +117,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
 
   const disabled = !hasAmountsIn || !hasValidInputs || isMismatchedNetwork || isLoadingQuery || !!queryError
 
+  console.log('amountsIn', amountsIn)
   return (
     <Container>
       {forceProportionalInputs && (
@@ -126,7 +127,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
         </BalAlert>
       )}
 
-      {amountsIn.length > 0 && poolHasLowLiquidity ? (
+      {poolHasLowLiquidity ? (
         <BalAlert type="warning" title="Be careful: This pool has low liquidity">
           Add assets proportionally to the pool weights or the price impact will be high and you will likely get REKT
           and lose money.
