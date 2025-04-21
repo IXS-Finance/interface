@@ -1,0 +1,85 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_voter", "type": "address" },
+      { "internalType": "address", "name": "_vault", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_pool", "type": "address" },
+      { "internalType": "uint256", "name": "_tokenId", "type": "uint256" }
+    ],
+    "name": "getBribeVotingRewards",
+    "outputs": [
+      { "internalType": "address[]", "name": "tokens", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "rewards", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_pool", "type": "address" },
+      { "internalType": "uint256", "name": "_tokenId", "type": "uint256" }
+    ],
+    "name": "getFeeAndBribeVotingRewards",
+    "outputs": [
+      { "internalType": "address[]", "name": "tokens", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "feeRewards", "type": "uint256[]" },
+      { "internalType": "uint256[]", "name": "bribeRewards", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address[]", "name": "_pools", "type": "address[]" },
+      { "internalType": "uint256", "name": "_tokenId", "type": "uint256" }
+    ],
+    "name": "getFeeAndBribeVotingRewardsForTokenIdAndPools",
+    "outputs": [
+      { "internalType": "address[][]", "name": "tokens", "type": "address[][]" },
+      { "internalType": "uint256[][]", "name": "feeRewards", "type": "uint256[][]" },
+      { "internalType": "uint256[][]", "name": "bribeRewards", "type": "uint256[][]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_pool", "type": "address" },
+      { "internalType": "uint256", "name": "_tokenId", "type": "uint256" }
+    ],
+    "name": "getFeeVotingRewards",
+    "outputs": [
+      { "internalType": "address[]", "name": "tokens", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "rewards", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "vault",
+    "outputs": [{ "internalType": "contract IVault", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ve",
+    "outputs": [{ "internalType": "contract IVotingEscrow", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "voter",
+    "outputs": [{ "internalType": "contract IVoter", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
