@@ -6,6 +6,7 @@ import { LiquidityPoolSelector } from './components/LiquidityPoolSelector'
 import usePoolsHasGaugeQuery from 'hooks/dex-v2/queries/usePoolsHasGaugeQuery'
 import DexV2Layout from '../common/Layout'
 import SelectLockToVote from './components/SelectLockToVote'
+import { VoteHistoryRecords } from './components/VoteHistoryRecords'
 
 interface VoteProps {}
 
@@ -28,6 +29,7 @@ const Vote: React.FC<VoteProps> = () => {
         <VotingRoundStats />
         <SelectLockToVote pools={pools} />
         <LiquidityPoolSelector pools={pools} />
+        <VoteHistoryRecords pools={pools} />
       </Flex>
     </DexV2Layout>
   )

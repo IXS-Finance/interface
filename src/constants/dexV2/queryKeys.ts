@@ -30,6 +30,13 @@ const QUERY_KEYS = {
         networkId,
       },
     ],
+    VoteHistories: (networkId: Network) => [
+      POOLS_ROOT_KEY,
+      'voteHistories',
+      {
+        networkId,
+      },
+    ],
     User: (networkId: Network, account: string, gaugeAddresses: string[]) => [
       POOLS_ROOT_KEY,
       'user',
