@@ -4,19 +4,15 @@ import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 
-// import WithdrawSummary from './components/WithdrawSummary'
-// import WithdrawActions from './components/WithdrawActions'
 import Modal from 'pages/DexV2/common/modals'
 import useExitPool from 'state/dexV2/pool/useExitPool'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNetwork from 'hooks/dex-v2/useNetwork'
 import { Pool } from 'services/pool/types'
-import BalCircle from 'pages/DexV2/common/BalCircle'
 import TokenAmounts from 'pages/DexV2/common/forms/TokenAmounts'
 import WithdrawSummary from './WithdrawSummary'
 import WithdrawActions from './WithdrawActions'
 import { setDataForSingleAmountOut } from 'state/dexV2/pool'
-import BalAlert from 'pages/DexV2/common/BalAlert'
 
 interface WithdrawPreviewModalProps {
   pool: Pool
@@ -38,7 +34,6 @@ const WithdrawPreviewModal: React.FC<WithdrawPreviewModalProps> = ({ pool, onClo
     priceImpact,
     fiatAmountsOut,
     isSingleAssetExit,
-    shouldExitViaInternalBalance,
     hasBpt,
     setBptIn,
   } = useExitPool(pool)
@@ -53,7 +48,6 @@ const WithdrawPreviewModal: React.FC<WithdrawPreviewModalProps> = ({ pool, onClo
 
   // Create maps from pool address.
   const amountInMap = { [pool.address]: bptIn }
-  console.log('amountInMap', amountInMap)
   const tokenInMap = { [pool.address]: getToken(pool.address) }
   const fiatAmountInMap = { [pool.address]: fiatValueIn }
 
@@ -87,42 +81,7 @@ const WithdrawPreviewModal: React.FC<WithdrawPreviewModalProps> = ({ pool, onClo
 
   return (
     <Modal onClose={onClose}>
-      <ModalHeader>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          {withdrawalConfirmed && (
-            <BalCircle size="8" color="green" style={{ marginRight: '0.5rem' }}>
-              <svg
-                viewBox="0 0 24 24"
-                width="24"
-                height="24"
-                stroke="currentColor"
-                strokeWidth="2"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </BalCircle>
-          )}
-          <div>{title}</div>
-        </div>
-      </ModalHeader>
-
-      {shouldExitViaInternalBalance && (
-        <BalAlert type="warning" title="Withdraw to Vault balance" style={{ marginBottom: '1rem' }}>
-          This transaction will withdraw your tokens from this pool to your Balancer Vault balance. \n\nYou will then be
-          able to withdraw the relevant tokens from the Vault using the{' '}
-          <a
-            href={`/balances?networkSlug=${networkSlug}`}
-            target="_blank"
-            rel="noreferrer"
-            style={{ textDecoration: 'underline' }}
-          >
-            Vault balances page
-          </a>
-        </BalAlert>
-      )}
+      <Title>{title}</Title>
 
       {showTokensIn && (
         <TokenAmounts
@@ -154,12 +113,12 @@ const WithdrawPreviewModal: React.FC<WithdrawPreviewModalProps> = ({ pool, onClo
 
 export default WithdrawPreviewModal
 
-const ModalHeader = styled.div`
-  width: 100%;
-  /* Omit dark mode; you can adjust text colors as needed */
-  color: #6b7280;
-
-  .mt-4 {
-    margin-top: 1rem;
-  }
+const Title = styled.div`
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.6px;
 `
