@@ -3,12 +3,12 @@ import { formatUnits } from '@ethersproject/units'
 import VeSugarV2Abi from 'lib/abi/VeSugarV2.json'
 import { configService } from 'services/config/config.service'
 import { rpcProviderService } from 'services/rpc-provider/rpc-provider.service'
-import { walletService as walletServiceInstance } from 'services/web3/wallet.service'
 import { EthersContract, getEthersContract } from 'dependencies/EthersContract'
 import { TransactionBuilder } from 'services/web3/transactions/transaction.builder'
 import { getEthersSigner } from 'hooks/useEthersProvider'
 import { wagmiConfig } from 'components/Web3Provider'
 import { BigNumber } from 'ethers'
+import { Address } from 'viem'
 
 export type LockedData = {
   id: string
@@ -17,8 +17,8 @@ export type LockedData = {
   expiresAt: string
   decimals: number
   votedAt: string
-  token: string
-  votes: { lp: string; weight: BigNumber }[]
+  token: Address
+  votes: { lp: Address; weight: BigNumber }[]
 }
 export class VeSugar {
   instance: EthersContract
@@ -26,8 +26,6 @@ export class VeSugar {
   constructor(
     private readonly provider = rpcProviderService.jsonProvider,
     private readonly abi = VeSugarV2Abi,
-    private readonly config = configService,
-    private readonly walletService = walletServiceInstance
   ) {
     const Contract = getEthersContract()
     // @ts-ignore
