@@ -5,7 +5,7 @@ import { BigNumber } from 'ethers'
 import { useHistory } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import { TYPE } from 'theme'
-import { Address, formatUnits, zeroAddress } from 'viem'
+import { Address, formatUnits } from 'viem'
 
 import CurrencyLogoSet from 'components/CurrencyLogoSet'
 import { Line } from 'components/Line'
@@ -25,7 +25,6 @@ type DepositedStakedLiquidityRowProps = {
   userLpBalance?: bigint
   userGaugeBalance?: bigint
   lpSupply?: BigNumber
-  gaugesByPool: Record<Address, Address>
   rowIndex?: number
 }
 
@@ -38,20 +37,59 @@ type CardBodyProps = {
   rowIndex?: number
 }
 
-const DepositedStakedLiquidityRow = ({ data, userLpBalance, userGaugeBalance, lpSupply, gaugesByPool, rowIndex }: DepositedStakedLiquidityRowProps) => {
+const DepositedStakedLiquidityRow = ({
+  data,
+  userLpBalance,
+  userGaugeBalance,
+  lpSupply,
+  rowIndex,
+}: DepositedStakedLiquidityRowProps) => {
+  const tokens = data.tokens
+
+  const tokenAddresses = tokens.map((token) => token.address as Address)
+  const poolName = tokens.map((token) => token.symbol).join('/')
+  const poolWeight = tokens.map((token) => +(token.weight || 0) * 100).join('/')
+  const history = useHistory()
   const [showMore, setShowMore] = useState(rowIndex === 0)
 
   const handleToggleShowMore = (value: boolean) => {
     setShowMore(value)
   }
 
+  const handleShowPoolDetail = () => {
+    const path = routes.dexV2PoolDetail.replace(':id', data.id)
+    history.push(path)
+  }
+
   return (
     <Card>
       <Stack direction="row" justifyContent="space-between">
-        <Box>
-          <TYPE.subHeader1 color="text6">Deposit #123</TYPE.subHeader1>
-        </Box>
-        <Stack direction="row" alignItems="center" style={{ userSelect: 'none' }} gap={1} onClick={() => handleToggleShowMore(!showMore)}>
+        <Stack direction="row" alignItems="center" style={{ width: 'max-content', userSelect: 'none' }} gap={1}>
+          <Stack height={40} direction="row" alignItems="center">
+            {tokenAddresses ? <CurrencyLogoSet tokens={tokenAddresses} size={32} /> : null}
+          </Stack>
+          <Box my={1}>
+            <StyledLabel fontSize={16} onClick={handleShowPoolDetail}>
+              {poolName}
+            </StyledLabel>
+          </Box>
+          <Stack direction="row" alignItems="center" gap={1}>
+            <TYPE.subHeader1 color="yellow69">Weighted</TYPE.subHeader1>
+            <Dot />
+            <TYPE.subHeader1 color="text6">{poolWeight}</TYPE.subHeader1>
+            <Tooltip title="Info">
+              <InfoIcon width={12} />
+            </Tooltip>
+          </Stack>
+        </Stack>
+
+        <Stack
+          direction="row"
+          alignItems="center"
+          style={{ userSelect: 'none' }}
+          gap={1}
+          onClick={() => handleToggleShowMore(!showMore)}
+        >
           <TYPE.subHeader1 color="text6">{showMore ? 'Show Less' : 'Show More'}</TYPE.subHeader1>
           <StyledChevronIcon isOpen={!showMore} />
         </Stack>
@@ -68,15 +106,9 @@ const DepositedStakedLiquidityRow = ({ data, userLpBalance, userGaugeBalance, lp
   )
 }
 
-
 const CardBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, showMore, rowIndex }: CardBodyProps) => {
   const [stakeAction, setStakeAction] = useState<StakeAction | null>(null)
-
   const tokens = data.tokens
-  const tokenAddresses = tokens.map((token) => token.address as Address)
-  const poolName = tokens.map((token) => token.symbol).join('/')
-  const poolWeight = tokens.map((token) => +(token.weight || 0) * 100).join('/')
-  const history = useHistory()
 
   const getStakedAmount = useCallback(
     (token: TokenType): Big => {
@@ -122,32 +154,8 @@ const CardBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, showMore, r
 
   const handlePreviewClose = () => setStakeAction(null)
 
-  const handleShowPoolDetail = () => {
-    const path = routes.dexV2PoolDetail.replace(':id', data.id)
-    history.push(path)
-  }
-
   return (
     <Box>
-      <Stack direction="row" alignItems="center" style={{ width: 'max-content', userSelect: 'none' }} gap={1}>
-        <Stack height={40} direction="row" alignItems="center">{tokenAddresses ? <CurrencyLogoSet tokens={tokenAddresses} size={32} /> : null}</Stack>
-        <Box my={1}>
-          <StyledLabel
-            fontSize={16}
-            onClick={handleShowPoolDetail}
-          >
-            {poolName}
-          </StyledLabel>
-        </Box>
-        <Stack direction="row" alignItems="center" gap={1}>
-          <TYPE.subHeader1 color="yellow69">Weighted</TYPE.subHeader1>
-          <Dot />
-          <TYPE.subHeader1 color="text6">{poolWeight}</TYPE.subHeader1>
-          <Tooltip title="Info">
-            <InfoIcon width={12} />
-          </Tooltip>
-        </Stack>
-      </Stack>
       {showMore && (
         <Box my={2}>
           <Grid container spacing={2} alignItems="center">
@@ -195,7 +203,7 @@ const CardBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, showMore, r
                 handleStakeAction={() => {
                   setStakeAction('stake')
                 }}
-                handleWithdrawAction={() => { }}
+                handleWithdrawAction={() => {}}
               />
             </Grid>
             <Grid item xs={2.4}>
@@ -206,7 +214,7 @@ const CardBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, showMore, r
                 emissionsSymbol={emissionsSymbol}
                 apr={apr}
                 showClaimEmissionsBtn
-                handleClaimEmissionsAction={() => { }}
+                handleClaimEmissionsAction={() => {}}
               />
             </Grid>
             <Grid item xs={2.4}>
@@ -220,7 +228,7 @@ const CardBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, showMore, r
                 }))}
                 showClaimTradingFeesBtn
                 tradingFeesAmount={tradingFeesAmount}
-                handleClaimTradingFeesAction={() => { }}
+                handleClaimTradingFeesAction={() => {}}
               />
             </Grid>
           </Grid>
@@ -296,7 +304,7 @@ const CardItem = ({
         <TYPE.subHeader1 color="text6">{secondTitle ? secondTitle : ''}</TYPE.subHeader1>
         <TYPE.subHeader1 color="text6">{title}</TYPE.subHeader1>
       </Stack>
-      <Box my={"12px"}>
+      <Box my={'12px'}>
         <Line color="bg24" />
       </Box>
       <Stack style={{ height: '75px' }} justifyContent="space-between">
@@ -317,16 +325,15 @@ const CardItem = ({
             ))}
             {!!emissionsSymbol && (
               <Stack direction="row" alignItems="center" gap={0.5}>
-                <TYPE.subHeader1 color="text1">{formatAmount(Number(emissionsAmount?.toString() || '0'), 4)}</TYPE.subHeader1>
+                <TYPE.subHeader1 color="text1">
+                  {formatAmount(Number(emissionsAmount?.toString() || '0'), 4)}
+                </TYPE.subHeader1>
                 <TYPE.subHeader1 color="text6">{emissionsSymbol}</TYPE.subHeader1>
               </Stack>
             )}
           </Stack>
         </Stack>
-        <Stack
-          mt={1}
-          direction="row" alignItems="center" justifyContent="flex-end" gap={1}
-        >
+        <Stack mt={1} direction="row" alignItems="center" justifyContent="flex-end" gap={1}>
           {showStakeBtn && (
             <CardButton
               size="small"
@@ -336,7 +343,8 @@ const CardItem = ({
                   handleStakeAction?.()
                 }
               }}
-            >Stake
+            >
+              Stake
             </CardButton>
           )}
           {showStakeBtn && showWithdrawBtn && <Dot />}
@@ -349,7 +357,8 @@ const CardItem = ({
                   handleWithdrawAction?.()
                 }
               }}
-            >Withdraw
+            >
+              Withdraw
             </CardButton>
           )}
           {showUnstakeBtn && (
@@ -361,7 +370,8 @@ const CardItem = ({
                   handleUnstakeAction?.()
                 }
               }}
-            >Unstake
+            >
+              Unstake
             </CardButton>
           )}
           {showClaimEmissionsBtn && (
@@ -373,7 +383,8 @@ const CardItem = ({
                   handleClaimEmissionsAction?.()
                 }
               }}
-            >Claim
+            >
+              Claim
             </CardButton>
           )}
           {showClaimTradingFeesBtn && (
@@ -385,7 +396,8 @@ const CardItem = ({
                   handleClaimTradingFeesAction?.()
                 }
               }}
-            >Claim
+            >
+              Claim
             </CardButton>
           )}
         </Stack>
@@ -395,7 +407,6 @@ const CardItem = ({
 }
 
 export default DepositedStakedLiquidityRow
-
 
 const Dot = styled.div`
   width: 3px;
@@ -428,7 +439,7 @@ const CardButton = styled(Button)`
   }
 `
 
-const StyledChevronIcon = styled(ChevronDownIcon) <{ isOpen: boolean }>`
+const StyledChevronIcon = styled(ChevronDownIcon)<{ isOpen: boolean }>`
   transform: rotate(180deg);
   transition: transform 250ms ease-in-out;
   color: ${({ theme }) => theme.text6};
