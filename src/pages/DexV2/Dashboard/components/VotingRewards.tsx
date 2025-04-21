@@ -140,7 +140,7 @@ const VotingRewardRow = ({
             <TYPE.black fontSize={14}>Lock #{lockData.id}</TYPE.black>
             <UnlockIcon />
           </Stack>
-          <TYPE.black fontSize={14} color="">
+          <TYPE.black fontSize={14} color="blue5">
             {lockData.amount} IXS locked
           </TYPE.black>
         </Grid>

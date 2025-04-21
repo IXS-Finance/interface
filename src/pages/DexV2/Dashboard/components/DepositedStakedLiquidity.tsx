@@ -44,7 +44,6 @@ const DepositedStakedLiquidity = () => {
             userGaugeBalance={userGaugeBalanceByPool?.[data.address]}
             lpSupply={lpSupplyByPool?.[data.address]}
             key={data.id}
-            gaugesByPool={gaugesByPool}
             rowIndex={index}
           />
         ))}
@@ -54,4 +53,3 @@ const DepositedStakedLiquidity = () => {
 }
 
 export default DepositedStakedLiquidity
-
