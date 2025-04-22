@@ -1,8 +1,10 @@
 import React, { useCallback, useMemo, useState } from 'react'
+import { TransactionResponse } from '@ethersproject/providers'
 import { Box, Button, Grid, Stack, Tooltip } from '@mui/material'
 import Big from 'big.js'
 import { BigNumber } from 'ethers'
 import { useHistory } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import styled, { css } from 'styled-components'
 import { TYPE } from 'theme'
 import { Address, formatUnits } from 'viem'
@@ -19,6 +21,8 @@ import { Card } from './Card'
 
 import { ReactComponent as ChevronDownIcon } from 'assets/images/chevron-down.svg'
 import { ReactComponent as InfoIcon } from 'assets/images/info.svg'
+import { IXS } from 'constants/tokens'
+import { useActiveWeb3React } from 'hooks/web3'
 
 type DepositedStakedLiquidityRowProps = {
   data: PoolType
@@ -26,6 +30,9 @@ type DepositedStakedLiquidityRowProps = {
   userGaugeBalance?: bigint
   lpSupply?: BigNumber
   rowIndex?: number
+  earnedTradingFees?: bigint[]
+  earnedEmissions?: bigint
+  claim?: (gaugeAddress: Address) => Promise<TransactionResponse>
 }
 
 type CardBodyProps = {
@@ -35,6 +42,9 @@ type CardBodyProps = {
   lpSupply?: BigNumber
   showMore: boolean
   rowIndex?: number
+  earnedTradingFees?: bigint[]
+  earnedEmissions?: bigint
+  claim?: (gaugeAddress: Address) => Promise<TransactionResponse>
 }
 
 const DepositedStakedLiquidityRow = ({
@@ -43,6 +53,9 @@ const DepositedStakedLiquidityRow = ({
   userGaugeBalance,
   lpSupply,
   rowIndex,
+  earnedTradingFees,
+  earnedEmissions,
+  claim,
 }: DepositedStakedLiquidityRowProps) => {
   const tokens = data.tokens
 
@@ -101,15 +114,29 @@ const DepositedStakedLiquidityRow = ({
         lpSupply={lpSupply}
         showMore={showMore}
         rowIndex={rowIndex}
+        earnedTradingFees={earnedTradingFees}
+        earnedEmissions={earnedEmissions}
+        claim={claim}
       />
     </Card>
   )
 }
 
-const CardBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, showMore, rowIndex }: CardBodyProps) => {
+const CardBody = ({
+  data,
+  userLpBalance,
+  userGaugeBalance,
+  lpSupply,
+  showMore,
+  rowIndex,
+  earnedTradingFees,
+  earnedEmissions,
+  claim,
+}: CardBodyProps) => {
+  const { chainId } = useActiveWeb3React()
   const [stakeAction, setStakeAction] = useState<StakeAction | null>(null)
   const tokens = data.tokens
-
+  const history = useHistory()
   const getStakedAmount = useCallback(
     (token: TokenType): Big => {
       if (!userGaugeBalance || !lpSupply || lpSupply.toString() === '0') {
@@ -132,27 +159,26 @@ const CardBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, showMore, r
     [userLpBalance]
   )
 
-  const emissionsAmount: bigint = useMemo(() => {
-    return rowIndex === 0 ? BigInt(4592) : BigInt(0)
-  }, [rowIndex])
-
-  const emissionsSymbol: string = useMemo(() => {
-    return 'veIXS'
-  }, [])
-
-  const tradingFeesAmount: bigint = useMemo(() => {
-    return rowIndex === 0 ? BigInt(4592) : BigInt(0)
-  }, [rowIndex])
-
   const apr: string = useMemo(() => {
     return rowIndex === 0 ? '35.75%' : '-'
   }, [rowIndex])
 
-  const getTradingFees = useCallback((token: TokenType) => {
-    return new Big(token.balance).mul(0.0001)
-  }, [])
-
   const handlePreviewClose = () => setStakeAction(null)
+
+  const handleGotoWithdrawFromPoolPage = () => {
+    const path = routes.dexV2PoolWithdraw.replace(':id', data.id)
+    history.push(path)
+  }
+
+  const handleClaimEmissions = async () => {
+    if (!claim || !data?.gauge?.address) return
+    try {
+      await claim(data?.gauge?.address)
+      toast.success('Claimed successfully')
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   return (
     <Box>
@@ -203,32 +229,29 @@ const CardBody = ({ data, userLpBalance, userGaugeBalance, lpSupply, showMore, r
                 handleStakeAction={() => {
                   setStakeAction('stake')
                 }}
-                handleWithdrawAction={() => {}}
+                handleWithdrawAction={handleGotoWithdrawFromPoolPage}
               />
             </Grid>
             <Grid item xs={2.4}>
               <CardItem
                 title="Emissions"
                 secondTitle="APR"
-                emissionsAmount={emissionsAmount}
-                emissionsSymbol={emissionsSymbol}
+                emissionsAmount={formatUnits(earnedEmissions || BigInt(0), IXS[chainId]?.decimals)}
+                emissionsSymbol="IXS"
                 apr={apr}
-                showClaimEmissionsBtn
-                handleClaimEmissionsAction={() => {}}
+                showClaimEmissionsBtn={!!data?.gauge?.address}
+                handleClaimEmissionsAction={handleClaimEmissions}
               />
             </Grid>
             <Grid item xs={2.4}>
               <CardItem
                 title="Trading Fees"
                 secondTitle=""
-                tokens={tokens?.map((token) => ({
-                  balance: formatAmount(getTradingFees(token).toNumber(), 4),
+                tokens={tokens?.map((token, index) => ({
+                  balance: formatUnits(earnedTradingFees?.[index] || BigInt(0), token.decimals),
                   symbol: token.symbol,
                   address: token.address,
                 }))}
-                showClaimTradingFeesBtn
-                tradingFeesAmount={tradingFeesAmount}
-                handleClaimTradingFeesAction={() => {}}
               />
             </Grid>
           </Grid>
@@ -262,19 +285,16 @@ interface CardItemProps {
   apr?: string
   userGaugeBalance?: bigint
   userLpBalance?: bigint
-  emissionsAmount?: bigint
+  emissionsAmount?: string
   emissionsSymbol?: string
-  tradingFeesAmount?: bigint
   showStakeBtn?: boolean
   showWithdrawBtn?: boolean
   showUnstakeBtn?: boolean
   showClaimEmissionsBtn?: boolean
-  showClaimTradingFeesBtn?: boolean
   handleStakeAction?: () => void
   handleUnstakeAction?: () => void
   handleWithdrawAction?: () => void
   handleClaimEmissionsAction?: () => void
-  handleClaimTradingFeesAction?: () => void
 }
 
 const CardItem = ({
@@ -286,17 +306,14 @@ const CardItem = ({
   userLpBalance,
   emissionsAmount,
   emissionsSymbol,
-  tradingFeesAmount,
   showStakeBtn,
   showWithdrawBtn,
   showUnstakeBtn,
   showClaimEmissionsBtn,
-  showClaimTradingFeesBtn,
   handleStakeAction,
   handleUnstakeAction,
   handleWithdrawAction,
   handleClaimEmissionsAction,
-  handleClaimTradingFeesAction,
 }: CardItemProps) => {
   return (
     <CardOutline>
@@ -325,9 +342,7 @@ const CardItem = ({
             ))}
             {!!emissionsSymbol && (
               <Stack direction="row" alignItems="center" gap={0.5}>
-                <TYPE.subHeader1 color="text1">
-                  {formatAmount(Number(emissionsAmount?.toString() || '0'), 4)}
-                </TYPE.subHeader1>
+                <TYPE.subHeader1 color="text1">{emissionsAmount}</TYPE.subHeader1>
                 <TYPE.subHeader1 color="text6">{emissionsSymbol}</TYPE.subHeader1>
               </Stack>
             )}
@@ -377,24 +392,9 @@ const CardItem = ({
           {showClaimEmissionsBtn && (
             <CardButton
               size="small"
-              disabled={emissionsAmount && new Big(emissionsAmount?.toString() || '0').gt(0) ? false : true}
+              // disabled={emissionsAmount && new Big(emissionsAmount?.toString() || '0').gt(0) ? false : true}
               onClick={() => {
-                if (emissionsAmount && new Big(emissionsAmount?.toString() || '0').gt(0)) {
-                  handleClaimEmissionsAction?.()
-                }
-              }}
-            >
-              Claim
-            </CardButton>
-          )}
-          {showClaimTradingFeesBtn && (
-            <CardButton
-              size="small"
-              disabled={tradingFeesAmount && new Big(tradingFeesAmount?.toString() || '0').gt(0) ? false : true}
-              onClick={() => {
-                if (tradingFeesAmount && new Big(tradingFeesAmount?.toString() || '0').gt(0)) {
-                  handleClaimTradingFeesAction?.()
-                }
+                handleClaimEmissionsAction?.()
               }}
             >
               Claim

@@ -5,7 +5,7 @@ export type TokenType = {
   id: string
   symbol: string
   address: Address
-  decimals: string
+  decimals: number
   balance: string
   weight: string
   managedBalance: string
@@ -34,35 +34,35 @@ export type JoinExitsType = {
 }
 
 interface LpVotes {
-  lp: string;
-  weight: BigNumber;
+  lp: string
+  weight: BigNumber
 }
 
 export interface VeNFT {
-  id: BigNumber;
-  account: string;
-  decimals: bigint;
-  amount: bigint;
-  voting_amount: BigNumber;
-  governance_amount: BigNumber;
-  rebase_amount: BigNumber;
-  expires_at: BigNumber;
-  voted_at: BigNumber;
-  votes: LpVotes[];
-  token: string;
-  permanent: boolean;
-  delegate_id: BigNumber;
-  managed_id: BigNumber;
+  id: BigNumber
+  account: string
+  decimals: bigint
+  amount: bigint
+  voting_amount: BigNumber
+  governance_amount: BigNumber
+  rebase_amount: BigNumber
+  expires_at: BigNumber
+  voted_at: BigNumber
+  votes: LpVotes[]
+  token: string
+  permanent: boolean
+  delegate_id: BigNumber
+  managed_id: BigNumber
 }
 
 export interface LockItem {
-  id: string;
-  amount: string;
-  votingAmount: string;
-  expiresAt: string;
-  votedAt: string;
-  decimals: number;
-  token: string;
+  id: string
+  amount: string
+  votingAmount: string
+  expiresAt: string
+  votedAt: string
+  decimals: number
+  token: string
 }
 
 export const GET_LIQUIDITY_POSITIONS = `
