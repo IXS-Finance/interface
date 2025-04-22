@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { BigNumber } from '@ethersproject/bignumber'
-import { mapValues } from 'lodash'
 import { formatUnits } from '@ethersproject/units'
 import QUERY_KEYS from 'constants/dexV2/queryKeys'
 import { getMulticaller } from 'dependencies/Multicaller'
