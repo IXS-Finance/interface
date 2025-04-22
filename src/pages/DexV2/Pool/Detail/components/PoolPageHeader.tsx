@@ -77,21 +77,24 @@ const PoolPageHeader: React.FC<PoolPageHeaderProps> = ({ pool, titleTokens, miss
       </Flex>
 
       {hasNonApprovedRateProviders ? (
-        <BalAlert
-          type="warning"
-          title="One or more token rate providers associated with tokens in this pool have not been vetted."
-          className="mt-2"
-          block
-        />
+        <div className="mt-2">
+          <BalAlert
+            type="warning"
+            title="One or more token rate providers associated with tokens in this pool have not been vetted."
+            className="mt-2"
+            block
+          />
+        </div>
       ) : null}
 
       {missingPrices ? (
-        <BalAlert
-          type="warning"
-          title="Price information is missing for this pool, since it contains a token not found by our price provider."
-          className="mt-2"
-          block
-        />
+        <div className="mt-2">
+          <BalAlert
+            type="warning"
+            title="Price information is missing for this pool, since it contains a token not found by our price provider."
+            block
+          />
+        </div>
       ) : null}
 
       {/* <Footer>Additional Pool Information</Footer> */}
