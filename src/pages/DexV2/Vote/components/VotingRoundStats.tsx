@@ -1,69 +1,70 @@
+import _get from 'lodash/get'
 import React from 'react'
 import styled from 'styled-components'
+import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
 
-interface StatCardProps {
-  label: string
-  value: string
-}
+import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
+import useVoteInfoQuery from 'hooks/dex-v2/queries/useVoteInfoQuery'
+import timerImg from 'assets/images/dex-v2/timer.svg'
 
-const StatCard = ({ label, value }: StatCardProps) => {
-  return (
-    <CardWrapper>
-      <StatLabel>{label}</StatLabel>
-      <StatValue>{value}</StatValue>
-    </CardWrapper>
-  )
-}
+dayjs.extend(duration)
 
-const VotingHeader = () => {
-  return (
-    <HeaderContainer>
-      <InfoSection>
-        <Title>Current Voting Round</Title>
-        <Description>
-          Voters earn a share of transaction fees and incentives for helping govern how emissions are distributed.
-        </Description>
-      </InfoSection>
-      <TimerSection>
-        <TimerLabel>
-          <TimerIcon
-            src="https://cdn.builder.io/api/v1/image/assets/2fee40ad791a4d8d9f5a8c7717832989/f7559948371d05c0af30f281a845e9a9ae2205e7?placeholderIfAbsent=true"
-            alt="Timer icon"
-          />
-          <span>Ends in</span>
-        </TimerLabel>
-        <TimeValue>3 Days</TimeValue>
-      </TimerSection>
-    </HeaderContainer>
-  )
-}
+export const VotingRoundStats = () => {
+  const query = useVoteInfoQuery()
+  const { fNum } = useNumbers()
 
-const StatisticsGrid = () => {
+  const epochVoteEnd = _get(query, 'data.epochVoteEnd', null)
+  const totalSupply = _get(query, 'data.totalSupply', null)
+  const availableDeposit = _get(query, 'data.availableDeposit', null)
+
+  // Calculate remaining time if epochVoteEnd exists
+  const voteEnd = epochVoteEnd ? dayjs.unix(Number(epochVoteEnd)) : null
+  const now = dayjs()
+  const diff = voteEnd ? voteEnd.diff(now) : 0
+  const diffDuration = dayjs.duration(diff)
+  const days = Math.floor(diffDuration.asDays())
+  const hours = diffDuration.hours()
+  const minutes = diffDuration.minutes()
+
+  // You can adjust the format as needed; here we show days if available
+  const timeValueText = days > 0 ? `${days} Days` : hours > 0 ? `${hours} Hours` : `${minutes} Minutes`
+
   const statistics = [
-    { label: 'Total Voting Power', value: '777.42M' },
+    { label: 'Total Voting Power', value: fNum(totalSupply, { abbreviate: true }) },
     { label: 'Total Fees', value: '$201,803.76' },
     { label: 'Total Incentives', value: '$46,583.08' },
     { label: 'Total Rewards', value: '$206,386.85' },
-    { label: 'New Emissions', value: '$867,170.33' },
+    { label: 'New Emissions', value: fNum(availableDeposit, FNumFormats.fiat) },
   ]
-
-  return (
-    <StatsContainer>
-      <StatsGrid>
-        {statistics.map((stat, index) => (
-          <StatCard key={index} label={stat.label} value={stat.value} />
-        ))}
-      </StatsGrid>
-    </StatsContainer>
-  )
-}
-
-export const VotingRoundStats = () => {
   return (
     <MainContainer>
-      <VotingHeader />
+      <HeaderContainer>
+        <InfoSection>
+          <Title>Current Voting Round</Title>
+          <Description>
+            Voters earn a share of transaction fees and incentives for helping govern how emissions are distributed.
+          </Description>
+        </InfoSection>
+        <TimerSection>
+          <TimerLabel>
+            <TimerIcon src={timerImg} alt="Timer icon" />
+            <span>Ends in</span>
+          </TimerLabel>
+          <TimeValue>{timeValueText}</TimeValue>
+        </TimerSection>
+      </HeaderContainer>
       <Divider />
-      <StatisticsGrid />
+      <StatsContainer>
+        <StatsGrid>
+          {statistics.map((stat, index) => (
+            <CardWrapper key={index}>
+              <StatLabel>{stat.label}</StatLabel>
+              <StatValue>{stat.value}</StatValue>
+            </CardWrapper>
+          ))}
+        </StatsGrid>
+      </StatsContainer>
     </MainContainer>
   )
 }

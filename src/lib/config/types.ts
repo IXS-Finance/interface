@@ -31,6 +31,7 @@ export interface Contracts {
   veSugar: string
   votingEscrow: string
   rewardSugar: string
+  rewardsDistributor: string
 }
 
 export interface RateProviders {

@@ -10,6 +10,7 @@ const contracts: Contracts = {
   veSugar: baseSepolia.VeSugar,
   votingEscrow: baseSepolia.VotingEscrow,
   rewardSugar: baseSepolia.RewardSugar,
+  rewardsDistributor: baseSepolia.RewardsDistributor,
 };
 
 export default contracts;
