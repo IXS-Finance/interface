@@ -51,13 +51,7 @@ export default function usePoolQuery(id: string, isEnabled: boolean = true, opti
      * If pool is already downloaded, we can use it instantly
      * it may be if user came to pool page from home page
      */
-    const poolInfo = poolsStoreService.findPool(id)
-
-    if (poolInfo) {
-      pool = poolInfo
-    } else {
-      pool = await poolRepository.fetch(getQueryArgs())
-    }
+    pool = await poolRepository.fetch(getQueryArgs())
 
     if (!pool) throw new Error('Pool does not exist')
 
