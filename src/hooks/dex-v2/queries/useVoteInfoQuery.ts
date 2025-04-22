@@ -48,9 +48,6 @@ export default function useVoteInfoQuery() {
     result = await multicaller.execute()
 
     const { epochVoteEnd, totalSupply, availableDeposit } = result as any
-    console.log('epochVoteEnd', epochVoteEnd.toString())
-    console.log('totalSupply', formatUnits(totalSupply.toString(), 18))
-    console.log('availableDeposit', formatUnits(availableDeposit.toString(), 18))
 
     return {
       epochVoteEnd: epochVoteEnd.toString(),

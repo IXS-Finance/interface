@@ -37,7 +37,6 @@ export const VotingRoundStats = () => {
     { label: 'Total Rewards', value: '$206,386.85' },
     { label: 'New Emissions', value: fNum(availableDeposit, FNumFormats.fiat) },
   ]
-  console.log('VotingRoundStats query', query)
   return (
     <MainContainer>
       <HeaderContainer>
