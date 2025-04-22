@@ -140,14 +140,10 @@ export function useStakePreview(props: UseStakePreviewProps) {
         forceMax: false,
       })
 
-      if (approvalActions.length > 0) {
-        setStakeActions((prev) => [...approvalActions, ...prev])
-      } else {
-        if (props.action === 'stake') {
-          setStakeActions([stakeActionObj])
-        } else if (props.action === 'unstake') {
-          setStakeActions([unstakeActionObj])
-        }
+      if (props.action === 'stake') {
+        setStakeActions([...approvalActions, stakeActionObj])
+      } else if (props.action === 'unstake') {
+        setStakeActions([...approvalActions, unstakeActionObj])
       }
     } catch (error) {
       console.error('Error loading approvals:', error)
