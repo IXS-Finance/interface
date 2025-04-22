@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
+import { Address } from 'viem'
 
 import voterAbi from 'abis/voterABI.json'
 import { configService } from 'services/config/config.service'
@@ -46,6 +47,19 @@ export class Voter {
       abi: this.abi,
       action: 'vote',
       params: [tokenId, poolVote, weights],
+    })
+
+    return res
+  }
+
+  async claimRewards(gaugeAddresses: Address[]): Promise<TransactionResponse> {
+    const txBuilder = await this.getTransactionBuilder()
+
+    const res = await txBuilder.contract.sendTransaction({
+      contractAddress: configService.network.addresses.voter,
+      abi: this.abi,
+      action: 'claimRewards',
+      params: [gaugeAddresses],
     })
 
     return res

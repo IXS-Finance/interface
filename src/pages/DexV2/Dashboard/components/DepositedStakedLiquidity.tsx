@@ -11,8 +11,16 @@ import { setAllowances } from 'state/dexV2/tokens'
 
 const DepositedStakedLiquidity = () => {
   const dispatch = useDispatch()
-  const { lpSupplyByPool, userLpBalanceByPool, userGaugeBalanceByPool, gaugesByPool, pools } = useLiquidityPool()
-
+  const {
+    lpSupplyByPool,
+    userLpBalanceByPool,
+    userGaugeBalanceByGauge,
+    gaugesByPool,
+    pools,
+    earnedTradingFeesByGauge,
+    earnedEmissionsByGauge,
+    claim,
+  } = useLiquidityPool()
   const lpTokenAddresses = pools?.map((data) => data.address)
   const gaugeAddresses = lpTokenAddresses?.map((address) => gaugesByPool[address])
   const { data: allowanceData } = useAllowancesQuery({
@@ -41,10 +49,13 @@ const DepositedStakedLiquidity = () => {
           <DepositedStakedLiquidityRow
             data={data}
             userLpBalance={userLpBalanceByPool?.[data.address]}
-            userGaugeBalance={userGaugeBalanceByPool?.[data.address]}
+            userGaugeBalance={userGaugeBalanceByGauge?.[data.gauge?.address]}
             lpSupply={lpSupplyByPool?.[data.address]}
             key={data.id}
             rowIndex={index}
+            earnedTradingFees={earnedTradingFeesByGauge?.[data.gauge?.address]}
+            earnedEmissions={earnedEmissionsByGauge?.[data.gauge?.address]}
+            claim={claim}
           />
         ))}
       </Stack>
