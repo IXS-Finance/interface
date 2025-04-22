@@ -1,5 +1,4 @@
 import { PoolsHasGauge } from 'hooks/dex-v2/queries/usePoolsHasGaugeQuery'
-import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import AssetSet from 'pages/DexV2/common/AssetSet'
 import React from 'react'
 import { Box, Flex } from 'rebass'
@@ -10,9 +9,6 @@ interface Props {
 }
 
 export const LiquidityPoolSelector: React.FC<Props> = ({ pools }) => {
-  const { fNum } = useNumbers()
-
-  console.log('pools', pools)
   return (
     <Container>
       <ContentWrapper>
