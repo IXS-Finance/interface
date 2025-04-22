@@ -39,7 +39,6 @@ function mapTokens(allTokens: TokenInfo[]): TokenInfoMap {
     if (token.chainId !== networkConfig.chainId) return acc
 
     acc[address] = token
-    acc[address.toLowerCase()] = token
     return acc
   }, {})
 
