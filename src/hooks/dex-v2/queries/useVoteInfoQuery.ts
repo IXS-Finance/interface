@@ -6,6 +6,7 @@ import { formatUnits } from '@ethersproject/units'
 import QUERY_KEYS from 'constants/dexV2/queryKeys'
 import { getMulticaller } from 'dependencies/Multicaller'
 import useWeb3 from '../useWeb3'
+import { configService } from 'services/config/config.service'
 
 export default function useVoteInfoQuery() {
   const { account, isWalletReady } = useWeb3()
@@ -26,20 +27,20 @@ export default function useVoteInfoQuery() {
 
     multicaller.call({
       key: 'epochVoteEnd',
-      address: '0x97926446DEEC65E00f97e9E054D4906AFCe121Ca',
+      address: configService.network.addresses.voter,
       function: 'epochVoteEnd',
       abi: ['function epochVoteEnd(uint256) returns (uint256)'],
       params: [timestamp],
     })
     multicaller.call({
       key: 'totalSupply',
-      address: '0xd482Ad0EF65139C2fdbc67BA1fe821339a917D7C',
+      address: configService.network.addresses.votingEscrow,
       function: 'totalSupply',
       abi: ['function totalSupply() returns (uint256)'],
     })
     multicaller.call({
       key: 'availableDeposit',
-      address: '0x0F29A3D35f3B7e898117fa963dCe791356746001',
+      address: configService.network.addresses.rewardsDistributor,
       function: 'availableDeposit',
       abi: ['function availableDeposit() returns (uint256)'],
     })
