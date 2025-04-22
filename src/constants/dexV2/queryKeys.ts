@@ -116,6 +116,14 @@ const QUERY_KEYS = {
         { userGaugeShares, account },
       ],
     },
+    Vote: {
+      VoteInfo: (account: string) => [
+        'user',
+        'pool',
+        'VoteInfo',
+        { account },
+      ],
+    },
     Pools: (account: string) => ['user', 'pools', { account }],
     Gauges: (account: string, poolAddress: string | undefined) => ['user', 'gauges', { account, poolAddress }],
     Boosts: (account: string, userGaugeShares: undefined | GaugeShare[]) => [
