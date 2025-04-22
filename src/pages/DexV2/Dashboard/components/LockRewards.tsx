@@ -60,7 +60,7 @@ const TableHeader = ({ id }: { id: number }) => {
   )
 }
 
-const TableBody = ({ data, refetch }: { data: LockItem, refetch: () => void }) => {
+const TableBody = ({ data, refetch }: { data: LockItem; refetch: () => void }) => {
   const theme = useTheme()
   const currency = useCurrency(data.token)
   const history = useHistory()
