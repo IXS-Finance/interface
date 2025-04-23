@@ -7,8 +7,9 @@ import { safeParseUnits } from 'utils/formatCurrencyAmount'
 import { WEEK, FOUR_YEARS_IN_SECONDS } from '../constants'
 import { useAllowance } from 'hooks/useApproveCallback'
 import { useWeb3React } from 'hooks/useWeb3React'
-import { IXS_ADDRESS, VOTING_ESCROW_ADDRESS } from 'constants/addresses'
+import { IXS_ADDRESS } from 'constants/addresses'
 import { useParams } from 'react-router-dom'
+import { configService } from 'services/config/config.service'
 
 export type UseLockDetailResult = ReturnType<typeof _useLockDetail>
 export const LockDetailContext = createContext<UseLockDetailResult | null>(null)
@@ -81,7 +82,7 @@ export function _useLockDetail() {
   const [approvalState, approve] = useAllowance(
     IXS_ADDRESS[chainId],
     utils.parseUnits(userInput || '0', currency?.decimals),
-    VOTING_ESCROW_ADDRESS[chainId]
+    configService.network.addresses.votingEscrow
   )
 
   return {
