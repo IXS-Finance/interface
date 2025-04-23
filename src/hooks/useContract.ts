@@ -50,13 +50,13 @@ import {
   SWAP_ROUTER_ADDRESS,
   IXSALE_ADDRESS,
   PAYOUT_AIRDROP_PROXY_ADDRESS,
-  VOTING_ESCROW_ADDRESS,
 } from 'constants/addresses'
 import { useMemo } from 'react'
 import { getContract } from 'utils'
 
 import { ArgentWalletDetector, EnsPublicResolver, EnsRegistrar, Erc20, Multicall2, Weth } from '../abis/types'
 import { useWeb3React } from 'hooks/useWeb3React'
+import { configService } from 'services/config/config.service'
 
 // returns null on errors
 export function useContract<T extends Contract = Contract>(
@@ -222,5 +222,5 @@ export function useLBPFactory(contractAddress: string) {
 }
 
 export function useVotingEscrowContract() {
-  return useContract(VOTING_ESCROW_ADDRESS, VOTING_ESCROW_ABI, true)
+  return useContract(configService.network.addresses.votingEscrow, VOTING_ESCROW_ABI, true)
 }
