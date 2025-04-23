@@ -4,8 +4,6 @@ import { SupportedChainId } from './chains'
 import { isProd } from 'utils/isEnvMode'
 import { Address } from 'viem'
 
-type ContractAddressRecord = Record<number, Address>
-
 export const MULTICALL2_ADDRESSES = {
   [1]: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   [4]: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
@@ -234,15 +232,3 @@ export const LBP_FACTORY_ADDRESS = {
   [84532]: '0x50629ad11a66Da346364F96695BD5F299a70664B',
   [8453]: isProd ? '' : '0x63872f91dC88E44b61B991c73BEf8cC1672c3614', // TODO: add base chain
 } as Record<number, string>
-
-export const VOTING_ESCROW_ADDRESS = {
-  [84532]: '0x893C8Ac4C8b123D1251d1D4880B27c4E0820933C', // base sepolia
-} as ContractAddressRecord
-
-export const IXVOTER_ADDRESS = {
-  [84532]: '0x4b39de6AE640CB8ecFbed37db649c07d718990D8',
-} as ContractAddressRecord
-
-export const LP_SUGAR_ADDRESS = {
-  [84532]: '0x329B45440115c313d5Ab99EDc8cA9965e9C9ec73',
-} as ContractAddressRecord

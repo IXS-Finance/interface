@@ -3,6 +3,7 @@ import Portal from '@reach/portal'
 import styled from 'styled-components'
 import { formatUnits, parseEther } from '@ethersproject/units'
 import { mapValues } from 'lodash'
+import { BigNumber, utils } from 'ethers'
 
 import { CenteredFixed } from 'components/LaunchpadMisc/styled'
 import { ReactComponent as CloseIcon } from 'assets/images/dex-v2/close.svg'
@@ -45,7 +46,7 @@ const PRICE_UPDATE_THRESHOLD = 0.02
 const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, warning, onClose }) => {
   console.log('swapping', swapping)
   const { fNum, toFiat } = useNumbers()
-  const { balanceFor, allowances } = useTokens()
+  const { balanceFor, tokens } = useTokens()
   const { blockNumber, account, startConnectWithInjectedProvider } = useWeb3()
   const { slippage } = useUserSettings()
   const { networkConfig } = useNetwork()
@@ -247,9 +248,8 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
 
       if (!swapping.exactIn) {
         const amountPercentPrecision = 6
-        amountToApprove = amountToApprove
-          .mul(+slippage * 10 ** amountPercentPrecision)
-          .div(10 ** amountPercentPrecision)
+        const slippageMultiplier = utils.parseUnits((+slippage + 1).toString(), amountPercentPrecision)
+        amountToApprove = amountToApprove.mul(slippageMultiplier).div(10 ** amountPercentPrecision)
       }
 
       const actions = await getTokenApprovalActions({
@@ -259,7 +259,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
             amount: amountToApprove,
           },
         ],
-        tokens: { [swapping.tokenIn.address]: swapping.tokenIn },
+        tokens,
         spender: tokenApprovalSpender,
         actionType: ApprovalAction.Swapping,
         forceMax: false,

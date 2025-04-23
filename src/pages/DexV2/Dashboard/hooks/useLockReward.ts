@@ -1,17 +1,18 @@
-import { LP_SUGAR_ADDRESS } from 'constants/addresses'
 import { useActiveWeb3React } from 'hooks/web3'
 import { useReadContracts } from 'wagmi'
 import LP_SUGAR_ABI from 'abis/LpSugarABI.json'
+import { configService } from 'services/config/config.service'
+import { Address } from 'viem'
 
 const useLockReward = () => {
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const _account = account?.toLowerCase()
 
   // @ts-ignore
   const lockData = useReadContracts({
     // @ts-ignore
     contracts: [{
-      address: LP_SUGAR_ADDRESS[chainId],
+      address: configService.network.addresses.veSugar as Address,
       abi: LP_SUGAR_ABI,
       functionName: 'byAccount',
       args: [_account],
