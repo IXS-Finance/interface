@@ -201,7 +201,6 @@ const BalAlert: React.FC<BalAlertProps> = ({
     }
   }, [type])
 
-  const paddingVal = size === 'sm' ? '0.25rem' : '0.5rem'
   const fontSize = size === 'sm' ? '0.75rem' : size === 'lg' ? '1rem' : '0.875rem'
   const iconSizeVal = size === 'sm' ? '20px' : size === 'lg' ? '28px' : '24px'
 
@@ -228,24 +227,13 @@ const BalAlert: React.FC<BalAlertProps> = ({
     <AlertWrapper
       bgColor={bgColor}
       borderColor={borderColor}
-      padding={paddingVal}
+      padding="16px 20px"
       raised={raised}
       block={block}
       rounded={!square}
       noBorder={noBorder}
     >
       <AlertContainer alignItems={alignItems}>
-        <IconWrapper size={iconSizeVal} color={iconColorVal}>
-          {type === 'tip' ? (
-            <AlertCircle size={iconSizeVal} color={iconColorVal} />
-          ) : type === 'warning' ? (
-            <AlertTriangle size={iconSizeVal} color={iconColorVal} />
-          ) : type === 'error' ? (
-            <AlertOctagon size={iconSizeVal} color={iconColorVal} />
-          ) : (
-            <AlertCircle size={iconSizeVal} color={iconColorVal} />
-          )}
-        </IconWrapper>
         <ContentWrapper flexDirection={flexDirection} className={contentClass}>
           <div>
             <Title fontSize={fontSize} fontWeight={titleFontWeight} titleColor={titleColor}>
@@ -263,6 +251,18 @@ const BalAlert: React.FC<BalAlertProps> = ({
             </ActionWrapper>
           )}
         </ContentWrapper>
+
+        <IconWrapper size={iconSizeVal} color={iconColorVal}>
+          {type === 'tip' ? (
+            <AlertCircle size={iconSizeVal} color={iconColorVal} />
+          ) : type === 'warning' ? (
+            <AlertTriangle size={iconSizeVal} color={iconColorVal} />
+          ) : type === 'error' ? (
+            <AlertOctagon size={iconSizeVal} color={iconColorVal} />
+          ) : (
+            <AlertCircle size={iconSizeVal} color={iconColorVal} />
+          )}
+        </IconWrapper>
       </AlertContainer>
       {dismissable && (
         <DismissButtonWrapper
