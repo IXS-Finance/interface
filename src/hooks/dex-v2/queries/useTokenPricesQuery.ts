@@ -36,7 +36,6 @@ export default function useTokenPricesQuery(pricesToInject: TokenPrices = {}, op
     const prices: any = []
     let pricesMap = priceArrayToMap(prices as GqlTokenPrice[])
     pricesMap = injectCustomTokens(pricesMap, pricesToInject)
-    console.log('Fetching', Object.values(prices).length, 'prices')
     return pricesMap
   }
 

@@ -42,7 +42,7 @@ export function useStakePreview(props: UseStakePreviewProps) {
   const [stakeActions, setStakeActions] = useState<TransactionActionStakingInfo[]>([])
 
   // COMPOSABLES (React hooks)
-  const { refetchBalances } = useTokens()
+  const { refetchBalances, tokens } = useTokens()
   const { fNum } = useNumbers()
   const { addTransaction } = useTransactions()
   const { getTokenApprovalActions } = useTokenApprovalActions()
@@ -133,7 +133,7 @@ export function useStakePreview(props: UseStakePreviewProps) {
     setIsLoadingApprovalsForGauge(true)
     try {
       const approvalActions = await getTokenApprovalActions({
-        tokens: { [lpToken.address]: lpToken },
+        tokens,
         amountsToApprove,
         spender: gaugeAddress, // dependency handled here
         actionType: ApprovalAction.Staking,
