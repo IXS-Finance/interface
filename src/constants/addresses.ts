@@ -248,13 +248,13 @@ export const LBP_FACTORY_ADDRESS = {
 } as Record<number, string>
 
 export const VOTING_ESCROW_ADDRESS = {
-  [84532]: '0xd482Ad0EF65139C2fdbc67BA1fe821339a917D7C', // base sepolia
+  [84532]: '0x893C8Ac4C8b123D1251d1D4880B27c4E0820933C', // base sepolia
 } as ContractAddressRecord
 
 export const IXVOTER_ADDRESS = {
-  [84532]: '0x97926446DEEC65E00f97e9E054D4906AFCe121Ca',
+  [84532]: '0x4b39de6AE640CB8ecFbed37db649c07d718990D8',
 } as ContractAddressRecord
 
 export const LP_SUGAR_ADDRESS = {
-  [84532]: '0x8A715B6fBA8a6f7FA8c3aFcec7F7568FF5771b19',
+  [84532]: '0x329B45440115c313d5Ab99EDc8cA9965e9C9ec73',
 } as ContractAddressRecord
