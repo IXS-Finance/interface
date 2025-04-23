@@ -119,8 +119,8 @@ export default function usePropMaxJoin(
         const _balance = balanceFor(address);
         balance = _balance
           ? bnum(_balance)
-              .minus(config.network.nativeAsset.minTransactionBuffer)
-              .toString()
+            .minus(config.network.nativeAsset.minTransactionBuffer)
+            .toString()
           : '0';
       } else {
         balance = balanceFor(address);

@@ -10,6 +10,7 @@ import { flatten } from 'lodash'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useWeb3 from '../useWeb3'
 import { BigNumber } from 'ethers'
+import { getAddress } from 'viem'
 
 /**
  * TYPES
@@ -198,7 +199,7 @@ export default function useTokenApprovalActions() {
       label: actionLabel(actionType, token?.symbol),
       loadingLabel: 'Confirm approval in wallet',
       confirmingLabel: 'Confirming...',
-      stepTooltip: actionTooltip(actionType, token.symbol),
+      stepTooltip: actionTooltip(actionType, token?.symbol),
       action: () => {
         return approveToken({
           token,
@@ -244,7 +245,7 @@ export default function useTokenApprovalActions() {
 
     return flatten(
       approvalsRequired.map((amountToApprove) => {
-        const token = tokens[amountToApprove.address]
+        const token = tokens[getAddress(amountToApprove.address)]
         const actions: TransactionActionInfo[] = []
 
         /**
