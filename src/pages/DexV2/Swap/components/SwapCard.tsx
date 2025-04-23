@@ -66,6 +66,8 @@ const SwapCard: React.FC = () => {
   const swapDisabled =
     hasAmountsError || hasBalancerErrors || hasMismatchedNetwork || errorMessage !== SwapValidation.VALID
   const swapLoading = swapping.isBalancerSwap ? swapping.isLoading : false
+  const sorReturn = swapping.sor.sorReturn
+  const hasSwaps = sorReturn.hasSwaps
 
   const title =
     swapping.wrapType === WrapType.Wrap
@@ -202,6 +204,10 @@ const SwapCard: React.FC = () => {
         />
       ) : null}
 
+      {!hasSwaps && tokenInAmount ? (
+        <BalAlert type="warning" size="md" title="Insufficient liquidity for this trade" block />
+      ) : null}
+
       {showSwapRoute && hopCount > 0 && swapping?.tokenIn && swapping?.tokenOut ? (
         <SwapDetails swapping={swapping} hopCount={hopCount} />
       ) : null}
@@ -219,7 +225,7 @@ const SwapCard: React.FC = () => {
           amountIn={swapping?.tokenInAmountInput}
           amountOut={swapping?.tokenOutAmountInput}
           pools={pools}
-          sorReturn={swapping.sor.sorReturn}
+          sorReturn={sorReturn}
           setHopCount={setHopCount}
         />
       ) : null}
