@@ -164,7 +164,7 @@ export default function useSwapping(
 
   useEffect(() => {
     handleAmountChange()
-  }, [tokenInAddressInput, tokenInAmountInput])
+  }, [tokenInAddressInput, tokenOutAddressInput])
 
   useEffect(() => {
     handleAmountChange()
