@@ -2941,10 +2941,10 @@
   resolved "https://registry.yarnpkg.com/@ixswap1/default-token-list/-/default-token-list-1.5.6.tgz#7f8f632ff54aec06107cf0a01ff1598c3043d5a9"
   integrity sha512-uRlP+DIwS8JJHTUQXFWnm7rtbL2jdPEkMEod1VmnkBvyyK/kwfsfcOXLldP9pfSgg+bAVeeIG08q/NqgGDj+Jw==
 
-"@ixswap1/dex-v2-sdk@^1.2.9":
-  version "1.2.9"
-  resolved "https://registry.yarnpkg.com/@ixswap1/dex-v2-sdk/-/dex-v2-sdk-1.2.9.tgz#c2c6da8b7b6632dc13e0506e90f72d46cdf31ede"
-  integrity sha512-9fCKa6LUP7cO3fZCFobBEWO3rtpKjgbuMX9ql20dFDSyBDxg2MQA8Pcq0PzO9yGM8J+DblUFMpbV6OEjlemBiA==
+"@ixswap1/dex-v2-sdk@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@ixswap1/dex-v2-sdk/-/dex-v2-sdk-1.3.1.tgz#092894a81ef47f496d3534f2c2c40654e1ffd31f"
+  integrity sha512-UYSgJHld0q9AYCkJxW+IojsXOHMiklW9pAvQjlKl32SbR3hHbYNw2PhYBgoKgVZjBhHoUHNVRJuHV58SnQVV2A==
   dependencies:
     "@ethersproject/abi" "^5.4.0"
     "@ethersproject/abstract-signer" "^5.4.0"
