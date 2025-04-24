@@ -2,47 +2,35 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useDispatch } from 'react-redux'
 
-import { Box, Flex } from 'rebass'
-import Switch from '../../../components/Switch'
+import { Box } from 'rebass'
 import TokenInput from '../TokenInput'
-import { isGreaterThan } from 'lib/utils/validations'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { setPoolCreationState, setTokenAmount } from 'state/dexV2/poolCreation'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
-import useNumbers from 'hooks/dex-v2/useNumbers'
-import { bnum, isSameAddress } from 'lib/utils'
+import { bnum } from 'lib/utils'
 import BalCard from 'pages/DexV2/common/Card'
 import BalStack from 'pages/DexV2/common/BalStack'
-import { configService } from 'services/config/config.service'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 
 interface SetPoolFeesProps {}
 
 const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
-  const { balanceFor, priceFor, nativeAsset, wrappedNativeAsset, balanceQueryLoading } = useTokens()
+  const { balanceFor, nativeAsset, wrappedNativeAsset, balanceQueryLoading } = useTokens()
   const {
     seedTokens,
     manuallySetToken,
     autoOptimiseBalances,
-    tokensList,
     scaledLiquidity,
     getOptimisedLiquidity,
     proceed,
     goBack,
     useNativeAsset,
-    setAmountsToMaxBalances,
-    setPoolCreation,
     updateManuallySetToken,
   } = usePoolCreation()
-  const { fNum } = useNumbers()
   const dispatch = useDispatch()
 
-  const networkName = configService.network.name
   const [isOptimised, setIsOptimised] = useState(false)
-  const tokenAddresses = [...seedTokens.map((token) => token.tokenAddress)]
   const optimisedLiquidity = getOptimisedLiquidity()
-
-  const areAmountsMaxed = seedTokens.every((t) => bnum(t.amount).eq(balanceFor(t.tokenAddress)))
 
   const handleAmountChange = (idx: number, amount: string) => {
     dispatch(setTokenAmount({ id: idx, amount }))
@@ -52,16 +40,6 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
     if (!autoOptimiseBalances) return
 
     scaleLiquidity()
-  }
-
-  function toggleAutoOptimise() {
-    setPoolCreation({ autoOptimiseBalances: !autoOptimiseBalances })
-    checkLiquidityScaling()
-  }
-
-  function handleMax() {
-    setAmountsToMaxBalances()
-    setIsOptimised(false)
   }
 
   function optimiseLiquidity(force = false) {
@@ -106,8 +84,6 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
   useEffect(() => {
     if (seedTokens.length > 0 && !balanceQueryLoading) {
       setNativeAssetIfRequired()
-      optimiseLiquidity(true)
-      scaleLiquidity()
     }
   }, [balanceQueryLoading, seedTokens.length, JSON.stringify(optimisedLiquidity)])
 
@@ -148,11 +124,6 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
           </>
         )}
 
-        <Flex alignItems="center" style={{ gap: 8 }} marginTop={16}>
-          <Switch checked={autoOptimiseBalances} onChange={toggleAutoOptimise} />
-          <SwitchText>Auto optimize liquidity</SwitchText>
-        </Flex>
-
         <SummaryContainer>
           <SummaryItem>
             <div>Total</div>
@@ -160,7 +131,7 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
           </SummaryItem>
 
           <SummaryItem>
-            <div>Available: $0.00 {areAmountsMaxed ? <Maxed>Maxed</Maxed> : <Max onClick={handleMax}>Max</Max>}</div>
+            <div>Available: $0.00</div>
             {isOptimised ? (
               <Optimized>Optimized</Optimized>
             ) : (
@@ -241,16 +212,6 @@ const NextButton = styled.button`
   }
 `
 
-const SwitchText = styled.div`
-  color: #b8b8d2;
-  font-family: Inter;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  letter-spacing: -0.42px;
-`
-
 const SummaryContainer = styled.div`
   margin-top: 16px;
   border-radius: 8px;
@@ -281,13 +242,4 @@ const Optimized = styled.div`
 const Optimize = styled.div`
   color: #6666ff;
   cursor: pointer;
-`
-
-const Max = styled.span`
-  color: #6666ff;
-  cursor: pointer;
-`
-
-const Maxed = styled.span`
-  color: #b8b8d2;
 `
