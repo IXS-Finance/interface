@@ -1,9 +1,6 @@
 [
   {
-    "inputs": [
-      { "internalType": "address", "name": "_voter", "type": "address" },
-      { "internalType": "address", "name": "_vault", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "_voter", "type": "address" }],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -27,7 +24,8 @@
     ],
     "name": "getFeeAndBribeVotingRewards",
     "outputs": [
-      { "internalType": "address[]", "name": "tokens", "type": "address[]" },
+      { "internalType": "address[]", "name": "feeTokens", "type": "address[]" },
+      { "internalType": "address[]", "name": "bribeTokens", "type": "address[]" },
       { "internalType": "uint256[]", "name": "feeRewards", "type": "uint256[]" },
       { "internalType": "uint256[]", "name": "bribeRewards", "type": "uint256[]" }
     ],
@@ -41,7 +39,8 @@
     ],
     "name": "getFeeAndBribeVotingRewardsForTokenIdAndPools",
     "outputs": [
-      { "internalType": "address[][]", "name": "tokens", "type": "address[][]" },
+      { "internalType": "address[][]", "name": "feeTokens", "type": "address[][]" },
+      { "internalType": "address[][]", "name": "bribeTokens", "type": "address[][]" },
       { "internalType": "uint256[][]", "name": "feeRewards", "type": "uint256[][]" },
       { "internalType": "uint256[][]", "name": "bribeRewards", "type": "uint256[][]" }
     ],
@@ -58,20 +57,6 @@
       { "internalType": "address[]", "name": "tokens", "type": "address[]" },
       { "internalType": "uint256[]", "name": "rewards", "type": "uint256[]" }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "vault",
-    "outputs": [{ "internalType": "contract IVault", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "ve",
-    "outputs": [{ "internalType": "contract IVotingEscrow", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
