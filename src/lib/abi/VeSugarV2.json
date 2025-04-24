@@ -16,7 +16,7 @@
           { "internalType": "uint256", "name": "id", "type": "uint256" },
           { "internalType": "address", "name": "account", "type": "address" },
           { "internalType": "uint8", "name": "decimals", "type": "uint8" },
-          { "internalType": "uint128", "name": "amount", "type": "uint128" },
+          { "internalType": "int128", "name": "amount", "type": "int128" },
           { "internalType": "uint256", "name": "votingAmount", "type": "uint256" },
           { "internalType": "uint256", "name": "expiresAt", "type": "uint256" },
           { "internalType": "uint256", "name": "votedAt", "type": "uint256" },
@@ -25,7 +25,7 @@
               { "internalType": "address", "name": "lp", "type": "address" },
               { "internalType": "uint256", "name": "weight", "type": "uint256" }
             ],
-            "internalType": "struct LpVote[]",
+            "internalType": "struct VeSugar.LpVote[]",
             "name": "votes",
             "type": "tuple[]"
           },
@@ -34,7 +34,7 @@
           { "internalType": "uint256", "name": "delegateId", "type": "uint256" },
           { "internalType": "uint256", "name": "managedId", "type": "uint256" }
         ],
-        "internalType": "struct VeNFT[]",
+        "internalType": "struct VeSugar.VeNFT[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -51,7 +51,7 @@
           { "internalType": "uint256", "name": "id", "type": "uint256" },
           { "internalType": "address", "name": "account", "type": "address" },
           { "internalType": "uint8", "name": "decimals", "type": "uint8" },
-          { "internalType": "uint128", "name": "amount", "type": "uint128" },
+          { "internalType": "int128", "name": "amount", "type": "int128" },
           { "internalType": "uint256", "name": "votingAmount", "type": "uint256" },
           { "internalType": "uint256", "name": "expiresAt", "type": "uint256" },
           { "internalType": "uint256", "name": "votedAt", "type": "uint256" },
@@ -60,7 +60,7 @@
               { "internalType": "address", "name": "lp", "type": "address" },
               { "internalType": "uint256", "name": "weight", "type": "uint256" }
             ],
-            "internalType": "struct LpVote[]",
+            "internalType": "struct VeSugar.LpVote[]",
             "name": "votes",
             "type": "tuple[]"
           },
@@ -69,7 +69,7 @@
           { "internalType": "uint256", "name": "delegateId", "type": "uint256" },
           { "internalType": "uint256", "name": "managedId", "type": "uint256" }
         ],
-        "internalType": "struct VeNFT[]",
+        "internalType": "struct VeSugar.VeNFT[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -86,7 +86,7 @@
           { "internalType": "uint256", "name": "id", "type": "uint256" },
           { "internalType": "address", "name": "account", "type": "address" },
           { "internalType": "uint8", "name": "decimals", "type": "uint8" },
-          { "internalType": "uint128", "name": "amount", "type": "uint128" },
+          { "internalType": "int128", "name": "amount", "type": "int128" },
           { "internalType": "uint256", "name": "votingAmount", "type": "uint256" },
           { "internalType": "uint256", "name": "expiresAt", "type": "uint256" },
           { "internalType": "uint256", "name": "votedAt", "type": "uint256" },
@@ -95,7 +95,7 @@
               { "internalType": "address", "name": "lp", "type": "address" },
               { "internalType": "uint256", "name": "weight", "type": "uint256" }
             ],
-            "internalType": "struct LpVote[]",
+            "internalType": "struct VeSugar.LpVote[]",
             "name": "votes",
             "type": "tuple[]"
           },
@@ -104,7 +104,7 @@
           { "internalType": "uint256", "name": "delegateId", "type": "uint256" },
           { "internalType": "uint256", "name": "managedId", "type": "uint256" }
         ],
-        "internalType": "struct VeNFT",
+        "internalType": "struct VeSugar.VeNFT",
         "name": "",
         "type": "tuple"
       }

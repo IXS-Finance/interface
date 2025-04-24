@@ -15,6 +15,7 @@ import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useFlattenedLocks from 'hooks/dex-v2/queries/useFlattenedLocks'
 import { LockedData } from 'services/balancer/contracts/ve-sugar'
 import { PinnedContentButton } from 'components/Button'
+import { FeeAndBribeVotingRewards } from 'services/reward-sugar/reward-sugar.contract'
 
 const VotingRewards = () => {
   return (
@@ -74,9 +75,10 @@ const TableBody = () => {
 }
 
 type FeeAndBribeRewardPerRow = {
-  tokens: Address[]
-  fees: BigNumber[]
-  bribes: BigNumber[]
+  feeRewards: BigNumber[]
+  feeTokens: Address[]
+  bribeRewards: BigNumber[]
+  bribeTokens: Address[]
 }
 
 const VotingRewardPerVote = ({ votedLockReward, lockData }: { votedLockReward: VoteItem; lockData: LockedData }) => {
@@ -89,9 +91,10 @@ const VotingRewardPerVote = ({ votedLockReward, lockData }: { votedLockReward: V
     <>
       {pools?.map((poolAddress, i) => {
         const votingReward = {
-          tokens: votingRewardsPerPool?.tokens[i],
-          fees: votingRewardsPerPool?.feeRewards[i],
-          bribes: votingRewardsPerPool?.bribeRewards[i],
+          feeTokens: votingRewardsPerPool?.feeTokens[i],
+          feeRewards: votingRewardsPerPool?.feeRewards[i],
+          bribeRewards: votingRewardsPerPool?.bribeRewards[i],
+          bribeTokens: votingRewardsPerPool?.bribeTokens[i],
         } as FeeAndBribeRewardPerRow
         return (
           <Grid item key={`vote-${votedLockReward.id}-pool-${poolAddress}`}>
@@ -107,13 +110,14 @@ const VotingRewardRow = ({
   votingReward,
   lockData,
 }: {
-  votingReward: FeeAndBribeRewardPerRow
+  votingReward?: FeeAndBribeRewardPerRow
   lockData: LockedData
 }) => {
   const { getToken } = useTokens()
-  const inputTokenAddresses = votingReward?.tokens
-  const inputTokens = inputTokenAddresses?.map((tokenAddress) => getToken(tokenAddress))
-  const pairName = inputTokens?.map((token) => token.symbol).join('/')
+  const feeTokenAddresses = votingReward?.feeTokens
+  const bribeTokenAddresses = votingReward?.bribeTokens
+  const feeTokens = feeTokenAddresses?.map((tokenAddress) => getToken(tokenAddress))
+  const pairName = feeTokens?.map((token) => token.symbol).join('/')
 
   return (
     <Card>
@@ -121,7 +125,7 @@ const VotingRewardRow = ({
         <Grid item xs={3}>
           <Stack direction="row" gap={4}>
             <Box width={40}>
-              <CurrencyLogoSet tokens={inputTokenAddresses} size={36} margin={false} />
+              <CurrencyLogoSet tokens={feeTokenAddresses} size={36} margin={false} />
             </Box>
             <Box>
               <TYPE.label fontSize={16}>{pairName}</TYPE.label>
@@ -135,7 +139,7 @@ const VotingRewardRow = ({
             </Box>
           </Stack>
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={5}>
           <Stack direction="row" gap={1} mb={1}>
             <TYPE.black fontSize={14}>Lock #{lockData.id}</TYPE.black>
             <UnlockIcon />
@@ -144,10 +148,10 @@ const VotingRewardRow = ({
             {lockData.amount} IXS locked
           </TYPE.black>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Stack direction="row" gap={2} alignItems="start" justifyContent="flex-end">
             <Stack gap={0.5}>
-              {inputTokenAddresses?.map((tokenAddress, i) => {
+              {feeTokenAddresses?.map((tokenAddress, i) => {
                 const token = getToken(tokenAddress)
                 return (
                   <Stack
@@ -158,14 +162,14 @@ const VotingRewardRow = ({
                     gap={1}
                   >
                     <TYPE.black fontSize={14}>
-                      {utils.formatUnits(votingReward.fees[i], token.decimals)}{' '}
+                      {utils.formatUnits(votingReward?.feeRewards[i] ?? 0, token.decimals)}{' '}
                       <FeeAndBribeRewardTokenSymbol>{token.symbol}</FeeAndBribeRewardTokenSymbol>
                     </TYPE.black>
                     <FeeAndBribeRewardLabel size="small" label="Fee" variant="outlined" />
                   </Stack>
                 )
               })}
-              {inputTokenAddresses?.map((tokenAddress, i) => {
+              {bribeTokenAddresses?.map((tokenAddress, i) => {
                 const token = getToken(tokenAddress)
                 return (
                   <Stack
@@ -176,7 +180,7 @@ const VotingRewardRow = ({
                     gap={1}
                   >
                     <TYPE.black fontSize={14}>
-                      {utils.formatUnits(votingReward.bribes[i], token.decimals)}{' '}
+                      {utils.formatUnits(votingReward?.bribeRewards[i] ?? 0, token.decimals)}{' '}
                       <FeeAndBribeRewardTokenSymbol>{token.symbol}</FeeAndBribeRewardTokenSymbol>
                     </TYPE.black>
                     <FeeAndBribeRewardLabel size="small" label="Incentive" variant="outlined" />
