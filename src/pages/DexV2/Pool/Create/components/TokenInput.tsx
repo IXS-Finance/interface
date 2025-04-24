@@ -10,7 +10,7 @@ import { isLessThanOrEqualTo, isPositive } from 'lib/utils/validations'
 import Asset from 'pages/DexV2/common/Asset'
 import { overflowProtected } from '../../components/helpers'
 import { formatAmount } from 'utils/formatCurrencyAmount'
-import { RuleFunction, Rules } from 'types'
+import { Rules } from 'types'
 import useInputValidation from 'pages/DexV2/common/forms/useInputValidation'
 
 type InputValue = string | number
@@ -66,15 +66,7 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
 
     const regex = /^-?\d*[.,]?\d*$/
     if (regex.test(value)) {
-      const tokenDecimals = decimalLimit
-      const decimalPattern = '0'.repeat(tokenDecimals)
-      const formatString = `0.[${decimalPattern}]`
-
-      let amountFinal = numeral(value).format(formatString)
-      if (amountFinal === 'NaN') {
-        amountFinal = '0'
-      }
-      const safeAmount = overflowProtected(amountFinal || '0', decimalLimit)
+      const safeAmount = overflowProtected(value || '0', decimalLimit)
 
       setAmount(safeAmount)
       props.updateAmount(safeAmount)
@@ -87,7 +79,7 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
       // Handle cases where a decimal point exists.
       if (value.indexOf('.') > -1) {
         const integerPart = value.substring(0, value.indexOf('.'))
-        const decimalPart = value.substring(value.indexOf('.') + 1, value.indexOf('.') + tokenDecimals + 1)
+        const decimalPart = value.substring(value.indexOf('.') + 1, value.indexOf('.') + decimalLimit + 1)
         const formattedInteger = displayNumeralNoDecimal(integerPart)
 
         // Preserve the trailing decimal if user types "0." or "1.".
