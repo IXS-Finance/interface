@@ -78,7 +78,7 @@ const initialState: DexV2State = {
   poolId: '',
   poolAddress: '',
   manuallySetToken: '',
-  autoOptimiseBalances: false,
+  autoOptimiseBalances: true,
   useNativeAsset: false,
   type: PoolType.Weighted,
   needsSeeding: false,
