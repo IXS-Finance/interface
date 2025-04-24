@@ -45,10 +45,7 @@ const LockDetailContent: React.FC<{ lockDetail?: LockedData }> = ({ lockDetail }
   const { openConnectModal } = useConnectModal()
 
   const location = useLocation()
-
-  const searchParams = useMemo(() => {
-    return new URLSearchParams(location.search)
-  }, [location.search])
+  const searchParams = new URLSearchParams(location.search)
 
   const isIncrease = searchParams.get('increase') === 'true'
   const isExtend = searchParams.get('extend') === 'true'

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useMemo } from 'react'
 import { Slider } from '@mui/material'
 import { Box, Flex } from 'rebass'
 import styled from 'styled-components'
@@ -19,48 +19,33 @@ const LockExtendDurationSlider: React.FC = () => {
   const currentTime = Math.floor(Date.now() / 1000)
   const defaultLockTime = lockDetail?.expiresAt ? +lockDetail.expiresAt - currentTime + WEEK : WEEK
 
-  useEffect(() => {
-    if (lockDetail?.expiresAt) {
-      setDuration(+lockDetail.expiresAt - currentTime)
-    }
-  }, [lockDetail?.expiresAt])
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target?.value) return
-    if (+e.target.value < defaultLockTime) {
+  const handleChange = (value?: number) => {
+    if (!value) return
+    if (value < defaultLockTime) {
       setDuration(defaultLockTime)
       return
     }
-
-    setDuration(Number(e.target?.value))
+    setDuration(value)
   }
 
   const rangeSelectors = [
-    {
-      label: '7 Days',
-      value: WEEK,
-    },
-    {
-      label: '1 Year',
-      value: 31536000,
-    },
-    {
-      label: '2 Years',
-      value: 63072000,
-    },
-    {
-      label: '3 Years',
-      value: 94608000,
-    },
-    {
-      label: '4 Years',
-      value: 126230400,
-    },
+    { label: '7 Days', value: WEEK },
+    { label: '1 Year', value: 31536000 },
+    { label: '2 Years', value: 63072000 },
+    { label: '3 Years', value: 94608000 },
+    { label: '4 Years', value: 126230400 },
   ]
 
   const weekToShow = Math.round(duration / WEEK)
   const durationLabel = `${weekToShow} ${weekToShow > 1 ? 'weeks' : 'week'}`
   const votingPower = (+userInput * duration) / FOUR_YEARS_IN_SECONDS
+
+  const [minPercent, maxPercent] = useMemo(() => {
+    const range = FOUR_YEARS_IN_SECONDS - WEEK
+    const clampedMin = Math.max(defaultLockTime, WEEK)
+    const clampedMax = Math.max(duration, clampedMin)
+    return [((clampedMin - WEEK) / range) * 100, ((clampedMax - WEEK) / range) * 100]
+  }, [defaultLockTime, duration])
 
   return (
     <Box>
@@ -70,13 +55,11 @@ const LockExtendDurationSlider: React.FC = () => {
       </Flex>
 
       <StyledSlider
-        aria-label="Start Weight"
-        style={{
-          color: '#6666FF',
-        }}
+        $minPercent={minPercent}
+        $maxPercent={maxPercent}
         value={duration}
-        onChange={(e) => handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>)}
-        step={WEEK} // 7 days
+        onChange={(e) => handleChange(+(e.target as HTMLInputElement)?.value)}
+        step={WEEK}
         min={WEEK}
         max={FOUR_YEARS_IN_SECONDS}
       />
@@ -85,7 +68,7 @@ const LockExtendDurationSlider: React.FC = () => {
         {rangeSelectors.map((range) => (
           <TYPE.subHeader1
             key={`range-selector-${range.label}`}
-            onClick={() => setDuration(range.value)}
+            onClick={() => handleChange(range.value)}
             style={{ cursor: 'pointer' }}
             color={duration >= range.value ? 'text1' : 'blue5'}
           >
@@ -103,15 +86,41 @@ const LockExtendDurationSlider: React.FC = () => {
   )
 }
 
-const StyledSlider = styled(Slider)`
+const StyledSlider = styled(Slider)<{
+  $minPercent: number
+  $maxPercent: number
+}>`
   height: 8px !important;
+
+  .MuiSlider-rail {
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(
+      to right,
+      #cdcdde 0%,
+      #cdcdde ${({ $minPercent }) => $minPercent}%,
+      #6666ff ${({ $minPercent }) => $minPercent}%,
+      #6666ff ${({ $maxPercent }) => $maxPercent}%,
+      #cdcdde ${({ $maxPercent }) => $maxPercent}%,
+      #cdcdde 100%
+    );
+    opacity: 1;
+  }
+
+  .MuiSlider-track {
+    height: 8px;
+    background-color: transparent !important;
+    border: none;
+  }
 
   .MuiSlider-thumb {
     width: 16px;
     height: 16px;
     border: 3px solid white;
+    background-color: #6666ff;
   }
-  .MuiSlider-rail {
+
+  .MuiSlider-mark {
     background-color: #cdcdde;
   }
 `
