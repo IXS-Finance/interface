@@ -10,9 +10,10 @@ type feePerPool = BigNumber[]
 type bribePerPool = BigNumber[]
 
 export type FeeAndBribeVotingRewards = {
-  tokens: TokensPerPool[]
   feeRewards: feePerPool[]
+  feeTokens: TokensPerPool[]
   bribeRewards: bribePerPool[]
+  bribeTokens: TokensPerPool[]
 }
 
 export class RewardSugar {
