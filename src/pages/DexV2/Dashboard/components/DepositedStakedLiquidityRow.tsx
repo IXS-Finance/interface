@@ -24,6 +24,8 @@ import { ReactComponent as InfoIcon } from 'assets/images/info.svg'
 import { IXS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks/web3'
 
+const MAX_FRACTION_DIGITS = 5
+
 type DepositedStakedLiquidityRowProps = {
   data: PoolType
   userLpBalance?: bigint
@@ -190,7 +192,7 @@ const CardBody = ({
                 title="Pool Total"
                 secondTitle=""
                 tokens={tokens?.map((token) => ({
-                  balance: formatAmount(parseFloat(token.balance), 4),
+                  balance: formatAmount(parseFloat(token.balance), MAX_FRACTION_DIGITS),
                   symbol: token.symbol,
                   address: token.address,
                 }))}
@@ -201,7 +203,7 @@ const CardBody = ({
                 title="Staked"
                 secondTitle=""
                 tokens={tokens?.map((token) => ({
-                  balance: formatAmount(getStakedAmount(token).toNumber(), 4),
+                  balance: formatAmount(getStakedAmount(token).toNumber(), MAX_FRACTION_DIGITS),
                   symbol: token.symbol,
                   address: token.address,
                 }))}
@@ -218,7 +220,7 @@ const CardBody = ({
                 title="Unstaked"
                 secondTitle=""
                 tokens={tokens?.map((token) => ({
-                  balance: formatAmount(getUnstakedAmount(token).toNumber(), 4),
+                  balance: formatAmount(getUnstakedAmount(token).toNumber(), MAX_FRACTION_DIGITS),
                   symbol: token.symbol,
                   address: token.address,
                 }))}
@@ -236,7 +238,10 @@ const CardBody = ({
               <CardItem
                 title="Emissions"
                 secondTitle="APR"
-                emissionsAmount={formatUnits(earnedEmissions || BigInt(0), IXS[chainId]?.decimals)}
+                emissionsAmount={formatAmount(
+                  +formatUnits(earnedEmissions || BigInt(0), IXS[chainId]?.decimals),
+                  MAX_FRACTION_DIGITS
+                )}
                 emissionsSymbol="IXS"
                 apr={apr}
                 showClaimEmissionsBtn={!!data?.gauge?.address}
@@ -248,7 +253,10 @@ const CardBody = ({
                 title="Trading Fees"
                 secondTitle=""
                 tokens={tokens?.map((token, index) => ({
-                  balance: formatUnits(earnedTradingFees?.[index] || BigInt(0), token.decimals),
+                  balance: formatAmount(
+                    +formatUnits(earnedTradingFees?.[index] || BigInt(0), token.decimals),
+                    MAX_FRACTION_DIGITS
+                  ),
                   symbol: token.symbol,
                   address: token.address,
                 }))}
