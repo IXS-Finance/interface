@@ -11,13 +11,17 @@ import { bnum } from 'lib/utils'
 import BalCard from 'pages/DexV2/common/Card'
 import BalStack from 'pages/DexV2/common/BalStack'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
+import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 
 interface SetPoolFeesProps {}
 
 const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
   const { balanceFor, nativeAsset, wrappedNativeAsset, balanceQueryLoading } = useTokens()
+  const { fNum } = useNumbers();
   const {
     seedTokens,
+    totalLiquidity,
+    currentLiquidity,
     manuallySetToken,
     autoOptimiseBalances,
     scaledLiquidity,
@@ -127,16 +131,12 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
         <SummaryContainer>
           <SummaryItem>
             <div>Total</div>
-            <div>$0.00</div>
+            <div>{ fNum(currentLiquidity.toString(), FNumFormats.fiat) }</div>
           </SummaryItem>
 
           <SummaryItem>
-            <div>Available: $0.00</div>
-            {isOptimised ? (
-              <Optimized>Optimized</Optimized>
-            ) : (
-              <Optimize onClick={() => optimiseLiquidity(true)}>Optimize</Optimize>
-            )}
+            <div>Available: { fNum(totalLiquidity.toString(), FNumFormats.fiat) }</div>
+            <Optimized>Optimized</Optimized>
           </SummaryItem>
         </SummaryContainer>
 
