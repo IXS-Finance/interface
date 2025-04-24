@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { Flex } from 'rebass'
+import Tooltip from 'pages/DexV2/common/Tooltip'
 
 /**
  * STEP TYPES
@@ -33,28 +34,37 @@ const defaultSteps: Step[] = [
 ]
 
 const HorizSteps: React.FC<Props> = ({ steps = defaultSteps, spacerWidth = 16 }) => {
+  const [showHover, setShowHover] = React.useState<number | null>(null)
+
   return (
-    <Flex alignItems="center" justifyContent="center" css={{ cursor: 'pointer' }}>
+    <Flex alignItems="center" justifyContent="center" css={{ cursor: 'pointer', position: 'relative' }}>
       {steps.map((step, i) => (
         <Flex alignItems="center" key={i}>
           {i !== 0 && <Spacer spacerWidth={spacerWidth} />}
-          <Tooltip data-tooltip={step.tooltip}>
-            <StepCircle state={step.state}>
-              {step.state === StepState.Success ? (
-                // Replace with your check icon component or image
-                <IconCheck>
-                  <polyline points="20 6 9 17 4 12" />
-                </IconCheck>
-              ) : step.state === StepState.Pending ? (
-                <>
-                  <CenteredSpan>{i + 1}</CenteredSpan>
-                  <SpinnerIcon />
-                </>
-              ) : (
-                <NumberText state={step.state}>{i + 1}</NumberText>
-              )}
-            </StepCircle>
-          </Tooltip>
+          <Tooltip
+            text={step.tooltip}
+            activator={
+              <StepCircle
+                state={step.state}
+                onMouseEnter={() => setShowHover(i)}
+                onMouseLeave={() => setShowHover(null)}
+              >
+                {step.state === StepState.Success ? (
+                  // Replace with your check icon component or image
+                  <IconCheck>
+                    <polyline points="20 6 9 17 4 12" />
+                  </IconCheck>
+                ) : step.state === StepState.Pending ? (
+                  <>
+                    <CenteredSpan>{i + 1}</CenteredSpan>
+                    <SpinnerIcon />
+                  </>
+                ) : (
+                  <NumberText state={step.state}>{i + 1}</NumberText>
+                )}
+              </StepCircle>
+            }
+          ></Tooltip>
         </Flex>
       ))}
     </Flex>
@@ -149,26 +159,6 @@ const SpinnerIcon = styled.div`
     100% {
       transform: rotate(360deg);
     }
-  }
-`
-
-const Tooltip = styled.div`
-  position: relative;
-  display: inline-block;
-
-  &:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 120%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    color: #fff;
-    padding: 4px 8px;
-    border-radius: 4px;
-    white-space: nowrap;
-    font-size: 12px;
-    z-index: 100;
   }
 `
 
