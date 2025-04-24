@@ -7,6 +7,7 @@ import duration from 'dayjs/plugin/duration'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import useVoteInfoQuery from 'hooks/dex-v2/queries/useVoteInfoQuery'
 import timerImg from 'assets/images/dex-v2/timer.svg'
+import Countdown, { renderer } from 'components/Countdown'
 
 dayjs.extend(duration)
 
@@ -17,18 +18,6 @@ export const VotingRoundStats = () => {
   const epochVoteEnd = _get(query, 'data.epochVoteEnd', null)
   const totalSupply = _get(query, 'data.totalSupply', null)
   const availableDeposit = _get(query, 'data.availableDeposit', null)
-
-  // Calculate remaining time if epochVoteEnd exists
-  const voteEnd = epochVoteEnd ? dayjs.unix(Number(epochVoteEnd)) : null
-  const now = dayjs()
-  const diff = voteEnd ? voteEnd.diff(now) : 0
-  const diffDuration = dayjs.duration(diff)
-  const days = Math.floor(diffDuration.asDays())
-  const hours = diffDuration.hours()
-  const minutes = diffDuration.minutes()
-
-  // You can adjust the format as needed; here we show days if available
-  const timeValueText = days > 0 ? `${days} Days` : hours > 0 ? `${hours} Hours` : `${minutes} Minutes`
 
   const statistics = [
     { label: 'Total Voting Power', value: fNum(totalSupply, { abbreviate: true }) },
@@ -51,7 +40,7 @@ export const VotingRoundStats = () => {
             <TimerIcon src={timerImg} alt="Timer icon" />
             <span>Ends in</span>
           </TimerLabel>
-          <TimeValue>{timeValueText}</TimeValue>
+          <TimeValue><Countdown date={epochVoteEnd ? new Date(epochVoteEnd * 1000) : new Date()} renderer={renderer} /></TimeValue>
         </TimerSection>
       </HeaderContainer>
       <Divider />
