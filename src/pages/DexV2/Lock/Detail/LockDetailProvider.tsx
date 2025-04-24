@@ -47,10 +47,6 @@ export function _useLockDetail() {
       addTransaction(tx, {
         summary: `Increase Lock ${userInput} IXS`,
       })
-
-      setTimeout(() => {
-        setIncreased(false)
-      }, 3000)
     } finally {
       setLocking(false)
     }
@@ -69,10 +65,6 @@ export function _useLockDetail() {
       addTransaction(tx, {
         summary: `Extend Lock in ${Math.round(duration / WEEK)} weeks`,
       })
-
-      setTimeout(() => {
-        setExtended(false)
-      }, 3000)
     } finally {
       setLocking(false)
     }
