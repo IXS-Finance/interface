@@ -10,6 +10,7 @@ import { useWeb3React } from 'hooks/useWeb3React'
 import { IXS_ADDRESS } from 'constants/addresses'
 import { useParams } from 'react-router-dom'
 import { configService } from 'services/config/config.service'
+import useLockQuery from 'hooks/dex-v2/queries/useLockQuery'
 
 export type UseLockDetailResult = ReturnType<typeof _useLockDetail>
 export const LockDetailContext = createContext<UseLockDetailResult | null>(null)
@@ -26,14 +27,17 @@ export function _useLockDetail() {
   const votingEscrowContract = useVotingEscrowContract()
   const addTransaction = useTransactionAdder()
   const currency = useIXSCurrency()
+  const { lockDetail } = useLockQuery(lockId)
 
   useEffect(() => {
     if (openMaxLockMode) {
       setDuration(FOUR_YEARS_IN_SECONDS)
     } else {
-      setDuration(WEEK)
+      const currentTime = Math.floor(Date.now() / 1000)
+      const defaultLockTime = lockDetail?.expiresAt ? +lockDetail.expiresAt - currentTime + WEEK : WEEK
+      setDuration(defaultLockTime)
     }
-  }, [openMaxLockMode])
+  }, [openMaxLockMode, lockDetail?.expiresAt])
 
   const handleSubmitIncrease = useCallback(async () => {
     if (!lockId) return
