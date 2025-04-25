@@ -169,7 +169,7 @@ const ChooseWeights: React.FC = () => {
           </>
         ) : null}
 
-        <Flex direction="column" gap="16px" mb="16px">
+        <Flex flexDirection="column" mb="16px" css={{ gap: '8px' }}>
           {showLiquidityAlert && isWalletReady ? (
             <BalAlert
               title="It’s recommended to provide new pools with at least $20,000 in initial funds"
