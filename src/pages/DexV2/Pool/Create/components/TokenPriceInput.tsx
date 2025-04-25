@@ -123,7 +123,7 @@ const TokenPriceInput: React.FC<Props> = (props = defaultProps) => {
   const hasToken = !!props.address
   const token: TokenInfo | undefined = !hasToken ? undefined : getToken(_get(props, 'address', ''))
   const inputRules = getInputRules(hasToken, isWalletReady, props, tokenBalance)
-  const decimalLimit = token?.decimals || 18
+  const decimalLimit = 6;
 
   function handleAmountChange(val: string) {
     // Remove commas from the input.
@@ -139,15 +139,18 @@ const TokenPriceInput: React.FC<Props> = (props = defaultProps) => {
 
     const regex = /^-?\d*[.,]?\d*$/
     if (regex.test(value)) {
-      const tokenDecimals = decimalLimit
-      const decimalPattern = '0'.repeat(tokenDecimals)
-      const formatString = `0.[${decimalPattern}]`
+      let limitToFormat = decimalLimit
 
-      let amountFinal = numeral(value).format(formatString)
-      if (amountFinal === 'NaN') {
-        amountFinal = '0'
+      // Get string after . of value
+      const decimalPart = value.indexOf('.') > -1 ? value.substring(value.indexOf('.') + 1) : '';
+
+      // Compare with decimalLimit to get exact amount decimal to format
+      if (decimalPart.length < decimalLimit) {
+        limitToFormat = decimalPart.length
       }
-      const safeAmount = overflowProtected(amountFinal || '0', decimalLimit)
+
+      const safeAmount = overflowProtected(value || '0', limitToFormat)
+
 
       setAmount(safeAmount)
       props.updateAmount(safeAmount)
@@ -160,7 +163,7 @@ const TokenPriceInput: React.FC<Props> = (props = defaultProps) => {
       // Handle cases where a decimal point exists.
       if (value.indexOf('.') > -1) {
         const integerPart = value.substring(0, value.indexOf('.'))
-        const decimalPart = value.substring(value.indexOf('.') + 1, value.indexOf('.') + tokenDecimals + 1)
+        const decimalPart = value.substring(value.indexOf('.') + 1, value.indexOf('.') + decimalLimit + 1)
         const formattedInteger = displayNumeralNoDecimal(integerPart)
 
         // Preserve the trailing decimal if user types "0." or "1.".
