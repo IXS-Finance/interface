@@ -13,10 +13,13 @@ import DurationSlider from './DurationSlider'
 import LockExplanation from './LockExplanation'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import useIXSCurrency from 'hooks/useIXSCurrency'
-import { PinnedContentButton } from 'components/Button'
+import { ButtonOutlined, PinnedContentButton } from 'components/Button'
 import { ReactComponent as CheckedIcon } from 'assets/images/checked-green.svg'
+import { useHistory } from 'react-router-dom'
+import { routes } from 'utils/routes'
 
 const LockContent: React.FC = () => {
+  const history = useHistory()
   const [isLoading, setIsLoading] = useState(false)
   const {
     userInput,
@@ -70,7 +73,7 @@ const LockContent: React.FC = () => {
   const maxInputAmount: CurrencyAmount<Currency> | undefined = maxAmountSpend(currencyBalance)
 
   return (
-    <Flex flexDirection='column' mt={3} style={{ gap: 32 }}>
+    <Flex flexDirection="column" mt={3} style={{ gap: 32 }}>
       <CurrencyInput
         value={userInput}
         currency={currency}
@@ -93,6 +96,7 @@ const LockContent: React.FC = () => {
       >
         {primaryButtonLabel}
       </StyledPrimaryButton>
+      <ButtonOutlined onClick={() => history.push(routes.dexV2Dashboard)}>Go to Dashboard</ButtonOutlined>
     </Flex>
   )
 }
