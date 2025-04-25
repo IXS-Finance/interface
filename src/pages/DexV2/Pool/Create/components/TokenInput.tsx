@@ -39,7 +39,7 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
 
   const token = address ? getToken(address) : null
   const hasToken = !!address
-  const decimalLimit = useMemo<number>(() => token?.decimals || 18, [token])
+  const decimalLimit = 6;
   const balance = !address ? '0' : balanceFor(address)
 
   let inputRules
@@ -66,7 +66,17 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
 
     const regex = /^-?\d*[.,]?\d*$/
     if (regex.test(value)) {
-      const safeAmount = overflowProtected(value || '0', decimalLimit)
+      let limitToFormat = decimalLimit
+
+      // Get string after . of value
+      const decimalPart = value.indexOf('.') > -1 ? value.substring(value.indexOf('.') + 1) : '';
+
+      // Compare with decimalLimit to get exact amount decimal to format
+      if (decimalPart.length < decimalLimit) {
+        limitToFormat = decimalPart.length
+      }
+
+      const safeAmount = overflowProtected(value || '0', limitToFormat)
 
       setAmount(safeAmount)
       props.updateAmount(safeAmount)
