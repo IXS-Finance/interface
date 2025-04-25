@@ -44,7 +44,7 @@ export const useSubgraphQueryLegacy = ({
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query, variables, }),
+        body: JSON.stringify({ query, variables }),
       })
 
       const responseData = await resp.json()
@@ -85,7 +85,7 @@ export const useSubgraphQuery = ({
 
     const endpoint = SUBGRAPH_URLS[feature][chainId]
 
-    if (!endpoint || !query) return
+    if (!endpoint || !query) return null
 
     const resp = await fetch(endpoint, {
       method: 'POST',
@@ -93,7 +93,7 @@ export const useSubgraphQuery = ({
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ query, variables, }),
+      body: JSON.stringify({ query, variables }),
     })
 
     return await resp.json()

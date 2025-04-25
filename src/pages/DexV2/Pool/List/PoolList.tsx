@@ -8,7 +8,7 @@ import { Pagination } from 'components/Pagination'
 import styled from 'styled-components'
 import { Title } from 'components/LaunchpadMisc/tables'
 import { SortIcon } from 'components/LaunchpadIssuance/utils/SortIcon'
-import { useOnChangeOrder, usePoolList } from './hooks'
+import { PoolToken, useOnChangeOrder, usePoolList, usePoolTokenList } from './hooks'
 import { AbstractOrder } from 'state/launchpad/types'
 import { TYPE } from 'theme'
 import useTheme from 'hooks/useTheme'
@@ -19,6 +19,7 @@ import { adminOffset } from 'state/admin/constants'
 import { LoadingIndicator } from 'components/LoadingIndicator'
 import { useHistory } from 'react-router-dom'
 import Asset from 'pages/DexV2/common/Asset'
+import Big from 'big.js'
 
 export default function PoolList() {
   const { pools } = usePoolList()
@@ -46,12 +47,23 @@ interface IBody {
   items: any[]
 }
 const Body = ({ items }: IBody) => {
+  const { poolTokens } = usePoolTokenList(items?.map((pool: { id: string }) => pool.id))
+
+  const poolTokensByPool = poolTokens?.reduce((acc: any, token: any) => {
+    const poolId = token.poolId.address
+    if (!acc[poolId]) {
+      acc[poolId] = []
+    }
+    acc[poolId].push(token)
+    return acc
+  }, {})
+
   return (
     <BodyContainer>
       {items.map((pool, index) => (
         <Fragment key={`pool-${pool.id}`}>
           <Line />
-          <Row pool={pool} />
+          <Row pool={pool} poolTokens={poolTokensByPool?.[pool.address]} />
           {index === items.length - 1 && <Line />}
         </Fragment>
       ))}
@@ -82,10 +94,19 @@ const Header = () => {
   )
 }
 
-const Row = ({ pool }: { pool: any }) => {
+const Row = ({ pool, poolTokens }: { pool: any; poolTokens?: PoolToken[] }) => {
   const theme = useTheme()
   const { toCurrency } = useCurrency()
   const history = useHistory()
+
+  const tvl = poolTokens?.reduce((acc: Big, poolToken: any) => {
+    const tokenPrice = poolToken.token.latestUSDPrice
+    if (!tokenPrice) return acc
+
+    const tokenBalance = poolToken.balance
+    const tokenValue = new Big(tokenPrice).mul(tokenBalance)
+    return acc.add(tokenValue)
+  }, new Big(0))
 
   return (
     <StyledBodyRow onClick={() => history.push(`/v2/pool/${pool.id}`)}>
@@ -100,7 +121,7 @@ const Row = ({ pool }: { pool: any }) => {
           )
         })}
       </Flex>
-      <TYPE.main color={'text1'}>{toCurrency(pool.totalLiquidity)}</TYPE.main>
+      <TYPE.main color={'text1'}>{toCurrency(tvl?.toString() || '')}</TYPE.main>
       <TYPE.main color={'text1'}>{toCurrency(pool.totalSwapVolume)}</TYPE.main>
       <TYPE.main1 color={theme.blue5}>SAMPLE</TYPE.main1>
       <TYPE.main0 fontSize={16}>aprToShow</TYPE.main0>
