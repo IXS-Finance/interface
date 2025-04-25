@@ -224,7 +224,7 @@ const CardBody = ({
                   symbol: token.symbol,
                   address: token.address,
                 }))}
-                showStakeBtn
+                showStakeBtn={!!data?.gauge?.address}
                 showWithdrawBtn
                 userGaugeBalance={userGaugeBalance}
                 userLpBalance={userLpBalance}
