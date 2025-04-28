@@ -1,9 +1,9 @@
-import { useCallback, useMemo } from "react"
-import { AbstractOrder } from "state/launchpad/types"
-import { useSubgraphQueryLegacy } from "hooks/useSubgraphQuery";
-import { SUBGRAPH_QUERY } from "constants/subgraph";
-import { usePoolFilter } from "./FilterProvider";
-import { adminOffset } from "state/admin/constants";
+import { useCallback, useMemo } from 'react'
+import { AbstractOrder } from 'state/launchpad/types'
+import { useSubgraphQuery, useSubgraphQueryLegacy } from 'hooks/useSubgraphQuery'
+import { SUBGRAPH_QUERY } from 'constants/subgraph'
+import { usePoolFilter } from './FilterProvider'
+import { adminOffset } from 'state/admin/constants'
 
 export const useOnChangeOrder = (
   order: AbstractOrder,
@@ -40,12 +40,15 @@ export const usePoolList = () => {
   const orderBy = Object.keys(order)[0]
   const orderDirection = Object.values(order)[0]?.toLowerCase()
 
-  const variables = useMemo(() => ({
-    orderBy,
-    orderDirection,
-    first: adminOffset, // equal to pageSize
-    skip: page * adminOffset,
-  }), [orderBy, orderDirection, adminOffset, page])
+  const variables = useMemo(
+    () => ({
+      orderBy,
+      orderDirection,
+      first: adminOffset, // equal to pageSize
+      skip: page * adminOffset,
+    }),
+    [orderBy, orderDirection, adminOffset, page]
+  )
 
   const subgraphData = useSubgraphQueryLegacy({
     feature: SUBGRAPH_QUERY.POOLS,
@@ -67,6 +70,7 @@ export const usePoolList = () => {
           id
           totalSwapVolume
           totalLiquidity
+          tokensList
           tokens {
             address
             symbol
@@ -82,5 +86,58 @@ export const usePoolList = () => {
 
   return {
     pools: subgraphData?.pools,
+  }
+}
+
+export type PoolToken = {
+  poolId: {
+    id: string
+    address: string
+  }
+  token: {
+    latestUSDPrice: string
+  }
+  balance: string
+}
+
+export const usePoolTokenList = (poolIds: string[]) => {
+  const { filters } = usePoolFilter()
+  const variables = useMemo(
+    () => ({
+      poolId_in: poolIds,
+      first: adminOffset, // equal to pageSize
+    }),
+    [adminOffset]
+  )
+
+  const subgraphData = useSubgraphQuery({
+    feature: SUBGRAPH_QUERY.POOLS,
+    chainId: filters.network,
+    queryKey: ['poolTokens', poolIds],
+    query: `
+      query GetPoolTokens($poolId_in: [String]) {
+        poolTokens(
+          where: {
+            poolId_in: $poolId_in
+          }
+        ) {
+          poolId {
+            id
+            address
+          }
+          token {
+            latestUSDPrice
+          }
+          balance
+        }
+      }
+    `,
+    variables,
+    refetchInterval: 20_000, // 20 seconds
+    enabled: !!poolIds && poolIds.length > 0,
+  })
+
+  return {
+    poolTokens: (subgraphData?.data as { data: { poolTokens: PoolToken[] } })?.data?.poolTokens || [],
   }
 }
