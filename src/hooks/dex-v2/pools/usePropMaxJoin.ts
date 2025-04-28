@@ -62,7 +62,7 @@ export default function usePropMaxJoin(pool: Pool, tokensIn: TokenInfoMap, useNa
     const evmFixedAmount = parseUnits(fixedAmountIn.value, fixedTokenData?.decimals)
     const fixedTokenPoolBalance = selectByAddress(poolTokenBalances, fixedAmountIn.address) || parseUnits('0')
 
-    const amount = evmFixedAmount.mul(poolTokenBalance).div(fixedTokenPoolBalance)
+    const amount = !fixedTokenPoolBalance.isZero() ? evmFixedAmount.mul(poolTokenBalance).div(fixedTokenPoolBalance) : parseUnits('0')
     return formatUnits(amount, token?.decimals)
   }
 
