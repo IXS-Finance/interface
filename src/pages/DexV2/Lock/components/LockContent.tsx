@@ -17,18 +17,12 @@ import { ButtonOutlined, PinnedContentButton } from 'components/Button'
 import { ReactComponent as CheckedIcon } from 'assets/images/checked-green.svg'
 import { useHistory } from 'react-router-dom'
 import { routes } from 'utils/routes'
+import Big from 'big.js'
 
 const LockContent: React.FC = () => {
   const history = useHistory()
   const [isLoading, setIsLoading] = useState(false)
-  const {
-    userInput,
-    setUserInput,
-    handleLock,
-    approvalState,
-    approve,
-    locked,
-  } = useLock()
+  const { userInput, setUserInput, handleLock, approvalState, approve, locked } = useLock()
   const currency = useIXSCurrency()
   const { account } = useWeb3React()
   const { openConnectModal } = useConnectModal()
@@ -42,7 +36,7 @@ const LockContent: React.FC = () => {
       return 'Allow IXS'
     } else if (locked) {
       return (
-        <Flex alignItems='center' style={{ gap: 6 }}>
+        <Flex alignItems="center" style={{ gap: 6 }}>
           <CheckedIcon />
           Lock Created
         </Flex>
@@ -57,10 +51,11 @@ const LockContent: React.FC = () => {
       if (!account) {
         openConnectModal && openConnectModal()
       } else if (approvalState === ApprovalState.NOT_APPROVED) {
-          await approve()
-          await handleLock()
-      } else { // token approved
-          await handleLock()
+        await approve()
+        await handleLock()
+      } else {
+        // token approved
+        await handleLock()
       }
     } catch (error) {
       console.error('Error processing', error)
@@ -91,7 +86,13 @@ const LockContent: React.FC = () => {
       <StyledPrimaryButton
         onClick={() => handleProceed()}
         type="button"
-        disabled={approvalState === ApprovalState.PENDING || isLoading || !userInput}
+        disabled={
+          approvalState === ApprovalState.PENDING ||
+          isLoading ||
+          !userInput ||
+          !maxInputAmount ||
+          new Big(userInput).gt(maxInputAmount.toExact())
+        }
         locked={locked}
       >
         {primaryButtonLabel}
@@ -102,11 +103,13 @@ const LockContent: React.FC = () => {
 }
 
 const StyledPrimaryButton = styled(PinnedContentButton)<{ locked: boolean }>`
-  ${({ locked, theme }) => (locked && `
-    background-color: ${ theme.green51 };
-    color: ${ theme.green5 };
-    border: 1px solid ${ theme.green5 };
-  `)}
+  ${({ locked, theme }) =>
+    locked &&
+    `
+    background-color: ${theme.green51};
+    color: ${theme.green5};
+    border: 1px solid ${theme.green5};
+  `}
 `
 
 export default LockContent
