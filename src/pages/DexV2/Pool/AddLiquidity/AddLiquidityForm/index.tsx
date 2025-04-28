@@ -1,26 +1,19 @@
-// AddLiquidityForm.tsx
 import React, { useState, useEffect, useRef } from 'react'
 import styled from 'styled-components'
-import debounce from 'debounce-promise'
 import { useQuery } from '@tanstack/react-query'
 
-import { bnum, includesAddress } from 'lib/utils'
+import { bnum, isSameAddress } from 'lib/utils'
 import { LOW_LIQUIDITY_THRESHOLD } from 'constants/dexV2/poolLiquidity'
 import { Pool } from 'services/pool/types'
 import { tokenWeight, usePoolHelpers } from 'hooks/dex-v2/usePoolHelpers'
 
-// React component equivalents for your Vue components:
-// import WrapStEthLink from '@/components/contextual/pages/pool/add-liquidity/WrapStEthLink'
-// import StakePreviewModal from '@/components/contextual/pages/pool/staking/StakePreviewModal'
-// import AddLiquidityPreview from './components/AddLiquidityPreview/AddLiquidityPreview'
 import AddLiquidityTotals from './components/AddLiquidityTotals'
-// import BalCheckbox from '@/components/BalCheckbox'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { AmountIn, useJoinPool } from 'state/dexV2/pool/useJoinPool'
 import AddLiquidityPreview from './components/AddLiquidityPreview'
 import { useDispatch } from 'react-redux'
-import { setValueOfAmountIn } from 'state/dexV2/pool'
+import { setPoolState, setValueOfAmountIn } from 'state/dexV2/pool'
 import TokenInput from './components/TokenInput'
 import { Flex } from 'rebass'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
@@ -29,13 +22,14 @@ import BalCheckbox from 'pages/DexV2/common/BalCheckbox'
 import { isRequired } from 'lib/utils/validations'
 import BalAlert from 'pages/DexV2/common/BalAlert'
 import { ButtonPrimary } from 'pages/DexV2/common'
+import Switch from 'pages/DexV2/Pool/components/Switch'
+import usePropMaxJoin from 'hooks/dex-v2/pools/usePropMaxJoin'
 
 interface AddLiquidityFormProps {
   pool: Pool
 }
 
 const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
-  const dispatch = useDispatch()
   const {
     highPriceImpactAccepted,
     txInProgress,
@@ -47,39 +41,35 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
     setTokensIn,
     queryJoin,
     setHighPriceImpactAccepted,
+    tokensIn,
+    setAmountsIn,
   } = useJoinPool(pool)
 
-  // Create a debounced version of queryJoin.
-  // --- React Query ---
-  const queryEnabled = !txInProgress
-  // @ts-ignore
   const queryJoinQuery = useQuery({
     queryKey: QUERY_KEYS.Pools.Joins.QueryJoin(amountsIn, isSingleAssetJoin),
     queryFn: queryJoin,
-    enabled: queryEnabled,
+    enabled: !txInProgress,
     refetchOnWindowFocus: false,
   })
 
   const queryError = queryJoinQuery.error ? queryJoinQuery.error.message : undefined
   const isLoadingQuery = queryJoinQuery.isFetching
 
-  // Local state
   const [showPreview, setShowPreview] = useState(false)
-  const [showStakeModal, setShowStakeModal] = useState(false)
+  const [autoOptimise, setAutoOptimise] = useState(true)
+  const [typingIndex, setTypingIndex] = useState(0)
 
-  // Get composables / hooks
+  const dispatch = useDispatch()
   const { managedPoolWithSwappingHalted, poolJoinTokens } = usePoolHelpers(pool)
-  const { isWalletReady, startConnectWithInjectedProvider, isMismatchedNetwork } = useWeb3()
-  const { wrappedNativeAsset, nativeAsset, getToken } = useTokens()
+  const { isMismatchedNetwork } = useWeb3()
+  const { wrappedNativeAsset, nativeAsset } = useTokens()
+  const useNativeAsset = amountsIn.some((amount: any) => isSameAddress(amount.address, nativeAsset.address))
+  const { calcAmountsIn } = usePropMaxJoin(pool, tokensIn, useNativeAsset)
 
-  // COMPUTED (recalculated on every render)
   const forceProportionalInputs: boolean = !!managedPoolWithSwappingHalted
   const poolHasLowLiquidity: boolean = bnum(pool.totalLiquidity).lt(LOW_LIQUIDITY_THRESHOLD)
-  const excludedTokens: string[] = (() => {
-    const tokens = [pool.address]
 
-    return tokens
-  })()
+  // Create an array of refs for the TokenInputs
 
   // Initialize token inputs based on join type
   function initializeTokensForm(isSingle: boolean) {
@@ -93,22 +83,31 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
     }
   }
 
-  // Return the token symbol for a given address.
-  function getTokenInputLabel(address: string): string | undefined {
-    const token = getToken(address)
-    return token?.symbol
-  }
-
-  // If the address is the wrapped native asset, give an option for the native asset.
-  function tokenOptions(address: string): string[] {
-    if (isSingleAssetJoin) return []
-    return includesAddress([wrappedNativeAsset.address, nativeAsset.address], address)
-      ? [wrappedNativeAsset.address, nativeAsset.address]
-      : []
-  }
-
-  function setAmount(index: number, value: string) {
+  function setAmount(index: number, value: string, address: string) {
     dispatch(setValueOfAmountIn({ index, value }))
+    if (autoOptimise) {
+      const amountsIn = calcAmountsIn({
+        address,
+        valid: true,
+        value,
+      })
+
+      // Just apply when value of item > 0
+      if (amountsIn.every((item) => Number(item.value) > 0)) {
+        setAmountsIn(amountsIn)
+      } else {
+        setAmountsIn(amountsIn.map((item) => ({ ...item, value: '' })))
+      }
+      setTypingIndex(index)
+    } else {
+      if (!value) {
+        dispatch(setPoolState({ bptOut: '0', priceImpact: 0 }))
+      }
+    }
+  }
+
+  function toggleAutoOptimise() {
+    setAutoOptimise(!autoOptimise)
   }
 
   useEffect(() => {
@@ -117,7 +116,6 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
 
   const disabled = !hasAmountsIn || !hasValidInputs || isMismatchedNetwork || isLoadingQuery || !!queryError
 
-  console.log('amountsIn', amountsIn)
   return (
     <Container>
       {forceProportionalInputs && (
@@ -151,8 +149,9 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
                 weight={tokenWeight(pool, amountIn.address)}
                 updateAddress={() => {}}
                 fixedToken
+                autoFocus={index === typingIndex}
                 updateAmount={(value: string) => {
-                  setAmount(index, value)
+                  setAmount(index, value, amountIn.address)
                 }}
               />
             ))}
@@ -160,7 +159,12 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
         )}
       </Flex>
 
-      {!disabled ? <AddLiquidityTotals isLoadingQuery={isLoadingQuery} pool={pool} /> : null}
+      <Flex alignItems="center" style={{ gap: 8 }} my={16}>
+        <Switch checked={autoOptimise} onChange={toggleAutoOptimise} />
+        <SwitchText>Auto optimize liquidity</SwitchText>
+      </Flex>
+
+      <AddLiquidityTotals isLoadingQuery={isLoadingQuery} pool={pool} />
 
       {highPriceImpact && (
         <HighPriceImpactContainer className="p-2 pb-2 mt-5 rounded-lg border dark:border-gray-700">
@@ -176,8 +180,6 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
           />
         </HighPriceImpactContainer>
       )}
-
-      {/* <WrapStEthLink pool={pool} className="mt-5" /> */}
 
       {queryError && (
         <BalAlert type="error" title="There was an error">
@@ -222,4 +224,14 @@ const HighPriceImpactContainer = styled.div`
     background-color: rgba(239, 68, 68, 0.1); /* red-50 with opacity */
     transition: border-color 0.2s, background-color 0.2s;
   }
+`
+
+const SwitchText = styled.div`
+  color: #b8b8d2;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
 `
