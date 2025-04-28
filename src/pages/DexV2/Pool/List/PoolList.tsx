@@ -8,7 +8,7 @@ import { Pagination } from 'components/Pagination'
 import styled from 'styled-components'
 import { Title } from 'components/LaunchpadMisc/tables'
 import { SortIcon } from 'components/LaunchpadIssuance/utils/SortIcon'
-import { useOnChangeOrder, usePoolList } from './hooks'
+import { useOnChangeOrder } from './hooks'
 import { AbstractOrder } from 'state/launchpad/types'
 import { TYPE } from 'theme'
 import useTheme from 'hooks/useTheme'
@@ -19,9 +19,10 @@ import { adminOffset } from 'state/admin/constants'
 import { LoadingIndicator } from 'components/LoadingIndicator'
 import { useHistory } from 'react-router-dom'
 import Asset from 'pages/DexV2/common/Asset'
+import usePools from 'hooks/dex-v2/pools/usePools'
 
 export default function PoolList() {
-  const { pools } = usePoolList()
+  const { pools } = usePools()
   const { page, setPage } = usePoolFilter()
 
   const onPageChange = (page: number) => {

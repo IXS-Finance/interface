@@ -4,7 +4,8 @@
       { "internalType": "address", "name": "_forwarder", "type": "address" },
       { "internalType": "address", "name": "_ve", "type": "address" },
       { "internalType": "address", "name": "_factoryRegistry", "type": "address" },
-      { "internalType": "address", "name": "_vault", "type": "address" }
+      { "internalType": "address", "name": "_vault", "type": "address" },
+      { "internalType": "uint256", "name": "_period", "type": "uint256" }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
@@ -26,10 +27,13 @@
     "type": "error"
   },
   { "inputs": [], "name": "InactiveManagedNFT", "type": "error" },
+  { "inputs": [], "name": "InvalidFeeForVe", "type": "error" },
+  { "inputs": [], "name": "InvalidPeriod", "type": "error" },
   { "inputs": [], "name": "MaximumVotingNumberTooLow", "type": "error" },
   { "inputs": [], "name": "NonZeroVotes", "type": "error" },
   { "inputs": [], "name": "NotAPool", "type": "error" },
   { "inputs": [], "name": "NotApprovedOrOwner", "type": "error" },
+  { "inputs": [], "name": "NotDistributor", "type": "error" },
   { "inputs": [], "name": "NotEmergencyCouncil", "type": "error" },
   { "inputs": [], "name": "NotGovernor", "type": "error" },
   { "inputs": [], "name": "NotMinter", "type": "error" },
@@ -103,6 +107,18 @@
   },
   {
     "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "uint256", "name": "period", "type": "uint256" }],
+    "name": "PeriodChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "internalType": "address", "name": "minter", "type": "address" }],
+    "name": "RewardsDistributorChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       { "indexed": true, "internalType": "address", "name": "voter", "type": "address" },
       { "indexed": true, "internalType": "address", "name": "pool", "type": "address" },
@@ -133,6 +149,13 @@
     ],
     "name": "WhitelistToken",
     "type": "event"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "_feeForVe", "type": "uint256" }],
+    "name": "changeFeeForVe",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "inputs": [
@@ -209,6 +232,13 @@
   },
   {
     "inputs": [],
+    "name": "distributor",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "emergencyCouncil",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
@@ -258,6 +288,13 @@
   },
   {
     "inputs": [],
+    "name": "feeForVe",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "forwarder",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
@@ -294,7 +331,7 @@
   {
     "inputs": [
       { "internalType": "address[]", "name": "_tokens", "type": "address[]" },
-      { "internalType": "address", "name": "_minter", "type": "address" }
+      { "internalType": "address", "name": "_distributor", "type": "address" }
     ],
     "name": "initialize",
     "outputs": [],
@@ -361,13 +398,6 @@
     "inputs": [],
     "name": "maxVotingNum",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "minter",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -452,6 +482,13 @@
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "address", "name": "_distributor", "type": "address" }],
+    "name": "setMinter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "totalWeight",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
@@ -483,6 +520,13 @@
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "uint256", "name": "_period", "type": "uint256" }],
+    "name": "updateVestingPeriod",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "name": "usedWeights",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
@@ -500,6 +544,13 @@
     "inputs": [],
     "name": "ve",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "vestingPeriod",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },

@@ -14,7 +14,8 @@ import CurrencyLogoSet from 'components/CurrencyLogoSet'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useFlattenedLocks from 'hooks/dex-v2/queries/useFlattenedLocks'
 import { LockedData } from 'services/balancer/contracts/ve-sugar'
-import { PinnedContentButton } from 'components/Button'
+import useLiquidityPool from '../hooks/useLiquidityPool'
+import ClaimVotingRewardButton from './ClaimVotingRewardButton'
 
 const VotingRewards = () => {
   return (
@@ -82,6 +83,7 @@ type FeeAndBribeRewardPerRow = {
 
 const VotingRewardPerVote = ({ votedLockReward, lockData }: { votedLockReward: VoteItem; lockData: LockedData }) => {
   const pools = votedLockReward.pools
+  const { gaugesByPool } = useLiquidityPool()
   const poolAddresses = pools.map((pool) => pool.lp)
 
   const { data: votingRewardsPerPool } = useVotingQuery(poolAddresses, votedLockReward.id)
@@ -95,9 +97,10 @@ const VotingRewardPerVote = ({ votedLockReward, lockData }: { votedLockReward: V
           bribeRewards: votingRewardsPerPool?.bribeRewards[i],
           bribeTokens: votingRewardsPerPool?.bribeTokens[i],
         } as FeeAndBribeRewardPerRow
+        const gaugeAddress = gaugesByPool[poolAddress.lp.toLowerCase() as Address]
         return (
           <Grid item key={`vote-${votedLockReward.id}-pool-${poolAddress}`}>
-            <VotingRewardRow votingReward={votingReward} lockData={lockData} />
+            <VotingRewardRow votingReward={votingReward} lockData={lockData} gaugeAddress={gaugeAddress} />
           </Grid>
         )
       })}
@@ -108,9 +111,11 @@ const VotingRewardPerVote = ({ votedLockReward, lockData }: { votedLockReward: V
 const VotingRewardRow = ({
   votingReward,
   lockData,
+  gaugeAddress,
 }: {
   votingReward?: FeeAndBribeRewardPerRow
   lockData: LockedData
+  gaugeAddress: Address
 }) => {
   const { getToken } = useTokens()
   const feeTokenAddresses = votingReward?.feeTokens
@@ -196,16 +201,12 @@ const VotingRewardRow = ({
             </Stack>
 
             {isClaimable ? (
-              <PinnedContentButton
-                style={{
-                  width: 'auto',
-                  paddingTop: 12,
-                  paddingBottom: 12,
-                }}
-                onClick={() => {}}
-              >
-                Claim
-              </PinnedContentButton>
+              <ClaimVotingRewardButton
+                gaugeAddress={gaugeAddress}
+                tokenId={lockData.id}
+                feeTokenAddresses={feeTokenAddresses}
+                bribeTokenAddresses={bribeTokenAddresses}
+              />
             ) : null}
           </Stack>
         </Grid>
