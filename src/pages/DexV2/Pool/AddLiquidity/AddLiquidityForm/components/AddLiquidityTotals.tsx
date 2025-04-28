@@ -4,7 +4,6 @@ import clsx from 'clsx'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { Pool } from 'services/pool/types'
 import { useJoinPool } from 'state/dexV2/pool/useJoinPool'
-import useWeb3 from 'hooks/dex-v2/useWeb3'
 import useUserSettings from 'state/dexV2/userSettings/useUserSettings'
 import { useAddLiquidityTotals } from '../useAddLiquidityTotals'
 import { Flex } from 'rebass'
@@ -19,21 +18,16 @@ interface Props {
 
 const JoinPoolDataTable: React.FC<Props> = ({ pool, isLoadingQuery }) => {
   const { fNum } = useNumbers()
-  const { isWalletReady } = useWeb3()
   const { slippage } = useUserSettings()
 
-  const { highPriceImpact, priceImpact, supportsProportionalOptimization, fiatValueIn, bptOut } = useJoinPool(pool)
-
   const {
-    priceImpactClasses, // if any extra classes are returned by the hook
-    optimizeBtnClasses, // if any extra classes are returned by the hook
-    hasBalanceForAllTokens,
-    hasBalanceForSomeTokens,
-    optimized,
-    maximized,
-    maximizeAmounts,
-    optimizeAmounts,
-  } = useAddLiquidityTotals(pool)
+    highPriceImpact,
+    priceImpact,
+    fiatValueIn,
+    bptOut,
+  } = useJoinPool(pool)
+
+  const { priceImpactClasses } = useAddLiquidityTotals(pool)
 
   return (
     <Container>
@@ -45,11 +39,6 @@ const JoinPoolDataTable: React.FC<Props> = ({ pool, isLoadingQuery }) => {
         <Total>Total</Total>
         <Flex alignItems="center" justifyContent="flex-end" css={{ gap: '8px' }}>
           <LPAmount>{fNum(fiatValueIn, FNumFormats.fiat)}</LPAmount>
-          {isWalletReady && hasBalanceForSomeTokens && (
-            <MaxButton maximized={maximized} onClick={maximizeAmounts}>
-              {maximized ? 'Maxed' : 'Max'}
-            </MaxButton>
-          )}
         </Flex>
       </Flex>
 
@@ -105,17 +94,6 @@ const JoinPoolDataTable: React.FC<Props> = ({ pool, isLoadingQuery }) => {
               )}
             </Tooltip>
           </div>
-          {isWalletReady && hasBalanceForAllTokens && supportsProportionalOptimization && (
-            <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>
-              {optimized ? (
-                <span style={{ color: '#9ca3af' }}>Optimized</span>
-              ) : (
-                <span style={{ cursor: 'pointer' }} className={clsx(optimizeBtnClasses)} onClick={optimizeAmounts}>
-                  Optimize
-                </span>
-              )}
-            </div>
-          )}
         </NumberCell>
       </SecondaryRow>
     </Container>
@@ -145,26 +123,6 @@ const Total = styled.div`
   font-weight: 600;
   line-height: normal;
   letter-spacing: -0.48px;
-`
-
-const MaxButton = styled.div<{ maximized: boolean }>`
-  border-radius: 8px;
-  background: #f7f7fa;
-  display: flex;
-  padding: 8px 16px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  color: ${({ maximized }) => (maximized ? '#B8B8D2' : '#66F')};
-  cursor: ${({ maximized }) => (maximized ? 'default' : 'pointer')};
-  font-family: Inter;
-  font-size: 9px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  letter-spacing: -0.18px;
-  text-transform: uppercase;
 `
 
 const LPAmount = styled.div`
@@ -198,7 +156,6 @@ const NumberCell = styled(Cell)`
   align-items: center;
   justify-content: space-between;
 `
-
 interface IconProps {
   name: string
   size: string
