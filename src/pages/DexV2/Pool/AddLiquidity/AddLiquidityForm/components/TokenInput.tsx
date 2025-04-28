@@ -139,7 +139,6 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
    * COMPUTED
    */
   const tokenBalance = customBalance ? customBalance : balanceFor(_get(props, 'address', ''))
-
   const hasToken = !!props.address
   const amountBN = bnum(props.amount)
   const tokenBalanceBN = bnum(tokenBalance)
@@ -169,7 +168,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
   const priceImpactSign = props.priceImpact && props.priceImpact >= 0 ? '-' : '+'
   const priceImpactClass = props.priceImpact && props.priceImpact >= 0.01 ? 'text-red-500' : ''
 
-  function handleAmountChange(val: string) {
+  function handleAmountChange(val: string, isInit = false) {
     // Remove commas from the input.
     const value = val.split(',').join('')
 
@@ -177,7 +176,9 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
     if (value === '') {
       setDisplayValue('')
       setAmount('')
-      props.updateAmount('')
+      if (!isInit) {
+        props.updateAmount('')
+      }
       return
     }
 
@@ -196,7 +197,9 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
       const safeAmount = overflowProtected(value || '0', limitToFormat)
 
       setAmount(safeAmount)
-      props.updateAmount(safeAmount)
+      if (!isInit) {
+        props.updateAmount(safeAmount)
+      }
 
       // Prevent multiple leading zeros.
       if (val.length >= 2 && val.charAt(0) === '0' && val.charAt(1) === '0') {
@@ -206,7 +209,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
       // Handle cases where a decimal point exists.
       if (value.indexOf('.') > -1) {
         const integerPart = value.substring(0, value.indexOf('.'))
-        const decimalPart = value.substring(value.indexOf('.') + 1, value.indexOf('.') + decimalLimit + 1)
+        const decimalPart = value.substring(value.indexOf('.') + 1, value.indexOf('.') + tokenDecimals + 1)
         const formattedInteger = displayNumeralNoDecimal(integerPart)
 
         // Preserve the trailing decimal if user types "0." or "1.".
@@ -235,7 +238,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
   }
 
   useEffect(() => {
-    handleAmountChange(props.amount.toString())
+    handleAmountChange(props.amount.toString(), true)
   }, [props.amount])
 
   useEffect(() => {
