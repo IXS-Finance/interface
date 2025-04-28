@@ -127,7 +127,7 @@ const CustomMenuList: React.FC<MenuListProps<any, false>> = (props) => {
                     }}
                   >
                     Lock #{option?.id}{' '}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="15" viewBox="0 11 15" fill="none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="15" viewBox="0 0 11 15" fill="none">
                       <path
                         d="M8.5 7.5H9.55C9.79855 7.5 10 7.70145 10 7.95V13.05C10 13.2985 9.79855 13.5 9.55 13.5H1.45C1.20147 13.5 1 13.2985 1 13.05V7.95C1 7.70145 1.20147 7.5 1.45 7.5H2.5M8.5 7.5V4.5C8.5 3.5 7.9 1.5 5.5 1.5C3.1 1.5 2.5 3.5 2.5 4.5V7.5M8.5 7.5H2.5"
                         stroke="#B8B8D2"
