@@ -21,6 +21,7 @@ import {
   setTokenAmount,
   distributeWeights,
   setSortSeedTokens,
+  clearTokensAmount,
 } from '..'
 import { PoolSeedToken } from 'pages/DexV2/types'
 import { bnum, includesAddress, isSameAddress, scale } from 'lib/utils'
@@ -269,11 +270,7 @@ export const usePoolCreation = () => {
   }
 
   function clearAmounts() {
-    const newSeedTokens = [...poolCreationState.seedTokens]
-    for (const token of newSeedTokens) {
-      token.amount = ''
-    }
-    dispatch(setTokenWeights(newSeedTokens))
+    dispatch(clearTokensAmount())
   }
 
   function setAmountsToMaxBalances() {
