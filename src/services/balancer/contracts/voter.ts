@@ -64,4 +64,31 @@ export class Voter {
 
     return res
   }
+
+  async claimFees(
+    feeAndBribeAddresses: Address[],
+    rewardsTokens: Address[][],
+    tokenId: string
+  ): Promise<TransactionResponse> {
+    const txBuilder = await this.getTransactionBuilder()
+
+    const res = await txBuilder.contract.sendTransaction({
+      contractAddress: configService.network.addresses.voter,
+      abi: this.abi,
+      action: 'claimFees',
+      params: [feeAndBribeAddresses, rewardsTokens, tokenId],
+    })
+
+    return res
+  }
+
+  async gaugeToBribe(_gauge: Address): Promise<Address> {
+    const res = await this.instance.gaugeToBribe(_gauge)
+    return res
+  }
+
+  async gaugeToFees(_gauge: Address): Promise<Address> {
+    const res = await this.instance.gaugeToFees(_gauge)
+    return res
+  }
 }
