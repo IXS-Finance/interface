@@ -1,23 +1,27 @@
-import _get from 'lodash/get'
+
 import React from 'react'
 import styled from 'styled-components'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
-import useVoteInfoQuery from 'hooks/dex-v2/queries/useVoteInfoQuery'
+
 import timerImg from 'assets/images/dex-v2/timer.svg'
 import Countdown, { renderer } from 'components/Countdown'
 
 dayjs.extend(duration)
+interface VotingRoundStatsProps {
+  epochVoteEnd: number;
+  totalSupply: number | string ;
+  availableDeposit: number | string;
+}
 
-export const VotingRoundStats = () => {
-  const query = useVoteInfoQuery()
+export const VotingRoundStats: React.FC<VotingRoundStatsProps> = ({
+  epochVoteEnd,
+  totalSupply,
+  availableDeposit
+}) => {
   const { fNum } = useNumbers()
-
-  const epochVoteEnd = _get(query, 'data.epochVoteEnd', null)
-  const totalSupply = _get(query, 'data.totalSupply', null)
-  const availableDeposit = _get(query, 'data.availableDeposit', null)
 
   const statistics = [
     { label: 'Total Voting Power', value: fNum(totalSupply, { abbreviate: true }) },
