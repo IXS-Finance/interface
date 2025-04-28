@@ -209,7 +209,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
       // Handle cases where a decimal point exists.
       if (value.indexOf('.') > -1) {
         const integerPart = value.substring(0, value.indexOf('.'))
-        const decimalPart = value.substring(value.indexOf('.') + 1, value.indexOf('.') + tokenDecimals + 1)
+        const decimalPart = value.substring(value.indexOf('.') + 1, value.indexOf('.') + decimalLimit + 1)
         const formattedInteger = displayNumeralNoDecimal(integerPart)
 
         // Preserve the trailing decimal if user types "0." or "1.".
