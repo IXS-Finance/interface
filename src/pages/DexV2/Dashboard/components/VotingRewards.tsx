@@ -15,7 +15,6 @@ import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useFlattenedLocks from 'hooks/dex-v2/queries/useFlattenedLocks'
 import { LockedData } from 'services/balancer/contracts/ve-sugar'
 import { PinnedContentButton } from 'components/Button'
-import { FeeAndBribeVotingRewards } from 'services/reward-sugar/reward-sugar.contract'
 
 const VotingRewards = () => {
   return (
@@ -119,6 +118,13 @@ const VotingRewardRow = ({
   const feeTokens = feeTokenAddresses?.map((tokenAddress) => getToken(tokenAddress))
   const pairName = feeTokens?.map((token) => token.symbol).join('/')
 
+  const isClaimable = useMemo(() => {
+    return (
+      votingReward?.bribeRewards?.some((reward) => reward.gt(0)) ||
+      votingReward?.feeRewards?.some((reward) => reward.gt(0))
+    )
+  }, [votingReward])
+
   return (
     <Card>
       <Grid container spacing={1}>
@@ -189,16 +195,18 @@ const VotingRewardRow = ({
               })}
             </Stack>
 
-            <PinnedContentButton
-              style={{
-                width: 'auto',
-                paddingTop: 12,
-                paddingBottom: 12,
-              }}
-              onClick={() => {}}
-            >
-              Claim
-            </PinnedContentButton>
+            {isClaimable ? (
+              <PinnedContentButton
+                style={{
+                  width: 'auto',
+                  paddingTop: 12,
+                  paddingBottom: 12,
+                }}
+                onClick={() => {}}
+              >
+                Claim
+              </PinnedContentButton>
+            ) : null}
           </Stack>
         </Grid>
       </Grid>
