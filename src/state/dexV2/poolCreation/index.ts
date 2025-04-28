@@ -159,6 +159,11 @@ const poolCreationSlice = createSlice({
       const targetToken = seedTokens[action?.payload?.id]
       targetToken.amount = action.payload.amount
     },
+    clearTokensAmount(state) {
+      for (const token of state.seedTokens) {
+        token.amount = ''
+      }
+    },
     distributeWeights(state) {
       handleDistributeWeights(state.seedTokens)
     },
@@ -204,5 +209,6 @@ export const {
   setSortSeedTokens,
   setActionStates,
   setValueOfActionState,
+  clearTokensAmount
 } = poolCreationSlice.actions
 export default poolCreationSlice.reducer

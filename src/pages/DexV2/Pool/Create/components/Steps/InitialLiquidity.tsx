@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import styled from 'styled-components'
 import { useDispatch } from 'react-redux'
-
 import { Box } from 'rebass'
+
 import TokenInput from '../TokenInput'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { setPoolCreationState, setTokenAmount } from 'state/dexV2/poolCreation'
@@ -17,7 +17,7 @@ interface SetPoolFeesProps {}
 
 const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
   const { balanceFor, nativeAsset, wrappedNativeAsset, balanceQueryLoading } = useTokens()
-  const { fNum } = useNumbers();
+  const { fNum } = useNumbers()
   const {
     seedTokens,
     totalLiquidity,
@@ -30,31 +30,26 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
     goBack,
     useNativeAsset,
     updateManuallySetToken,
+    clearAmounts,
   } = usePoolCreation()
   const dispatch = useDispatch()
 
-  const [isOptimised, setIsOptimised] = useState(false)
   const optimisedLiquidity = getOptimisedLiquidity()
+  const tokenAddresses = [...seedTokens.map((token) => token.tokenAddress)]
 
-  const handleAmountChange = (idx: number, amount: string) => {
-    dispatch(setTokenAmount({ id: idx, amount }))
-  }
+  const isExceedingWalletBalance = useMemo(() => {
+    return tokenAddresses.some((t, i) => bnum(seedTokens[i].amount).gt(balanceFor(t)))
+  }, [JSON.stringify(seedTokens)])
+  const hasZeroAmount = useMemo(() => {
+    return seedTokens.some(
+      (seedToken) => bnum(seedToken.amount).eq(0) || seedToken.amount === '' || seedToken.amount === 'NaN'
+    )
+  }, [JSON.stringify(seedTokens)])
 
   function checkLiquidityScaling() {
     if (!autoOptimiseBalances) return
 
     scaleLiquidity()
-  }
-
-  function optimiseLiquidity(force = false) {
-    if (manuallySetToken && !force) return
-    setIsOptimised(true)
-
-    if (Object.keys(optimisedLiquidity).length === 0) return
-
-    seedTokens.forEach((token, idx) => {
-      dispatch(setTokenAmount({ id: idx, amount: optimisedLiquidity[token.tokenAddress].balanceRequired }))
-    })
   }
 
   function scaleLiquidity() {
@@ -81,6 +76,15 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
           useNativeAsset: true,
         })
       )
+    }
+  }
+
+  function setAmount(index: number, value: string, address: string) {
+    updateManuallySetToken(address)
+    dispatch(setTokenAmount({ id: index, amount: value }))
+
+    if (!value) {
+      clearAmounts()
     }
   }
 
@@ -118,10 +122,7 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
                   address={token.tokenAddress}
                   amount={token.amount}
                   rules={[]}
-                  updateAmount={(amount: any) => {
-                    updateManuallySetToken(token.tokenAddress)
-                    handleAmountChange(i, amount)
-                  }}
+                  updateAmount={(value: string) => setAmount(i, value, token.tokenAddress)}
                 />
               )
             })}
@@ -131,18 +132,20 @@ const InitialLiquidity: React.FC<SetPoolFeesProps> = () => {
         <SummaryContainer>
           <SummaryItem>
             <div>Total</div>
-            <div>{ fNum(currentLiquidity.toString(), FNumFormats.fiat) }</div>
+            <div>{fNum(currentLiquidity.toString(), FNumFormats.fiat)}</div>
           </SummaryItem>
 
           <SummaryItem>
-            <div>Available: { fNum(totalLiquidity.toString(), FNumFormats.fiat) }</div>
+            <div>Available: {fNum(totalLiquidity.toString(), FNumFormats.fiat)}</div>
             <Optimized>Optimized</Optimized>
           </SummaryItem>
         </SummaryContainer>
 
         <NavigationButtons>
           <BackButton onClick={() => goBack()}>Back</BackButton>
-          <NextButton onClick={() => saveAndProcessed()}>Next</NextButton>
+          <NextButton disabled={isExceedingWalletBalance || hasZeroAmount} onClick={() => saveAndProcessed()}>
+            Next
+          </NextButton>
         </NavigationButtons>
       </BalStack>
     </BalCard>
@@ -237,9 +240,4 @@ const SummaryItem = styled.div`
 
 const Optimized = styled.div`
   color: #b8b8d2;
-`
-
-const Optimize = styled.div`
-  color: #6666ff;
-  cursor: pointer;
 `
