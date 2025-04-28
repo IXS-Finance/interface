@@ -7,7 +7,6 @@ import dayjs from 'dayjs'
 
 import { PoolsHasGauge } from 'hooks/dex-v2/queries/usePoolsHasGaugeQuery'
 import useVoteHistoriesQuery from 'hooks/dex-v2/queries/useVoteHistoriesQuery'
-import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import AssetSet from 'pages/DexV2/common/AssetSet'
 
 interface Props {
@@ -15,12 +14,10 @@ interface Props {
 }
 
 export const VoteHistoryRecords: React.FC<Props> = ({ pools }) => {
-  const { fNum } = useNumbers()
-  const { data, isSuccess, isLoading, isRefetching, isError, refetch } = useVoteHistoriesQuery()
+  const { data } = useVoteHistoriesQuery()
 
   const voteHistories = get(data, 'voteHistories', [])
 
-  console.log('data', data)
   return (
     <Container>
       <Title>Vote History Records</Title>
@@ -45,7 +42,7 @@ export const VoteHistoryRecords: React.FC<Props> = ({ pools }) => {
               const date = dayjs.unix(Number(item.timestamp)).format('YYYY-MM-DD HH:mm')
 
               return (
-                <TableRow key={item.id}>
+                <TableRow key={item.pool}>
                   <TableCell>{date || '---'}</TableCell>
                   <TableCell>
                     <Flex alignItems="center" css={{ gap: '8px', height: '32px' }}>

@@ -12,17 +12,11 @@ interface VoteProps {}
 
 const Vote: React.FC<VoteProps> = () => {
   const {
-    data: poolsData,
-    isSuccess: poolsQuerySuccess,
-    isLoading: poolsQueryLoading,
-    isRefetching: poolsQueryRefetching,
-    isError: poolsQueryError,
-    refetch: refetchPools,
+    data: poolsData
   } = usePoolsHasGaugeQuery()
 
   const pools = poolsData?.pools || []
 
-  console.log('pools', pools)
   return (
     <DexV2Layout>
       <Flex flexDirection="column" css={{ gap: '48px', width: '100%' }}>

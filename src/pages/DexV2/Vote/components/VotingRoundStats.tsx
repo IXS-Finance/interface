@@ -40,7 +40,13 @@ export const VotingRoundStats = () => {
             <TimerIcon src={timerImg} alt="Timer icon" />
             <span>Ends in</span>
           </TimerLabel>
-          <TimeValue><Countdown date={epochVoteEnd ? new Date(epochVoteEnd * 1000) : new Date()} renderer={renderer} /></TimeValue>
+          <TimeValue>
+            {epochVoteEnd ? (
+              <Countdown date={new Date(epochVoteEnd * 1000)} renderer={renderer} />
+            ) : (
+              '00 : 00 : 00'
+            )}
+          </TimeValue>
         </TimerSection>
       </HeaderContainer>
       <Divider />
