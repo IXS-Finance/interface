@@ -52,7 +52,7 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
     }
   }
 
-  function handleAmountChange(val: string) {
+  function handleAmountChange(val: string, isInit = false) {
     // Remove commas from the input.
     const value = val.split(',').join('')
 
@@ -60,7 +60,9 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
     if (value === '') {
       setDisplayValue('')
       setAmount('')
-      props.updateAmount('')
+      if (!isInit) {
+        props.updateAmount('')
+      }
       return
     }
 
@@ -79,7 +81,9 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
       const safeAmount = overflowProtected(value || '0', limitToFormat)
 
       setAmount(safeAmount)
-      props.updateAmount(safeAmount)
+      if (!isInit) {
+        props.updateAmount(safeAmount)
+      }
 
       // Prevent multiple leading zeros.
       if (val.length >= 2 && val.charAt(0) === '0' && val.charAt(1) === '0') {
@@ -120,14 +124,13 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
   })
 
   useEffect(() => {
-    handleAmountChange(props.amount.toString())
+    handleAmountChange(props.amount.toString(), true)
   }, [props.amount])
 
   useEffect(() => {
     validate(amount)
   }, [address])
 
-  console.log('TokenInput', props)
   return (
     <LiquidityContainer isError={isInvalid && !!errors[0]} className="token-input">
       <FlexContainer>
