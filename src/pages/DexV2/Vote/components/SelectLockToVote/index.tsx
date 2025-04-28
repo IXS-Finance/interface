@@ -11,9 +11,11 @@ import { PoolsHasGauge } from 'hooks/dex-v2/queries/usePoolsHasGaugeQuery'
 
 interface SelectLockToVoteProps {
   pools: PoolsHasGauge[]
+  epochVoteStart: number
+  epochVoteEnd: number
 }
 
-const SelectLockToVote: React.FC<SelectLockToVoteProps> = ({ pools }) => {
+const SelectLockToVote: React.FC<SelectLockToVoteProps> = ({ pools, epochVoteStart, epochVoteEnd }) => {
   const { account } = useWeb3()
 
   const [lockedList, setLockedList] = useState<any[]>([])
@@ -98,7 +100,13 @@ const SelectLockToVote: React.FC<SelectLockToVoteProps> = ({ pools }) => {
           Select Lock for Voting
         </Box>
 
-        <LockSelect options={lockedList} value={selectedLock} onChange={handleSelectLock} />
+        <LockSelect
+          options={lockedList}
+          epochVoteStart={epochVoteStart}
+          epochVoteEnd={epochVoteEnd}
+          value={selectedLock}
+          onChange={handleSelectLock}
+        />
 
         <BalBtn style={{ width: '100%' }} onClick={toggleVotingModal} disabled={!selectedLock}>
           Vote

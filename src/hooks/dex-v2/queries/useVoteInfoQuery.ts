@@ -43,15 +43,23 @@ export default function useVoteInfoQuery() {
       function: 'availableDeposit',
       abi: ['function availableDeposit() returns (uint256)'],
     })
+    multicaller.call({
+      key: 'epochVoteStart',
+      address: configService.network.addresses.voter,
+      function: 'epochVoteStart',
+      abi: ['function epochVoteStart(uint256) returns (uint256)'],
+      params: [timestamp],
+    })
 
     result = await multicaller.execute()
 
-    const { epochVoteEnd, totalSupply, availableDeposit } = result as any
+    const { epochVoteEnd, totalSupply, availableDeposit, epochVoteStart } = result as any
 
     return {
       epochVoteEnd: epochVoteEnd.toString(),
       totalSupply: formatUnits(totalSupply.toString(), 18),
       availableDeposit: formatUnits(availableDeposit.toString(), 18),
+      epochVoteStart: epochVoteStart.toString(),
     }
   }
 
