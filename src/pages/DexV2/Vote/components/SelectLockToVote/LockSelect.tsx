@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import lockImg from 'assets/images/dex-v2/lockIcon.png'
 import { Box, Flex } from 'rebass'
 
-function transformOptions(options: any) {
+function transformOptions(options: any, epochVoteStart: number, epochVoteEnd: number) {
   if (!options) return []
   if (options.length === 0) return []
 
@@ -25,12 +25,20 @@ function transformOptions(options: any) {
       lockMessage = `${option.amount} IXS Locked for ${lockDuration} days`
     }
 
+    // Determine if the lock is voted within the epoch window.
+    // isVoted is true if option.votedAt exists, and
+    // votedAt is greater than epochVoteStart and less than epochVoteEnd.
+    const isVoted =
+      option.votedAt &&
+      dayjs.unix(Number(option.votedAt)).isAfter(dayjs.unix(epochVoteStart)) &&
+      dayjs.unix(Number(option.votedAt)).isBefore(dayjs.unix(epochVoteEnd));
+
     return {
       value: option.id,
       label: `Lock #${option.id}`,
       lockMessage,
       isExpired,
-      isVoted: option.votes.length > 0,
+      isVoted,
       ...option,
     }
   })
@@ -40,6 +48,8 @@ export interface LockSelectProps {
   value?: any | null
   onChange?: (selected: any | null) => void
   options: any
+  epochVoteStart: number
+  epochVoteEnd: number
 }
 
 interface BadgeProps {
@@ -197,10 +207,10 @@ const customStyles: StylesConfig<any, false> = {
   }),
 }
 
-const LockSelect: React.FC<LockSelectProps> = ({ value, options, onChange }) => {
+const LockSelect: React.FC<LockSelectProps> = ({ value, options, epochVoteStart, epochVoteEnd, onChange }) => {
   return (
     <Select<any>
-      options={transformOptions(options)}
+      options={transformOptions(options, epochVoteStart, epochVoteEnd)}
       value={value}
       onChange={onChange}
       isSearchable={false}
