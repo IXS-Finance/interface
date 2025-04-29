@@ -184,7 +184,13 @@ const LockDetailContent: React.FC<{ lockDetail?: LockedData }> = ({ lockDetail }
           <StyledPrimaryButton
             onClick={() => handleProceed()}
             type="button"
-            disabled={approvalState === ApprovalState.PENDING || isLoading || (isIncrease && !userInput)}
+            disabled={
+              approvalState === ApprovalState.PENDING
+              || isLoading
+              || (isIncrease && !userInput)
+              || (isIncrease && increased)
+              || (isExtend && extended)
+            }
             success={(isIncrease && increased) || (isExtend && extended)}
           >
             {primaryButtonLabel}
@@ -195,13 +201,18 @@ const LockDetailContent: React.FC<{ lockDetail?: LockedData }> = ({ lockDetail }
   )
 }
 
-const StyledPrimaryButton = styled(PinnedContentButton)<{ success: boolean }>`
+const StyledPrimaryButton = styled(PinnedContentButton) <{ success: boolean }>`
   ${({ success, theme }) =>
     success &&
     `
     background-color: ${theme.green51};
     color: ${theme.green5};
     border: 1px solid ${theme.green5};
+    &:disabled {
+      background-color: ${theme.green51};
+      color: ${theme.green5};
+      border: 1px solid ${theme.green5};
+    }
   `}
 `
 
