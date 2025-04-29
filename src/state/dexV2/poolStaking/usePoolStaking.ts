@@ -24,10 +24,13 @@ export type UsePoolStakingProps = {
 
 export const usePoolStaking = (props: UsePoolStakingProps) => {
   const { gaugeAddress } = props
-  const [isFetchingStakedBalance, setIsFetchingStakedBalance] = useState(false)
-  const [stakedBalance, setStakedBalance] = useState('0')
 
-  const { poolGaugeQuery, currentPool } = useSelector((state: AppState) => state.dexV2Staking)
+  const {
+    poolGaugeQuery,
+    currentPool,
+    stakedBalance = '0',
+    isFetchingStakedBalance = false,
+  } = useSelector((state: AppState) => state.dexV2Staking)
   const dispatch = useDispatch()
   const { balanceFor } = useTokens()
   const { account } = useWeb3()
@@ -49,9 +52,20 @@ export const usePoolStaking = (props: UsePoolStakingProps) => {
   const isStakablePool = gaugeAddress
   const unstakeBalance = poolAddress ? balanceFor(poolAddress) : '0'
 
+  async function getBalance() {
+    if (!account || !gaugeAddress) return
+
+    dispatch(setPoolStakingState({ isFetchingStakedBalance: true }))
+    const gauge = new LiquidityGauge(gaugeAddress)
+    const balanceBpt = await gauge.balance(account)
+    const balance = formatUnits(balanceBpt.toString(), currentPool?.onchain?.decimals || 18)
+    dispatch(setPoolStakingState({ stakedBalance: balance, isFetchingStakedBalance: false }))
+  }
+
   const refetchAllPoolStakingData = async () => {
     return Promise.all([
       refetchPoolGauges(),
+      getBalance(),
       // refetchStakedShares(),
       // refetchUserGaugeShares(),
       // refetchUserBoosts(),
@@ -106,16 +120,6 @@ export const usePoolStaking = (props: UsePoolStakingProps) => {
   }
 
   useEffect(() => {
-    async function getBalance() {
-      if (!account || !gaugeAddress) return
-
-      setIsFetchingStakedBalance(true)
-      const gauge = new LiquidityGauge(gaugeAddress)
-      const balanceBpt = await gauge.balance(account)
-      const stackedBalance = formatUnits(balanceBpt.toString(), currentPool?.onchain?.decimals || 18)
-      setStakedBalance(stackedBalance)
-      setIsFetchingStakedBalance(false)
-    }
     getBalance()
   }, [gaugeAddress])
 
