@@ -36,21 +36,11 @@ const AddLiquidityActions: React.FC<Props> = ({ pool, onSuccess }) => {
   const { isMismatchedNetwork } = useWeb3()
   // For helpers, pass the pool as needed (assumes hook accepts pool as argument)
   const { poolWeightsLabel } = usePoolHelpers(pool)
-  const {
-    rektPriceImpact,
-    fiatValueOut,
-    join,
-    txState,
-    resetTxState,
-    approvalActions: joinPoolApprovalActions,
-  } = useJoinPool(pool)
-
-  // Store approval actions (assume joinPoolApprovalActions is an array)
-  const approvalActions = joinPoolApprovalActions
+  const { rektPriceImpact, fiatValueOut, join, txState, approvalActions: joinPoolApprovalActions } = useJoinPool(pool)
 
   // Compute actions (without memoization)
   const actions: TransactionActionInfo[] = [
-    ...approvalActions,
+    ...joinPoolApprovalActions,
     {
       label: 'Add liquidity',
       loadingLabel: 'Confirm add liquidity in wallet',
