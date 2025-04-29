@@ -4,11 +4,15 @@ import { Pool } from 'services/pool/types'
 interface PoolStakingState {
   currentPool: Pool | undefined
   poolGaugeQuery: any
+  stakedBalance: string
+  isFetchingStakedBalance: boolean
 }
 
 const initialState: PoolStakingState = {
   currentPool: undefined,
   poolGaugeQuery: {},
+  stakedBalance: '0',
+  isFetchingStakedBalance: false,
 }
 
 const poolStakingSlice = createSlice({
