@@ -1,4 +1,3 @@
-
 import React from 'react'
 import styled from 'styled-components'
 import dayjs from 'dayjs'
@@ -8,18 +7,21 @@ import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 
 import timerImg from 'assets/images/dex-v2/timer.svg'
 import Countdown, { renderer } from 'components/Countdown'
+import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 
 dayjs.extend(duration)
 interface VotingRoundStatsProps {
-  epochVoteEnd: number;
-  totalSupply: number | string ;
-  availableDeposit: number | string;
+  epochVoteEnd: number
+  totalSupply: number | string
+  availableDeposit: number | string
+  isLoading: boolean
 }
 
 export const VotingRoundStats: React.FC<VotingRoundStatsProps> = ({
   epochVoteEnd,
   totalSupply,
-  availableDeposit
+  availableDeposit,
+  isLoading = false,
 }) => {
   const { fNum } = useNumbers()
 
@@ -39,19 +41,19 @@ export const VotingRoundStats: React.FC<VotingRoundStatsProps> = ({
             Voters earn a share of transaction fees and incentives for helping govern how emissions are distributed.
           </Description>
         </InfoSection>
-        <TimerSection>
-          <TimerLabel>
-            <TimerIcon src={timerImg} alt="Timer icon" />
-            <span>Ends in</span>
-          </TimerLabel>
-          <TimeValue>
-            {epochVoteEnd ? (
-              <Countdown date={new Date(epochVoteEnd * 1000)} renderer={renderer} />
-            ) : (
-              '00 : 00 : 00'
-            )}
-          </TimeValue>
-        </TimerSection>
+        {!isLoading ? (
+          <TimerSection>
+            <TimerLabel>
+              <TimerIcon src={timerImg} alt="Timer icon" />
+              <span>Ends in</span>
+            </TimerLabel>
+            <TimeValue>
+              {epochVoteEnd ? <Countdown date={new Date(epochVoteEnd * 1000)} renderer={renderer} /> : '00 : 00 : 00'}
+            </TimeValue>
+          </TimerSection>
+        ) : (
+          <LoadingBlock style={{ width: '220px', height: '80px' }} />
+        )}
       </HeaderContainer>
       <Divider />
       <StatsContainer>
