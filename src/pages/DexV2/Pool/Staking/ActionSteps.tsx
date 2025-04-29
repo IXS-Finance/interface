@@ -64,7 +64,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   const { formatErrorMsg } = useErrorMsg()
   const onSuccess = () => {}
   const { actionStates, updateActionState } = useSwapState()
-  const { stakeActions } = useStakePreview({
+  const { stakeActions, handleSuccess } = useStakePreview({
     lpToken,
     gaugeAddress,
     currentShares,
@@ -136,6 +136,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
           updateActionState(actionIndex, { confirmedAt: dateTimeLabelFor(confirmedAt), confirmed: true })
           if (currentActionIndex >= actions.length - 1) {
             console.log('success', receipt, state.confirmedAt)
+            handleSuccess(receipt)
             onClose()
           } else {
             setCurrentActionIndex(currentActionIndex + 1)
