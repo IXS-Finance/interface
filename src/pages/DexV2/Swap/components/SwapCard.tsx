@@ -1,10 +1,8 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Box, Flex } from 'rebass'
-import { useAccount } from 'wagmi'
 import { getAddress, isAddress } from '@ethersproject/address'
 
-import settingIcon from 'assets/images/dex-v2/setting.svg'
 import chainIcon from 'assets/images/dex-v2/chain.svg'
 import SwapPair from './SwapPair'
 import { ButtonPrimary } from '../../common'
@@ -13,7 +11,6 @@ import useSwapping from 'state/dexV2/swap/useSwapping'
 import { useSwapState } from 'state/dexV2/swap/useSwapState'
 import { useSwapAssets } from 'state/dexV2/swap/useSwapAssets'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
-import useNumbers from 'hooks/dex-v2/useNumbers'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import useValidation, { SwapValidation } from 'state/dexV2/swap/useValidation'
 import { WrapType } from 'lib/utils/balancer/wrapper'
@@ -23,7 +20,6 @@ import { useIsMounted } from 'hooks/dex-v2/useIsMounted'
 import SwapSettingsPopover, { SwapSettingsContext } from 'pages/DexV2/common/popovers/SwapSettingsPopover'
 import SwapRoute from './SwapRoute'
 import BalAlert from 'pages/DexV2/common/BalAlert'
-import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 
 const SwapCard: React.FC = () => {
   const { inputAsset, outputAsset } = useSwapAssets()
@@ -204,7 +200,7 @@ const SwapCard: React.FC = () => {
         />
       ) : null}
 
-      {!hasSwaps && tokenInAmount ? (
+      {WrapType.NonWrap === swapping.wrapType && !hasSwaps && tokenInAmount ? (
         <BalAlert type="warning" size="md" title="Insufficient liquidity for this trade" block />
       ) : null}
 

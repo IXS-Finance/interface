@@ -445,10 +445,9 @@ export default function useSor({
     const tokenInDecimals = getToken(tokenInAddress).decimals
     const tokenOutDecimals = getToken(tokenOutAddress).decimals
     const tokenInAmountScaled = parseFixed(tokenInAmountInput, tokenInDecimals)
-    const provider = await getProvider()
     if (wrapType == WrapType.Wrap) {
       try {
-        const tx = await wrap(appNetworkConfig.key, provider, tokenOutAddress, tokenInAmountScaled)
+        const tx = await wrap(appNetworkConfig.key, tokenOutAddress, tokenInAmountScaled)
         console.log('Wrap tx', tx)
         txHandler(tx, 'wrap')
         if (successCallback != null) {
@@ -460,7 +459,7 @@ export default function useSor({
       return
     } else if (wrapType == WrapType.Unwrap) {
       try {
-        const tx = await unwrap(appNetworkConfig.key, provider, tokenInAddress, tokenInAmountScaled)
+        const tx = await unwrap(appNetworkConfig.key, tokenInAddress, tokenInAmountScaled)
         console.log('Unwrap tx', tx)
         txHandler(tx, 'unwrap')
         if (successCallback != null) {
