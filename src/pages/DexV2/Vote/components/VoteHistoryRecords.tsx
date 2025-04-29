@@ -6,16 +6,14 @@ import { formatUnits } from '@ethersproject/units'
 import dayjs from 'dayjs'
 
 import { PoolsHasGauge } from 'hooks/dex-v2/queries/usePoolsHasGaugeQuery'
-import useVoteHistoriesQuery from 'hooks/dex-v2/queries/useVoteHistoriesQuery'
 import AssetSet from 'pages/DexV2/common/AssetSet'
 
 interface Props {
   pools: PoolsHasGauge[]
+  data: any
 }
 
-export const VoteHistoryRecords: React.FC<Props> = ({ pools }) => {
-  const { data } = useVoteHistoriesQuery()
-
+export const VoteHistoryRecords: React.FC<Props> = ({ pools, data }) => {
   const voteHistories = get(data, 'voteHistories', [])
 
   return (
