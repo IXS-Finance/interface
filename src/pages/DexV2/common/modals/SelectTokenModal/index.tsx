@@ -46,10 +46,6 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
     injectTokens,
   } = useTokens()
 
-  const { chainId, provider, account } = useWeb3React()
-  const { balances } = useTokensState()
-  const dispatch = useDispatch()
-
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<any>([])
   const [loading, setLoading] = useState(false)
