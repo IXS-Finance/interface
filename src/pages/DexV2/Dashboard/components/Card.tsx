@@ -1,12 +1,8 @@
-import styled from "styled-components";
+import styled from 'styled-components'
 
 export const Card = styled.div`
   cursor: pointer;
   border-radius: 16px;
   background: #fff;
   padding: 24px;
-
-  &:hover {
-    background: #FFFFFF4D;
-  }
 `
