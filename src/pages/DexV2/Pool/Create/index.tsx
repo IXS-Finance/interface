@@ -17,8 +17,8 @@ import DexV2Layout from 'pages/DexV2/common/Layout'
 import { selectByAddress } from 'lib/utils'
 
 const Create: React.FC = () => {
-  const { activeStep, similarPools, tokensList, seedTokens, hasRestoredFromSavedState } = usePoolCreation()
-  const { priceFor, getToken, injectTokens, injectedPrices } = useTokens()
+  const { activeStep, similarPools, tokensList, resetPoolCreationState, updateTokenWeights } = usePoolCreation()
+  const { priceFor, injectedPrices } = useTokens()
 
   const [isUnknownTokenModalVisible, setIsUnknownTokenModalVisible] = useState(false)
 
@@ -96,19 +96,20 @@ const Create: React.FC = () => {
     setIsUnknownTokenModalVisible(true)
   }
 
-  async function injectUnknownPoolTokens() {
-    const uninjectedTokens = seedTokens
-      .filter((seedToken) => getToken(seedToken.tokenAddress) === undefined)
-      .map((seedToken) => seedToken.tokenAddress)
-      .filter((token) => token !== '')
-    await injectTokens(uninjectedTokens)
-  }
-
   useEffect(() => {
     if (hasUnknownToken) {
       showUnknownTokenModal()
     }
   }, [activeStep])
+
+  /**
+   * Reset pool create state when component is unmounted
+   */
+  useEffect(() => {
+    return () => {
+      resetPoolCreationState()
+    }
+  }, [])
 
   return (
     <DexV2Layout>
