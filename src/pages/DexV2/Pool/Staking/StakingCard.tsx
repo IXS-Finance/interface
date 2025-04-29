@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
 import styled from 'styled-components'
 import { getAddress } from '@ethersproject/address'
 import { Box, Flex } from 'rebass'
@@ -18,8 +17,6 @@ import StakePreviewModal from './StakePreviewModal'
 import usePoolGaugeQuery from 'hooks/dex-v2/queries/usePoolGaugeQuery'
 import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
 import Tooltip from 'pages/DexV2/common/Tooltip'
-import useAllowancesQuery from 'hooks/dex-v2/queries/useAllowancesQuery'
-import { setAllowances } from 'state/dexV2/tokens'
 import { parseUnits } from 'viem'
 import { LP_DECIMALS } from './constants'
 
@@ -32,9 +29,8 @@ const StakingCard: React.FC<Props> = ({ pool }) => {
   const [stakeAction, setStakeAction] = useState<StakeAction>('stake')
 
   const { fNum } = useNumbers()
-  const { balanceFor } = useTokens()
+  const { balanceFor, allowanceFor, injectSpenders, refetchAllowances } = useTokens()
   const poolGaugeQuery = usePoolGaugeQuery(pool.id)
-  const dispatch = useDispatch()
 
   const gaugeAddress = poolGaugeQuery.data?.pool?.gauge?.address
   const {
@@ -46,11 +42,6 @@ const StakingCard: React.FC<Props> = ({ pool }) => {
     injectCurrentPool,
   } = usePoolStaking({
     gaugeAddress,
-  })
-  const { data: allowanceData } = useAllowancesQuery({
-    tokenAddresses: [pool?.address],
-    contractAddresses: [gaugeAddress],
-    isEnabled: !!(pool?.address && gaugeAddress),
   })
 
   const isLoadingStakingData = poolGaugeQuery ? isQueryLoading(poolGaugeQuery) : false
@@ -69,7 +60,10 @@ const StakingCard: React.FC<Props> = ({ pool }) => {
     .times(balanceFor(getAddress(pool.address)))
     .toString()
 
-  const isStakeDisabled = Boolean(fiatValueOfUnstakedShares === '0' || !gaugeAddress)
+  const isStakeDisabled =
+    fiatValueOfUnstakedShares === '0' ||
+    !gaugeAddress ||
+    (gaugeAddress && allowanceFor(pool.address, gaugeAddress) === undefined)
 
   const isUnstakeDisabled = Boolean(fiatValueOfStakedShares === '0' || !gaugeAddress)
 
@@ -97,10 +91,9 @@ const StakingCard: React.FC<Props> = ({ pool }) => {
   }, [JSON.stringify(pool)])
 
   useEffect(() => {
-    if (Object.keys(allowanceData).length > 0) {
-      dispatch(setAllowances(allowanceData))
-    }
-  }, [JSON.stringify(allowanceData)])
+    injectSpenders([gaugeAddress])
+    refetchAllowances()
+  }, [gaugeAddress])
 
   if (isLoadingStakingData) {
     return <LoadingBlock darker rounded="lg" style={{ height: 238 }} />
