@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
@@ -7,13 +7,14 @@ import { TYPE } from 'theme'
 
 import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { ReactComponent as CheckedIcon } from 'assets/images/checked-green.svg'
-import { PinnedContentButton } from 'components/Button'
+import { PinnedContentButton, ButtonOutlined } from 'components/Button'
 import { Line } from 'components/Line'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import useIXSCurrency from 'hooks/useIXSCurrency'
 import { useWeb3React } from 'hooks/useWeb3React'
 import { CurrencyAmount, Currency } from '@ixswap1/sdk-core'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { routes } from 'utils/routes'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { LockedData } from 'services/balancer/contracts/ve-sugar'
 import { useLockDetail } from '../LockDetailProvider'
@@ -40,6 +41,7 @@ const LockDetailContent: React.FC<{ lockDetail?: LockedData }> = ({ lockDetail }
     openMaxLockMode,
     setOpenMaxLockMode,
   } = useLockDetail()
+  const history = useHistory()
   const currency = useIXSCurrency()
   const { account } = useWeb3React()
   const { openConnectModal } = useConnectModal()
@@ -190,6 +192,7 @@ const LockDetailContent: React.FC<{ lockDetail?: LockedData }> = ({ lockDetail }
             {primaryButtonLabel}
           </StyledPrimaryButton>
         )}
+        <ButtonOutlined onClick={() => history.push(routes.dexV2Dashboard)}>Go to Dashboard</ButtonOutlined>
       </Flex>
     </Card>
   )
