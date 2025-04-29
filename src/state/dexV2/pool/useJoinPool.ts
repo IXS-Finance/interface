@@ -5,10 +5,9 @@ import { joinTokens, fiatValueOf, isDeep, isStableLike } from 'hooks/dex-v2/useP
 import useNumbers from 'hooks/dex-v2/useNumbers'
 import { useTxState } from 'hooks/dex-v2/useTxState'
 import { HIGH_PRICE_IMPACT, REKT_PRICE_IMPACT } from 'constants/dexV2/poolLiquidity'
-import { bnSum, bnum, isSameAddress, scale } from 'lib/utils'
+import { bnSum, bnum, isSameAddress } from 'lib/utils'
 import { JoinHandler, JoinPoolService } from 'services/balancer/pools/joins/join-pool.service'
 import { TokenInfoMap } from 'types/TokenList'
-import { TransactionActionInfo } from 'types/transactions'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
 import { throwQueryError } from 'lib/utils/queries'
@@ -20,8 +19,7 @@ import useUserSettings from '../userSettings/useUserSettings'
 import { useDispatch, useSelector } from 'react-redux'
 import { setPoolState } from '.'
 import { BigNumber } from 'ethers'
-import { safeParseUnits } from 'utils/formatCurrencyAmount'
-import { getAddress } from 'viem'
+import { getAddress, parseUnits } from 'viem'
 
 // --- Types ---
 export type AmountIn = {
@@ -69,9 +67,9 @@ export const useJoinPool = (pool: any) => {
   const fiatValueIn = bnSum(amountsIn.map((a: any) => toFiat(a.value || 0, a.address))).toString()
   const fiatValueOut = fiatValueOf(pool, bptOut)
 
-  const amountsToApprove = amountsIn.map((amountIn: { address: string, value: string }) => ({
+  const amountsToApprove = amountsIn.map((amountIn: { address: string; value: string }) => ({
     address: amountIn.address,
-    amount: BigNumber.from(safeParseUnits(+amountIn.value, tokensIn[getAddress(amountIn.address)]?.decimals)),
+    amount: BigNumber.from(parseUnits(amountIn.value, tokensIn[getAddress(amountIn.address)]?.decimals)),
     spender: appNetworkConfig.addresses.vault,
   }))
 
@@ -99,7 +97,6 @@ export const useJoinPool = (pool: any) => {
       tokens,
       spender: appNetworkConfig.addresses.vault,
       actionType: ApprovalAction.AddLiquidity,
-      skipAllowanceCheck: true,
       forceMax: false,
     })
     dispatch(setPoolState({ approvalActions: tokenApprovalActions }))
