@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import Modal from 'pages/DexV2/common/modals'
 
@@ -8,20 +8,10 @@ import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers from 'hooks/dex-v2/useNumbers'
 import { useJoinPool } from 'state/dexV2/pool/useJoinPool'
 import { TokenInfoMap } from 'types/TokenList'
-import { oneSecondInMs } from 'hooks/dex-v2/useTime'
 import Summary from './components/Summary'
 import TokenAmounts from 'pages/DexV2/common/forms/TokenAmounts'
-import { Flex } from 'rebass'
-import BalCircle from 'pages/DexV2/common/BalCircle'
 import AddLiquidityActions from './components/AddLiquidityActions'
 import BalAlert from 'pages/DexV2/common/BalAlert'
-
-// import Summary from './components/Summary';
-// import TokenAmounts from '@/components/forms/pool_actions/shared/TokenAmounts';
-// import BalModal from '@/components/BalModal';
-// import BalCircle from '@/components/BalCircle';
-// import BalIcon from '@/components/BalIcon';
-// import BalAlert from '@/components/BalAlert';
 
 type AmountMap = {
   [address: string]: string
@@ -104,16 +94,6 @@ const AddLiquidityPreview: React.FC<AddLiquidityModalProps> = ({ isLoadingQuery,
     }
     onClose()
   }
-
-  // // Periodically refetch join pool query every 10 seconds if conditions allow
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     if (!isLoadingQuery && !txInProgress) {
-  //       queryJoinQuery.refetch()
-  //     }
-  //   }, oneSecondInMs * 10)
-  //   return () => clearInterval(interval)
-  // }, [isLoadingQuery, txInProgress, JSON.stringify(allowances)])
 
   return (
     <Modal onClose={handleClose}>
