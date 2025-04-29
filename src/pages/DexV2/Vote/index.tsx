@@ -9,6 +9,7 @@ import DexV2Layout from '../common/Layout'
 import SelectLockToVote from './components/SelectLockToVote'
 import { VoteHistoryRecords } from './components/VoteHistoryRecords'
 import useVoteInfoQuery from 'hooks/dex-v2/queries/useVoteInfoQuery'
+import useVoteHistoriesQuery from 'hooks/dex-v2/queries/useVoteHistoriesQuery'
 
 interface VoteProps {}
 
@@ -16,6 +17,7 @@ const Vote: React.FC<VoteProps> = () => {
   const query = useVoteInfoQuery()
 
   const { data: poolsData } = usePoolsHasGaugeQuery()
+  const { data: voteHistories, refetch: refetchVoteHistories } = useVoteHistoriesQuery()
 
   const pools = poolsData?.pools || []
   const epochVoteEnd = _get(query, 'data.epochVoteEnd', null)
@@ -27,9 +29,14 @@ const Vote: React.FC<VoteProps> = () => {
     <DexV2Layout>
       <Flex flexDirection="column" css={{ gap: '48px', width: '100%' }}>
         <VotingRoundStats epochVoteEnd={epochVoteEnd} totalSupply={totalSupply} availableDeposit={availableDeposit} />
-        <SelectLockToVote pools={pools} epochVoteStart={epochVoteStart} epochVoteEnd={epochVoteEnd} />
+        <SelectLockToVote
+          pools={pools}
+          epochVoteStart={epochVoteStart}
+          epochVoteEnd={epochVoteEnd}
+          refetchVoteHistories={refetchVoteHistories}
+        />
         <LiquidityPoolSelector pools={pools} />
-        <VoteHistoryRecords pools={pools} />
+        <VoteHistoryRecords pools={pools} data={voteHistories} />
       </Flex>
     </DexV2Layout>
   )
