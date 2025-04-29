@@ -9,6 +9,7 @@ export interface TokenSelectInputProps {
   fixed?: boolean
   modelValue: string
   excludedTokens?: string[]
+  includeEther?: boolean
   updateAddress: (address: string) => void
 }
 
@@ -17,6 +18,7 @@ const TokenSelectInput: React.FC<TokenSelectInputProps> = ({
   modelValue,
   excludedTokens = [],
   updateAddress,
+  includeEther,
 }) => {
   const { getToken } = useTokens()
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -69,6 +71,7 @@ const TokenSelectInput: React.FC<TokenSelectInputProps> = ({
           excludedTokens={[...excludedTokens, modelValue]}
           updateAddress={updateAddress}
           onClose={onClose}
+          includeEther={includeEther}
         />
       )}
     </div>
