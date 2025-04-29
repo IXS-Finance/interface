@@ -28,7 +28,12 @@ const Vote: React.FC<VoteProps> = () => {
   return (
     <DexV2Layout>
       <Flex flexDirection="column" css={{ gap: '48px', width: '100%' }}>
-        <VotingRoundStats epochVoteEnd={epochVoteEnd} totalSupply={totalSupply} availableDeposit={availableDeposit} />
+        <VotingRoundStats
+          epochVoteEnd={epochVoteEnd}
+          totalSupply={totalSupply}
+          availableDeposit={availableDeposit}
+          isLoading={query.isLoading}
+        />
         <SelectLockToVote
           pools={pools}
           epochVoteStart={epochVoteStart}
