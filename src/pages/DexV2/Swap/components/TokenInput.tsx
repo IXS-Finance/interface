@@ -47,6 +47,7 @@ type Props = {
   tokenValue?: string
   placeholder?: string
   slider?: boolean
+  includeEther?: boolean
   updateAmount: (amount: string) => void
   updateAddress: (address: string) => void
   setMax?: () => void
@@ -118,6 +119,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
     disabled,
     name,
     noMax,
+    includeEther,
     disableMax,
     customBalance,
     excludedTokens,
@@ -280,6 +282,7 @@ const TokenInput: React.FC<Props> = (props = defaultProps) => {
           <TokenSelectInput
             modelValue={address as string}
             excludedTokens={excludedTokens}
+            includeEther={includeEther}
             updateAddress={(value) => updateAddress(value)}
           />
         </Flex>
