@@ -1,15 +1,20 @@
 import { BigNumber } from 'ethers'
-import { TransactionResponse } from '@ethersproject/providers'
 import { configService } from 'services/config/config.service'
 import { wagmiConfig } from 'components/Web3Provider'
-import { simulateContract, waitForTransactionReceipt, writeContract } from '@wagmi/core'
-import { parseEther } from 'viem'
 import config from 'lib/config'
+import { TransactionBuilder } from 'services/web3/transactions/transaction.builder'
+import { getEthersSigner } from 'hooks/useEthersProvider'
 
 export enum WrapType {
   NonWrap = 0,
   Wrap,
   Unwrap,
+}
+
+async function getTransactionBuilder(): Promise<TransactionBuilder> {
+  const getSigner = () => getEthersSigner(wagmiConfig)
+  const signer = await getSigner()
+  return new TransactionBuilder(signer)
 }
 
 export const isNativeAssetWrap = (tokenIn: string, tokenOut: string): boolean => {
@@ -38,10 +43,10 @@ export const getWrapOutput = async (wrapper: string, wrapType: WrapType, wrapAmo
   throw new Error('Unknown wrapper')
 }
 
-export async function wrap(network: string, account: any, wrapper: string, amount: any) {
+export async function wrap(network: string, wrapper: string, amount: any) {
   try {
     if (wrapper === config[network].tokens.Addresses.wNativeAsset) {
-      return wrapNative(network, account, amount)
+      return wrapNative(network, amount)
     }
 
     throw new Error('Unrecognised wrapper contract')
@@ -51,10 +56,10 @@ export async function wrap(network: string, account: any, wrapper: string, amoun
   }
 }
 
-export async function unwrap(network: string, account: any, wrapper: string, amount: any) {
+export async function unwrap(network: string, wrapper: string, amount: any) {
   try {
     if (wrapper === config[network].tokens.Addresses.wNativeAsset) {
-      return unwrapNative(network, account, amount)
+      return unwrapNative(network, amount)
     }
     throw new Error('Unrecognised wrapper contract')
   } catch (e) {
@@ -63,38 +68,22 @@ export async function unwrap(network: string, account: any, wrapper: string, amo
   }
 }
 
-const wrapNative = async (network: string, account: any, amount: any) => {
-  // @ts-ignore
-  const { request } = await simulateContract(wagmiConfig, {
-    account,
-    address: config[network].tokens.Addresses.wNativeAsset,
+const wrapNative = async (network: string, amount: any) => {
+  const txBuilder = await getTransactionBuilder()
+  return await txBuilder.contract.sendTransaction({
+    contractAddress: config[network].tokens.Addresses.wNativeAsset,
     abi: ['function deposit() payable'],
-    functionName: 'deposit',
-    value: amount,
+    action: 'deposit',
+    options: { value: amount },
   })
-
-  // @ts-ignore
-  const txHash = await writeContract(wagmiConfig, request)
-
-  const receipt: any = await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
-
-  return receipt
 }
 
-const unwrapNative = async (network: string, account: any, amount: any) => {
-  // @ts-ignore
-  const { request } = await simulateContract(wagmiConfig, {
-    account,
-    address: config[network].tokens.Addresses.wNativeAsset,
+const unwrapNative = async (network: string, amount: any) => {
+  const txBuilder = await getTransactionBuilder()
+  return await txBuilder.contract.sendTransaction({
+    contractAddress: config[network].tokens.Addresses.wNativeAsset,
     abi: ['function withdraw(uint256 wad)'],
-    functionName: 'withdraw',
-    args: [amount],
+    action: 'withdraw',
+    params: [amount],
   })
-
-  // @ts-ignore
-  const txHash = await writeContract(wagmiConfig, request)
-
-  const receipt: any = await waitForTransactionReceipt(wagmiConfig, { hash: txHash })
-
-  return receipt
 }

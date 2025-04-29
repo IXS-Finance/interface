@@ -89,6 +89,7 @@ const SwapPair: React.FC<Props> = ({ exactIn, priceImpact, swapLoading, amountCh
           updateAmount={handleInAmountChange}
           updateAddress={handleInputTokenChange}
           setMax={() => setExactIn(true)}
+          includeEther
           setExactInOnChange={() => setExactIn(true)}
         />
       )}
