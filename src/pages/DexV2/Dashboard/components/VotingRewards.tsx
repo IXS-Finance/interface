@@ -133,9 +133,9 @@ const VotingRewardRow = ({
   return (
     <Card>
       <Grid container spacing={1}>
-        <Grid item xs={3}>
-          <Stack direction="row" gap={4}>
-            <Box width={40}>
+        <Grid item xs={4}>
+          <Stack direction="row" gap={3}>
+            <Box>
               <CurrencyLogoSet tokens={feeTokenAddresses} size={36} margin={false} />
             </Box>
             <Box>
@@ -150,7 +150,7 @@ const VotingRewardRow = ({
             </Box>
           </Stack>
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={4}>
           <Stack direction="row" gap={1} mb={1}>
             <TYPE.black fontSize={14}>Lock #{lockData.id}</TYPE.black>
             <UnlockIcon />
