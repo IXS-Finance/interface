@@ -252,11 +252,13 @@ export const useTokens = () => {
       subset = [],
     }: { excluded?: string[]; disableInjection?: boolean; subset?: string[] }
   ): Promise<TokenInfoMap> {
-    let tokensToSearch = subset.length > 0 ? getTokens(subset) : tokens
+    const fullTokens: TokenInfoMap = {
+      [networkConfig.nativeAsset.address]: nativeAsset,
+      ...allTokens,
+    }
+    const tokensToSearch = subset.length > 0 ? getTokens(subset) : fullTokens
 
     if (!query) return removeExcluded(tokensToSearch, excluded)
-
-    tokensToSearch = subset.length > 0 ? tokensToSearch : allTokenListTokens
 
     const potentialAddress = getAddressFromPoolId(query)
     if (isAddress(potentialAddress)) {
