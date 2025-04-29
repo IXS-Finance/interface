@@ -16,13 +16,14 @@ import { useCurrency } from 'lib/balancer/hooks/useCurrency'
 import { fNum } from 'lib/balancer/utils/numbers'
 import { usePoolFilter } from './FilterProvider'
 import { adminOffset } from 'state/admin/constants'
-import { LoadingIndicator } from 'components/LoadingIndicator'
 import { useHistory } from 'react-router-dom'
 import Asset from 'pages/DexV2/common/Asset'
 import usePools from 'hooks/dex-v2/pools/usePools'
+import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 
 export default function PoolList() {
-  const { pools } = usePools()
+  const { pools, isLoading } = usePools()
+
   const { page, setPage } = usePoolFilter()
 
   const onPageChange = (page: number) => {
@@ -31,13 +32,11 @@ export default function PoolList() {
   }
 
   return (
-    <Flex flexWrap="wrap" flexDirection="column" style={{ gap: 32 }}>
-      {pools === undefined ? (
-        <LoadingIndicator noOverlay={true} isLoading />
-      ) : (
-        <Table header={<Header />} body={<Body items={pools} />} />
-      )}
-
+    <Flex flexWrap="wrap" flexDirection="column" style={{ gap: 32 }} className="h-4">
+      <Table
+        header={<Header />}
+        body={isLoading ? <LoadingBlock style={{ height: '480px' }} /> : <Body items={pools} />}
+      />
       <Pagination totalPages={null} page={page + 1} onPageChange={onPageChange} totalItems={adminOffset} />
     </Flex>
   )
