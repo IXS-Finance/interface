@@ -13,9 +13,15 @@ interface SelectLockToVoteProps {
   pools: PoolsHasGauge[]
   epochVoteStart: number
   epochVoteEnd: number
+  refetchVoteHistories: () => void
 }
 
-const SelectLockToVote: React.FC<SelectLockToVoteProps> = ({ pools, epochVoteStart, epochVoteEnd }) => {
+const SelectLockToVote: React.FC<SelectLockToVoteProps> = ({
+  pools,
+  epochVoteStart,
+  epochVoteEnd,
+  refetchVoteHistories,
+}) => {
   const { account } = useWeb3()
 
   const [lockedList, setLockedList] = useState<any[]>([])
@@ -41,6 +47,7 @@ const SelectLockToVote: React.FC<SelectLockToVoteProps> = ({ pools, epochVoteSta
     getData()
     setIsOpenVotingModal(false)
     setSelectedLock(null)
+    refetchVoteHistories()
   }
 
   useEffect(() => {
