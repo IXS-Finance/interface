@@ -378,7 +378,7 @@ export default function useTransactions() {
           },
           icon: false,
           hideProgressBar: true,
-          autoClose: 30000,
+          autoClose: 3000,
         })
         break
 
