@@ -1,5 +1,6 @@
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { merge, orderBy } from 'lodash'
+import React from 'react'
 
 import LS_KEYS from 'constants/local-storage.keys'
 import { lsGet, lsSet } from 'lib/utils'
@@ -7,9 +8,12 @@ import { configService } from 'services/config/config.service'
 import useNumbers, { FNumFormats } from './useNumbers'
 import { isPolygon } from './useNetwork'
 import useWeb3 from './useWeb3'
-import { useMemo } from 'react'
 import { toast } from 'react-toastify'
 import { getWeb3Provider } from 'dependencies/wallets/Web3Provider'
+import ErrorContent from 'pages/DexV2/common/ToastContent/Error'
+import SuccessContent from 'pages/DexV2/common/ToastContent/Success'
+import InfoContent from 'pages/DexV2/common/ToastContent/Info'
+import PendingContent from 'pages/DexV2/common/ToastContent/Pending'
 
 const WEEK_MS = 86_400_000 * 7
 // Please update the schema version when making changes to the transaction structure.
@@ -315,32 +319,81 @@ export default function useTransactions() {
       pending: 'Pending',
     }
 
-    // Determine notification type based on transaction status.
-    const type = isFinalizedTransactionStatus(transaction.status)
-      ? isSuccessfulTransaction(transaction)
-        ? 'success'
-        : 'error'
-      : 'info'
+    let type: 'success' | 'error' | 'info' | 'pending'
+
+    switch (transaction.status) {
+      case 'fulfilled':
+      case 'cancelled':
+      case 'failed':
+      case 'expired':
+        type = isSuccessfulTransaction(transaction) ? 'success' : 'error'
+        break
+      case 'pending':
+        type = 'pending'
+        break
+      default:
+        type = 'info'
+    }
 
     const title = `${transactionAction[transaction.action]} ${transactionStatus[transaction.status]}`
     const message = transaction.summary
     const explorerLink = getExplorerLink(transaction.id, transaction.type)
 
-    // Create the content to display. Here we add an onClick handler to open the explorer link.
-    const content = (
-      <div onClick={() => window.open(explorerLink, '_blank')} style={{ cursor: 'pointer' }}>
-        <strong>{title}</strong>
-        <div>{message}</div>
-      </div>
-    )
+    switch (type) {
+      case 'success':
+        toast.success(<SuccessContent title={title} message={message} explorerLink={explorerLink} />, {
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(40, 194, 92, 0.5)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        })
+        break
 
-    // Show the toast based on the type.
-    if (type === 'success') {
-      toast.success(content)
-    } else if (type === 'error') {
-      toast.error(content)
-    } else {
-      toast.info(content)
+      case 'error':
+        toast.error(<ErrorContent title={title} message={message} explorerLink={explorerLink} />, {
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(255, 101, 101, 0.50)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        })
+        break
+
+      case 'pending':
+        toast.info(<PendingContent title={title} message={message} explorerLink={explorerLink} />, {
+          style: {
+            background: '#fff',
+            border: '1px solid #E6E6FF',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        })
+        break
+
+      default:
+        toast.info(<InfoContent title={title} message={message} explorerLink={explorerLink} />, {
+          style: {
+            background: '#fff',
+            border: '1px solid #E6E6FF',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        })
     }
   }
 
