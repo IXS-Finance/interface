@@ -1,17 +1,17 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { Box, Flex } from 'rebass'
 
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
-import PoolActionsCard from '../../components/PoolActionsCard'
 import { Pool, PoolToken } from 'services/pool/types'
 import { bnum } from 'lib/utils'
 import { fiatValueOf } from 'hooks/dex-v2/usePoolHelpers'
 import BalCard from 'pages/DexV2/common/Card'
 import Asset from 'pages/DexV2/common/Asset'
 import Copy from 'components/AccountDetails/Copy'
+import useExitPool from 'state/dexV2/pool/useExitPool'
 
 interface MyPoolBalancesCardProps {
   pool: Pool
@@ -21,10 +21,11 @@ interface MyPoolBalancesCardProps {
 }
 
 const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
-  const { pool, missingPrices, titleTokens, isStableLikePool } = props
+  const { pool, titleTokens } = props
   const { balanceFor, getToken } = useTokens()
   const { fNum } = useNumbers()
   const { isWalletReady, explorerLinks: explorer } = useWeb3()
+  const { propAmountsOut, setBptIn } = useExitPool(pool)
 
   const bptBalance = bnum(balanceFor(pool.address)).plus('0').toString()
   const fiatValue = (() => {
@@ -36,6 +37,13 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
     return getToken(token.address)?.symbol || token.symbol || '---'
   }
 
+  useEffect(() => {
+    setBptIn(bptBalance)
+    return () => {
+      setBptIn('0')
+    }
+  }, [bptBalance])
+
   return (
     <Flex flexDirection="column" css={{ gap: '20px' }}>
       <BalCard shadow="none" noBorder className="p-4">
@@ -43,39 +51,44 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
         <Value> {isWalletReady ? fNum(fiatValue, FNumFormats.fiat) : '-'}</Value>
 
         <div>
-          {titleTokens.map(({ address, weight }, i) => (
-            <Flex
-              key={i}
-              alignItems="center"
-              justifyContent="space-between"
-              css={{
-                gap: '8px',
-                padding: '1rem 0',
-                borderBottom: '1px solid rgba(230, 230, 255, 0.6)',
-                fontSize: '14px',
-                color: 'rgba(41, 41, 51, 0.90)',
-                fontWeight: 500,
-              }}
-            >
-              <Flex css={{ gap: 10 }} alignItems={'center'}>
-                <Asset address={address} size={24} />
+          {titleTokens.map(({ address, weight }, i) => {
+            const propAmountToken = propAmountsOut.find(({ address: _address }) => _address.toLowerCase() === address)
+            return (
+              <Flex
+                key={i}
+                alignItems="center"
+                justifyContent="space-between"
+                css={{
+                  gap: '8px',
+                  padding: '1rem 0',
+                  borderBottom: '1px solid rgba(230, 230, 255, 0.6)',
+                  fontSize: '14px',
+                  color: 'rgba(41, 41, 51, 0.90)',
+                  fontWeight: 500,
+                }}
+              >
+                <Flex css={{ gap: 10 }} alignItems={'center'}>
+                  <Asset address={address} size={24} />
+                  <Flex flexDirection="column">
+                    <div> {symbolFor(i)}</div>
+                    <Box css={{ color: '#B8B8D2' }}>
+                      {fNum(weight || '0', {
+                        style: 'percent',
+                        maximumFractionDigits: 0,
+                      })}
+                    </Box>
+                  </Flex>
+                </Flex>
+
                 <Flex flexDirection="column">
-                  <div> {symbolFor(i)}</div>
+                  <div>{fNum(propAmountToken?.value || '', FNumFormats.token)}</div>
                   <Box css={{ color: '#B8B8D2' }}>
-                    {fNum(weight || '0', {
-                      style: 'percent',
-                      maximumFractionDigits: 0,
-                    })}
+                    {fNum(fiatValueOf(pool, propAmountToken?.value || ''), FNumFormats.fiat)}
                   </Box>
                 </Flex>
               </Flex>
-
-              <Flex flexDirection="column">
-                <div>{fNum(balanceFor(address), FNumFormats.token)}</div>
-                <Box css={{ color: '#B8B8D2' }}>{fNum(fiatValueOf(pool, balanceFor(address)), FNumFormats.fiat)}</Box>
-              </Flex>
-            </Flex>
-          ))}
+            )
+          })}
         </div>
 
         <Box mt={3}>
