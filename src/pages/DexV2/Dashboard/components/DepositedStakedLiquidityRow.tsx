@@ -189,7 +189,7 @@ const CardBody = ({
     <Box>
       {showMore && (
         <Box my={2}>
-          <Grid container spacing={2} alignItems="center">
+          <Grid container spacing={2}>
             <Grid item xs={2.4}>
               <CardItem
                 title="Pool Total"
@@ -331,7 +331,7 @@ const CardItem = ({
       <Box my={'12px'}>
         <Line color="bg24" />
       </Box>
-      <Stack style={{ height: '75px' }} justifyContent="space-between">
+      <Stack style={{ minHeight: '75px' }} justifyContent="space-between">
         <Stack direction="row" justifyContent="space-between">
           <Box>
             {apr && (
@@ -428,6 +428,7 @@ const CardOutline = styled(Box)`
   border-radius: 8px;
   gap: 12px;
   min-height: 150px;
+  height: 100%;
 `
 
 const CardButton = styled(Button)`
