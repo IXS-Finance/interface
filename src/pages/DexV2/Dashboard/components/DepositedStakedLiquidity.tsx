@@ -8,6 +8,7 @@ import useAllowancesQuery from 'hooks/dex-v2/queries/useAllowancesQuery'
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { setAllowances } from 'state/dexV2/tokens'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 const DepositedStakedLiquidity = () => {
   const dispatch = useDispatch()
@@ -21,6 +22,7 @@ const DepositedStakedLiquidity = () => {
     earnedEmissionsByGauge,
     claim,
   } = useLiquidityPool()
+  const { injectSpenders, injectTokens, refetchAllowances } = useTokens()
   const lpTokenAddresses = pools?.map((data) => data.address)
   const gaugeAddresses = lpTokenAddresses?.map((address) => gaugesByPool[address])
   const { data: allowanceData } = useAllowancesQuery({
@@ -33,6 +35,12 @@ const DepositedStakedLiquidity = () => {
       dispatch(setAllowances(allowanceData))
     }
   }, [allowanceData])
+
+  useEffect(() => {
+    injectTokens(pools?.map((data) => data.address))
+    injectSpenders(pools?.filter((pool) => pool.gauge).map((data) => data.gauge?.address))
+    refetchAllowances()
+  }, [JSON.stringify(pools)])
 
   return (
     <Box mb={8}>
