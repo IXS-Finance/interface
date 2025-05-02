@@ -23,6 +23,7 @@ import { ReactComponent as ChevronDownIcon } from 'assets/images/chevron-down.sv
 import { ReactComponent as InfoIcon } from 'assets/images/info.svg'
 import { IXS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks/web3'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 const MAX_FRACTION_DIGITS = 5
 
@@ -136,6 +137,8 @@ const CardBody = ({
   claim,
 }: CardBodyProps) => {
   const { chainId } = useActiveWeb3React()
+  const { allowanceFor } = useTokens()
+  const allowanceIsFetched = data?.gauge?.address && allowanceFor(data.address, data?.gauge?.address)?.gte(0)
   const [stakeAction, setStakeAction] = useState<StakeAction | null>(null)
   const tokens = data.tokens
   const history = useHistory()
@@ -210,9 +213,7 @@ const CardBody = ({
                 showUnstakeBtn
                 userGaugeBalance={userGaugeBalance}
                 userLpBalance={userLpBalance}
-                handleUnstakeAction={() => {
-                  setStakeAction('unstake')
-                }}
+                handleUnstakeAction={() => setStakeAction('unstake')}
               />
             </Grid>
             <Grid item xs={2.4}>
@@ -224,13 +225,11 @@ const CardBody = ({
                   symbol: token.symbol,
                   address: token.address,
                 }))}
-                showStakeBtn={!!data?.gauge?.address}
+                showStakeBtn={allowanceIsFetched}
                 showWithdrawBtn
                 userGaugeBalance={userGaugeBalance}
                 userLpBalance={userLpBalance}
-                handleStakeAction={() => {
-                  setStakeAction('stake')
-                }}
+                handleStakeAction={() => setStakeAction('stake')}
                 handleWithdrawAction={handleGotoWithdrawFromPoolPage}
               />
             </Grid>
@@ -265,7 +264,7 @@ const CardBody = ({
           </Grid>
         </Box>
       )}
-      {stakeAction ? (
+      {stakeAction && allowanceIsFetched ? (
         <StakePreviewModal
           isVisible
           pool={data}
