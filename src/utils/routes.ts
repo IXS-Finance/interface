@@ -67,12 +67,12 @@ export const routes = {
 
   //admin urls
 
-  adminAccreditation: 'admin/accreditation',
-  adminKYC: 'admin/kyc',
+  adminAccreditation: '/admin/accreditation',
+  adminKYC: '/admin/kyc',
   adminKYCID: '/admin/kyc/:kycId',
   adminTransactions: 'admin/transactions',
-  adminCatalog: 'admin/security-catalog',
-  adminUsers: 'admin/users-list',
+  adminCatalog: '/admin/security-catalog',
+  adminUsers: '/admin/users-list',
   tenant: '/tenant',
   tenantCreate: '/tenant/create',
   tenantClone: '/tenant/clone',
