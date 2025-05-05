@@ -9,7 +9,7 @@ import { File } from 'react-feather'
 import { LoaderThin } from 'components/Loader/LoaderThin'
 import { getKycById, useAdminState, useGetKycList } from 'state/admin/hooks'
 import { CopyAddress } from 'components/CopyAddress'
-import { IndividualKycVersion, KycItem } from 'state/admin/actions'
+import { IndividualKycRiskRating, IndividualKycVersion, KycItem } from 'state/admin/actions'
 import { AdminKycFilters, TStats } from 'components/AdminKycFilters'
 import { adminOffset as offset } from 'state/admin/constants'
 import { KYCStatuses } from 'pages/KYC/enum'
@@ -42,6 +42,7 @@ const headerCells = [
   { key: 'completedKycOfProvider', label: 'Provider Status', show: false },
   { key: 'updatedAt', label: 'Updated At', show: true },
   { key: 'authorizer', label: 'Authorizer', show: true },
+  { key: 'riskRating', label: 'Risk Rating', show: true },
 ]
 interface RowProps {
   item: KycItem
@@ -84,6 +85,8 @@ const Row: FC<RowProps> = ({ item, openModal }: RowProps) => {
     approverName = approverUser ? [approverUser?.firstName, approverUser?.lastName].join(' ') : 'Automatic'
   }
 
+  const riskLevel = kyc?.overallRiskRating
+
   return (
     <StyledBodyRow key={id}>
       <Wallet style={{ fontSize: '12px' }}>
@@ -101,6 +104,11 @@ const Row: FC<RowProps> = ({ item, openModal }: RowProps) => {
       </div>
       <div style={{ fontSize: '12px' }}>{dayjs(updatedAt).format('MMM D, YYYY HH:mm')}</div>
       <div style={{ fontSize: '12px' }}>{approverName}</div>
+      <div>
+        {riskLevel && riskLevel !== IndividualKycRiskRating.NOT_SET ? (
+          <StyledRiskRating riskLevel={riskLevel}>{riskLevel}</StyledRiskRating>
+        ) : null}
+      </div>
 
       <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
         {status === KYCStatuses.DRAFT ? (
@@ -317,7 +325,7 @@ export const StyledDoc = styled(File)`
 `
 
 const StyledHeaderRow = styled(HeaderRow)`
-  grid-template-columns: repeat(9, 1fr) 100px;
+  grid-template-columns: repeat(10, 1fr) 100px;
   padding-bottom: 15px;
   margin-bottom: 20px;
   border-bottom: 1px solid;
@@ -328,8 +336,40 @@ const StyledHeaderRow = styled(HeaderRow)`
 `
 
 const StyledBodyRow = styled(BodyRow)`
-  grid-template-columns: repeat(9, 1fr) 100px;
+  grid-template-columns: repeat(10, 1fr) 100px;
   @media (max-width: ${MEDIA_WIDTHS.upToSmall}px) {
     min-width: 1370px;
   }
+`
+
+const StyledRiskRating = styled.div<{ riskLevel: IndividualKycRiskRating }>`
+  font-size: 12px;
+  text-align: center;
+  width: 100%;
+  max-width: 72px;
+  padding: 6px;
+  border: 1px solid;
+  border-radius: 4px;
+  text-transform: capitalize;
+
+  ${({ riskLevel }) =>
+    riskLevel === IndividualKycRiskRating.LOW
+      ? `
+        border-color: #28c25c4d;
+        background: #28c25c1a;
+        color: #28c25c;
+      `
+      : riskLevel === IndividualKycRiskRating.MEDIUM
+      ? `
+        border-color: #FFC42B4D;
+        background: #FFC42B1A;
+        color: #FFC42B;
+      `
+      : riskLevel === IndividualKycRiskRating.HIGH
+      ? `
+        border-color: #FF99994D;
+        background: #FF99991A;
+        color: #FF9999;
+      `
+      : ''}
 `
