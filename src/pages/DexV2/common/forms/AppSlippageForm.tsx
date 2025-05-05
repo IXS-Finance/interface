@@ -50,12 +50,27 @@ const AppSlippageForm: React.FC = () => {
       return
     }
     const regex = /^-?\d*[.,]?\d*$/
-    const value = val.split(',').join('')
+    // Replace commas with dots for consistency.
+    const sanitized = val.split(',').join('.')
 
-    if (regex.test(value)) {
-      setIsCustomInput(true)
-      const newVal = bnum(val).div(100).toString()
-      setSlippage(newVal)
+    if (regex.test(sanitized)) {
+      // Check for incomplete decimals first.
+      if (sanitized.endsWith('.')) {
+        setCustomSlippage(val)
+      } else {
+        const newVal = bnum(sanitized).div(100).toString()
+        // If the computed value matches one of the fixed options,
+        // treat it as a fixed selection.
+        if (FIXED_OPTIONS.includes(newVal)) {
+          // Call the fixed input handler to update the state
+          onFixedInput(newVal)
+        } else {
+          // Otherwise treat it as a custom input.
+          setIsCustomInput(true)
+          setSlippage(newVal)
+          setCustomSlippage(val)
+        }
+      }
     }
   }
 

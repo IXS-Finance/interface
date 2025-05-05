@@ -36,7 +36,7 @@ const Marginer = styled.div`
 const SlippageEmojiContainer = styled.span`
   color: #f3841e;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: none;  
+    display: none;
   `}
 `
 
