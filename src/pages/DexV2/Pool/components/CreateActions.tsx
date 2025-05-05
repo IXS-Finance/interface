@@ -5,10 +5,12 @@ import useTokenApprovalActions from 'hooks/dex-v2/approvals/useTokenApprovalActi
 import { useWeb3React } from 'hooks/useWeb3React'
 import config from 'lib/config'
 import ActionSteps from './ActionSteps'
+import BigNumberJs from 'bignumber.js'
 import { useTokensState } from 'state/dexV2/tokens/hooks'
 import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
-import { safeParseUnits } from 'utils/formatCurrencyAmount'
+import { scale } from 'lib/utils'
+import { BigNumber } from 'ethers'
 
 interface Props {
   tokenAddresses: string[]
@@ -50,9 +52,11 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
 
   const amountsToApprove = amounts.map((amount, index) => {
     const tokenAddress = tokenAddresses[index]
+    const _amount = new BigNumberJs(amount)
+    const scaledAmount = scale(_amount, tokens[tokenAddress].decimals)
     return {
       address: tokenAddress,
-      amount: safeParseUnits(+amount, tokens[tokenAddress].decimals),
+      amount: BigNumber.from(scaledAmount.toFixed(0, BigNumberJs.ROUND_FLOOR)),
     }
   })
 
