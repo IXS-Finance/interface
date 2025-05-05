@@ -54,14 +54,22 @@ const AppSlippageForm: React.FC = () => {
     const sanitized = val.split(',').join('.')
 
     if (regex.test(sanitized)) {
-      setIsCustomInput(true)
-      // If the user has typed an incomplete decimal (e.g. "0."), do not update slippage yet.
+      // Check for incomplete decimals first.
       if (sanitized.endsWith('.')) {
         setCustomSlippage(val)
       } else {
         const newVal = bnum(sanitized).div(100).toString()
-        setSlippage(newVal)
-        setCustomSlippage(val)
+        // If the computed value matches one of the fixed options,
+        // treat it as a fixed selection.
+        if (FIXED_OPTIONS.includes(newVal)) {
+          // Call the fixed input handler to update the state
+          onFixedInput(newVal)
+        } else {
+          // Otherwise treat it as a custom input.
+          setIsCustomInput(true)
+          setSlippage(newVal)
+          setCustomSlippage(val)
+        }
       }
     }
   }
