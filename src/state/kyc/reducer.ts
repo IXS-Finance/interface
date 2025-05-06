@@ -1,18 +1,32 @@
 import { createReducer } from '@reduxjs/toolkit'
 import { postLogin } from 'state/auth/actions'
 
-import { createKYC, fetchGetMyKyc, MyKyc, updateKYC } from './actions'
+import {
+  createKYC,
+  fetchGetMyKyc,
+  MyKyc,
+  updateKYC,
+  toggleExportCSVModal,
+  setExportCSVOptionsRowLimit,
+  exportCSV,
+} from './actions'
 
 export interface KYCState {
   loadingRequest: boolean
   error: any | null
   kyc: MyKyc | null
+  openModalExportCSV: boolean
+  exportCSVOptionsRowLimit: number
+  loadingExportCSV: boolean
 }
 
 const initialState: KYCState = {
   loadingRequest: false,
   error: null,
   kyc: null,
+  openModalExportCSV: false,
+  exportCSVOptionsRowLimit: 100,
+  loadingExportCSV: false,
 }
 
 export default createReducer<KYCState>(initialState, (builder) =>
@@ -59,5 +73,17 @@ export default createReducer<KYCState>(initialState, (builder) =>
     })
     .addCase(postLogin.rejected, (state) => {
       state.loadingRequest = false
+    })
+    .addCase(toggleExportCSVModal, (state, { payload }) => {
+      state.openModalExportCSV = payload.open
+    })
+    .addCase(setExportCSVOptionsRowLimit, (state, { payload }) => {
+      state.exportCSVOptionsRowLimit = payload.rowLimit
+    })
+    .addCase(exportCSV.pending, (state) => {
+      state.loadingExportCSV = true
+    })
+    .addCase(exportCSV.fulfilled, (state) => {
+      state.loadingExportCSV = false
     })
 )
