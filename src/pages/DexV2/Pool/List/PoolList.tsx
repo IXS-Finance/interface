@@ -1,10 +1,9 @@
 import React from 'react'
-import { Flex } from 'rebass'
+import { Box, Flex } from 'rebass'
 import { BodyRow, HeaderRow, Table } from 'components/Table'
 import { BodyContainer } from 'components/TmPayoutHistory/styleds'
 import { Fragment } from 'react'
 import { Line } from 'components/Line'
-import { Pagination } from 'components/Pagination'
 import styled from 'styled-components'
 import { Title } from 'components/LaunchpadMisc/tables'
 import { SortIcon } from 'components/LaunchpadIssuance/utils/SortIcon'
@@ -15,29 +14,32 @@ import useTheme from 'hooks/useTheme'
 import { useCurrency } from 'lib/balancer/hooks/useCurrency'
 import { fNum } from 'lib/balancer/utils/numbers'
 import { usePoolFilter } from './FilterProvider'
-import { adminOffset } from 'state/admin/constants'
 import { useHistory } from 'react-router-dom'
 import Asset from 'pages/DexV2/common/Asset'
 import usePools from 'hooks/dex-v2/pools/usePools'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
+import { PinnedContentButton } from 'components/Button'
 
 export default function PoolList() {
-  const { pools, isLoading } = usePools()
-
-  const { page, setPage } = usePoolFilter()
-
-  const onPageChange = (page: number) => {
-    setPage(page - 1)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+  const { pools, isLoading, loadMorePools } = usePools()
+  const hasNextPage = pools.length > 0 && pools.length % 10 === 0
 
   return (
     <Flex flexWrap="wrap" flexDirection="column" style={{ gap: 32 }} className="h-4">
-      <Table
-        header={<Header />}
-        body={isLoading ? <LoadingBlock style={{ height: '480px' }} /> : <Body items={pools} />}
-      />
-      <Pagination totalPages={null} page={page + 1} onPageChange={onPageChange} totalItems={adminOffset} />
+      <Table header={<Header />} body={<Body items={pools} />} />
+      {isLoading ? (
+        <LoadingBlock style={{ height: '480px', marginBottom: '32px' }} />
+      ) : (
+        hasNextPage && (
+          <Flex justifyContent="center" my={3}>
+            <Box width={'100%'} maxWidth={'120px'}>
+              <PinnedContentButton type="button" onClick={() => loadMorePools()}>
+                Load more
+              </PinnedContentButton>
+            </Box>
+          </Flex>
+        )
+      )}
     </Flex>
   )
 }
