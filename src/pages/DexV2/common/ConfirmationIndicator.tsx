@@ -30,6 +30,12 @@ const Container = styled.div`
 const LeftContainer = styled.div`
   display: flex;
   align-items: center;
+  color: #b8b8d2;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
 `
 
 const RightContainer = styled.div`
@@ -85,23 +91,34 @@ const ConfirmationIndicator: React.FC<Props> = ({ txReceipt }) => {
         <span style={{ marginLeft: '0.5rem' }}>{confirmationData?.confirmedAt}</span>
       </LeftContainer>
       <RightContainer>
-        <a href={confirmationData?.explorerLink}>
+        <ExploreLink href={confirmationData?.explorerLink}>
           {networkConfig.explorerName}
-          <svg
-            stroke="currentColor"
-            fill="currentColor"
-            strokeWidth="0"
-            viewBox="0 0 512 512"
-            height="1em"
-            width="1em"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M432,320H400a16,16,0,0,0-16,16V448H64V128H208a16,16,0,0,0,16-16V80a16,16,0,0,0-16-16H48A48,48,0,0,0,0,112V464a48,48,0,0,0,48,48H400a48,48,0,0,0,48-48V336A16,16,0,0,0,432,320ZM488,0h-128c-21.37,0-32.05,25.91-17,41l35.73,35.73L135,320.37a24,24,0,0,0,0,34L157.67,377a24,24,0,0,0,34,0L435.28,133.32,471,169c15,15,41,4.5,41-17V24A24,24,0,0,0,488,0Z"></path>
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path
+              d="M3 1H9M9 1V7M9 1L1 9"
+              stroke="#6666FF"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
-        </a>
+        </ExploreLink>
       </RightContainer>
     </Container>
   )
 }
 
 export default ConfirmationIndicator
+
+const ExploreLink = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  color: #66f;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
+`

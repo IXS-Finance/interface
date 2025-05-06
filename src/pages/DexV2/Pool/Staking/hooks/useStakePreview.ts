@@ -34,7 +34,7 @@ export type UseStakePreviewProps = StakePreviewProps & {
 
 export function useStakePreview(props: UseStakePreviewProps) {
   // STATE
-  const { currentShares, gaugeAddress, lpToken } = props
+  const { currentShares, gaugeAddress } = props
   const [isLoadingApprovalsForGauge, setIsLoadingApprovalsForGauge] = useState(false)
   const [isActionConfirmed, setIsActionConfirmed] = useState(false)
   const [isActionConfirming, setIsActionConfirming] = useState(false)
@@ -67,7 +67,7 @@ export function useStakePreview(props: UseStakePreviewProps) {
         id: tx.hash,
         type: 'tx',
         action: 'stake',
-        summary: `${fNum(fiatValueOf(props.pool, currentShares), FNumFormats.fiat)} in ${props.pool.name}`,
+        summary: '',
         details: {
           total: fNum(fiatValueOf(props.pool, currentShares), FNumFormats.fiat),
           pool: props.pool,
@@ -88,7 +88,7 @@ export function useStakePreview(props: UseStakePreviewProps) {
         id: tx.hash,
         type: 'tx',
         action: 'unstake',
-        summary: `${fNum(fiatValueOf(props.pool, currentShares), FNumFormats.fiat)} from ${props.pool.name}`,
+        summary: '',
         details: {
           total: fNum(fiatValueOf(props.pool, currentShares), FNumFormats.fiat),
           pool: props.pool,

@@ -88,7 +88,7 @@ const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose,
         id: tx.hash,
         type: 'tx',
         action: 'vote',
-        summary: 'Vote for pools',
+        summary: '',
       })
 
       if (tx) {
