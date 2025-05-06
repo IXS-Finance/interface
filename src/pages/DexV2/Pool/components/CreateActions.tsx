@@ -74,7 +74,7 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
       amountsToApprove,
       spender: networkConfig.addresses.vault,
       actionType: ApprovalAction.AddLiquidity,
-      forceMax: false,
+      // forceMax: false,
     })
     setLoading(false)
     setActions([...approvalActions, ...initActions])
