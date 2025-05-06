@@ -11,6 +11,7 @@ import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { scale } from 'lib/utils'
 import { BigNumber } from 'ethers'
+import { DEFAULT_TOKEN_DECIMALS } from 'constants/dexV2/tokens'
 
 interface Props {
   tokenAddresses: string[]
@@ -53,7 +54,7 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
   const amountsToApprove = amounts.map((amount, index) => {
     const tokenAddress = tokenAddresses[index]
     const _amount = new BigNumberJs(amount)
-    const scaledAmount = scale(_amount, tokens[tokenAddress].decimals)
+    const scaledAmount = scale(_amount, tokens[tokenAddress]?.decimals || DEFAULT_TOKEN_DECIMALS)
     return {
       address: tokenAddress,
       amount: BigNumber.from(scaledAmount.toFixed(0, BigNumberJs.ROUND_FLOOR)),
@@ -74,7 +75,7 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
       amountsToApprove,
       spender: networkConfig.addresses.vault,
       actionType: ApprovalAction.AddLiquidity,
-      // forceMax: false,
+      forceMax: false,
     })
     setLoading(false)
     setActions([...approvalActions, ...initActions])
