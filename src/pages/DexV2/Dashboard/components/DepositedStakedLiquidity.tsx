@@ -57,11 +57,11 @@ const DepositedStakedLiquidity = () => {
           ?.filter((pool) => {
             const hasStaked = pool.gauge?.address && userGaugeBalanceByGauge?.[pool.gauge.address] > 0
             const hasLpBalance = userLpBalanceByPool?.[pool.address] > 0
-            const earnedTradingFees =
+            const hasEarnedTradingFees =
               pool.gauge?.address &&
-              earnedTradingFeesByGauge?.[pool.gauge.address].some((tradingFee: bigint) => tradingFee > 0)
+              earnedTradingFeesByGauge?.[pool.gauge.address]?.some?.((tradingFee: bigint) => tradingFee > 0)
             const hasEmissions = pool.gauge?.address && earnedEmissionsByGauge?.[pool.gauge.address] > 0
-            return hasStaked || hasLpBalance || earnedTradingFees || hasEmissions
+            return hasStaked || hasLpBalance || hasEarnedTradingFees || hasEmissions
           })
           .map((data, index) => (
             <DepositedStakedLiquidityRow
