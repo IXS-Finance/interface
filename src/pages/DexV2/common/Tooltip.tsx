@@ -63,6 +63,7 @@ const TooltipWrapper = styled.div<TooltipWrapperProps>`
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   text-align: ${(props) => props.textAlign || 'left'};
   width: ${(props) => props.width};
+  border-radius: 0.375rem;
 
   &[data-show] {
     display: block;
@@ -91,7 +92,7 @@ interface TooltipContentProps {
 }
 const TooltipContent = styled.div<TooltipContentProps>`
   position: relative;
-  border-radius: 0.375rem; /* rounded-md */
+  border-radius: 0.375rem;
   font-size: 0.75rem; /* text-xs */
   color: rgba(41, 41, 51, 0.6);
   background-color: #f3f3ff;
@@ -110,7 +111,7 @@ const TooltipContent = styled.div<TooltipContentProps>`
   &::after {
     content: ' ';
     position: absolute;
-    left: calc(50% - 7px);
+    left: calc(50% - 8px);
     width: 0;
     height: 0;
   }
