@@ -185,8 +185,6 @@ export const usePoolCreation = () => {
 
   const similarPools = flatten(similarPoolsResponse?.pages?.map((p: any) => p.pools) || [])
 
-  console.log('similarPools', similarPools)
-
   const existingPool = (() => {
     if (!similarPools.length) return null
     const similarPool = similarPools.find((pool: any) => {
