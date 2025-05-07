@@ -1,61 +1,32 @@
-import React from 'react';
-import styled from 'styled-components';
-import StableTokenPill from './StableTokenPill';
-import WeightedTokenPill from './WeightedTokenPill';
-import HiddenTokensPills from './HiddenTokensPills';
-import { PoolToken } from 'services/pool/types';
-import { includesAddress } from 'lib/utils';
-import { useTokens } from 'state/dexV2/tokens/hooks/useTokens';
-import useNumbers from 'hooks/dex-v2/useNumbers';
+import React from 'react'
+import styled from 'styled-components'
+import { PoolToken } from 'services/pool/types'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
+import { Box, Flex } from 'rebass'
+import Asset from '../Asset'
 
 interface TokenPillsProps {
-  tokens: PoolToken[];
-  isStablePool?: boolean;
-  selectedTokens?: string[];
-  pickedTokens?: string[];
-  isOnMigrationCard?: boolean;
-  isHovered?: boolean;
+  tokens: PoolToken[]
+  isStablePool?: boolean
+  selectedTokens?: string[]
+  pickedTokens?: string[]
+  isOnMigrationCard?: boolean
+  isHovered?: boolean
 }
-
-const Container = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-`;
 
 // Main component – default values are provided via destructuring.
 const TokenPills: React.FC<TokenPillsProps> = ({
   tokens,
-  isStablePool = false,
-  selectedTokens = [],
-  pickedTokens = [],
-  isOnMigrationCard = false,
-  isHovered = false,
 }) => {
   // Assume these hooks provide the same functionality as in Vue.
-  const { fNum } = useNumbers();
-  const { getToken, hasBalance } = useTokens();
-
-  // Maximum number of pills to display
-  const MAX_PILLS = 8;
-  const visibleTokens = tokens.slice(0, MAX_PILLS);
-  const hiddenTokens = tokens.slice(MAX_PILLS);
-
-  const hasBalanceInHiddenTokens = hiddenTokens.some(token =>
-    hasBalance(token.address)
-  );
-
-  const isSelectedInHiddenTokens = hiddenTokens.some(token =>
-    includesAddress(selectedTokens, token.address)
-  );
-
-  const isSelectedInPickedTokens = hiddenTokens.some(token =>
-    includesAddress(pickedTokens, token.address)
-  );
+  const { fNum, toFiat } = useNumbers()
+  const { getToken, hasBalance, balanceFor } = useTokens()
 
   // Returns the proper symbol from token info
   function symbolFor(token: PoolToken): string {
-    const tokenInfo = getToken(token.address);
-    return tokenInfo?.symbol || token.symbol || '---';
+    const tokenInfo = getToken(token.address)
+    return tokenInfo?.symbol || token.symbol || '---'
   }
 
   // Formats the token's weight as a percent string.
@@ -63,52 +34,53 @@ const TokenPills: React.FC<TokenPillsProps> = ({
     return fNum(token.weight || '0', {
       style: 'percent',
       maximumFractionDigits: 0,
-    });
+    })
   }
 
   return (
-    <Container>
-      {isStablePool ? (
-        // Render StableTokenPill for each visible token
-        visibleTokens.map(token => (
-          <StableTokenPill
-            key={token.address}
-            hasBalance={hasBalance(token.address)}
-            symbol={symbolFor(token)}
-            token={token}
-            isSelected={includesAddress(selectedTokens, token.address)}
-            isPicked={includesAddress(pickedTokens, token.address)}
-          />
-        ))
-      ) : (
-        <>
-          {/* Render WeightedTokenPill for each visible token */}
-          {visibleTokens.map(token => (
-            <WeightedTokenPill
-              key={token.address}
-              hasBalance={hasBalance(token.address)}
-              symbol={symbolFor(token)}
-              weight={weightFor(token)}
-              token={token}
-              isSelected={includesAddress(selectedTokens, token.address)}
-              isPicked={includesAddress(pickedTokens, token.address)}
-              isOnMigrationCard={isOnMigrationCard}
-              isHovered={isHovered}
-            />
-          ))}
-          {/* Render hidden tokens pill if there are extra tokens */}
-          {hiddenTokens.length > 0 && (
-            <HiddenTokensPills
-              tokens={hiddenTokens}
-              hasBalance={hasBalanceInHiddenTokens}
-              isSelected={isSelectedInHiddenTokens}
-              isPicked={isSelectedInPickedTokens}
-            />
-          )}
-        </>
-      )}
-    </Container>
-  );
-};
+    <Flex flexDirection="column">
+      {tokens.map((token) => {
+        const tokenBalance = balanceFor(token.address)
+        const symbol = symbolFor(token)
+        const weight = weightFor(token)
 
-export default TokenPills;
+        return (
+          <Flex
+            key={token.address}
+            alignItems="center"
+            justifyContent="space-between"
+            css={{
+              borderBottom: '1px solid #E6E6FF',
+              paddingBottom: '24px',
+              marginBottom: '24px',
+            }}
+          >
+            <Flex>
+              <Asset address={token.address} size={36} />
+              <Flex flexDirection="column" ml="2">
+                <Box fontSize="14px">
+                  {fNum(tokenBalance, FNumFormats.token)} {symbol}
+                </Box>
+
+                <Box fontSize="14px" color="#B8B8D2" mt="4px">
+                  {fNum(toFiat(tokenBalance, token.address), FNumFormats.fiat)}
+                </Box>
+              </Flex>
+            </Flex>
+            <Box fontSize="20px" fontWeight={600}>
+              {weight}
+            </Box>
+          </Flex>
+        )
+      })}
+    </Flex>
+  )
+}
+
+export default TokenPills
+
+const Line = styled.div`
+  border-top: 1px solid #e6e6ff;
+  margin-top: 24px;
+  margin-bottom: 24px;
+`
