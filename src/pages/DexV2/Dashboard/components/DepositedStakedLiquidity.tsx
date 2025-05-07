@@ -53,19 +53,29 @@ const DepositedStakedLiquidity = () => {
         </Stack>
       </Stack>
       <Stack direction="column" gap={2}>
-        {pools?.map((data, index) => (
-          <DepositedStakedLiquidityRow
-            data={data}
-            userLpBalance={userLpBalanceByPool?.[data.address]}
-            userGaugeBalance={userGaugeBalanceByGauge?.[data.gauge?.address]}
-            lpSupply={lpSupplyByPool?.[data.address]}
-            key={data.id}
-            rowIndex={index}
-            earnedTradingFees={earnedTradingFeesByGauge?.[data.gauge?.address]}
-            earnedEmissions={earnedEmissionsByGauge?.[data.gauge?.address]}
-            claim={claim}
-          />
-        ))}
+        {pools
+          ?.filter((pool) => {
+            const hasStaked = pool.gauge?.address && userGaugeBalanceByGauge?.[pool.gauge.address] > 0
+            const hasLpBalance = userLpBalanceByPool?.[pool.address] > 0
+            const earnedTradingFees =
+              pool.gauge?.address &&
+              earnedTradingFeesByGauge?.[pool.gauge.address].some((tradingFee: bigint) => tradingFee > 0)
+            const hasEmissions = pool.gauge?.address && earnedEmissionsByGauge?.[pool.gauge.address] > 0
+            return hasStaked || hasLpBalance || earnedTradingFees || hasEmissions
+          })
+          .map((data, index) => (
+            <DepositedStakedLiquidityRow
+              data={data}
+              userLpBalance={userLpBalanceByPool?.[data.address]}
+              userGaugeBalance={userGaugeBalanceByGauge?.[data.gauge?.address]}
+              lpSupply={lpSupplyByPool?.[data.address]}
+              key={data.id}
+              rowIndex={index}
+              earnedTradingFees={earnedTradingFeesByGauge?.[data.gauge?.address]}
+              earnedEmissions={earnedEmissionsByGauge?.[data.gauge?.address]}
+              claim={claim}
+            />
+          ))}
       </Stack>
     </Box>
   )
