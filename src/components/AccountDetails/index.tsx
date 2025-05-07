@@ -24,7 +24,7 @@ export default function AccountDetails({ ENSName, toggleWalletModal }: AccountDe
 
   const { kyc } = useKYCState()
 
-  const supportEmail = config?.supportEmail || 'c@ixswap.io'
+  const supportEmail = config?.supportEmail || 'c@ixs.finance'
 
   const fetchMe = useCallback(async () => {
     const result = await getMe()

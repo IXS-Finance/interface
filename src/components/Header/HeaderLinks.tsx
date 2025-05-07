@@ -33,7 +33,7 @@ export const HeaderLinks = () => {
 
   const { config } = useWhitelabelState()
   const { chainId, account } = useActiveWeb3React()
-  const bridgeUrl = process.env.REACT_APP_BRIDGE_URL || ''
+  const bridgeUrl = process.env.REACT_APP_BRIDGE_URL || 'https://bridge.ixs.finance'
 
   useOnClickOutside(farmNode, open ? toggle : undefined)
   useOnClickOutside(v2Node, openV2 ? toggleV2 : undefined)

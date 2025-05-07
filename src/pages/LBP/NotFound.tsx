@@ -6,7 +6,7 @@ import { useWhitelabelState } from 'state/whitelabel/hooks'
 
 const NotFound: React.FC = () => {
   const { config } = useWhitelabelState()
-  const supportEmail = config?.supportEmail || 'c@ixswap.io'
+  const supportEmail = config?.supportEmail || 'c@ixs.finance'
 
   return (
     <Container>

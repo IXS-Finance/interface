@@ -103,7 +103,7 @@ const KYC = () => {
   const history = useHistory()
   const isWrongNetwork = detectWrongNetwork(chainId as number)
 
-  const supportEmail = _get(config, 'supportEmail', 'c@ixswap.io')
+  const supportEmail = _get(config, 'supportEmail', 'c@ixs.finance')
 
   const infoText = (
     <p>
