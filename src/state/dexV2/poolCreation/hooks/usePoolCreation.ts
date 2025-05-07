@@ -185,6 +185,8 @@ export const usePoolCreation = () => {
 
   const similarPools = flatten(similarPoolsResponse?.pages?.map((p: any) => p.pools) || [])
 
+  console.log('similarPools', similarPools)
+
   const existingPool = (() => {
     if (!similarPools.length) return null
     const similarPool = similarPools.find((pool: any) => {
@@ -219,6 +221,7 @@ export const usePoolCreation = () => {
   }
 
   function proceed() {
+    console.log('proceed', !similarPools.length, poolCreationState.activeStep)
     if (!similarPools.length && poolCreationState.activeStep === 1) {
       setActiveStep(poolCreationState.activeStep + 2)
     } else {

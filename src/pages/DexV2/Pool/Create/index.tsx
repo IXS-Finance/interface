@@ -45,6 +45,8 @@ const Create: React.FC = () => {
     }
   }
 
+  console.log('doSimilarPoolsExist', doSimilarPoolsExist)
+
   const steps = [
     {
       tooltip: 'Choose tokens & weights',
@@ -64,7 +66,7 @@ const Create: React.FC = () => {
       tooltip: 'Similar pools',
       state: getStepState(2),
       id: 2,
-      isVisible: activeStep === 2 && doSimilarPoolsExist,
+      isVisible: doSimilarPoolsExist,
       component: SimilarPool,
     },
     {

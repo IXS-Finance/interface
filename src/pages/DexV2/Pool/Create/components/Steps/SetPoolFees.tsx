@@ -10,11 +10,12 @@ import BalCard from 'pages/DexV2/common/Card'
 import BalStack from 'pages/DexV2/common/BalStack'
 import { Box } from 'rebass'
 import { configService } from 'services/config/config.service'
+import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
 
 interface SetPoolFeesProps {}
 
 const SetPoolFees: React.FC<SetPoolFeesProps> = () => {
-  const { goBack, getPoolSymbol, proceed } = usePoolCreation()
+  const { goBack, getPoolSymbol, proceed, isLoadingSimilarPools } = usePoolCreation()
   const { initialFee } = usePoolCreationState()
   const dispatch = useDispatch()
 
@@ -108,10 +109,18 @@ const SetPoolFees: React.FC<SetPoolFeesProps> = () => {
         </Wrapper>
 
         <NavigationButtons>
-          <BackButton onClick={goBack}>Back</BackButton>
-          <NextButton disabled={isProceedDisabled} onClick={proceed}>
+          <BalBtn outline block onClick={goBack}>
+            Back
+          </BalBtn>
+          <BalBtn
+            block
+            disabled={isProceedDisabled || isLoadingSimilarPools}
+            loading={isLoadingSimilarPools}
+            loadingLabel="Loading"
+            onClick={proceed}
+          >
             Next
-          </NextButton>
+          </BalBtn>
         </NavigationButtons>
       </BalStack>
     </BalCard>

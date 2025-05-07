@@ -10,6 +10,8 @@ import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import BalAlert from 'pages/DexV2/common/BalAlert'
+import { Box, Flex } from 'rebass'
+import styled from 'styled-components'
 
 interface SimilarPoolProps {}
 
@@ -19,7 +21,7 @@ const SimilarPool: React.FC<SimilarPoolProps> = () => {
     usePoolCreation()
 
   // Compute the title: if an existing pool is found, notify user; otherwise, show similar pools exist.
-  const title = existingPool ? 'This pool already exists' : 'Similar pools exist'
+  const title = existingPool ? 'This pool already exists' : 'Similar Pools Exist'
 
   // Compute relevant similar pools: sort by totalLiquidity descending, then take the first 4.
   const relevantSimilarPools = take(
@@ -34,90 +36,130 @@ const SimilarPool: React.FC<SimilarPoolProps> = () => {
   }
 
   return (
-    <BalCard shadow="xl" noBorder className={existingPool ? 'border-red-400' : ''}>
-      <BalStack vertical>
-        <BalStack vertical spacing="xs">
-          <BalStack horizontal align="center" spacing="xs">
-            <button className="flex text-blue-600 hover:text-blue-700 transition-colors" onClick={goBack}>
-              <svg
-                viewBox="0 0 24 24"
-                width="24"
-                height="24"
-                stroke="currentColor"
-                strokeWidth="2"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-            </button>
-            <h5 className="font-semibold">{title}</h5>
-          </BalStack>
-        </BalStack>
+    <BalCard shadow="xl" noBorder noPad style={existingPool ? { border: 'solid 1px red' } : {}}>
+      <Flex flexDirection="column" p="4" css={{ background: '#F3F3FF' }}>
+        <Box color="rgba(41, 41, 51, 0.9)" fontSize="20px" fontWeight={600} css={{ textTransform: 'capitalize' }}>
+          {title}
+        </Box>
+
         {existingPool && (
-          <p>
+          <Box color="#666680" fontSize="15px" fontWeight={400} mt="3" lineHeight="150%">
             There’s already another pool with exactly the same tokens and fee structure. It’s recommended to add your
             liquidity to the other pool or to go back and change your Pool Creation parameters in a material way to
             avoid fractured liquidity and lower profits for both pools.
-          </p>
+          </Box>
         )}
+      </Flex>
+
+      <Flex flexDirection="column" p="4" css={{ gap: '16px' }}>
         {isLoadingSimilarPools ? (
           <div /> // You might render a loader here.
         ) : existingPool ? (
-          <BalCard shadow="none">
-            <BalStack vertical>
-              <BalStack horizontal spacing="sm" align="center">
-                <div>
-                  <AssetSet width={35} addresses={existingPool.tokensList} />
-                </div>
-                <TokenPills tokens={existingPool.tokens} />
-              </BalStack>
-              <BalStack horizontal spacing="lg">
-                <BalStack vertical spacing="none">
-                  <span className="font-medium text-secondary">Pool value</span>
-                  <span className="font-semibold">{fNum(existingPool.totalLiquidity, FNumFormats.fiat)}</span>
-                </BalStack>
-                <BalStack vertical spacing="none">
-                  <span className="font-medium text-secondary">Vol (24h)</span>
-                  <span className="font-semibold">{fNum(existingPool.volumeSnapshot || '0', FNumFormats.fiat)}</span>
-                </BalStack>
-                <BalStack vertical spacing="none">
-                  <span className="font-medium capitalize text-secondary">fees</span>
-                  <span className="font-semibold">{fNum(existingPool.swapFee, FNumFormats.percent)}</span>
-                </BalStack>
-              </BalStack>
-            </BalStack>
-          </BalCard>
+          <Flex flexDirection="column" css={{ background: '#F7F7FA', borderRadius: '8px', padding: '16px' }}>
+            <Flex
+              alignItems="center"
+              css={{
+                gap: '8px',
+                borderBottom: '1px solid #E6E6FF',
+                paddingBottom: '24px',
+                marginBottom: '24px',
+              }}
+            >
+              <Box width="45px">
+                <AssetSet width={35} addresses={existingPool.tokensList} />
+              </Box>
+
+              <Box fontSize="14px" fontWeight={500}>
+                {existingPool.name}
+              </Box>
+            </Flex>
+
+            <TokenPills tokens={existingPool.tokens} />
+
+            <Flex alignSelf="stretch" css={{ gap: '16px' }}>
+              <Flex
+                backgroundColor="#fff"
+                flexDirection="column"
+                css={{ flex: 1, border: '1px solid #E6E6FF', borderRadius: '8px', padding: '16px 24px' }}
+              >
+                <Label>Pool value</Label>
+                <Value>{fNum(existingPool.totalLiquidity, FNumFormats.fiat)}</Value>
+              </Flex>
+              <Flex
+                backgroundColor="#fff"
+                flexDirection="column"
+                css={{ flex: 1, border: '1px solid #E6E6FF', borderRadius: '8px', padding: '16px 24px' }}
+              >
+                <Label>Vol (24h)</Label>
+                <Value>{fNum(existingPool.volumeSnapshot || '0', FNumFormats.fiat)}</Value>
+              </Flex>
+              <Flex
+                backgroundColor="#fff"
+                flexDirection="column"
+                css={{ flex: 1, border: '1px solid #E6E6FF', borderRadius: '8px', padding: '16px 24px' }}
+              >
+                <Label>Fees</Label>
+                <Value>{fNum(existingPool.swapFee, FNumFormats.percent)}</Value>
+              </Flex>
+            </Flex>
+          </Flex>
         ) : (
-          <BalStack vertical>
+          <Flex flexDirection="column" css={{ gap: '16px', height: '500px', overflowY: 'auto' }}>
             {relevantSimilarPools.map((p) => (
-              <BalCard key={p.id} shadow="none">
-                <BalStack vertical>
-                  <BalStack horizontal spacing="sm" align="center">
-                    <div>
-                      <AssetSet width={35} addresses={p.tokensList} />
-                    </div>
-                    <TokenPills tokens={p.tokens} />
-                  </BalStack>
-                  <BalStack horizontal spacing="xl">
-                    <BalStack vertical spacing="none">
-                      <span className="font-medium text-secondary">Pool value</span>
-                      <span className="font-semibold">{fNum(p.totalLiquidity, FNumFormats.fiat)}</span>
-                    </BalStack>
-                    <BalStack vertical spacing="none">
-                      <span className="font-medium text-secondary">Vol (24h)</span>
-                      <span className="font-semibold">{fNum(p.volumeSnapshot || '0', FNumFormats.fiat)}</span>
-                    </BalStack>
-                    <BalStack vertical spacing="none">
-                      <span className="font-medium capitalize text-secondary">fees</span>
-                      <span className="font-semibold">{fNum(p.swapFee, FNumFormats.percent)}</span>
-                    </BalStack>
-                  </BalStack>
-                </BalStack>
-              </BalCard>
+              <Flex
+                key={p.id}
+                flexDirection="column"
+                css={{ background: '#F7F7FA', borderRadius: '8px', padding: '16px' }}
+              >
+                <Flex
+                  alignItems="center"
+                  css={{
+                    gap: '8px',
+                    borderBottom: '1px solid #E6E6FF',
+                    paddingBottom: '24px',
+                    marginBottom: '24px',
+                  }}
+                >
+                  <Box width="45px">
+                    <AssetSet width={35} addresses={p.tokensList} />
+                  </Box>
+
+                  <Box fontSize="14px" fontWeight={500}>
+                    {p.name}
+                  </Box>
+                </Flex>
+
+                <TokenPills tokens={p.tokens} />
+
+                <Flex alignSelf="stretch" css={{ gap: '16px' }}>
+                  <Flex
+                    backgroundColor="#fff"
+                    flexDirection="column"
+                    css={{ flex: 1, border: '1px solid #E6E6FF', borderRadius: '8px', padding: '16px 24px' }}
+                  >
+                    <Label>Pool value</Label>
+                    <Value>{fNum(p.totalLiquidity, FNumFormats.fiat)}</Value>
+                  </Flex>
+                  <Flex
+                    backgroundColor="#fff"
+                    flexDirection="column"
+                    css={{ flex: 1, border: '1px solid #E6E6FF', borderRadius: '8px', padding: '16px 24px' }}
+                  >
+                    <Label>Vol (24h)</Label>
+                    <Value>{fNum(p.volumeSnapshot || '0', FNumFormats.fiat)}</Value>
+                  </Flex>
+                  <Flex
+                    backgroundColor="#fff"
+                    flexDirection="column"
+                    css={{ flex: 1, border: '1px solid #E6E6FF', borderRadius: '8px', padding: '16px 24px' }}
+                  >
+                    <Label>Fees</Label>
+                    <Value>{fNum(p.swapFee, FNumFormats.percent)}</Value>
+                  </Flex>
+                </Flex>
+              </Flex>
             ))}
-          </BalStack>
+          </Flex>
         )}
         {!existingPool && (
           <BalAlert type="warning" block title="Are you sure you want to continue?">
@@ -135,9 +177,36 @@ const SimilarPool: React.FC<SimilarPoolProps> = () => {
             </BalBtn>
           )}
         </BalStack>
-      </BalStack>
+      </Flex>
     </BalCard>
   )
 }
 
 export default SimilarPool
+
+const Line = styled.div`
+  border-top: 1px solid #e6e6ff;
+  margin-top: 24px;
+  margin-bottom: 24px;
+`
+
+const Label = styled.span`
+  color: #b8b8d2;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
+`
+
+const Value = styled.span`
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
+  margin-top: 4px;
+`
