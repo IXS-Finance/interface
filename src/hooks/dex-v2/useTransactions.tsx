@@ -351,6 +351,7 @@ export default function useTransactions() {
           icon: false,
           hideProgressBar: true,
           autoClose: 3000,
+          toastId: transaction.id
         })
         break
 

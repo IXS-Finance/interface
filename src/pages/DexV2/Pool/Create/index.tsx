@@ -30,10 +30,6 @@ const Create: React.FC = () => {
   const doSimilarPoolsExist = similarPools.length > 0
   const hasUnknownToken = validTokens.some((t: any) => priceFor(t) === 0)
 
-  console.log('validTokens', validTokens)
-  console.log('unknownTokens', unknownTokens)
-  console.log('hasUnknownToken', hasUnknownToken)
-
   /**
    * FUNCTIONS
    */
