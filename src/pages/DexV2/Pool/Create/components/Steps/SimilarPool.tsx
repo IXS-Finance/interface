@@ -36,7 +36,7 @@ const SimilarPool: React.FC<SimilarPoolProps> = () => {
   }
 
   return (
-    <BalCard shadow="xl" noBorder noPad style={existingPool ? { border: 'solid 1px red' } : {}}>
+    <BalCard shadow="xl" noBorder noPad>
       <Flex flexDirection="column" p="4" css={{ background: '#F3F3FF' }}>
         <Box color="rgba(41, 41, 51, 0.9)" fontSize="20px" fontWeight={600} css={{ textTransform: 'capitalize' }}>
           {title}
@@ -168,11 +168,11 @@ const SimilarPool: React.FC<SimilarPoolProps> = () => {
           </BalAlert>
         )}
         <BalStack horizontal expandChildren>
-          <BalBtn block outline color="black" onClick={cancel}>
+          <BalBtn block outline color="blue" onClick={cancel}>
             Cancel
           </BalBtn>
           {!existingPool && (
-            <BalBtn block color="gradient" onClick={proceed}>
+            <BalBtn block onClick={proceed}>
               Continue anyway
             </BalBtn>
           )}
