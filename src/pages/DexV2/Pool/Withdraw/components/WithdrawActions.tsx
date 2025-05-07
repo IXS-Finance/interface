@@ -6,12 +6,11 @@ import { Pool } from 'services/pool/types'
 import { TransactionActionInfo } from 'types/transactions'
 import useTransactions from 'hooks/dex-v2/useTransactions'
 import useExitPool from 'state/dexV2/pool/useExitPool'
-import { usePoolHelpers } from 'hooks/dex-v2/usePoolHelpers'
-import useNetwork from 'hooks/dex-v2/useNetwork'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import BalActionSteps from './BalActionSteps'
 import ConfirmationIndicator from 'pages/DexV2/common/ConfirmationIndicator'
-import FeedbackCard from 'pages/DexV2/common/FeedbackCard'
+import styled from 'styled-components'
+import { Link } from 'react-router-dom'
 
 interface WithdrawActionsProps {
   pool: Pool
@@ -23,9 +22,7 @@ const WithdrawActions: React.FC<WithdrawActionsProps> = ({ pool, onSuccess, onEr
   const { addTransaction } = useTransactions()
   const { blockNumber, isMismatchedNetwork } = useWeb3()
   const { fNum } = useNumbers()
-  const { poolWeightsLabel } = usePoolHelpers(pool)
 
-  // Get state and methods from the exit pool hook.
   const {
     txState,
     txInProgress,
@@ -34,16 +31,10 @@ const WithdrawActions: React.FC<WithdrawActionsProps> = ({ pool, onSuccess, onEr
     queryExitQuery,
     fiatTotalOut,
     approvalActions: exitPoolApprovalActions,
-    shouldExitViaInternalBalance,
     isTxPayloadReady,
   } = useExitPool(pool)
 
-  const redirectLabel: string = 'Open Pool detail page'
-
-  // Build transaction summary string.
-  const txSummary = shouldExitViaInternalBalance
-    ? `${fNum(fiatTotalOut, FNumFormats.fiat)} to Vault balance`
-    : `${fNum(fiatTotalOut, FNumFormats.fiat)} from ${poolWeightsLabel(pool)}`
+  const redirectLabel: string = 'Return to pool page'
 
   const isBuildingTx = !isTxPayloadReady
 
@@ -70,7 +61,7 @@ const WithdrawActions: React.FC<WithdrawActionsProps> = ({ pool, onSuccess, onEr
         id: tx.hash,
         type: 'tx',
         action: 'withdraw',
-        summary: txSummary,
+        summary: '',
         details: {
           total: fNum(fiatTotalOut, FNumFormats.fiat),
           pool: pool,
@@ -119,14 +110,34 @@ const WithdrawActions: React.FC<WithdrawActionsProps> = ({ pool, onSuccess, onEr
       ) : (
         <div>
           <ConfirmationIndicator txReceipt={txState.receipt} />
-          <a href={`${returnRoute.pathname}${returnRoute.search}`} color="gray" style={{ marginTop: '0.5rem' }}>
-            {redirectLabel}
-          </a>
+          <ButtonReturnPool to={`${returnRoute.pathname}${returnRoute.search}`}>{redirectLabel}</ButtonReturnPool>
         </div>
       )}
-      {(txState.confirming || txState.confirmed) && <FeedbackCard style={{ marginTop: '0.75rem' }} />}
     </div>
   )
 }
 
 export default WithdrawActions
+
+const ButtonReturnPool = styled(Link)`
+  text-decoration: none;
+  display: flex;
+  height: 48px;
+  padding: 12px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
+  border-radius: 8px;
+  border: 1px solid #e6e6ff;
+  background: #fff;
+  width: 100%;
+  margin-top: 24px;
+
+  &:hover {
+    background: #f9f9ff;
+    border-color: #c6c6ff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+`

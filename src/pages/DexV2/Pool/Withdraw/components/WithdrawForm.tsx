@@ -28,7 +28,6 @@ const WithdrawForm: React.FC<WithdrawFormProps> = ({ pool }) => {
   const { wrappedNativeAsset, nativeAsset } = useTokens()
   const dispatch = useDispatch()
 
-  console.log('WithdrawForm pool:', pool)
   // Exit pool hook provides state and methods for handling the exit.
   const {
     isSingleAssetExit,

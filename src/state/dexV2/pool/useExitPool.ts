@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import debounce from 'debounce-promise'
 import { bnSum, bnum, includesAddress, isSameAddress, removeAddress, selectByAddress } from 'lib/utils'
@@ -70,8 +70,6 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
 
   // === User’s BPT balance ===
   const bptBalance = balanceFor(pool.address)
-  console.log('bptBalance', bptBalance)
-  console.log('pool.address', pool.address)
 
   // === React Query: query for exit simulation ===
   const queryExitQuery = useQuery({

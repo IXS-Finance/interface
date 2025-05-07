@@ -83,26 +83,28 @@ const WithdrawPreviewModal: React.FC<WithdrawPreviewModalProps> = ({ pool, onClo
     <Modal onClose={onClose}>
       <Title>{title}</Title>
 
-      {showTokensIn && (
-        <TokenAmounts
-          title="You’re providing"
-          amountMap={amountInMap}
-          tokenMap={tokenInMap}
-          fiatAmountMap={fiatAmountInMap}
-          fiatTotal={fiatValueIn}
-        />
-      )}
-
-      <TokenAmounts
-        title="You’re expected to receive"
-        className="mt-4"
-        amountMap={amountsOutMap}
-        tokenMap={tokenOutMap}
-        fiatAmountMap={fiatAmountsOut}
-        fiatTotal={fiatTotalOut}
-      />
-
-      <WithdrawSummary fiatTotal={fiatTotalOut} priceImpact={priceImpact} className="mt-4" />
+      {!withdrawalConfirmed ? (
+        <>
+          {showTokensIn && (
+            <TokenAmounts
+              title="You’re providing"
+              amountMap={amountInMap}
+              tokenMap={tokenInMap}
+              fiatAmountMap={fiatAmountInMap}
+              fiatTotal={fiatValueIn}
+            />
+          )}
+          <TokenAmounts
+            title="You’re expected to receive"
+            className="mt-4"
+            amountMap={amountsOutMap}
+            tokenMap={tokenOutMap}
+            fiatAmountMap={fiatAmountsOut}
+            fiatTotal={fiatTotalOut}
+          />
+          <WithdrawSummary fiatTotal={fiatTotalOut} priceImpact={priceImpact} className="mt-4" />
+        </>
+      ) : null}
 
       <div className="mt-4">
         <WithdrawActions pool={pool} onError={handleClose} onSuccess={onSuccess} />
