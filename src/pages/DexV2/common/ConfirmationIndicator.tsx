@@ -91,7 +91,7 @@ const ConfirmationIndicator: React.FC<Props> = ({ txReceipt }) => {
         <span style={{ marginLeft: '0.5rem' }}>{confirmationData?.confirmedAt}</span>
       </LeftContainer>
       <RightContainer>
-        <ExploreLink href={confirmationData?.explorerLink}>
+        <ExploreLink href={confirmationData?.explorerLink} target='_blank' rel='noopener noreferrer'>
           {networkConfig.explorerName}
           <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
             <path
