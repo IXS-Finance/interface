@@ -1085,6 +1085,7 @@ export const useOfferFormInitialValues = (
         tokenomicsAgreement: payload.tokenomicsAgreement,
 
         country: payload.country,
+        restrictedJurisdictions: payload.restrictedJurisdictions,
         email: payload.contactUsEmail,
         website: payload.issuerWebsite,
         whitepaper: payload.whitepaperUrl,
@@ -1245,6 +1246,7 @@ export const useSubmitOffer = () => {
         industry: payload.industry,
         investmentType: payload.investmentType,
         country: payload.country,
+        restrictedJurisdictions: payload.restrictedJurisdictions,
 
         socialMedia: payload.social.reduce((acc, e) => ({ ...acc, [e.type]: e.url }), {}),
 
@@ -1428,6 +1430,7 @@ export const useMinimalOfferEdit = () => {
       industry: payload.industry,
       investmentType: payload.investmentType,
       country: payload.country,
+      restrictedJurisdictions: payload.restrictedJurisdictions,
 
       contactUsEmail: payload.email,
       issuerWebsite: payload.website,

@@ -52,6 +52,7 @@ export interface MyKyc {
   user: RawGetMePayload
   individual: IndividualKyc | null
   corporate: CorporateKyc | null
+  restrictedJurisdictions: string[]
   audits: Array<{
     id: number
     userKycId: number
