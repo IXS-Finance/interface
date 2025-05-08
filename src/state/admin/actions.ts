@@ -512,6 +512,7 @@ export interface CorporateKyc {
   usTin: string | null
   investorDeclarationStatus: InvestorDeclaration
   taxDeclarations: TaxDeclaration[]
+  countryOfIncorporation: string
   [key: string]: any
 }
 
