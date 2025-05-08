@@ -30,6 +30,7 @@ import { INVESTING_TOKEN_SYMBOL } from 'state/launchpad/constants'
 import { isTestnet } from 'utils/isEnvMode'
 import { KYCPrompt } from 'components/Launchpad/KYCPrompt'
 import { Flex } from 'rebass'
+import { UnsupportedCountryPopup } from 'components/Launchpad/UnsupportedCountryPopup'
 
 interface Props {
   offer: Offer
@@ -68,6 +69,7 @@ export const OfferDetails: React.FC<Props> = (props) => {
     })
   }
   const formatter = React.useMemo(() => new Intl.NumberFormat('en-US', { currency: 'USD' }), [])
+  const restrictedJurisdictions = data?.restrictedJurisdictions ?? []
 
   const stageStatus = React.useMemo(() => {
     switch (props.offer.status) {
@@ -98,7 +100,7 @@ export const OfferDetails: React.FC<Props> = (props) => {
 
   const [showInvestDialog, setShowInvestDialog] = React.useState(false)
   const [showRequireKyc, setShowRequireKyc] = React.useState<boolean>(false)
-
+  const [showRestrictedModal, setShowRestrictedModal] = React.useState(false)
   const closeInvestDialog = React.useCallback(() => setShowInvestDialog(false), [])
 
   const daysTillClosed = props.offer.daysTillClosed ?? 0
@@ -107,6 +109,10 @@ export const OfferDetails: React.FC<Props> = (props) => {
   const [showFailed, setShowFailed] = React.useState(false)
 
   const openInvestDialog = () => {
+    if (restrictedJurisdictions.includes('KP') || restrictedJurisdictions.includes('US')) {
+      setShowRestrictedModal(true)
+      return
+    }
     let isAllow = false
 
     if (data) {
@@ -295,6 +301,10 @@ export const OfferDetails: React.FC<Props> = (props) => {
           allowOnlyAccredited={data.allowOnlyAccredited}
           onClose={() => setShowRequireKyc(false)}
         />
+      ) : null}
+
+      {showRestrictedModal ? (
+        <UnsupportedCountryPopup isOpen={showRestrictedModal} onClose={() => setShowRestrictedModal(false)} />
       ) : null}
     </Container>
   )
