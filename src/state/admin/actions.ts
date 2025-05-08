@@ -538,6 +538,7 @@ interface Audit {
 }
 
 export interface KycItem {
+  authorizerNote?: string
   customerId?: number
   documentVerificationStatus?: string | undefined
   amlVerificationStatus?: string | undefined
