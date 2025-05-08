@@ -8,6 +8,7 @@ import { Line } from 'components/Line'
 import { KycItem } from 'state/admin/actions'
 import StatusIndicator from './Blocks/KycV2StatusIndicator'
 import { EmailType } from 'pages/KYC/enum'
+import InternalNotes from './InternalNotes'
 
 interface Props {
   data: KycItem
@@ -121,6 +122,8 @@ const IndividualFormV2 = ({ data }: Props) => {
           <Line style={{ marginTop: '10px' }} />
         </>
       ) : null}
+
+      <InternalNotes message={data?.authorizerNote} />
     </FormContainer>
   )
 }
