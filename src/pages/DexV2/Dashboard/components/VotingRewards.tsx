@@ -16,6 +16,7 @@ import useFlattenedLocks from 'hooks/dex-v2/queries/useFlattenedLocks'
 import { LockedData } from 'services/balancer/contracts/ve-sugar'
 import useLiquidityPool from '../hooks/useLiquidityPool'
 import ClaimVotingRewardButton from './ClaimVotingRewardButton'
+import EmptyList from './EmptyList'
 
 const VotingRewards = () => {
   return (
@@ -63,6 +64,7 @@ const TableBody = () => {
 
   return (
     <Grid container direction="column" spacing={0.5}>
+      {(!lockHasVotes || lockHasVotes?.length === 0) && <EmptyList />}
       {lockHasVotes?.map((votedLockReward) => (
         <VotingRewardPerVote
           key={votedLockReward.id}
