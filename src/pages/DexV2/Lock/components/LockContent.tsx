@@ -87,6 +87,7 @@ const LockContent: React.FC = () => {
         onClick={() => handleProceed()}
         type="button"
         disabled={
+          locked ||
           approvalState === ApprovalState.PENDING ||
           isLoading ||
           !userInput ||
