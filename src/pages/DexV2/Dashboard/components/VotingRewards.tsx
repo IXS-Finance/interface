@@ -125,10 +125,15 @@ const VotingRewardRow = ({
 
   const isClaimable = useMemo(() => {
     return (
-      votingReward?.bribeRewards?.some((reward) => reward.gt(0)) ||
-      votingReward?.feeRewards?.some((reward) => reward.gt(0))
+      gaugeAddress &&
+      (votingReward?.bribeRewards?.some((reward) => reward.gt(0)) ||
+        votingReward?.feeRewards?.some((reward) => reward.gt(0)))
     )
-  }, [votingReward])
+  }, [
+    gaugeAddress,
+    JSON.stringify(votingReward?.bribeRewards?.map((r) => r.toString())),
+    JSON.stringify(votingReward?.feeRewards?.map((r) => r.toString())),
+  ])
 
   return (
     <Card>
