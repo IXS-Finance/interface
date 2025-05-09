@@ -20,7 +20,7 @@ import { StatusCell } from './StatusCell'
 import { KycReviewModal } from 'components/KycReviewModal'
 import { AdminParams } from 'pages/Admin'
 import { NoData } from 'components/UsersList/styleds'
-import { getStatusStats } from 'state/kyc/hooks'
+import { getStatusStats, useKYCState } from 'state/kyc/hooks'
 import { MEDIA_WIDTHS, TYPE } from 'theme'
 import { isMobile } from 'react-device-detect'
 import { SortIcon } from 'components/LaunchpadIssuance/utils/SortIcon'
@@ -31,6 +31,9 @@ import { OrderType } from 'state/launchpad/types'
 import { ReactComponent as EyeSvg } from 'assets/svg/eye.svg'
 import { ReactComponent as BellSvg } from 'assets/svg/bell.svg'
 import ReminderModal from './ReminderModal'
+import { CenteredFixed } from 'components/LaunchpadMisc/styled'
+import { Portal } from '@material-ui/core'
+import AdminKycExportCSVModal from 'components/AdminKycExportCSVModal'
 
 const headerCells = [
   { key: 'ethAddress', label: 'Wallet address', show: false },
@@ -47,6 +50,17 @@ const headerCells = [
 interface RowProps {
   item: KycItem
   openModal: () => void
+}
+
+export type KycFilter = {
+  page: number
+  offset: number
+  search: string
+  identity: string
+  sortBy: string
+  sortDirection: OrderType
+  status?: string
+  date?: string
 }
 
 const Row: FC<RowProps> = ({ item, openModal }: RowProps) => {
@@ -153,6 +167,7 @@ export const AdminKycTable = () => {
   const [sortBy, setSortBy] = useState('')
   const [sortDirection, setSortDirection] = useState<OrderType>('DESC')
   const [order, setOrder] = React.useState<KycOrderConfig>({})
+  const { openModalExportCSV } = useKYCState()
 
   const {
     kycList: { totalPages, page, items, totalItems },
@@ -163,7 +178,7 @@ export const AdminKycTable = () => {
   const history = useHistory()
 
   const { id } = useParams<AdminParams>()
-  const getKycFilters = (page: number, withStatus = true) => {
+  const getKycFilters = (page: number, withStatus = true): KycFilter => {
     let kycFilter: any = {
       page,
       offset,
@@ -192,13 +207,13 @@ export const AdminKycTable = () => {
   }, [searchValue, identity, selectedStatuses, endDate])
 
   useEffect(() => {
-    getKycList(getKycFilters(1))
+    getKycList(getKycFilters(1) as Record<string, string | number>)
   }, [getKycList, searchValue, identity, selectedStatuses, endDate, sortBy, sortDirection])
 
   const onPageChange = (page: number) => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
 
-    getKycList(getKycFilters(page))
+    getKycList(getKycFilters(page) as Record<string, string | number>)
   }
 
   const onChangeOrder = useOnChangeOrder(order as AbstractOrder, setOrder)
@@ -253,6 +268,13 @@ export const AdminKycTable = () => {
         endDate={endDate}
         setEndDate={setEndDate}
       />
+      {openModalExportCSV && (
+        <Portal>
+          <CenteredFixed width="100vw" height="100vh">
+            <AdminKycExportCSVModal filters={getKycFilters(0, true)} />
+          </CenteredFixed>
+        </Portal>
+      )}
 
       {items.length === 0 ? (
         <NoData>

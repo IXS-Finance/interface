@@ -16,16 +16,20 @@ import { ReactComponent as IdentityIcon } from 'assets/images/identityIcon.svg'
 import { ReactComponent as NewDateIcon } from 'assets/images/NewDateIcon.svg'
 import { Line } from 'components/Line'
 import { isMobile } from 'react-device-detect'
+import { useToggleExportCSVModal } from 'state/kyc/hooks'
 
-const ResetFilterButton = styled(ButtonEmpty)`
-  color: ${({ theme }) => theme.text2};
+
+const ExportCSVButton = styled(ButtonEmpty)`
+  color: #fff;
   margin-left: 16px;
   white-space: nowrap;
   width: auto;
   font-weight: 400;
-  border: 1px solid #e6e6ff;
+  background: #6666FF;
   border-radius: 8px;
   font-size: 13px;
+  padding: 6px 24px;
+  height: 48px;
 `
 
 const StatusButtonWrapper = styled.div`
@@ -40,6 +44,7 @@ const StatusButtonWrapper = styled.div`
 const StatusButton = styled.div`
   display: flex;
   justify-content: space-between;
+  gap: 16px;
   @media (max-width: ${MEDIA_WIDTHS.upToSmall}px) {
     display: block;
   }
@@ -76,6 +81,8 @@ export const AdminKycFilters: FC<Props> = ({
   setSearchValue,
   onIdentityChange,
 }) => {
+  const toggleExportCSVModal = useToggleExportCSVModal()
+
   const handleStatusChange = (status: string) => {
     const newStatuses = [...selectedStatuses]
     const indexOfSource = selectedStatuses.indexOf(status)
@@ -105,17 +112,20 @@ export const AdminKycFilters: FC<Props> = ({
     setEndDate(null)
     setSelectedStatuses(['total'])
     onIdentityChange(null)
+    setSearchValue('')
   }
 
   return (
     <Flex flexDirection="column">
       <Flex justifyContent="space-between" alignItems="center" marginBottom="24px">
         <Search
-          style={{ marginRight: 16, marginBottom: 0 }}
+          style={{ marginRight: 16, marginBottom: 0, height: '48px', fontSize: '13px' }}
           placeholder="Search for Wallet"
           setSearchValue={setSearchValue}
+          showClearButton
+          handleResetFilters={handleResetFilters}
         />
-        <ResetFilterButton onClick={handleResetFilters}>Clear Filters</ResetFilterButton>
+        <ExportCSVButton onClick={() => toggleExportCSVModal(true)}>Export CSV</ExportCSVButton>
       </Flex>
       <StatusButtonWrapper>
         <StatusButton>
@@ -132,6 +142,7 @@ export const AdminKycFilters: FC<Props> = ({
                     padding="6px 24px"
                     fontSize="16px !important"
                     lineHeight="16px !important"
+                    marginRight="0 !important"
                     onClick={() => handleStatusChange(status)}
                   >
                     {title}
@@ -143,6 +154,7 @@ export const AdminKycFilters: FC<Props> = ({
                     padding="6px 24px"
                     fontSize="16px !important"
                     lineHeight="16px !important"
+                    marginRight="0 !important"
                     onClick={() => handleStatusChange(status)}
                   >
                     {title}
