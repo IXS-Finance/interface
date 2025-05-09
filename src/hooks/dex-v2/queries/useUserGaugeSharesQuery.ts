@@ -36,88 +36,81 @@ type QueryOptions = UseQueryOptions<GaugeShare[]>;
  * @param {QueryOptions} options - useQuery options.
  * @returns {GaugeShare[]} An array of user gauge shares.
  */
-// export default function useUserGaugeSharesQuery(
-//   poolAddress?: string,
-//   options: QueryOptions = {} as QueryOptions
-// ) {
-//   /**
-//    * COMPOSABLES
-//    */
-//   const { account, isWalletReady } = useWeb3();
+export default function useUserGaugeSharesQuery(
+  poolAddress?: string,
+  options?: QueryOptions,
+) {
+  /**
+   * COMPOSABLES
+   */
+  const { account, isWalletReady } = useWeb3();
 
-//   /**
-//    * QUERY KEY
-//    */
-//   const queryKey = reactive(QUERY_KEYS.User.Gauges(account, poolAddress));
+  /**
+   * QUERY KEY
+   */
+  const queryKey = QUERY_KEYS.User.Gauges(account, poolAddress)
 
-//   /**
-//    * COMPUTED
-//    */
-//   const enabled = computed(
-//     (): boolean =>
-//       !!configService.network.subgraphs.gauge && isWalletReady.value
-//   );
+  /**
+   * COMPUTED
+   */
+  if (!options) options = {} as QueryOptions
+  options.enabled = !!configService.network.subgraphs.gauge && isWalletReady
+  options.refetchOnWindowFocus = false
 
-//   const queryArgs = computed(() => {
-//     if (poolAddress?.value)
-//       return {
-//         where: {
-//           user: account.value.toLowerCase(),
-//           balance_gt: '0',
-//           gauge_: { pool: poolAddress.value.toLowerCase() },
-//         },
-//       };
+  const queryArgs = () => {
+    if (poolAddress)
+      return {
+        where: {
+          user: account.toLowerCase(),
+          balance_gt: '0',
+          gauge_: { pool: poolAddress.toLowerCase() },
+        },
+      };
 
-//     return { where: { user: account.value.toLowerCase(), balance_gt: '0' } };
-//   });
+    return { where: { user: account.toLowerCase(), balance_gt: '0' } };
+  };
 
-//   const subgraphQuery = computed(() => ({
-//     __name: 'GaugeShares',
-//     gaugeShares: {
-//       __args: queryArgs.value,
-//       balance: true,
-//       gauge: {
-//         id: true,
-//         poolAddress: true,
-//         poolId: true,
-//         totalSupply: true,
-//         isPreferentialGauge: true,
-//         isKilled: true,
-//       },
-//     },
-//   }));
+  const subgraphQuery = {
+    __name: 'GaugeShares',
+    gaugeShares: {
+      __args: queryArgs(),
+      balance: true,
+      gauge: {
+        id: true,
+        poolAddress: true,
+        poolId: true,
+        totalSupply: true,
+        isPreferentialGauge: true,
+        isKilled: true,
+      },
+    },
+  }
 
-//   /**
-//    * QUERY FUNCTION
-//    */
-//   const queryFn = async () => {
-//     try {
-//       const { gaugeShares } = await subgraphRequest<UserGaugeShares>({
-//         url: configService.network.subgraphs.gauge,
-//         query: subgraphQuery.value,
-//       });
+  /**
+   * QUERY FUNCTION
+   */
+  const queryFn = async () => {
+    try {
+      const { gaugeShares } = await subgraphRequest<UserGaugeShares>({
+        url: configService.network.subgraphs.gauge,
+        query: subgraphQuery,
+      });
 
-//       return gaugeShares;
-//     } catch (error) {
-//       console.error('Failed to fetch pool gauges user', {
-//         cause: error,
-//       });
-//       throw error;
-//     }
-//   };
+      return gaugeShares;
+    } catch (error) {
+      console.error('Failed to fetch pool gauges user', {
+        cause: error,
+      });
+      throw error;
+    }
+  };
 
-//   /**
-//    * QUERY OPTIONS
-//    */
-//   const queryOptions = reactive({
-//     enabled,
-//     refetchOnWindowFocus: false,
-//     ...options,
-//   });
-
-//   return useQuery<GaugeShare[]>(
-//     queryKey,
-//     queryFn,
-//     queryOptions as QueryOptions
-//   );
-// }
+  /**
+   * QUERY OPTIONS
+   */
+  return useQuery<GaugeShare[]>({
+    ...options,
+    queryKey,
+    queryFn,
+  });
+}

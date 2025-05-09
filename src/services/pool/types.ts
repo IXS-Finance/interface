@@ -1,12 +1,15 @@
 import { BigNumber } from 'ethers';
-import { Address } from 'types';
 import { Pool as SDKPool, PoolToken, PoolType } from '@ixswap1/dex-v2-sdk';
+import { Address } from 'viem';
 
 export type { SubPool, PoolToken } from '@ixswap1/dex-v2-sdk';
 export { PoolType } from '@ixswap1/dex-v2-sdk';
 export interface Pool extends SDKPool {
   tokens: PoolToken[];
   onchain?: OnchainPoolData;
+  gauge?: {
+    address: Address;
+  };
 }
 
 export interface RawPoolTokens {

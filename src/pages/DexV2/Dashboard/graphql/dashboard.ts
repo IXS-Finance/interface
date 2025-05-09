@@ -111,29 +111,3 @@ export const GET_JOIN_EXITS = `
     }
   }
 `
-
-export const GET_POOLS = `
-  query GetDexV2DashboardPools($addresses: [Bytes!]) {
-    pools(where: { address_in: $addresses }) {
-      id
-      address
-      name
-      totalLiquidity
-      totalShares
-      tokensList
-      gauge {
-        address
-      }
-      tokens {
-        id
-        symbol
-        address
-        decimals
-        balance
-        weight
-        managedBalance
-        cashBalance
-      }
-    }
-  }
-`

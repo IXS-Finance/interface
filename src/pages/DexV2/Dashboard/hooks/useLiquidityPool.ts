@@ -2,11 +2,12 @@ import { useReadContracts } from 'wagmi'
 import { SUBGRAPH_QUERY } from 'constants/subgraph'
 import { useSubgraphQuery } from 'hooks/useSubgraphQuery'
 import { useActiveWeb3React } from 'hooks/web3'
-import { GET_JOIN_EXITS, GET_POOLS, JoinExitsType, PoolType } from '../graphql/dashboard'
+import { GET_JOIN_EXITS, JoinExitsType, PoolType } from '../graphql/dashboard'
 import gaugeABI from '../../../../abis/gaugeABI.json'
 import erc20ABI from '../../../../abis/erc20.json'
 import { Address } from 'viem'
 import { Voter } from 'services/balancer/contracts/voter'
+import usePools from 'hooks/dex-v2/pools/usePools'
 
 const useLiquidityPool = () => {
   const { account, chainId } = useActiveWeb3React()
@@ -22,24 +23,20 @@ const useLiquidityPool = () => {
     },
   })
   const joinExitsData = (joinExits?.data as { data: { joinExits: JoinExitsType[] } })?.data?.joinExits.map(
-    (data) => data.pool.address
+    (data) => data.pool.id
   )
 
-  const poolsData = useSubgraphQuery({
-    queryKey: ['GetDexV2DashboardPools', SUBGRAPH_QUERY.POOLS, joinExitsData],
-    feature: SUBGRAPH_QUERY.POOLS,
-    chainId,
-    query: GET_POOLS,
-    variables: {
-      addresses: joinExitsData,
-    },
+  const poolsData = usePools({
+    poolIds: joinExitsData,
   })
-  const pools = (poolsData?.data as { data: { pools: PoolType[] } })?.data?.pools?.map((pool) => pool) ?? []
+  const pools = poolsData?.pools ?? []
 
   const gaugesByPool = pools?.reduce((acc, pool) => {
     acc[pool.address as Address] = pool.gauge?.address
     return acc
-  }, {} as Record<Address, Address>)
+  }, {} as Record<Address, Address | undefined>)
+  console.log('gaugesByPool', gaugesByPool);
+
 
   const poolContracts = pools?.flatMap((pool) => [
     {

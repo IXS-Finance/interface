@@ -47,6 +47,8 @@ type VoteItem = {
 const TableBody = () => {
   const { account } = useWeb3()
   const { lockRewards } = useLocksQuery(account)
+  console.log('lockRewards', lockRewards)
+
   const { flattenedLocks } = useFlattenedLocks(account)
 
   const lockHasVotes = useMemo(() => {
@@ -117,6 +119,8 @@ const VotingRewardRow = ({
   lockData: LockedData
   gaugeAddress: Address
 }) => {
+  console.log('gaugeAddress', gaugeAddress)
+
   const { getToken } = useTokens()
   const feeTokenAddresses = votingReward?.feeTokens
   const bribeTokenAddresses = votingReward?.bribeTokens

@@ -40,6 +40,8 @@ export class VeSugar {
 
   async byAccount(address: string): Promise<LockedData[]> {
     const output = await this.instance.byAccount(address)
+    console.log('output', output);
+
 
     const result = output.map((item: any) => ({
       id: item.id.toString(),
