@@ -26,6 +26,7 @@ import { useActiveWeb3React } from 'hooks/web3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 const MAX_FRACTION_DIGITS = 5
+const MAX_TOKEN_WEIGHT_DIGITS = 2
 
 type DepositedStakedLiquidityRowProps = {
   data: PoolType
@@ -64,7 +65,7 @@ const DepositedStakedLiquidityRow = ({
 
   const tokenAddresses = tokens.map((token) => token.address as Address)
   const poolName = tokens.map((token) => token.symbol).join('/')
-  const poolWeight = tokens.map((token) => +(token.weight || 0) * 100).join('/')
+  const poolWeight = tokens.map((token) => formatAmount(+(token.weight || 0) * 100, MAX_TOKEN_WEIGHT_DIGITS)).join('/')
   const history = useHistory()
   const [showMore, setShowMore] = useState(rowIndex === 0)
 
