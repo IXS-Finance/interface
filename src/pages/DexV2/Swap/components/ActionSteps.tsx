@@ -186,7 +186,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
       {!lastActionState?.confirmed ? (
         <NavigationButtons>
           <NextButton onClick={() => currentAction?.promise()} disabled={disabled || currentAction?.pending || loading}>
-            {loading || disabled ? <Loader /> : null}
+            {loading || disabled || isLoading ? <Loader /> : null}
             {!disabled ? currentAction?.label : _loadingLabel}
           </NextButton>
         </NavigationButtons>

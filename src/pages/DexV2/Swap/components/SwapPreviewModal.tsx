@@ -456,6 +456,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({
           <ActionSteps
             requiredActions={actions}
             primaryActionType="swap"
+            isLoading={loadingApprovals}
             disabled={disableSubmitButton || showPriceUpdateError}
           />
         )}
