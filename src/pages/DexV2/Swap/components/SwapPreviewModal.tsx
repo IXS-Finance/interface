@@ -169,6 +169,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({
 
   async function swap() {
     return swapping.swap(() => {
+      swapping.getSwapData()
       swapping.resetAmounts()
       onClose()
     })

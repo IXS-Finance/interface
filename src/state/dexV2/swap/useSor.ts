@@ -591,20 +591,21 @@ export default function useSor({
     setSubmissionError(null)
   }
 
-  useEffect(() => {
-    const getData = async () => {
-      const unknownAssets: string[] = []
-      if (tokenInAddressInput && !getToken(tokenInAddressInput)) {
-        unknownAssets.push(tokenInAddressInput)
-      }
-      if (tokenOutAddressInput && !getToken(tokenOutAddressInput)) {
-        unknownAssets.push(tokenOutAddressInput)
-      }
-      // Optionally inject unknown tokens...
-      await fetchPools()
-      await handleAmountChange()
+  const getSwapData = async () => {
+    const unknownAssets: string[] = []
+    if (tokenInAddressInput && !getToken(tokenInAddressInput)) {
+      unknownAssets.push(tokenInAddressInput)
     }
-    getData()
+    if (tokenOutAddressInput && !getToken(tokenOutAddressInput)) {
+      unknownAssets.push(tokenOutAddressInput)
+    }
+    // Optionally inject unknown tokens...
+    await fetchPools()
+    await handleAmountChange()
+  }
+
+  useEffect(() => {
+    getSwapData()
   }, [])
 
   return {
@@ -627,5 +628,6 @@ export default function useSor({
     resetInputAmounts,
     setSwapCost,
     setSubmissionError,
+    getSwapData,
   }
 }

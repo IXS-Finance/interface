@@ -141,6 +141,10 @@ export default function useSwapping(
     sor.resetInputAmounts('')
   }
 
+  function getSwapData() {
+    sor.getSwapData()
+  }
+
   async function handleAmountChange() {
     if (exactIn) {
       setTokenOutAmountInput('')
@@ -222,5 +226,6 @@ export default function useSwapping(
     getQuote,
     swap,
     handleAmountChange,
+    getSwapData,
   }
 }
