@@ -124,8 +124,8 @@ export default function useSor({
   setTokenOutAmountInput,
 }: Props) {
   const state = useSelector((state: AppState) => state.swapDexV2)
-  const { priceFor, getToken } = useTokens()
-  const { account, getProvider, appNetworkConfig } = useWeb3()
+  const { priceFor, getToken, refetchBalances, refetchAllowances } = useTokens()
+  const { account, appNetworkConfig } = useWeb3()
   const { trackGoal, Goals } = useFathom()
   const { txListener } = useEthers()
   const { addTransaction } = useTransactions()
@@ -429,9 +429,13 @@ export default function useSor({
         trackGoal(Goals.Swapped, bnum(swapUSDValue).times(100).toNumber() || 0)
         setSwapping(false)
         setLatestTxHash(tx.hash)
+        refetchBalances()
+        refetchAllowances()
       },
       onTxFailed: () => {
         setSwapping(false)
+        refetchBalances()
+        refetchAllowances()
       },
     })
   }
@@ -485,6 +489,8 @@ export default function useSor({
         handleSwapException(error as Error, tokenInAddress, tokenOutAddress)
       }
     } else {
+      debugger
+      console.log(tokenInAmountScaled.toString(), tokenOutAmountInput)
       const tokenInAmountMax = getMaxIn(tokenInAmountScaled)
       const sr: SorReturn = sorReturn as SorReturn
       const tokenOutAmountScaled = parseFixed(tokenOutAmountInput, tokenOutDecimals)
@@ -585,20 +591,21 @@ export default function useSor({
     setSubmissionError(null)
   }
 
-  useEffect(() => {
-    const getData = async () => {
-      const unknownAssets: string[] = []
-      if (tokenInAddressInput && !getToken(tokenInAddressInput)) {
-        unknownAssets.push(tokenInAddressInput)
-      }
-      if (tokenOutAddressInput && !getToken(tokenOutAddressInput)) {
-        unknownAssets.push(tokenOutAddressInput)
-      }
-      // Optionally inject unknown tokens...
-      await fetchPools()
-      await handleAmountChange()
+  const getSwapData = async () => {
+    const unknownAssets: string[] = []
+    if (tokenInAddressInput && !getToken(tokenInAddressInput)) {
+      unknownAssets.push(tokenInAddressInput)
     }
-    getData()
+    if (tokenOutAddressInput && !getToken(tokenOutAddressInput)) {
+      unknownAssets.push(tokenOutAddressInput)
+    }
+    // Optionally inject unknown tokens...
+    await fetchPools()
+    await handleAmountChange()
+  }
+
+  useEffect(() => {
+    getSwapData()
   }, [])
 
   return {
@@ -619,7 +626,8 @@ export default function useSor({
     confirming,
     updateSwapAmounts,
     resetInputAmounts,
-    // For tests
     setSwapCost,
+    setSubmissionError,
+    getSwapData,
   }
 }

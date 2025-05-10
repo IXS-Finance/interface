@@ -13,6 +13,8 @@ import { dateTimeLabelFor } from 'hooks/dex-v2/useTime'
 import BalAlert from 'pages/DexV2/common/BalAlert'
 import { useSwapState } from 'state/dexV2/swap/useSwapState'
 import { setActionStates } from 'state/dexV2/swap'
+import { Box } from 'rebass'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 
 export type BalStepAction = {
   label: string
@@ -53,6 +55,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   const { txListener, getTxConfirmedAt } = useEthers()
   const { formatErrorMsg } = useErrorMsg()
   const { actionStates, updateActionState } = useSwapState()
+  const { refetchAllowances } = useTokens()
 
   const [loading, setLoading] = useState(false)
   const [currentActionIndex, setCurrentActionIndex] = useState(0)
@@ -109,6 +112,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
         updateActionState(actionIndex, { receipt })
 
         await postConfirmationDelay(tx)
+        await refetchAllowances()
 
         const isValid = await postActionValidation?.()
 
@@ -171,16 +175,18 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   return (
     <div>
       {currentActionState && currentActionState?.error && !isLoading ? (
-        <BalAlert type="error" title={currentActionState?.error?.title ?? 'Error'} className="mb-4">
-          {currentActionState?.error?.description ?? 'An error occurred'}
-        </BalAlert>
+        <Box mb={3} width="100%">
+          <BalAlert block type="error" title={currentActionState?.error?.title ?? 'Error'}>
+            {currentActionState?.error?.description ?? 'An error occurred'}
+          </BalAlert>
+        </Box>
       ) : null}
 
       {actions && actions.length > 1 && !lastActionState?.confirmed && !disabled ? <HorizSteps steps={steps} /> : null}
       {!lastActionState?.confirmed ? (
         <NavigationButtons>
           <NextButton onClick={() => currentAction?.promise()} disabled={disabled || currentAction?.pending || loading}>
-            {loading || disabled ? <Loader /> : null}
+            {loading || disabled || isLoading ? <Loader /> : null}
             {!disabled ? currentAction?.label : _loadingLabel}
           </NextButton>
         </NavigationButtons>

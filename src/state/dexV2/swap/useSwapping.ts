@@ -120,7 +120,7 @@ export default function useSwapping(
   }
 
   function resetSubmissionError() {
-    sor.submissionError = null
+    sor.setSubmissionError(null)
   }
 
   function setSwapGasless(flag: boolean) {
@@ -139,6 +139,10 @@ export default function useSwapping(
 
   function resetAmounts() {
     sor.resetInputAmounts('')
+  }
+
+  function getSwapData() {
+    sor.getSwapData()
   }
 
   async function handleAmountChange() {
@@ -222,5 +226,6 @@ export default function useSwapping(
     getQuote,
     swap,
     handleAmountChange,
+    getSwapData,
   }
 }
