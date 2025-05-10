@@ -120,7 +120,7 @@ export default function useSwapping(
   }
 
   function resetSubmissionError() {
-    sor.submissionError = null
+    sor.setSubmissionError(null)
   }
 
   function setSwapGasless(flag: boolean) {

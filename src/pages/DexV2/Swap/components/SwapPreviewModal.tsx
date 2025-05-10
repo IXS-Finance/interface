@@ -1,28 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import Portal from '@reach/portal'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { formatUnits, parseEther } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 import { mapValues } from 'lodash'
-import { BigNumber, utils } from 'ethers'
 
-import { CenteredFixed } from 'components/LaunchpadMisc/styled'
-import { ReactComponent as CloseIcon } from 'assets/images/dex-v2/close.svg'
-import useTokenApprovalActions from 'hooks/dex-v2/approvals/useTokenApprovalActions'
 import { UseSwapping } from 'state/dexV2/swap/useSwapping'
-import { configService } from 'services/config/config.service'
-import { TransactionActionInfo, TransactionActionState } from 'pages/DexV2/types/transactions'
-import Loader from 'components/Loader'
-import { useErrorMsg } from 'lib/utils/errors'
-import { toast } from 'react-toastify'
-import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
+import { TransactionActionInfo } from 'pages/DexV2/types/transactions'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useUserSettings from 'state/dexV2/userSettings/useUserSettings'
-import useNetwork from 'hooks/dex-v2/useNetwork'
 import { SwapQuote } from 'state/dexV2/swap/types'
 import { bnum, bnumZero } from 'lib/utils'
-import { getWrapAction, WrapType } from 'lib/utils/balancer/wrapper'
 import { Box, Flex } from 'rebass'
 import Asset from 'pages/DexV2/common/Asset'
 import BalCard from 'pages/DexV2/common/Card'
@@ -32,9 +20,10 @@ import ActionSteps from './ActionSteps'
 import SwapRoute from './SwapRoute'
 import Modal from 'pages/DexV2/common/modals'
 import BalAlert from 'pages/DexV2/common/BalAlert'
-import { safeParseUnits } from 'utils/formatCurrencyAmount'
 
 interface SwapSettingsModalProps {
+  tokenApprovalActions: TransactionActionInfo[]
+  loadingApprovals: boolean
   swapping: UseSwapping
   error?: any
   warning?: any
@@ -43,34 +32,37 @@ interface SwapSettingsModalProps {
 
 const PRICE_UPDATE_THRESHOLD = 0.02
 
-const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, warning, onClose }) => {
+const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({
+  loadingApprovals,
+  tokenApprovalActions,
+  swapping,
+  error,
+  warning,
+  onClose,
+}) => {
   console.log('swapping', swapping)
   const { fNum, toFiat } = useNumbers()
-  const { balanceFor, tokens } = useTokens()
+  const { balanceFor } = useTokens()
   const { blockNumber, account, startConnectWithInjectedProvider } = useWeb3()
   const { slippage } = useUserSettings()
-  const { networkConfig } = useNetwork()
 
   // Local state (replacing Vue refs)
   const [lastQuote, setLastQuote] = useState<SwapQuote | null>(swapping.isWrapUnwrapSwap ? null : swapping.getQuote())
   const [priceUpdated, setPriceUpdated] = useState(false)
   const [priceUpdateAccepted, setPriceUpdateAccepted] = useState(false)
   const [showSummaryInFiat, setShowSummaryInFiat] = useState(false)
-  const [loadingApprovals, setLoadingApprovals] = useState(true)
-  const [tokenApprovalActions, setTokenApprovalActions] = useState<TransactionActionInfo[]>([])
 
   // Inline computed values (without useMemo)
   const quote = swapping.getQuote()
   const slippageRatePercent = fNum(slippage, FNumFormats.percent)
-  const addressIn = swapping.tokenIn.address
   const tokenInFiatValue = fNum(toFiat(swapping.tokenInAmountInput, swapping.tokenIn.address), FNumFormats.fiat)
   const tokenOutFiatValue = fNum(toFiat(swapping.tokenOutAmountInput, swapping.tokenOut.address), FNumFormats.fiat)
   const showSwapRoute = swapping.isBalancerSwap
   const zeroFee = showSummaryInFiat ? fNum('0', FNumFormats.fiat) : '0.0 ETH'
   const exceedsBalance =
     account && bnum(swapping.tokenInAmountInput).isGreaterThan(balanceFor(swapping.tokenInAddressInput))
-  const disableSubmitButton = !!exceedsBalance || !!error || !!loadingApprovals
-  let amountToApprove = swapping.tokenInAmountInput
+  const disableSubmitButton = !!exceedsBalance || !!error || loadingApprovals
+
   const summary = (() => {
     const summaryItems: Record<string, string> = {
       amountBeforeFees: '',
@@ -103,7 +95,7 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
         summaryItems.totalWithSlippage = formatUnits(quote.maximumInAmount, tokenIn.decimals)
       }
     }
-    amountToApprove = summaryItems.totalWithSlippage
+
     if (showSummaryInFiat) {
       return mapValues(
         summaryItems,
@@ -120,7 +112,6 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
     }
   })()
 
-  console.log('summary', summary)
   const labels = (() => {
     if (swapping.isWrap) {
       return {
@@ -173,7 +164,6 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
     }
   })()
 
-  const { getTokenApprovalActions } = useTokenApprovalActions()
   const pools = swapping.sor.pools
   const showPriceUpdateError = priceUpdated && !priceUpdateAccepted
 
@@ -194,9 +184,6 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
       stepTooltip: 'Finalize the transaction by submitting it for inclusion on the blockchain.',
     },
   ]
-
-  console.log('quote', quote)
-  // METHODS
 
   function confirmPriceUpdate() {
     setPriceUpdated(false)
@@ -232,44 +219,9 @@ const SwapPreviewModal: React.FC<SwapSettingsModalProps> = ({ swapping, error, w
     }
   }
 
-  const tokenApprovalSpender =
-    swapping.isWrap && !swapping.isNativeAssetSwap ? swapping.tokenOut.address : networkConfig.addresses.vault
-
-  // Watcher: update price when blockNumber changes
   useEffect(() => {
     handlePriceUpdate()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blockNumber])
-
-  // Lifecycle: on mount, fetch token approval actions
-  useEffect(() => {
-    async function fetchTokenApprovalActions() {
-      let amountToApprove = safeParseUnits(+swapping.tokenInAmountInput, swapping.tokenIn.decimals)
-
-      if (!swapping.exactIn) {
-        const amountPercentPrecision = 6
-        const slippageMultiplier = utils.parseUnits((+slippage + 1).toString(), amountPercentPrecision)
-        amountToApprove = amountToApprove.mul(slippageMultiplier).div(10 ** amountPercentPrecision)
-      }
-
-      const actions = await getTokenApprovalActions({
-        amountsToApprove: [
-          {
-            address: addressIn,
-            amount: amountToApprove,
-          },
-        ],
-        tokens,
-        spender: tokenApprovalSpender,
-        actionType: ApprovalAction.Swapping,
-        forceMax: false,
-      })
-      setTokenApprovalActions(actions)
-      setLoadingApprovals(false)
-    }
-
-    fetchTokenApprovalActions()
-  }, [addressIn, swapping.tokenInAmountInput, tokenApprovalSpender])
 
   console.log('swapping', swapping)
 

@@ -124,8 +124,8 @@ export default function useSor({
   setTokenOutAmountInput,
 }: Props) {
   const state = useSelector((state: AppState) => state.swapDexV2)
-  const { priceFor, getToken } = useTokens()
-  const { account, getProvider, appNetworkConfig } = useWeb3()
+  const { priceFor, getToken, refetchBalances } = useTokens()
+  const { account, appNetworkConfig } = useWeb3()
   const { trackGoal, Goals } = useFathom()
   const { txListener } = useEthers()
   const { addTransaction } = useTransactions()
@@ -429,9 +429,11 @@ export default function useSor({
         trackGoal(Goals.Swapped, bnum(swapUSDValue).times(100).toNumber() || 0)
         setSwapping(false)
         setLatestTxHash(tx.hash)
+        refetchBalances()
       },
       onTxFailed: () => {
         setSwapping(false)
+        refetchBalances()
       },
     })
   }
@@ -485,6 +487,8 @@ export default function useSor({
         handleSwapException(error as Error, tokenInAddress, tokenOutAddress)
       }
     } else {
+      debugger;
+      console.log(tokenInAmountScaled.toString(), tokenOutAmountInput)
       const tokenInAmountMax = getMaxIn(tokenInAmountScaled)
       const sr: SorReturn = sorReturn as SorReturn
       const tokenOutAmountScaled = parseFixed(tokenOutAmountInput, tokenOutDecimals)
@@ -619,7 +623,7 @@ export default function useSor({
     confirming,
     updateSwapAmounts,
     resetInputAmounts,
-    // For tests
     setSwapCost,
+    setSubmissionError,
   }
 }
