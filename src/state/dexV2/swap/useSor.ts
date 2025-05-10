@@ -124,7 +124,7 @@ export default function useSor({
   setTokenOutAmountInput,
 }: Props) {
   const state = useSelector((state: AppState) => state.swapDexV2)
-  const { priceFor, getToken, refetchBalances } = useTokens()
+  const { priceFor, getToken, refetchBalances, refetchAllowances } = useTokens()
   const { account, appNetworkConfig } = useWeb3()
   const { trackGoal, Goals } = useFathom()
   const { txListener } = useEthers()
@@ -430,10 +430,12 @@ export default function useSor({
         setSwapping(false)
         setLatestTxHash(tx.hash)
         refetchBalances()
+        refetchAllowances()
       },
       onTxFailed: () => {
         setSwapping(false)
         refetchBalances()
+        refetchAllowances()
       },
     })
   }
@@ -487,7 +489,7 @@ export default function useSor({
         handleSwapException(error as Error, tokenInAddress, tokenOutAddress)
       }
     } else {
-      debugger;
+      debugger
       console.log(tokenInAmountScaled.toString(), tokenOutAmountInput)
       const tokenInAmountMax = getMaxIn(tokenInAmountScaled)
       const sr: SorReturn = sorReturn as SorReturn
