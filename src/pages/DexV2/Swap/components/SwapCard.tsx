@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Box, Flex } from 'rebass'
 import { getAddress, isAddress } from '@ethersproject/address'
+import { formatUnits } from '@ethersproject/units'
 
 import chainIcon from 'assets/images/dex-v2/chain.svg'
 import SwapPair from './SwapPair'
@@ -20,13 +21,22 @@ import { useIsMounted } from 'hooks/dex-v2/useIsMounted'
 import SwapSettingsPopover, { SwapSettingsContext } from 'pages/DexV2/common/popovers/SwapSettingsPopover'
 import SwapRoute from './SwapRoute'
 import BalAlert from 'pages/DexV2/common/BalAlert'
+import { safeParseUnits } from 'utils/formatCurrencyAmount'
+import useTokenApprovalActions from 'hooks/dex-v2/approvals/useTokenApprovalActions'
+import useNetwork from 'hooks/dex-v2/useNetwork'
+import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
+import { TransactionActionInfo } from 'pages/DexV2/types/transactions'
 
 const SwapCard: React.FC = () => {
   const { inputAsset, outputAsset } = useSwapAssets()
   const { appNetworkConfig, isMismatchedNetwork } = useWeb3()
-  const { nativeAsset } = useTokens()
+  const { nativeAsset, tokens } = useTokens()
   const isMounted = useIsMounted()
+  const { getTokenApprovalActions } = useTokenApprovalActions()
+  const { networkConfig } = useNetwork()
 
+  const [tokenApprovalActions, setTokenApprovalActions] = useState<TransactionActionInfo[]>([])
+  const [loadingApprovals, setLoadingApprovals] = useState(true)
   const [hopCount, setHopCount] = useState(0)
   const [isOpenSwapPreview, setOpenSwapPreview] = useState(false)
   const [exactIn, setExactIn] = useState(true)
@@ -147,7 +157,35 @@ const SwapCard: React.FC = () => {
     }
   }
 
+  async function fetchTokenApprovalActions() {
+    const quote = swapping.getQuote()
+    const addressIn = swapping.tokenIn.address
+    const tokenApprovalSpender =
+      swapping.isWrap && !swapping.isNativeAssetSwap ? swapping.tokenOut.address : networkConfig.addresses.vault
+
+    const amountToApprove = safeParseUnits(
+      +formatUnits(quote.maximumInAmount, swapping.tokenIn.decimals),
+      swapping.tokenIn.decimals
+    )
+
+    const actions = await getTokenApprovalActions({
+      amountsToApprove: [
+        {
+          address: addressIn,
+          amount: amountToApprove,
+        },
+      ],
+      tokens,
+      spender: tokenApprovalSpender,
+      actionType: ApprovalAction.Swapping,
+      forceMax: false,
+    })
+    setTokenApprovalActions(actions)
+    setLoadingApprovals(false)
+  }
+
   function handlePreviewButton() {
+    fetchTokenApprovalActions()
     swapping.resetSubmissionError()
     setOpenSwapPreview(true)
   }
@@ -226,7 +264,15 @@ const SwapCard: React.FC = () => {
         />
       ) : null}
 
-      {isOpenSwapPreview ? <SwapPreviewModal swapping={swapping} onClose={handlePreviewModalClose} /> : null}
+      {isOpenSwapPreview ? (
+        <SwapPreviewModal
+          swapping={swapping}
+          loadingApprovals={loadingApprovals}
+          tokenApprovalActions={tokenApprovalActions}
+          error={error}
+          onClose={handlePreviewModalClose}
+        />
+      ) : null}
     </Container>
   )
 }
