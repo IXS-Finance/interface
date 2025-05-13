@@ -32,8 +32,8 @@ export const Menu = ({ close, isAdminMenu }: Props) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
 
   const isIxSwap = config?.isIxSwap ?? false
-  const bridgeUrl = process.env.REACT_APP_BRIDGE_URL || ''
-  const stakingUrl = process.env.REACT_APP_STAKING_URL || ''
+  const bridgeUrl = process.env.REACT_APP_BRIDGE_URL || 'https://bridge.ixs.finance'
+  const stakingUrl = process.env.REACT_APP_STAKING_URL || 'https://staking.ixs.finance'
 
   const open = Boolean(anchorEl)
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {

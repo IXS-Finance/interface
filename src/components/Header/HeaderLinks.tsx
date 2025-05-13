@@ -24,7 +24,7 @@ const activeClassName = 'ACTIVE'
 
 const HeaderPopover = () => {
   const { config } = useWhitelabelState()
-  const stakingUrl = process.env.REACT_APP_STAKING_URL || ''
+  const stakingUrl = process.env.REACT_APP_STAKING_URL || 'https://staking.ixs.finance'
 
   const isAllowed = useCallback(
     (path: string): boolean => {
@@ -72,7 +72,7 @@ export const HeaderLinks = () => {
 
   const { config } = useWhitelabelState()
   const { chainId, account } = useActiveWeb3React()
-  const bridgeUrl = process.env.REACT_APP_BRIDGE_URL || ''
+  const bridgeUrl = process.env.REACT_APP_BRIDGE_URL || 'https://bridge.ixs.finance'
 
   useOnClickOutside(farmNode, open ? toggle : undefined)
   useOnClickOutside(nftNode, openNFT ? toggleNFT : undefined)

@@ -54,6 +54,7 @@ export interface InformationFormValues {
   investmentType: OfferInvestmentStructure
 
   country: string
+  restrictedJurisdictions: string[]
 
   tokenName: string
   tokenTicker: string
