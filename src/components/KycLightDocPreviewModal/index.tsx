@@ -11,8 +11,8 @@ import RedesignedLightWideModal from 'components/Modal/RedesignedLightWideModal'
 import { IconWrapper } from 'components/AccountDetails/styleds'
 import { ButtonGradient } from 'components/Button'
 import { AcceptFiles } from 'components/Upload/types'
-import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer'
 import { getPublicAssetUrl } from 'components/TokenLogo/utils'
+import DocumentViewer from 'components/DocumentViewer'
 
 export const Image = styled.img`
   max-width: 100%;
@@ -47,7 +47,6 @@ export const KycLightDocPreviewModal = ({ isOpen, onClose, data, downloadFile }:
           <Body className="file-viewer-canvas-wrapper">
             {data?.map(({ asset, id }: any) => {
               const publicUrl = getPublicAssetUrl(asset)
-              const docs = [{ uri: publicUrl }]
 
               return (
                 <>
@@ -64,7 +63,7 @@ export const KycLightDocPreviewModal = ({ isOpen, onClose, data, downloadFile }:
                         </StyledDocPreviewButton>
                       </div>
                       <FileContainer>
-                        <DocViewer documents={docs} pluginRenderers={DocViewerRenderers} />
+                        <DocumentViewer file={publicUrl} />
                       </FileContainer>
                     </div>
                   ) : (

@@ -165,7 +165,6 @@
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "@cyntler/react-doc-viewer": "^1.14.1",
     "@date-io/dayjs": "1.x",
     "@material-ui/core": "^4.12.3",
     "@material-ui/pickers": "4.0.0-alpha.12",
@@ -189,6 +188,7 @@
     "react-csv": "^2.2.2",
     "react-helmet": "^6.1.0",
     "react-lazy-load-image-component": "^1.5.1",
+    "react-pdf": "^9.2.1",
     "react-phone-input-2": "^2.15.0",
     "react-select": "^5.2.2",
     "react-sticky-box": "^0.9.3",

@@ -4,13 +4,13 @@ import { MEDIA_WIDTHS, TYPE } from 'theme'
 import { Modal } from '@material-ui/core'
 import { ReactComponent as FileIcon } from '../../../assets/images/fileNew.svg'
 import { ReactComponent as EyeIcon } from '../../../assets/images/eyeIconNew.svg'
-import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer'
 import { AcceptFiles } from 'components/Upload/types'
 import { isMobile } from 'react-device-detect'
 import { getPublicAssetUrl } from 'components/TokenLogo/utils'
 import { Asset } from 'state/launchpad/types'
 import { TokenLogo } from 'components/TokenLogo'
 import { Box } from '@mui/material'
+import DocumentViewer from 'components/DocumentViewer'
 
 interface AdditionalDocumentsProps {
   uploadDocs: any
@@ -103,8 +103,6 @@ export default function AdditionalDocuments({ uploadDocs }: AdditionalDocumentsP
   const modalContent = useMemo(() => {
     if (!selectedDocument) return null
 
-    const docs = [{ uri: getPublicAssetUrl(selectedDocument) }]
-
     return (
       <div style={{ background: '#ffffff', padding: '20px' }}>
         {selectedDocument.mimeType.startsWith('image') ? (
@@ -113,7 +111,7 @@ export default function AdditionalDocuments({ uploadDocs }: AdditionalDocumentsP
           </ScrollableWrapper>
         ) : selectedDocument.mimeType === AcceptFiles.PDF ? (
           <ScrollableWrapper>
-            <DocViewer documents={docs} pluginRenderers={DocViewerRenderers} />
+            <DocumentViewer file={getPublicAssetUrl(selectedDocument)} />
           </ScrollableWrapper>
         ) : (
           <embed
