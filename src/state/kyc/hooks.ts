@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
 
 import apiService from 'services/apiService'
 import { kyc } from 'services/apiUrls'
@@ -697,9 +698,11 @@ export function useExportCSV() {
         dispatch(exportCSV.pending())
         const data = await exportCSVApi(filters)
         dispatch(exportCSV.fulfilled(data))
+        toast.success('CSV file has been downloaded.')
         return data
       } catch (error: any) {
         dispatch(exportCSV.rejected({ errorMessage: 'Could not export csv' }))
+        toast.error('Could not export csv')
         return false
       }
     },
