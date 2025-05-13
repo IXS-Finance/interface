@@ -3,12 +3,12 @@ import React from 'react'
 import { Container, Title, ActionWrapper, CloseIcon, CloseColor } from './styled'
 import { FilledButton, OutlineButton } from 'components/LaunchpadMisc/buttons'
 import { LoaderThin } from 'components/Loader/LoaderThin'
-import { useWalletState } from 'state/wallet/hooks'
 import { Box, Flex } from 'rebass'
 import { useExportCSV, useKYCState, useSetExportCSVOptionsRowLimit, useToggleExportCSVModal } from 'state/kyc/hooks'
 
 import { ReactComponent as Check } from 'assets/images/checked-blue.svg'
 import { KycFilter } from 'components/AdminKyc'
+import { useSelector } from 'react-redux'
 
 interface AdminKycExportCSVModalProps {
   loading?: boolean
@@ -31,7 +31,7 @@ const exportOptions = [
 ]
 
 const AdminKycExportCSVModal: React.FC<AdminKycExportCSVModalProps> = ({ filters }) => {
-  const { isSignLoading } = useWalletState()
+  const { loadingExportCSV } = useSelector((state: any) => state.kyc)
   const { exportCSVOptionsRowLimit } = useKYCState()
   const toggleExportCSVModal = useToggleExportCSVModal()
   const exportCSV = useExportCSV()
@@ -91,10 +91,10 @@ const AdminKycExportCSVModal: React.FC<AdminKycExportCSVModalProps> = ({ filters
           </OutlineButton>
           <FilledButton
             style={{ boxShadow: '0px 16px 16px 0px #6666FF21', width: '100%' }}
-            disabled={false}
+            disabled={loadingExportCSV}
             onClick={() => exportCSV({ ...filters, offset: exportCSVOptionsRowLimit })}
           >
-            {isSignLoading ? <LoaderThin size={12} /> : null} Export
+            {loadingExportCSV ? <LoaderThin size={12} /> : null} Export
           </FilledButton>
         </ActionWrapper>
       </Box>
