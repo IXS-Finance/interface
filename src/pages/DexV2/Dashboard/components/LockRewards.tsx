@@ -16,6 +16,7 @@ import { useHistory } from 'react-router-dom'
 import dayjs from 'dayjs'
 import { useVotingEscrowContract } from 'hooks/useContract'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import EmptyList from './EmptyList'
 
 const LockRewards: React.FC = () => {
   const { account } = useWeb3()
@@ -29,6 +30,7 @@ const LockRewards: React.FC = () => {
           <InfoIcon />
         </Tooltip>
       </Stack>
+      {(!lockRewards || lockRewards?.length === 0) && <EmptyList />}
       {lockRewards?.map((data) => (
         <Box mb={1} key={`lock-${data.id}`}>
           <Card>

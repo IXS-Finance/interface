@@ -9,6 +9,7 @@ import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { setAllowances } from 'state/dexV2/tokens'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import EmptyList from './EmptyList'
 
 const DepositedStakedLiquidity = () => {
   const dispatch = useDispatch()
@@ -53,6 +54,7 @@ const DepositedStakedLiquidity = () => {
         </Stack>
       </Stack>
       <Stack direction="column" gap={2}>
+        {(!pools || pools?.length === 0) && <EmptyList />}
         {pools
           ?.filter((pool) => {
             const hasStaked = pool.gauge?.address && userGaugeBalanceByGauge?.[pool.gauge.address] > 0
