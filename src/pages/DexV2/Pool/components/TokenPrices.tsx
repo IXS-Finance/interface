@@ -10,9 +10,7 @@ import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { selectByAddress } from 'lib/utils'
 import Asset from 'pages/DexV2/common/Asset'
 
-interface TokenPricesProps {
-  toggleUnknownPriceModal?: () => void
-}
+interface TokenPricesProps {}
 
 const TokenPrices: React.FC<TokenPricesProps> = () => {
   const { tokensList } = usePoolCreation()
