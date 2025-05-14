@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { Flex } from 'rebass'
 import styled from 'styled-components'
 import { bnum } from 'lib/utils'
 import BtnGroup from '../BtnGroup'
@@ -26,10 +25,8 @@ const AppSlippageForm: React.FC = () => {
     value: option,
   }))
 
-  // Compute directly without useMemo:
   const isFixedSlippage = FIXED_OPTIONS.includes(slippage)
 
-  // Compute custom input classes inline
   const customInputClasses =
     !isFixedSlippage && isCustomInput
       ? 'border border-blue-500 text-blue-500'
@@ -37,10 +34,9 @@ const AppSlippageForm: React.FC = () => {
       ? 'border'
       : 'border'
 
-  // When a fixed option is selected:
   const onFixedInput = (val: string) => {
     setIsCustomInput(false)
-    setCustomSlippage('')
+    setCustomSlippage(bnum(val).times(100).toString())
     setSlippage(val)
   }
 
@@ -50,26 +46,16 @@ const AppSlippageForm: React.FC = () => {
       return
     }
     const regex = /^-?\d*[.,]?\d*$/
-    // Replace commas with dots for consistency.
     const sanitized = val.split(',').join('.')
 
     if (regex.test(sanitized)) {
-      // Check for incomplete decimals first.
       if (sanitized.endsWith('.')) {
         setCustomSlippage(val)
       } else {
         const newVal = bnum(sanitized).div(100).toString()
-        // If the computed value matches one of the fixed options,
-        // treat it as a fixed selection.
-        if (FIXED_OPTIONS.includes(newVal)) {
-          // Call the fixed input handler to update the state
-          onFixedInput(newVal)
-        } else {
-          // Otherwise treat it as a custom input.
-          setIsCustomInput(true)
-          setSlippage(newVal)
-          setCustomSlippage(val)
-        }
+        setIsCustomInput(true)
+        setSlippage(newVal)
+        setCustomSlippage(val)
       }
     }
   }
@@ -77,7 +63,7 @@ const AppSlippageForm: React.FC = () => {
   useEffect(() => {
     if (isFixedSlippage && !isCustomInput) {
       setFixedSlippage(slippage)
-      setCustomSlippage('')
+      setCustomSlippage(bnum(slippage).times(100).toString())
     } else {
       setCustomSlippage(bnum(slippage).times(100).toString())
       setFixedSlippage('')
@@ -94,7 +80,7 @@ const AppSlippageForm: React.FC = () => {
           autoCorrect="off"
           value={customSlippage}
           onChange={(e) => onCustomInput(e.target.value)}
-          placeholder={bnum(slippage).times(100).toString()}
+          placeholder="Enter custom slippage"
         />
         <PercentText>%</PercentText>
       </CustomInputWrapper>
