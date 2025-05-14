@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
 import ChooseWeights from './components/Steps/ChooseWeights'
@@ -7,28 +7,17 @@ import InitialLiquidity from './components/Steps/InitialLiquidity'
 import PreviewPool from './components/Steps/PreviewPool'
 
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
-import UnknownTokenPriceModal from './components/UnknownTokenPriceModal'
-import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { StepState } from 'types'
 import VerticleSteps from '../components/VerticleSteps'
 import TokenPrices from '../components/TokenPrices'
 import SimilarPool from './components/Steps/SimilarPool'
 import DexV2Layout from 'pages/DexV2/common/Layout'
-import { selectByAddress } from 'lib/utils'
 
 const Create: React.FC = () => {
   const { activeStep, similarPools, tokensList, resetPoolCreationState, updateTokenWeights } = usePoolCreation()
-  const { priceFor, injectedPrices } = useTokens()
-
-  const [isUnknownTokenModalVisible, setIsUnknownTokenModalVisible] = useState(false)
 
   const validTokens = tokensList.filter((t: string) => t !== '')
-  const unknownTokens = validTokens.filter((token) => {
-    return priceFor(token) === 0 || selectByAddress(injectedPrices, token)
-  })
-
   const doSimilarPoolsExist = similarPools.length > 0
-  const hasUnknownToken = validTokens.some((t: any) => priceFor(t) === 0)
 
   /**
    * FUNCTIONS
@@ -86,20 +75,6 @@ const Create: React.FC = () => {
   ]
   const CurrentStepComponent = steps[activeStep].component
 
-  function handleUnknownModalClose() {
-    setIsUnknownTokenModalVisible(false)
-  }
-
-  function showUnknownTokenModal() {
-    setIsUnknownTokenModalVisible(true)
-  }
-
-  useEffect(() => {
-    if (hasUnknownToken) {
-      showUnknownTokenModal()
-    }
-  }, [activeStep])
-
   /**
    * Reset pool create state when component is unmounted
    */
@@ -121,18 +96,10 @@ const Create: React.FC = () => {
           {validTokens.length > 0 ? (
             <RightContent>
               {/* <PoolSummary /> */}
-              <TokenPrices toggleUnknownPriceModal={showUnknownTokenModal} />
+              <TokenPrices />
             </RightContent>
           ) : null}
         </LayoutContainer>
-
-        {isUnknownTokenModalVisible ? (
-          <UnknownTokenPriceModal
-            visible={isUnknownTokenModalVisible}
-            unknownTokens={unknownTokens}
-            onClose={handleUnknownModalClose}
-          />
-        ) : null}
       </WidthFull>
     </DexV2Layout>
   )

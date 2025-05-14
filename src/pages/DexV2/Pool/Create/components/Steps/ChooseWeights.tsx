@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { uniqueId, sumBy } from 'lodash'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
@@ -21,6 +21,8 @@ import BalCard from 'pages/DexV2/common/Card'
 import BalStack from 'pages/DexV2/common/BalStack'
 import { configService } from 'services/config/config.service'
 import BalAlert from 'pages/DexV2/common/BalAlert'
+import UnknownTokenPriceModal from '../UnknownTokenPriceModal'
+import { selectByAddress } from 'lib/utils'
 
 const emptyTokenWeight: PoolSeedToken = {
   tokenAddress: '',
@@ -31,6 +33,8 @@ const emptyTokenWeight: PoolSeedToken = {
 }
 
 const ChooseWeights: React.FC = () => {
+  const [isUnknownTokenModalVisible, setIsUnknownTokenModalVisible] = useState(false)
+
   const {
     hasUnlistedToken,
     seedTokens,
@@ -48,22 +52,21 @@ const ChooseWeights: React.FC = () => {
   const { account } = useWeb3React()
   const { openConnectModal } = useConnectModal()
   const dispatch = useDispatch()
-  const { getToken } = useTokens()
+  const { getToken, priceFor, injectedPrices } = useTokens()
   const { fNum } = useNumbers()
   const { isWalletReady } = useWeb3()
 
+  const validPriceTokens = tokensList.filter((t: string) => t !== '')
   const networkName = configService.network.name
-
-  // Compute values directly on every render
-
   const maxTokenAmountReached = seedTokens.length >= 8
-
   const excludedTokens = [...tokensList]
-
   const validTokens = seedTokens.filter((t) => t.tokenAddress !== '')
   const zeroToken = validTokens.find((t) => t.weight === 0)
+  const hasUnknownToken = validPriceTokens.some((t: any) => priceFor(t) === 0)
   const zeroWeightToken = zeroToken ? getToken(zeroToken.tokenAddress) : null
-
+  const unknownTokens = validPriceTokens.filter((token) => {
+    return priceFor(token) === 0 || !selectByAddress(injectedPrices, token)
+  })
   const totalAllocatedWeight = sumBy(validTokens, 'weight').toFixed(2)
   const totalWeight = sumBy(seedTokens, 'weight').toFixed(2)
 
@@ -110,11 +113,23 @@ const ChooseWeights: React.FC = () => {
     updateTokenAddress(id, address)
   }
 
+  function handleUnknownModalClose() {
+    setIsUnknownTokenModalVisible(false)
+  }
+
+  function showUnknownTokenModal() {
+    setIsUnknownTokenModalVisible(true)
+  }
+
   function handleProceed() {
     if (!account) {
       openConnectModal && openConnectModal()
     } else {
-      proceed()
+      if (hasUnknownToken) {
+        showUnknownTokenModal()
+      } else {
+        proceed()
+      }
     }
   }
 
@@ -196,6 +211,14 @@ const ChooseWeights: React.FC = () => {
           {walletLabel}
         </ButtonPrimary>
       </BalStack>
+
+      {isUnknownTokenModalVisible ? (
+        <UnknownTokenPriceModal
+          visible={isUnknownTokenModalVisible}
+          unknownTokens={unknownTokens}
+          onClose={handleUnknownModalClose}
+        />
+      ) : null}
     </BalCard>
   )
 }
