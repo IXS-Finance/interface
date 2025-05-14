@@ -30,7 +30,7 @@ import { TransactionActionInfo } from 'pages/DexV2/types/transactions'
 const SwapCard: React.FC = () => {
   const { inputAsset, outputAsset } = useSwapAssets()
   const { appNetworkConfig, isMismatchedNetwork } = useWeb3()
-  const { nativeAsset, tokens } = useTokens()
+  const { nativeAsset, tokens, dynamicDataLoading } = useTokens()
   const isMounted = useIsMounted()
   const { getTokenApprovalActions } = useTokenApprovalActions()
   const { networkConfig } = useNetwork()
@@ -70,7 +70,7 @@ const SwapCard: React.FC = () => {
   const hasAmountsError = !tokenInAmount || !tokenOutAmount
   const hasBalancerErrors = swapping.isBalancerSwap && isHighPriceImpact
   const swapDisabled =
-    hasAmountsError || hasBalancerErrors || hasMismatchedNetwork || errorMessage !== SwapValidation.VALID
+    hasAmountsError || hasBalancerErrors || hasMismatchedNetwork || errorMessage !== SwapValidation.VALID || dynamicDataLoading
   const swapLoading = swapping.isBalancerSwap ? swapping.isLoading : false
   const sorReturn = swapping.sor.sorReturn
   const hasSwaps = sorReturn.hasSwaps
@@ -201,7 +201,7 @@ const SwapCard: React.FC = () => {
   }, [])
 
   const isLoadingSwaps = swapping.isBalancerSwap ? swapping.isLoading : false
-  const isLoading = isLoadingSwaps || !isMounted
+  const isLoading = isLoadingSwaps || !isMounted || dynamicDataLoading
   const loadingText = isLoading ? 'Fetching swap...' : 'Next'
   const showSwapRoute = swapping.isBalancerSwap
 
