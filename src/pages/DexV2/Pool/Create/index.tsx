@@ -95,7 +95,6 @@ const Create: React.FC = () => {
 
           {validTokens.length > 0 ? (
             <RightContent>
-              {/* <PoolSummary /> */}
               <TokenPrices />
             </RightContent>
           ) : null}
@@ -137,11 +136,11 @@ const LayoutContainer = styled.div`
 const LeftContent = styled.div`
   grid-column: span 2 / span 2;
   display: none;
+  padding-top: 32px;
 
   @media (min-width: 1024px) {
     display: flex;
     flex-direction: column;
-    justify-content: center;
   }
 `
 
@@ -171,7 +170,7 @@ const RightContent = styled.div`
 
   display: flex;
   width: 334px;
-  padding: 48px;
+  padding: 32px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
