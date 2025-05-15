@@ -11,6 +11,13 @@ frontend:
         - nvm install $(cat .nvmrc)
         - nvm use $(cat .nvmrc)
         - node -v
+        # Fetch NPM_TOKEN from SSM and export it
+        - echo "Fetching NPM_TOKEN from SSM Parameter Store"
+        - export NPM_TOKEN=$(aws ssm get-parameter \
+            --name /amplify/NPM_TOKEN \
+            --with-decryption \
+            --query Parameter.Value \
+            --output text)
         - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
         - cat .npmrc
         - |
