@@ -60,6 +60,7 @@ const Container = styled.div`
 
   &:hover {
     background-color: #eff6ff; /* blue-50 */
+    border-radius: 0.5rem;
   }
 
   .w-14 {
