@@ -97,13 +97,13 @@ const voteSlice = createSlice({
       state.seedTokens = state.seedTokens.filter((_: PoolToken, i: number) => i !== action.payload)
       handleDistributeWeights(state.seedTokens)
     },
-    resetPoolCreation: () => initialState,
+    resetVoteState: () => initialState,
   },
 })
 
 export const {
   setVoteState,
-  resetPoolCreation,
+  resetVoteState,
   setTokenWeight,
   distributeWeights,
   setTokenWeights,

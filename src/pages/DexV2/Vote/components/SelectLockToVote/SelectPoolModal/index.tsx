@@ -85,8 +85,11 @@ const SelectPoolModal: React.FC<SelectPoolModalProps> = (props) => {
                 {finalPools.map((pool: PoolsHasGauge) => {
                   return (
                     <ItemContainer key={pool.id} onClick={() => onSelectToken(pool)}>
-                      <Flex css={{ gap: '8px' }} alignItems="center">
-                        <AssetSet addresses={pool.tokensList} width={50} />
+                      <Flex css={{ gap: '4px' }} alignItems="center">
+                        <div>
+                          <AssetSet addresses={pool.tokensList} width={70} />
+                        </div>
+
                         <Box color="#292933" fontSize="14px" fontWeight={600}>
                           {pool.name}
                         </Box>
