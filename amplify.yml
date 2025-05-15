@@ -23,7 +23,7 @@ frontend:
         - |
           if [ "${AWS_BRANCH}" = "main" ]; then
             echo "Fetching parameters from AWS Parameter Store for the main branch";
-            aws ssm get-parameter --name ${PARAMETER_STORE_PROD} --with-decryption --query "Parameter.Value" --output text > .env.production;
+            aws ssm get-parameter --name /amplify/SSM_KEY_APP_ENV --with-decryption --query "Parameter.Value" --output text > .env.production;
           fi
         - yarn install
     build:
