@@ -59,7 +59,6 @@ export const usePoolCreation = () => {
     getToken,
     nativeAsset,
     wrappedNativeAsset,
-    balancerTokenListTokens,
     dynamicDataLoading,
   } = useTokens()
   const { account, getProvider } = useWeb3()
@@ -67,17 +66,7 @@ export const usePoolCreation = () => {
   const { addTransaction } = useTransactions()
   const dispatch = useDispatch()
 
-  /**
-   * COMPUTED
-   */
-
-  const isUnlistedToken = (tokenAddress: string) => {
-    return tokenAddress !== '' && !balancerTokenListTokens[tokenAddress]
-  }
-
   const tokensList = [...poolCreationState.tokensList].sort((tokenA, tokenB) => (tokenA > tokenB ? 1 : -1))
-
-  const hasUnlistedToken = tokensList.some((tokenAddress) => tokenAddress && isUnlistedToken(tokenAddress))
 
   function getOptimisedLiquidity(): Record<string, OptimisedLiquidity> {
     const validTokens = tokensList.filter((t) => t !== '')
@@ -338,9 +327,6 @@ export const usePoolCreation = () => {
   }
 
   async function createPool(): Promise<TransactionResponse> {
-    if (hasUnlistedToken && !isTestnet) {
-      throw new Error('Invalid pool creation due to unlisted tokens.')
-    }
     const provider = await getProvider()
 
     const tx = await balancerService.pools.weighted.create(

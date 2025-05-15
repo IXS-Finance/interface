@@ -1,22 +1,20 @@
 import Portal from '@reach/portal'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { orderBy } from 'lodash'
+import { Box, Flex } from 'rebass'
 
 import TextInput from '../../TextInput'
 import { CenteredFixed } from 'components/LaunchpadMisc/styled'
 import { ReactComponent as CloseIcon } from 'assets/images/dex-v2/close.svg'
-import { useWeb3React } from 'hooks/useWeb3React'
-import config, { tokenLists } from 'lib/config'
-import { default as erc20Abi } from 'lib/abi/ERC20.json'
-import { wagmiConfig } from 'components/Web3Provider'
-import { useTokensState } from 'state/dexV2/tokens/hooks'
-import { useDispatch } from 'react-redux'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
-import { Box } from 'rebass'
 import LoadingIcon from '../../LoadingIcon'
 import TokenListItem from './TokenListItem'
+import Asset from '../../Asset'
 
+interface TabItemProps {
+  active?: boolean
+}
 interface SelectTokenModalProps {
   excludedTokens: string[]
   includeEther?: boolean
@@ -35,17 +33,8 @@ export function formatAmount(amount: number, maximumFractionDigits = 10) {
 }
 
 const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
-  const {
-    tokens: tokensRaw,
-    getToken,
-    searchTokens,
-    priceFor,
-    balanceFor,
-    dynamicDataLoading,
-    nativeAsset,
-    injectTokens,
-  } = useTokens()
-
+  const { tokens: tokensRaw, getToken, searchTokens, priceFor, balanceFor, nativeAsset } = useTokens()
+  const [recentTokens, setRecentTokens] = useState<any[]>([])
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<any>([])
   const [loading, setLoading] = useState(false)
@@ -68,12 +57,20 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
     ? tokensWithValues
     : orderBy(tokensWithValues, ['value', 'balance'], ['desc', 'desc'])
 
-  async function onSelectToken(token: string): Promise<void> {
-    // Todo: Implement onSelectToken
-    // if (!getToken(token)) {
-    //   await injectTokens([token]);
-    // }
+  const addToRecentTokens = (tokenAddress: string) => {
+    try {
+      const stored = localStorage.getItem('recentTokens') || '[]'
+      const recentAddresses = JSON.parse(stored)
+      const filteredAddresses = recentAddresses.filter((address: string) => address !== tokenAddress)
+      const updatedAddresses = [tokenAddress, ...filteredAddresses].slice(0, 4)
+      localStorage.setItem('recentTokens', JSON.stringify(updatedAddresses))
+    } catch (error) {
+      console.error('Failed to update recent tokens:', error)
+    }
+  }
 
+  async function onSelectToken(token: string): Promise<void> {
+    addToRecentTokens(token)
     props.updateAddress(token)
     props.onClose()
   }
@@ -94,6 +91,50 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
     queryTokens(query)
   }, [query, JSON.stringify(tokensRaw)])
 
+  const [activeTab, setActiveTab] = useState('All')
+
+  const tabs = ['All', 'Crypto', 'RWAs']
+
+  const filteredData = () => {
+    switch (activeTab) {
+      case 'Crypto':
+        return tokens.filter((item: any) => item.type === 'crypto')
+      case 'RWAs':
+        return tokens.filter((item: any) => item.type === 'rwa')
+      default:
+        return tokens
+    }
+  }
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('recentTokens')
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        const validTokens = parsed.filter((address: string) => tokensRaw[address] !== undefined).slice(0, 4)
+
+        const recentTokenObjects = validTokens
+          .map((address: string) => {
+            const token = getToken(address)
+            const balance = balanceFor(address)
+            const price = priceFor(address)
+
+            return {
+              ...token,
+              balance,
+              price,
+              value: Number(balance) * price,
+            }
+          })
+          .filter(Boolean)
+
+        setRecentTokens(recentTokenObjects)
+      }
+    } catch (error) {
+      console.error('Failed to load recent tokens:', error)
+    }
+  }, [JSON.stringify(tokensRaw)])
+
   return (
     <Portal>
       <CenteredFixed width="100vw" height="100vh">
@@ -111,25 +152,48 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
               autoFocus
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
             />
+
+            {recentTokens && recentTokens.length > 0 ? (
+              <TokensContainer>
+                {recentTokens.map((token) => (
+                  <TokenPill key={token.address} onClick={() => onSelectToken(token.address)}>
+                    <Asset address={token.address} iconURI={token.logoURI} size={20} />
+                    <Flex fontSize="14px">{token.symbol}</Flex>
+                  </TokenPill>
+                ))}
+              </TokensContainer>
+            ) : null}
           </HeaderModal>
 
-          <BodyModal>
-            {tokens.length ? (
-              <TokenList>
-                {tokens.map((token: any) => {
-                  return (
-                    <div key={token.address} onClick={() => onSelectToken(token.address)}>
-                      <TokenListItem key={token.name} token={token} balanceLoading={false} hideBalance={false} />
-                    </div>
-                  )
-                })}
-              </TokenList>
-            ) : (
-              <Box display="flex" justifyContent="center" alignItems="center" height="24rem">
-                <LoadingIcon />
-              </Box>
-            )}
-          </BodyModal>
+          <TabContainer>
+            <TabNav>
+              {tabs.map((tab) => (
+                <TabItem key={tab} active={activeTab === tab} onClick={() => setActiveTab(tab)}>
+                  {tab}
+                </TabItem>
+              ))}
+            </TabNav>
+
+            <ContentContainer>
+              {loading ? (
+                <Box display="flex" justifyContent="center" alignItems="center" height="24rem">
+                  <LoadingIcon />
+                </Box>
+              ) : null}
+
+              {filteredData().length ? (
+                <TokenList>
+                  {filteredData().map((token: any) => {
+                    return (
+                      <div key={token.address} onClick={() => onSelectToken(token.address)}>
+                        <TokenListItem key={token.name} token={token} balanceLoading={false} hideBalance={false} />
+                      </div>
+                    )
+                  })}
+                </TokenList>
+              ) : null}
+            </ContentContainer>
+          </TabContainer>
         </ModalContent>
       </CenteredFixed>
     </Portal>
@@ -142,45 +206,6 @@ const TokenList = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-`
-
-const TokenItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #e6e6ff;
-  padding: 0 16px;
-  cursor: pointer;
-
-  &:hover {
-    background: #f3f3ff;
-  }
-
-  &:last-child {
-    border-bottom: none;
-  }
-`
-
-const TokenInfoWrap = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 16px 0;
-`
-
-const TokenDetails = styled.div`
-  margin-left: 8px;
-`
-
-const TokenSymbol = styled.div`
-  font-weight: bold;
-`
-
-const TokenName = styled.div`
-  color: #666;
-`
-
-const TokenBalance = styled.div`
-  font-weight: bold;
 `
 
 const ModalContent = styled.div`
@@ -229,12 +254,57 @@ const HeaderModal = styled.div`
   border-top-right-radius: 16px;
 `
 
-const BodyModal = styled.div`
+const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 16px 0;
+  padding: 16px;
   height: 560px;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
+  background: white;
+  margin-bottom: 32px;
+`
+
+const TabContainer = styled.div`
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  background: #f5f7ff;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+`
+
+// Tab navigation bar
+const TabNav = styled.div`
+  display: flex;
+  background: #f3f3ff;
+  padding: 0 32px;
+`
+
+const TabItem = styled.div<TabItemProps>`
+  padding: 16px;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  background: ${(props) => (props.active ? '#fff' : '#F3F3FF')};
+  color: ${(props) => (props.active ? 'rgba(41, 41, 51, 0.90)' : '#B8B8CC')};
+  border-radius: 8px 8px 0 0;
+`
+
+const TokensContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+`
+
+const TokenPill = styled.div`
+  display: flex;
+  padding: 8px 12px 8px 8px;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
 `
