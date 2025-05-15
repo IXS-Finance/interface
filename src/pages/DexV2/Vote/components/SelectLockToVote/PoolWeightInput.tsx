@@ -57,8 +57,10 @@ const PoolWeightInput: React.FC<PoolWeightInputProps> = ({
 
   return (
     <Container>
-      <Flex css={{ gap: '8px' }} alignItems="center">
-        <AssetSet addresses={tokensList} width={70} />
+      <Flex css={{ gap: '4px' }} alignItems="center">
+        <div>
+          <AssetSet addresses={tokensList} width={70} />
+        </div>
         <Box color="#292933" fontSize="14px" fontWeight={600}>
           {label}
         </Box>
@@ -115,7 +117,7 @@ const Input = styled.input`
   border: none;
   background: transparent;
   text-align: right;
-  max-width: 140px;
+  max-width: 80px;
 `
 
 const Percent = styled.span`

@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux'
-import { addTokenWeight, PoolToken, setTokenWeight, setTokenLocked, removeTokenWeightsByIndex } from '.'
+import { addTokenWeight, PoolToken, setTokenWeight, setTokenLocked, removeTokenWeightsByIndex, resetVoteState } from '.'
 
 const useVote = () => {
   const state = useSelector((state: any) => state.dexV2Vote)
@@ -21,12 +21,17 @@ const useVote = () => {
     dispatch(removeTokenWeightsByIndex(id))
   }
 
+  function handleResetVoteState() {
+    dispatch(resetVoteState())
+  }
+
   return {
     ...state,
     addPoolToken,
     updateTokenWeight,
     updateLockedWeight,
     removeTokenWeights,
+    handleResetVoteState
   }
 }
 

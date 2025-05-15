@@ -33,7 +33,15 @@ const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose,
   const { isWalletReady } = useWeb3()
   const { txListener } = useEthers()
   const { addTransaction } = useTransactions()
-  const { seedTokens, txLoading, txLoadingText, updateTokenWeight, updateLockedWeight, removeTokenWeights } = useVote()
+  const {
+    seedTokens,
+    txLoading,
+    txLoadingText,
+    updateTokenWeight,
+    updateLockedWeight,
+    removeTokenWeights,
+    handleResetVoteState,
+  } = useVote()
   const dispatch = useDispatch()
 
   const [isOpenSelectPoolModal, setIsOpenSelectPoolModal] = useState(false)
@@ -62,11 +70,8 @@ const VotingModal: React.FC<Props> = ({ pools, selectedLock, isVisible, onClose,
     removeTokenWeights(index)
   }
 
-  const handleClose = () => {
-    onClose()
-  }
-
   const handleSuccess = () => {
+    handleResetVoteState()
     onSuccess()
   }
 
