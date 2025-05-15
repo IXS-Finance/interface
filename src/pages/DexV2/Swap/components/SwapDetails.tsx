@@ -58,18 +58,6 @@ const SwapDetails: React.FC<Props> = ({ swapping, hopCount }) => {
             </SummaryValue>
           </Flex>
           <Flex justifyContent="space-between" width="100%" alignItems="center">
-            <SummaryKey>Max slippage</SummaryKey>
-            <SummaryValue>
-              -- <img src={InfoIcon} alt="icon" />
-            </SummaryValue>
-          </Flex>
-          <Flex justifyContent="space-between" width="100%" alignItems="center">
-            <SummaryKey>Max. fees</SummaryKey>
-            <SummaryValue>
-              -- <img src={InfoIcon} alt="icon" />
-            </SummaryValue>
-          </Flex>
-          <Flex justifyContent="space-between" width="100%" alignItems="center">
             <SummaryKey>Swap route</SummaryKey>
             <SummaryValue>
               {hopCount ? hopCount + ` ${hopCount > 1 ? 'hops' : 'hop'}` : '--'} <img src={InfoIcon} alt="icon" />
