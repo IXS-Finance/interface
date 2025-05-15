@@ -27,7 +27,7 @@ export const useTokens = () => {
   const dispatch = useDispatch()
   const { networkConfig } = useConfig()
   const { isWalletReady } = useWeb3()
-  const { allTokenLists, activeTokenLists, balancerTokenLists, allTokens } = useTokenLists()
+  const { allTokens } = useTokenLists()
   const { allowances, balances } = state
 
   /**
@@ -49,19 +49,9 @@ export const useTokens = () => {
   const allTokenListTokens: TokenInfoMap = {
     [networkConfig.nativeAsset.address]: nativeAsset,
     ...state.injectedTokens,
-    // ...mapTokenListTokens(allTokenLists),
+    // ...mapTokenListTokens(allTokens),
     ...allTokens,
   }
-
-  /**
-   * All tokens from token lists that are toggled on.
-   */
-  const activeTokenListTokens: TokenInfoMap = mapTokenListTokens(activeTokenLists)
-
-  /**
-   * All tokens from Balancer token lists, e.g. 'listed' and 'vetted'.
-   */
-  const balancerTokenListTokens: TokenInfoMap = mapTokenListTokens(balancerTokenLists)
 
   /**
    * The main tokens map
@@ -221,7 +211,7 @@ export const useTokens = () => {
 
     const newTokens = await new TokenService().metadata.get(
       injectable,
-      omit(allTokenLists, tokenListUris.Balancer.Allowlisted)
+      omit(allTokens, tokenListUris.Balancer.Allowlisted)
     )
 
     dispatch(setTokensState({ injectedTokens: newTokens }))
@@ -464,8 +454,6 @@ export const useTokens = () => {
     // computed
     tokens,
     wrappedNativeAsset,
-    activeTokenListTokens,
-    balancerTokenListTokens,
     prices,
     balances,
     allowances,
