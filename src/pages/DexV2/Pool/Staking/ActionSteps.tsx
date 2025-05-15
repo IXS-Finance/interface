@@ -16,7 +16,6 @@ import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
 import { TransactionActionStakingInfo } from 'types/transactions'
 import { LpToken, StakeAction, StakePreviewPoolProps, useStakePreview } from './hooks/useStakePreview'
 import { Box } from 'rebass'
-import { Address } from 'viem'
 import { BigNumber } from 'ethers'
 
 export type BalStepAction = {
@@ -30,7 +29,7 @@ export type BalStepAction = {
 
 interface ActionStepsProps {
   pool: StakePreviewPoolProps
-  gaugeAddress: Address
+  gaugeAddress: string
   lpToken: LpToken
   primaryActionType: StakeAction
   disabled?: boolean

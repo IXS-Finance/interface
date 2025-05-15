@@ -15,13 +15,9 @@ export type TokenType = {
 export type PoolType = {
   id: string
   address: Address
-  name: string
-  totalLiquidity: string
-  totalShares: string
   gauge: {
     address: Address
   }
-  tokensList: string[]
   tokens: TokenType[]
 }
 
@@ -112,27 +108,17 @@ export const GET_JOIN_EXITS = `
   }
 `
 
-export const GET_POOLS = `
-  query GetDexV2DashboardPools($addresses: [Bytes!]) {
-    pools(where: { address_in: $addresses }) {
+export const GET_POOL_GAUGES = `
+  query GetPoolGauges($ids: [Bytes!]) {
+    pools(where: { id_in: $ids }) {
       id
       address
-      name
-      totalLiquidity
-      totalShares
-      tokensList
       gauge {
         address
       }
       tokens {
         id
-        symbol
         address
-        decimals
-        balance
-        weight
-        managedBalance
-        cashBalance
       }
     }
   }

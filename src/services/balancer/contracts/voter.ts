@@ -52,7 +52,7 @@ export class Voter {
     return res
   }
 
-  async claimRewards(gaugeAddresses: Address[]): Promise<TransactionResponse> {
+  async claimRewards(gaugeAddresses: string[]): Promise<TransactionResponse> {
     const txBuilder = await this.getTransactionBuilder()
 
     const res = await txBuilder.contract.sendTransaction({
