@@ -9,7 +9,6 @@ import { usePoolStaking } from 'state/dexV2/poolStaking/usePoolStaking'
 import useTransactions from 'hooks/dex-v2/useTransactions'
 import { fiatValueOf } from 'hooks/dex-v2/usePoolHelpers'
 import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
-import { Address } from 'viem'
 import { TokenInfo } from 'types/TokenList'
 import { BigNumber } from 'ethers'
 
@@ -25,7 +24,7 @@ export type LpToken = Pick<TokenInfo, 'address' | 'symbol' | 'decimals'>
 // In React we pass callbacks instead of using Vue emits.
 export type UseStakePreviewProps = StakePreviewProps & {
   currentShares: string
-  gaugeAddress?: Address
+  gaugeAddress?: string
   lpToken: LpToken
   amountToSubmit?: BigNumber
   onSuccess: () => void

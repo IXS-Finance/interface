@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { formatUnits } from '@ethersproject/units'
-import { parseUnits } from 'ethers/lib/utils'
 
 import { PoolGauge } from 'hooks/dex-v2/queries/usePoolGaugeQuery'
 import { isQueryLoading } from 'hooks/dex-v2//queries/useQueryHelpers'
@@ -14,12 +13,10 @@ import { useTokens } from '../tokens/hooks/useTokens'
 import { AppState } from 'state'
 import { setPoolGaugeQuery, setPoolStakingState } from '.'
 import { Pool } from 'services/pool/types'
-import { overflowProtected } from 'pages/DexV2/Pool/components/helpers'
-import { Address } from 'viem'
 import { BigNumber } from 'ethers'
 
 export type UsePoolStakingProps = {
-  gaugeAddress?: Address // The current preferential gauge for the specified pool.
+  gaugeAddress?: string // The current preferential gauge for the specified pool.
 }
 
 export const usePoolStaking = (props: UsePoolStakingProps) => {

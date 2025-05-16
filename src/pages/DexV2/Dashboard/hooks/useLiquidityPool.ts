@@ -2,11 +2,12 @@ import { useReadContracts } from 'wagmi'
 import { SUBGRAPH_QUERY } from 'constants/subgraph'
 import { useSubgraphQuery } from 'hooks/useSubgraphQuery'
 import { useActiveWeb3React } from 'hooks/web3'
-import { GET_JOIN_EXITS, GET_POOLS, JoinExitsType, PoolType } from '../graphql/dashboard'
+import { GET_JOIN_EXITS, GET_POOL_GAUGES, JoinExitsType, PoolType } from '../graphql/dashboard'
 import gaugeABI from '../../../../abis/gaugeABI.json'
 import erc20ABI from '../../../../abis/erc20.json'
 import { Address } from 'viem'
 import { Voter } from 'services/balancer/contracts/voter'
+import usePools from 'hooks/dex-v2/pools/usePools'
 
 const useLiquidityPool = () => {
   const { account, chainId } = useActiveWeb3React()
@@ -21,25 +22,30 @@ const useLiquidityPool = () => {
       account: _account,
     },
   })
-  const joinExitsData = (joinExits?.data as { data: { joinExits: JoinExitsType[] } })?.data?.joinExits.map(
-    (data) => data.pool.address
+
+  const joinedPoolIds = (joinExits?.data as { data: { joinExits: JoinExitsType[] } })?.data?.joinExits.map(
+    (data) => data.pool.id
   )
 
-  const poolsData = useSubgraphQuery({
-    queryKey: ['GetDexV2DashboardPools', SUBGRAPH_QUERY.POOLS, joinExitsData],
+  const poolGaugesData = useSubgraphQuery({
+    queryKey: ['PoolGauges', SUBGRAPH_QUERY.POOLS, joinedPoolIds],
     feature: SUBGRAPH_QUERY.POOLS,
     chainId,
-    query: GET_POOLS,
+    query: GET_POOL_GAUGES,
     variables: {
-      addresses: joinExitsData,
+      ids: joinedPoolIds,
     },
   })
-  const pools = (poolsData?.data as { data: { pools: PoolType[] } })?.data?.pools?.map((pool) => pool) ?? []
+  const poolGauges = (poolGaugesData?.data as { data: { pools: PoolType[] } })?.data?.pools?.map((pool) => pool) ?? []
 
-  const gaugesByPool = pools?.reduce((acc, pool) => {
+  const gaugesByPool = poolGauges?.reduce((acc, pool) => {
     acc[pool.address as Address] = pool.gauge?.address
     return acc
-  }, {} as Record<Address, Address>)
+  }, {} as Record<string, Address>)
+
+  const { pools } = usePools({
+    poolIds: joinedPoolIds,
+  })
 
   const poolContracts = pools?.flatMap((pool) => [
     {
@@ -60,7 +66,7 @@ const useLiquidityPool = () => {
     // @ts-ignore
     contracts: poolContracts,
     query: {
-      enabled: !!_account && !!pools && Object.keys(gaugesByPool).length > 0,
+      enabled: !!_account && pools?.length > 0 && Object.keys(gaugesByPool).length > 0,
     },
   })
 
@@ -68,8 +74,8 @@ const useLiquidityPool = () => {
   const lpSupplyIndex = (i: number) => i * contractEntitiesPerPool
   const userLpBalanceIndex = (i: number) => i * contractEntitiesPerPool + 1
 
-  const gaugeAddresses = pools.filter((pool) => pool.gauge?.address).map((pool) => pool.gauge.address)
-  const gaugeContracts = pools
+  const gaugeAddresses = poolGauges.filter((pool) => pool.gauge?.address).map((pool) => pool.gauge.address)
+  const gaugeContracts = poolGauges
     .filter((pool) => pool.gauge?.address)
     .flatMap((pool) => [
       {
@@ -96,7 +102,7 @@ const useLiquidityPool = () => {
     // @ts-ignore
     contracts: gaugeContracts,
     query: {
-      enabled: !!_account && !!pools && pools.length > 0,
+      enabled: !!_account && poolGauges?.length > 0,
     },
   })
   const contractEntitiesPerGauge = gaugeContracts?.length / gaugeAddresses.length
@@ -106,10 +112,10 @@ const useLiquidityPool = () => {
 
   // Map data to pools
   const mapDataToPools = (data: any[] = [], getIndex: (i: number) => number) =>
-    pools.reduce((acc, pool, index) => {
+    poolGauges.reduce((acc, pool, index) => {
       acc[pool.address as Address] = data?.[getIndex(index)]?.result || BigInt(0)
       return acc
-    }, {} as Record<Address, any>)
+    }, {} as Record<string, any>)
   const lpSupplyByPool = mapDataToPools(data, (i) => lpSupplyIndex(i))
   const userLpBalanceByPool = mapDataToPools(data, (i) => userLpBalanceIndex(i))
 
@@ -117,12 +123,12 @@ const useLiquidityPool = () => {
     gaugeAddresses.reduce((acc, gauge, index) => {
       acc[gauge as Address] = data?.[getIndex(index)]?.result || BigInt(0)
       return acc
-    }, {} as Record<Address, any>)
+    }, {} as Record<string, any>)
   const userGaugeBalanceByGauge = mapDataToGauges(dataFromGauge, (i) => userGaugeBalanceIndex(i))
   const earnedTradingFeesByGauge = mapDataToGauges(dataFromGauge, (i) => earnedTradingFeeIndex(i))
   const earnedEmissionsByGauge = mapDataToGauges(dataFromGauge, (i) => earnedEmissionsIndex(i))
 
-  const claim = async (gaugeAddress: Address) => {
+  const claim = async (gaugeAddress: string) => {
     const voter = new Voter()
     const tx = await voter.claimRewards([gaugeAddress])
     return tx

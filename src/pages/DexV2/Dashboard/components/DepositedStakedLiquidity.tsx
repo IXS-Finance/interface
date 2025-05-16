@@ -39,7 +39,7 @@ const DepositedStakedLiquidity = () => {
 
   useEffect(() => {
     injectTokens(pools?.map((data) => data.address))
-    injectSpenders(pools?.filter((pool) => pool.gauge).map((data) => data.gauge?.address))
+    injectSpenders(gaugeAddresses)
     refetchAllowances()
   }, [JSON.stringify(pools)])
 
@@ -57,27 +57,31 @@ const DepositedStakedLiquidity = () => {
         {(!pools || pools?.length === 0) && <EmptyList />}
         {pools
           ?.filter((pool) => {
-            const hasStaked = pool.gauge?.address && userGaugeBalanceByGauge?.[pool.gauge.address] > 0
+            const gaugeAddress = gaugesByPool[pool.address]
+            const hasStaked = gaugeAddress && userGaugeBalanceByGauge?.[gaugeAddress] > 0
             const hasLpBalance = userLpBalanceByPool?.[pool.address] > 0
             const hasEarnedTradingFees =
-              pool.gauge?.address &&
-              earnedTradingFeesByGauge?.[pool.gauge.address]?.some?.((tradingFee: bigint) => tradingFee > 0)
-            const hasEmissions = pool.gauge?.address && earnedEmissionsByGauge?.[pool.gauge.address] > 0
+              gaugeAddress && earnedTradingFeesByGauge?.[gaugeAddress]?.some?.((tradingFee: bigint) => tradingFee > 0)
+            const hasEmissions = gaugeAddress && earnedEmissionsByGauge?.[gaugeAddress] > 0
             return hasStaked || hasLpBalance || hasEarnedTradingFees || hasEmissions
           })
-          .map((data, index) => (
-            <DepositedStakedLiquidityRow
-              data={data}
-              userLpBalance={userLpBalanceByPool?.[data.address]}
-              userGaugeBalance={userGaugeBalanceByGauge?.[data.gauge?.address]}
-              lpSupply={lpSupplyByPool?.[data.address]}
-              key={data.id}
-              rowIndex={index}
-              earnedTradingFees={earnedTradingFeesByGauge?.[data.gauge?.address]}
-              earnedEmissions={earnedEmissionsByGauge?.[data.gauge?.address]}
-              claim={claim}
-            />
-          ))}
+          .map((data, index) => {
+            const gaugeAddress = gaugesByPool[data.address]
+            return (
+              <DepositedStakedLiquidityRow
+                data={data}
+                gaugeAddress={gaugeAddress}
+                userLpBalance={userLpBalanceByPool?.[data.address]}
+                userGaugeBalance={userGaugeBalanceByGauge?.[gaugeAddress]}
+                lpSupply={lpSupplyByPool?.[data.address]}
+                key={data.id}
+                rowIndex={index}
+                earnedTradingFees={earnedTradingFeesByGauge?.[gaugeAddress]}
+                earnedEmissions={earnedEmissionsByGauge?.[gaugeAddress]}
+                claim={claim}
+              />
+            )
+          })}
       </Stack>
     </Box>
   )
