@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { Box, Flex } from 'rebass'
+import { useHistory, useParams } from 'react-router-dom'
 
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
@@ -12,6 +13,9 @@ import BalCard from 'pages/DexV2/common/Card'
 import Asset from 'pages/DexV2/common/Asset'
 import Copy from 'components/AccountDetails/Copy'
 import useExitPool from 'state/dexV2/pool/useExitPool'
+import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
+import { routes } from 'utils/routes'
+import { shortAddress } from 'utils'
 
 interface MyPoolBalancesCardProps {
   pool: Pool
@@ -24,9 +28,13 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
   const { pool, titleTokens } = props
   const { balanceFor, getToken } = useTokens()
   const { fNum } = useNumbers()
+  const params = useParams<any>()
+  const history = useHistory()
   const { isWalletReady, explorerLinks: explorer } = useWeb3()
   const { propAmountsOut, setBptIn } = useExitPool(pool)
 
+  const poolId = (params.id as string).toLowerCase()
+  const hasBpt = pool?.address ? bnum(balanceFor(pool?.address)).gt(0) : false
   const bptBalance = bnum(balanceFor(pool.address)).plus('0').toString()
   const fiatValue = (() => {
     return fiatValueOf(pool, bptBalance)
@@ -35,6 +43,16 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
   function symbolFor(titleTokenIndex: number): string {
     const token = titleTokens[titleTokenIndex]
     return getToken(token.address)?.symbol || token.symbol || '---'
+  }
+
+  const handleAddLiquidity = () => {
+    const path = routes.dexV2PoolAddLiquidity.replace(':id', poolId)
+    history.push(path)
+  }
+
+  const handleWithdraw = () => {
+    const path = routes.dexV2PoolWithdraw.replace(':id', poolId)
+    history.push(path)
   }
 
   useEffect(() => {
@@ -97,7 +115,7 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
           </Box>
           <Flex alignItems="center" color="rgba(41, 41, 51, 0.90)" fontSize="14px" fontWeight={500} mt="4px">
             <a href={explorer.addressLink(pool?.address || '')} target="_blank" rel="noreferrer">
-              0x3de2...9F29
+              {shortAddress(pool?.address || '')}
             </a>
 
             <Box ml="4px" css={{ cursor: 'pointer' }}>
@@ -105,12 +123,30 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
             </Box>
           </Flex>
         </Box>
+
+        <Box mt={4}>
+          <Grid>
+            <BalBtn color="blue" outline disabled={!hasBpt} onClick={handleWithdraw}>
+              Withdraw
+            </BalBtn>
+
+            <BalBtn color="blue" onClick={handleAddLiquidity}>
+              Add Liquidity
+            </BalBtn>
+          </Grid>
+        </Box>
       </BalCard>
     </Flex>
   )
 }
 
 export default MyPoolBalancesCard
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+`
 
 const Title = styled.div`
   color: rgba(41, 41, 51, 0.9);
