@@ -19,7 +19,7 @@ import { wagmiConfig } from 'components/Web3Provider'
 import { NATIVE_ASSET_ADDRESS } from 'constants/dexV2/tokens'
 import { POOLS } from 'constants/dexV2/pools'
 
-export function bnum(val: string | number | BigNumber): BigNumber {
+export function bnum(val: string | number | BigNumber | bigint): BigNumber {
   const number = typeof val === 'string' ? val : val ? val.toString() : '0'
   return new BigNumber(number)
 }
