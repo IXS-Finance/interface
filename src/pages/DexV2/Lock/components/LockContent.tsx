@@ -21,20 +21,83 @@ import Big from 'big.js'
 
 const LockContent: React.FC = () => {
   const history = useHistory()
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState<{ approve: boolean; lock: boolean }>({ approve: false, lock: false })
   const { userInput, setUserInput, handleLock, approvalState, approve, locked } = useLock()
   const currency = useIXSCurrency()
   const { account } = useWeb3React()
   const { openConnectModal } = useConnectModal()
 
-  const primaryButtonLabel = useMemo(() => {
+  const currencyBalance = useCurrencyBalance(account, currency || undefined)
+  const maxInputAmount: CurrencyAmount<Currency> | undefined = maxAmountSpend(currencyBalance)
+
+  const needsApproval = useMemo(() => {
+    return account &&
+      userInput &&
+      approvalState === ApprovalState.NOT_APPROVED &&
+      maxInputAmount &&
+      !new Big(userInput).gt(maxInputAmount.toExact())
+  }, [account, approvalState, userInput, maxInputAmount])
+
+  const handleApprove = async () => {
+    if (!account || approvalState !== ApprovalState.NOT_APPROVED) return
+
+    try {
+      setIsLoading({ ...isLoading, approve: true })
+      await approve()
+    } catch (error) {
+      console.error('Error approving token', error)
+    } finally {
+      setIsLoading({ ...isLoading, approve: false })
+    }
+  }
+
+  const handleLockToken = async () => {
     if (!account) {
-      return 'Connect Wallet'
-    } else if (isLoading) {
-      return 'Processing...'
-    } else if (approvalState !== ApprovalState.APPROVED) {
-      return 'Allow IXS'
-    } else if (locked) {
+      openConnectModal && openConnectModal()
+      return
+    }
+
+    try {
+      setIsLoading({ ...isLoading, lock: true })
+      await handleLock()
+    } catch (error) {
+      console.error('Error locking token', error)
+    } finally {
+      setIsLoading({ ...isLoading, lock: false })
+    }
+  }
+
+  const isApproveDisabled = useMemo(() => {
+    return !account ||
+      approvalState === ApprovalState.APPROVED ||
+      approvalState === ApprovalState.PENDING ||
+      isLoading.approve ||
+      !userInput ||
+      !maxInputAmount ||
+      new Big(userInput).gt(maxInputAmount.toExact())
+  }, [account, approvalState, isLoading.approve, userInput, maxInputAmount])
+
+  const isLockDisabled = useMemo(() => {
+    return !account ||
+      locked ||
+      isLoading.lock ||
+      !userInput ||
+      !maxInputAmount ||
+      new Big(userInput).gt(maxInputAmount.toExact()) ||
+      approvalState !== ApprovalState.APPROVED
+  }, [account, locked, isLoading.lock, userInput, maxInputAmount, approvalState])
+
+  const showApproveButton = needsApproval
+  const showLockButton = !needsApproval || approvalState === ApprovalState.APPROVED
+
+  const approveButtonLabel = useMemo(() => {
+    if (isLoading.approve) return 'Processing...'
+    if (approvalState === ApprovalState.PENDING) return 'Approval Pending...'
+    return 'Allow IXS'
+  }, [isLoading.approve, approvalState])
+
+  const lockButtonLabel = useMemo(() => {
+    if (locked) {
       return (
         <Flex alignItems="center" style={{ gap: 6 }}>
           <CheckedIcon />
@@ -42,30 +105,9 @@ const LockContent: React.FC = () => {
         </Flex>
       )
     }
-    return 'Lock'
-  }, [account, approvalState, locked, isLoading])
-
-  async function handleProceed() {
-    try {
-      setIsLoading(true)
-      if (!account) {
-        openConnectModal && openConnectModal()
-      } else if (approvalState === ApprovalState.NOT_APPROVED) {
-        await approve()
-        await handleLock()
-      } else {
-        // token approved
-        await handleLock()
-      }
-    } catch (error) {
-      console.error('Error processing', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const currencyBalance = useCurrencyBalance(account, currency || undefined)
-  const maxInputAmount: CurrencyAmount<Currency> | undefined = maxAmountSpend(currencyBalance)
+    if (isLoading.lock) return 'Processing...'
+    return 'Confirm Lock'
+  }, [locked, isLoading.lock])
 
   return (
     <Flex flexDirection="column" mt={3} style={{ gap: 32 }}>
@@ -83,33 +125,50 @@ const LockContent: React.FC = () => {
 
       <LockExplanation />
 
-      <StyledPrimaryButton
-        onClick={() => handleProceed()}
-        type="button"
-        disabled={
-          locked ||
-          approvalState === ApprovalState.PENDING ||
-          isLoading ||
-          !userInput ||
-          !maxInputAmount ||
-          new Big(userInput).gt(maxInputAmount.toExact())
-        }
-        locked={locked}
-      >
-        {primaryButtonLabel}
-      </StyledPrimaryButton>
-      <ButtonOutlined onClick={() => history.push(routes.dexV2Dashboard)}>Go to Dashboard</ButtonOutlined>
+      <Flex flexDirection="column" style={{ gap: 16 }}>
+        {showApproveButton && (
+          <StyledPrimaryButton
+            onClick={handleApprove}
+            type="button"
+            disabled={isApproveDisabled}
+            locked={false}
+            isLoading={isLoading.approve}
+          >
+            {approveButtonLabel}
+          </StyledPrimaryButton>
+        )}
+
+        {showLockButton && (
+          <StyledPrimaryButton
+            onClick={handleLockToken}
+            type="button"
+            disabled={isLockDisabled}
+            locked={locked}
+            isLoading={isLoading.lock}
+          >
+            {lockButtonLabel}
+          </StyledPrimaryButton>
+        )}
+        <ButtonOutlined onClick={() => history.push(routes.dexV2Dashboard)}>Go to Dashboard</ButtonOutlined>
+      </Flex>
     </Flex>
   )
 }
 
-const StyledPrimaryButton = styled(PinnedContentButton)<{ locked: boolean }>`
+const StyledPrimaryButton = styled(PinnedContentButton) <{ locked: boolean; isLoading?: boolean }>`
   ${({ locked, theme }) =>
     locked &&
     `
     background-color: ${theme.green51};
     color: ${theme.green5};
     border: 1px solid ${theme.green5};
+  `}
+
+  ${({ isLoading }) =>
+    isLoading &&
+    `
+    cursor: wait;
+    opacity: 0.7;
   `}
 `
 
