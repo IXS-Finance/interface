@@ -12,16 +12,19 @@ import { overflowProtected } from '../../components/helpers'
 import { formatAmount } from 'utils/formatCurrencyAmount'
 import { Rules } from 'types'
 import useInputValidation from 'pages/DexV2/common/forms/useInputValidation'
+import { bnum } from 'lib/utils'
 
 type InputValue = string | number
 
 interface TokenInputProps extends React.HTMLAttributes<HTMLInputElement> {
   disabled?: boolean
   autoFocus?: boolean
+  noMax?: boolean
   name: string
   amount: InputValue
   address?: string
   weight?: number | string
+  disableMax?: boolean
   rules?: Rules
   ignoreWalletBalance?: boolean
   updateAmount: (value: string) => void
@@ -31,16 +34,28 @@ const displayNumeralNoDecimal = (amount: any) => numeral(amount).format('0,0')
 
 const TokenInput: React.FC<TokenInputProps> = (props) => {
   const theme = useTheme()
-  const { getToken, balanceFor } = useTokens()
-  const { weight = 0, address = '', rules = [], ignoreWalletBalance = false, disabled, name, autoFocus } = props
+  const { getToken, balanceFor, getMaxBalanceFor } = useTokens()
+  const {
+    noMax = false,
+    weight = 0,
+    address = '',
+    rules = [],
+    ignoreWalletBalance = false,
+    disabled,
+    name,
+    autoFocus,
+    disableMax,
+  } = props
 
   const [amount, setAmount] = useState<any>('')
   const [displayValue, setDisplayValue] = useState<string>('')
 
   const token = address ? getToken(address) : null
   const hasToken = !!address
-  const decimalLimit = 6;
+  const decimalLimit = 6
   const balance = !address ? '0' : balanceFor(address)
+  const tokenBalanceBN = bnum(balance)
+  const hasBalance = tokenBalanceBN.gt(0)
 
   let inputRules
   if (!hasToken) {
@@ -71,7 +86,7 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
       let limitToFormat = decimalLimit
 
       // Get string after . of value
-      const decimalPart = value.indexOf('.') > -1 ? value.substring(value.indexOf('.') + 1) : '';
+      const decimalPart = value.indexOf('.') > -1 ? value.substring(value.indexOf('.') + 1) : ''
 
       // Compare with decimalLimit to get exact amount decimal to format
       if (decimalPart.length < decimalLimit) {
@@ -114,6 +129,12 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
 
   const handleUpdateIsValid = (isValid: boolean) => {
     console.log('Is valid?', isValid)
+  }
+
+  const setMax = () => {
+    if (props.disableMax) return
+    const maxAmount = getMaxBalanceFor(address, false)
+    handleAmountChange(maxAmount)
   }
 
   const { errors, isInvalid, validate } = useInputValidation({
@@ -160,6 +181,7 @@ const TokenInput: React.FC<TokenInputProps> = (props) => {
         <FlexBalance>
           <BalanceText>{formatAmount(+balance, 2)}</BalanceText>
           <WalletIcon />
+          {hasBalance && !noMax && !disableMax ? <MaxButton onClick={setMax}>Max</MaxButton> : null}
         </FlexBalance>
 
         {errors.length > 0 ? (
@@ -260,4 +282,20 @@ const ErrorText = styled.div`
   font-weight: 500;
   line-height: normal;
   letter-spacing: -0.42px;
+`
+
+const MaxButton = styled.div`
+  color: #2563eb;
+  transition: color 0.2s ease-in-out;
+  font-size: 14px;
+  text-transform: capitalize;
+  cursor: pointer;
+
+  &:hover {
+    color: #8b5cf6;
+  }
+
+  &:focus {
+    color: #8b5cf6;
+  }
 `
