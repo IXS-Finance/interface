@@ -25,7 +25,7 @@ export const VoteHistoryRecords: React.FC<Props> = ({ pools, data }) => {
             <tr>
               <TableHeader>Date</TableHeader>
               <TableHeader>Pool</TableHeader>
-              <TableHeader>Weight</TableHeader>
+              <TableHeader>Voting Weight </TableHeader>
               <TableHeader>Lock</TableHeader>
             </tr>
           </TableHead>
@@ -33,11 +33,9 @@ export const VoteHistoryRecords: React.FC<Props> = ({ pools, data }) => {
             {voteHistories.map((item: any) => {
               const weight = formatUnits(item.weight, 18)
               const totalWeight = formatUnits(item.totalWeight, 18)
-
               const weightPercentage = (Number(weight) / Number(totalWeight)) * 100
-
               const pool = pools.find((pool) => pool.address === item.pool)
-              const date = dayjs.unix(Number(item.timestamp)).format('YYYY-MM-DD HH:mm')
+              const date = dayjs.unix(Number(item.timestamp)).format('MMM D, YYYY HH:mm')
 
               return (
                 <TableRow key={item.pool}>
