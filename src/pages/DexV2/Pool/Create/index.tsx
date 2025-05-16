@@ -14,14 +14,11 @@ import SimilarPool from './components/Steps/SimilarPool'
 import DexV2Layout from 'pages/DexV2/common/Layout'
 
 const Create: React.FC = () => {
-  const { activeStep, similarPools, tokensList, resetPoolCreationState, updateTokenWeights } = usePoolCreation()
+  const { activeStep, similarPools, tokensList, resetPoolCreationState } = usePoolCreation()
 
   const validTokens = tokensList.filter((t: string) => t !== '')
   const doSimilarPoolsExist = similarPools.length > 0
 
-  /**
-   * FUNCTIONS
-   */
   function getStepState(idx: number) {
     if (activeStep === idx) {
       return StepState.Active
@@ -33,8 +30,6 @@ const Create: React.FC = () => {
       }
     }
   }
-
-  console.log('doSimilarPoolsExist', doSimilarPoolsExist)
 
   const steps = [
     {
@@ -75,9 +70,6 @@ const Create: React.FC = () => {
   ]
   const CurrentStepComponent = steps[activeStep].component
 
-  /**
-   * Reset pool create state when component is unmounted
-   */
   useEffect(() => {
     return () => {
       resetPoolCreationState()
@@ -89,7 +81,7 @@ const Create: React.FC = () => {
       <WidthFull>
         <LayoutContainer>
           <LeftContent>
-            <VerticleSteps steps={steps} activeStep={activeStep} />
+            <VerticleSteps steps={steps} />
           </LeftContent>
           <CenterContent>{steps[activeStep].isVisible ? <CurrentStepComponent /> : null}</CenterContent>
 
