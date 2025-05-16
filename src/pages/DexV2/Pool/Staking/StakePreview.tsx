@@ -11,7 +11,6 @@ import ActionSteps from './ActionSteps'
 import { Box, Flex } from 'rebass'
 import BalCard from 'pages/DexV2/common/Card'
 import { bnum } from 'lib/utils'
-import { Address } from 'viem'
 import { LP_DECIMALS } from './constants'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
@@ -23,7 +22,7 @@ export type StakePreviewPoolProps = Pick<AnyPool, 'totalLiquidity' | 'totalShare
 type Props = {
   pool: StakePreviewPoolProps
   lpToken: LpToken
-  gaugeAddress: Address
+  gaugeAddress: string
   currentShares: string
   action: StakeAction
   onClose: () => void

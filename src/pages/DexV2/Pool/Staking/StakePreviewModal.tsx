@@ -3,13 +3,12 @@ import React from 'react'
 import { StakeAction } from './hooks/useStakePreview'
 import Modal from 'pages/DexV2/common/modals'
 import StakePreview, { StakePreviewPoolProps } from './StakePreview'
-import { Address } from 'viem'
 import { LP_DECIMALS } from './constants'
 
 interface StakeModalProps {
   isVisible: boolean
   pool: StakePreviewPoolProps
-  gaugeAddress: Address
+  gaugeAddress: string
   currentShares: string
   unstakeBalance: bigint
   stakedBalance: bigint
