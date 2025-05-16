@@ -3,14 +3,14 @@ import styled from 'styled-components'
 import { StepState } from 'types'
 
 interface VerticleStepsProps {
-  activeStep: number
   steps: any
 }
 
-const VerticleSteps: React.FC<VerticleStepsProps> = ({ activeStep, steps }) => {
+const VerticleSteps: React.FC<VerticleStepsProps> = ({ steps }) => {
+  const activeSteps = steps.filter((step: any) => step.isVisible)
   return (
     <Container>
-      {steps.map((step: any, index: number) =>
+      {activeSteps.map((step: any, index: number) =>
         step.isVisible ? (
           <Step key={step.id}>
             <Circle isActive={step.state === StepState.Active}>{index + 1}</Circle>

@@ -14,14 +14,11 @@ import SimilarPool from './components/Steps/SimilarPool'
 import DexV2Layout from 'pages/DexV2/common/Layout'
 
 const Create: React.FC = () => {
-  const { activeStep, similarPools, tokensList, resetPoolCreationState, updateTokenWeights } = usePoolCreation()
+  const { activeStep, similarPools, tokensList, resetPoolCreationState } = usePoolCreation()
 
   const validTokens = tokensList.filter((t: string) => t !== '')
   const doSimilarPoolsExist = similarPools.length > 0
 
-  /**
-   * FUNCTIONS
-   */
   function getStepState(idx: number) {
     if (activeStep === idx) {
       return StepState.Active
@@ -33,8 +30,6 @@ const Create: React.FC = () => {
       }
     }
   }
-
-  console.log('doSimilarPoolsExist', doSimilarPoolsExist)
 
   const steps = [
     {
@@ -75,9 +70,6 @@ const Create: React.FC = () => {
   ]
   const CurrentStepComponent = steps[activeStep].component
 
-  /**
-   * Reset pool create state when component is unmounted
-   */
   useEffect(() => {
     return () => {
       resetPoolCreationState()
@@ -89,13 +81,12 @@ const Create: React.FC = () => {
       <WidthFull>
         <LayoutContainer>
           <LeftContent>
-            <VerticleSteps steps={steps} activeStep={activeStep} />
+            <VerticleSteps steps={steps} />
           </LeftContent>
           <CenterContent>{steps[activeStep].isVisible ? <CurrentStepComponent /> : null}</CenterContent>
 
           {validTokens.length > 0 ? (
             <RightContent>
-              {/* <PoolSummary /> */}
               <TokenPrices />
             </RightContent>
           ) : null}
@@ -137,11 +128,11 @@ const LayoutContainer = styled.div`
 const LeftContent = styled.div`
   grid-column: span 2 / span 2;
   display: none;
+  padding-top: 32px;
 
   @media (min-width: 1024px) {
     display: flex;
     flex-direction: column;
-    justify-content: center;
   }
 `
 
@@ -171,7 +162,7 @@ const RightContent = styled.div`
 
   display: flex;
   width: 334px;
-  padding: 48px;
+  padding: 32px;
   flex-direction: column;
   justify-content: center;
   align-items: center;

@@ -7,8 +7,6 @@ import { ChevronDown, ChevronUp } from 'react-feather'
 import InfoIcon from 'assets/images/dex-v2/info.svg'
 import { UseSwapping } from 'state/dexV2/swap/useSwapping'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
-import useUserSettings from 'state/dexV2/userSettings/useUserSettings'
-import { WrapType } from 'lib/utils/balancer/wrapper'
 import SwapRate from './SwapRate'
 
 type Props = {
@@ -17,13 +15,10 @@ type Props = {
 }
 
 const SwapDetails: React.FC<Props> = ({ swapping, hopCount }) => {
-  const { fNum, toFiat } = useNumbers()
-  const { slippage, slippageDecimal } = useUserSettings()
+  const { fNum } = useNumbers()
 
   const [visible, setVisible] = useState(false)
 
-  const wrapType = _get(swapping, 'wrapType', '')
-  const isNativeWrapOrUnwrap = wrapType === WrapType.Wrap || wrapType === WrapType.Unwrap
   const priceImpact = _get(swapping, 'sor.priceImpact', 0)
   const priceImpactDisplay = fNum(priceImpact, FNumFormats.percent)
 
@@ -55,18 +50,6 @@ const SwapDetails: React.FC<Props> = ({ swapping, hopCount }) => {
             <SummaryKey>Price impact</SummaryKey>
             <SummaryValue isRed={priceImpact < 0}>
               {priceImpactDisplay} <img src={InfoIcon} alt="icon" />
-            </SummaryValue>
-          </Flex>
-          <Flex justifyContent="space-between" width="100%" alignItems="center">
-            <SummaryKey>Max slippage</SummaryKey>
-            <SummaryValue>
-              -- <img src={InfoIcon} alt="icon" />
-            </SummaryValue>
-          </Flex>
-          <Flex justifyContent="space-between" width="100%" alignItems="center">
-            <SummaryKey>Max. fees</SummaryKey>
-            <SummaryValue>
-              -- <img src={InfoIcon} alt="icon" />
             </SummaryValue>
           </Flex>
           <Flex justifyContent="space-between" width="100%" alignItems="center">
