@@ -1,7 +1,6 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import ReactECharts from 'echarts-for-react'
 
 import LoadingBlock from '../../common/LoadingBlock'
 import { usePool } from 'state/dexV2/pool/usePool'
@@ -15,13 +14,11 @@ import MyPoolBalancesCard from './components/MyPoolBalancesCard'
 import PoolPageHeader from './components/PoolPageHeader'
 import DexV2Layout from '../../common/Layout'
 import { Box, Flex } from 'rebass'
-import chartImg from 'assets/images/dex-v2/chart-fake.svg'
 import BalCard from 'pages/DexV2/common/Card'
 import PoolStatCards from './components/PoolStatCards'
 import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
 import PoolCompositionCard from './components/PoolCompositionCard'
 import StakingCard from '../Staking/StakingCard'
-import PoolActionsCard from '../components/PoolActionsCard'
 import PoolChart from './components/PoolCharts'
 
 const PoolDetail: React.FC = () => {
@@ -103,12 +100,6 @@ const PoolDetail: React.FC = () => {
             ) : (
               <>{isStakablePool && !loadingPool && pool && isWalletReady ? <StakingCard pool={pool} /> : null}</>
             )}
-
-            {loadingPool ? (
-              <LoadingBlock darker rounded="lg" style={{ height: 238 }} />
-            ) : (
-              <PoolActionsCard pool={pool} missingPrices={missingPrices} />
-            )}
           </Flex>
         </GridContainer>
       </Container>
@@ -119,7 +110,7 @@ const PoolDetail: React.FC = () => {
 export default PoolDetail
 
 const Container = styled.div`
-  @media (min-width: 1280px) {
+  @media (min-width: 1536px) {
     max-width: 1536px;
     margin: 0 auto;
     width: 1536px;
