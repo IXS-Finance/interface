@@ -48,6 +48,7 @@ type Props = {
   updateAmount: (amount: string) => void
   setMax?: () => void
   setExactInOnChange?: () => void
+  onValidityChange?: (isValid: boolean) => void
 }
 
 const defaultProps: Props = {
@@ -199,11 +200,15 @@ const TokenPriceInput: React.FC<Props> = (props = defaultProps) => {
     rules: inputRules,
     validateOn: 'input',
     modelValue: amount,
-    onUpdateIsValid: handleUpdateIsValid,
+    onUpdateIsValid: (isValid: boolean) => {
+      props.onValidityChange?.(isValid)
+    },
   })
 
   useEffect(() => {
     validate(amount)
+    // notify parent on initial mount
+    props.onValidityChange?.(!errors.length)
   }, [address])
 
   return (
