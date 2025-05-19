@@ -1096,15 +1096,15 @@ export const useOfferFormInitialValues = (
         faq: payload.faq?.length ? payload.faq : initialValues.faq,
         members: payload.members?.length
           ? payload.members.map(
-            (member) =>
-            ({
-              id: member.id,
-              name: member.name,
-              role: member.title,
-              about: member.description,
-              photo: files.find((x) => x.id === member.avatar?.id),
-            } as TeamMember)
-          )
+              (member) =>
+                ({
+                  id: member.id,
+                  name: member.name,
+                  role: member.title,
+                  about: member.description,
+                  photo: files.find((x) => x.id === member.avatar?.id),
+                } as TeamMember)
+            )
           : initialValues.members,
 
         social: Object.entries(payload.socialMedia || {}).map(([name, link]) => ({
@@ -1120,20 +1120,20 @@ export const useOfferFormInitialValues = (
 
         additionalDocuments: documents.length
           ? documents.map((document: any) => {
-            const file = files.find((x) => x.id === document.file?.id)
+              const file = files.find((x) => x.id === document.file?.id)
 
-            return { file: file, asset: document?.file } as AdditionalDocument
-          })
+              return { file: file, asset: document?.file } as AdditionalDocument
+            })
           : initialValues.additionalDocuments,
 
         purchaseAgreement: { file: purchaseAgreement },
         investmentMemorandum: { file: investmentMemorandum },
         otherExecutionDocuments: otherExecutionDocuments.length
           ? otherExecutionDocuments.map((document: any) => {
-            const file = files.find((x) => x.id === document.file?.id)
+              const file = files.find((x) => x.id === document.file?.id)
 
-            return { file: file, asset: document?.file } as AdditionalDocument
-          })
+              return { file: file, asset: document?.file } as AdditionalDocument
+            })
           : initialValues.otherExecutionDocuments,
 
         hasPresale: payload.hasPresale,
@@ -1214,7 +1214,10 @@ export const useSubmitOffer = () => {
       const findDoc = (prefix: 'member.photo' | 'document' | 'image' | 'otherExecutionDocument', idx: number) =>
         uploadedFiles.find((x) => x.name === `${prefix}.${idx}`)?.id
       const purchaseAgreementId =
-        uploadedFiles.find((x) => x.name === 'purchaseAgreement')?.id || payload.purchaseAgreement?.file?.file?.id || null
+        uploadedFiles.find((x) => x.name === 'purchaseAgreement')?.id ||
+        payload.purchaseAgreement?.file?.file?.id ||
+        null
+
       const investmentMemorandumId =
         uploadedFiles.find((x) => x.name === 'investmentMemorandum')?.id ||
         payload.investmentMemorandum?.file?.file?.id ||
@@ -1405,9 +1408,13 @@ export const useMinimalOfferEdit = () => {
       files.find((x) => x.name === `${prefix}.${idx}`)?.id
 
     const purchaseAgreementId =
-      files.find((x) => x.name === 'purchaseAgreement')?.id || payload.purchaseAgreement?.file?.id || null
+      files.find((x) => x.name === 'purchaseAgreement')?.id || // file id is from uploaded files
+      payload.purchaseAgreement?.file?.file.id || // if we keep the file in the state
+      null
     const investmentMemorandumId =
-      files.find((x) => x.name === 'investmentMemorandum')?.id || payload.investmentMemorandum?.file?.id || null
+      files.find((x) => x.name === 'investmentMemorandum')?.id || // file id is from uploaded files
+      payload.investmentMemorandum?.file?.file.id || // if we keep the file in the state
+      null
 
     const executionDocuments = []
     if (purchaseAgreementId)
