@@ -8,6 +8,8 @@ import { Line } from 'components/Line'
 import { KycItem } from 'state/admin/actions'
 import StatusIndicator from './Blocks/KycV2StatusIndicator'
 import { EmailType } from 'pages/KYC/enum'
+import InternalNotes from './InternalNotes'
+import { Box } from 'rebass'
 
 interface Props {
   data: KycItem
@@ -115,12 +117,17 @@ const IndividualFormV2 = ({ data }: Props) => {
           <StatusHeader>
             <TYPE.body4 color={'bg14'}>Rejection message</TYPE.body4>
           </StatusHeader>
-          <TYPE.body3 marginBottom="16px" opacity="0.5">
-            {message}
-          </TYPE.body3>
+          <Box css={{ maxWidth: 716 }}>
+            <TYPE.body3 marginBottom="16px" opacity="0.5">
+              {message}
+            </TYPE.body3>
+          </Box>
+
           <Line style={{ marginTop: '10px' }} />
         </>
       ) : null}
+
+      <InternalNotes message={data?.authorizerNote} />
     </FormContainer>
   )
 }

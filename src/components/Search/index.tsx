@@ -1,8 +1,8 @@
 import React, { ChangeEvent, CSSProperties, useEffect, useState } from 'react'
-import { t } from '@lingui/macro'
 import styled from 'styled-components'
 
 import searchImg from 'assets/images/search-circle.svg'
+import { ButtonEmpty } from 'components/Button'
 
 let timer = null as any
 
@@ -11,9 +11,11 @@ interface Props {
   setSearchValue: (newValue: string) => void
   style?: CSSProperties
   value?: string
+  showClearButton?: boolean
+  handleResetFilters?: () => void
 }
 
-export const Search = ({ setSearchValue, placeholder, style, value }: Props) => {
+export const Search = ({ setSearchValue, placeholder, style, value, showClearButton, handleResetFilters }: Props) => {
   const [search, handleSearch] = useState('')
 
   useEffect(() => {
@@ -38,6 +40,10 @@ export const Search = ({ setSearchValue, placeholder, style, value }: Props) => 
         onChange={onSearchChange}
         value={search}
       />
+      {showClearButton && <ResetFilterButton onClick={() => {
+        handleSearch('')
+        handleResetFilters?.()
+      }}>Clear</ResetFilterButton>}
     </Container>
   )
 }
@@ -78,4 +84,19 @@ export const Input = styled.input`
   @media (max-width: 768px) {
     font-size: 16px;
   }
+`
+
+const ResetFilterButton = styled(ButtonEmpty)`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: ${({ theme }) => theme.text2};
+  white-space: nowrap;
+  width: 70px;
+  height: 28px;
+  padding: 0;
+  font-weight: 400;
+  border: 1px solid #e6e6ff;
+  border-radius: 8px;
+  font-size: 13px;
 `

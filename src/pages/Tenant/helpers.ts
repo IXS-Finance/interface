@@ -20,7 +20,7 @@ export const pagesGroup: PagesGroup = {
   dex: [routes.swap, routes.pool, routes.find, routes.swapOutputCurrency, routes.addCurrency, routes.removeCurrency],
   kyc: [routes.kyc, routes.kycIndividual, routes.kycIndividualV2, routes.kycCorporate],
   lbp: [routes.publicDetails],
-  offer: [routes.offerPage],
+  offer: [routes.offerPage, routes.launchpad],
   lbpAdmin: [routes.lbpDashboard, routes.lbpCreate, routes.lbpEdit, routes.adminDetails],
   issuance: [
     routes.issuance,
@@ -66,7 +66,7 @@ export function getActiveRoutes(pages: PagesConfig): string | null {
   }, [])
 
   if (activeRoutes.length === 0) {
-    return null
+    return  null
   }
 
   return JSON.stringify(activeRoutes)
