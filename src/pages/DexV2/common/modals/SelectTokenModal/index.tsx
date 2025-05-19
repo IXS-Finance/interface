@@ -135,6 +135,14 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
     }
   }, [JSON.stringify(tokensRaw)])
 
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [])
+
   return (
     <Portal>
       <CenteredFixed width="100vw" height="100vh">

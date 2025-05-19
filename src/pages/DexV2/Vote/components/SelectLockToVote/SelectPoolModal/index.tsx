@@ -60,6 +60,14 @@ const SelectPoolModal: React.FC<SelectPoolModalProps> = (props) => {
     props.onClose()
   }
 
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [])
+
   return (
     <Portal>
       <CenteredFixed width="100vw" height="100vh">
