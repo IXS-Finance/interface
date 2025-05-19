@@ -123,7 +123,7 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
           const confirmedAt = await getTxConfirmedAt(receipt)
           updateActionState(actionIndex, { confirmedAt: dateTimeLabelFor(confirmedAt), confirmed: true })
           if (currentActionIndex >= actions.length - 1) {
-            onSuccess?.(receipt, state.confirmedAt)
+            onSuccess?.(receipt, dateTimeLabelFor(confirmedAt))
           } else {
             setCurrentActionIndex(currentActionIndex + 1)
           }

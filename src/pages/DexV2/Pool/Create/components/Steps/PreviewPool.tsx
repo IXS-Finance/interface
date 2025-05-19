@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import BigNumber from 'bignumber.js'
 import { Box, Flex } from 'rebass'
 import { useDispatch } from 'react-redux'
+import { TransactionReceipt } from '@ethersproject/abstract-provider'
 
 import { BackButton, Line, NavigationButtons, NextButton } from '../..'
 import TokenInfo from '../../../components/TokenInfo'
@@ -16,10 +17,29 @@ import BalCard from 'pages/DexV2/common/Card'
 import BalStack from 'pages/DexV2/common/BalStack'
 import { configService } from 'services/config/config.service'
 import BalAlert from 'pages/DexV2/common/BalAlert'
+import ConfirmationIndicator, { ButtonReturnPool } from 'pages/DexV2/common/ConfirmationIndicator'
+import { useState } from 'react'
+
+type CreateState = {
+  confirmed: boolean
+  confirmedAt: string
+  isRestoredTxConfirmed: boolean
+  isLoadingRestoredTx: boolean
+  receipt?: any
+}
 
 const PreviewPool: React.FC = () => {
+  const [createState, setCreateState] = useState<CreateState>({
+    confirmed: false,
+    confirmedAt: '',
+    isRestoredTxConfirmed: false,
+    isLoadingRestoredTx: false,
+    receipt: undefined,
+  })
+
   const { account } = useWeb3React()
   const {
+    poolId,
     seedTokens,
     name: poolName,
     symbol: poolSymbol,
@@ -35,9 +55,10 @@ const PreviewPool: React.FC = () => {
   } = usePoolCreation()
   const { priceFor } = useTokens()
   const { fNum } = useNumbers()
-  const dispatch = useDispatch()
 
-  const networkName = configService.network.name
+  const redirectLabel: string = 'View pool'
+  const returnRoute = { pathname: `/v2/pool/${poolId}`, search: '' }
+
   const tokenAddresses = seedTokens.map((token) => token.tokenAddress)
 
   const tokensAmounts = getAmounts()
@@ -58,8 +79,13 @@ const PreviewPool: React.FC = () => {
 
   const hasInvalidInitialWeight = Object.values(initialWeights).some((initialWeight) => initialWeight.lt(0.01))
 
-  function handleSuccess() {
-    console.log('success')
+  function handleSuccess(tx: TransactionReceipt, confirmedAt: string): void {
+    setCreateState((prev) => ({
+      ...prev,
+      confirmed: true,
+      receipt: tx,
+      confirmedAt: confirmedAt,
+    }))
   }
 
   function getSwapFeeManager() {
@@ -149,13 +175,20 @@ const PreviewPool: React.FC = () => {
         adjust whether you use ETH or WETH for seed liquidity in the previous step.
       </BalAlert> */}
 
-        <CreateActions
-          tokenAddresses={tokenAddresses}
-          amounts={tokensAmounts}
-          createDisabled={actionsDisabled}
-          goBack={() => goBack()}
-          success={handleSuccess}
-        />
+        {!createState.confirmed || !createState.receipt ? (
+          <CreateActions
+            tokenAddresses={tokenAddresses}
+            amounts={tokensAmounts}
+            createDisabled={actionsDisabled}
+            goBack={() => goBack()}
+            success={handleSuccess}
+          />
+        ) : (
+          <div>
+            <ConfirmationIndicator txReceipt={createState?.receipt} />
+            <ButtonReturnPool to={`${returnRoute.pathname}${returnRoute.search}`}>{redirectLabel}</ButtonReturnPool>
+          </div>
+        )}
       </BalStack>
     </BalCard>
   )
