@@ -199,7 +199,7 @@
     "recharts": "^2.12.3",
     "redux-persist": "^6.0.0",
     "use-draggable-scroll": "^0.1.0",
-    "viem": "^2.21.54",
+    "viem": "^2.29.4",
     "wagmi": "^2.14.11",
     "web3": "^4.5.0"
   }
