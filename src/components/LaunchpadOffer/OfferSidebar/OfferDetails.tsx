@@ -6,6 +6,7 @@ import { Copy, Info } from 'react-feather'
 import _get from 'lodash/get'
 import { useAccount } from 'wagmi'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
+import { getCode } from 'country-list'
 
 import { Offer, OfferNetwork, OfferStatus, WhitelistStatus } from 'state/launchpad/types'
 import MetamaskIcon from 'assets/images/metamask.png'
@@ -30,6 +31,8 @@ import { INVESTING_TOKEN_SYMBOL } from 'state/launchpad/constants'
 import { isTestnet } from 'utils/isEnvMode'
 import { KYCPrompt } from 'components/Launchpad/KYCPrompt'
 import { Flex } from 'rebass'
+import { UnsupportedCountryPopup } from 'components/Launchpad/UnsupportedCountryPopup'
+import { useKYCState } from 'state/kyc/hooks'
 
 interface Props {
   offer: Offer
@@ -49,6 +52,7 @@ export const OfferDetails: React.FC<Props> = (props) => {
   const { address: account } = useAccount()
   const { openConnectModal } = useConnectModal()
   const checkKYC = useCheckKYC()
+  const { kyc } = useKYCState()
 
   const data = _get(props, 'offer', null)
   const { amount: amountToClaim } = investedData
@@ -68,6 +72,11 @@ export const OfferDetails: React.FC<Props> = (props) => {
     })
   }
   const formatter = React.useMemo(() => new Intl.NumberFormat('en-US', { currency: 'USD' }), [])
+  const restrictedJurisdictions = data?.restrictedJurisdictions ?? []
+
+  const nationalityIndividual = kyc?.individual?.nationality ?? ''
+  const nationalityCorporate = kyc?.corporate?.countryOfIncorporation ?? ''
+  const country = getCode(nationalityIndividual || nationalityCorporate) ?? ''
 
   const stageStatus = React.useMemo(() => {
     switch (props.offer.status) {
@@ -98,7 +107,7 @@ export const OfferDetails: React.FC<Props> = (props) => {
 
   const [showInvestDialog, setShowInvestDialog] = React.useState(false)
   const [showRequireKyc, setShowRequireKyc] = React.useState<boolean>(false)
-
+  const [showRestrictedModal, setShowRestrictedModal] = React.useState(false)
   const closeInvestDialog = React.useCallback(() => setShowInvestDialog(false), [])
 
   const daysTillClosed = props.offer.daysTillClosed ?? 0
@@ -107,6 +116,10 @@ export const OfferDetails: React.FC<Props> = (props) => {
   const [showFailed, setShowFailed] = React.useState(false)
 
   const openInvestDialog = () => {
+    if (restrictedJurisdictions.includes(country)) {
+      setShowRestrictedModal(true)
+      return
+    }
     let isAllow = false
 
     if (data) {
@@ -295,6 +308,10 @@ export const OfferDetails: React.FC<Props> = (props) => {
           allowOnlyAccredited={data.allowOnlyAccredited}
           onClose={() => setShowRequireKyc(false)}
         />
+      ) : null}
+
+      {showRestrictedModal ? (
+        <UnsupportedCountryPopup isOpen={showRestrictedModal} onClose={() => setShowRestrictedModal(false)} />
       ) : null}
     </Container>
   )

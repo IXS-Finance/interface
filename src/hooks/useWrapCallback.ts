@@ -38,6 +38,8 @@ export default function useWrapCallback(
 
     const hasInputAmount = Boolean(inputAmount?.greaterThan('0'))
     const sufficientBalance = inputAmount && balance && !balance.lessThan(inputAmount)
+    const inputSymbol = inputCurrency.symbol
+    const outputSymbol = outputCurrency.symbol
 
     if (inputCurrency.isNative && weth.equals(outputCurrency)) {
       return {
@@ -47,13 +49,19 @@ export default function useWrapCallback(
             ? async () => {
                 try {
                   const txReceipt = await wethContract.deposit({ value: `0x${inputAmount.quotient.toString(16)}` })
-                  addTransaction(txReceipt, { summary: `Wrap ${inputAmount.toSignificant(6)} ETH to WETH` })
+                  addTransaction(txReceipt, {
+                    summary: `Wrap ${inputAmount.toSignificant(6)} ${inputSymbol} to ${outputSymbol}`,
+                  })
                 } catch (error) {
                   console.error('Could not deposit', error)
                 }
               }
             : undefined,
-        inputError: sufficientBalance ? undefined : hasInputAmount ? 'Insufficient ETH balance' : 'Enter ETH amount',
+        inputError: sufficientBalance
+          ? undefined
+          : hasInputAmount
+          ? `Insufficient ${inputSymbol} balance`
+          : `Enter ${inputSymbol} amount`,
       }
     } else if (weth.equals(inputCurrency) && outputCurrency.isNative) {
       return {
@@ -63,13 +71,19 @@ export default function useWrapCallback(
             ? async () => {
                 try {
                   const txReceipt = await wethContract.withdraw(`0x${inputAmount.quotient.toString(16)}`)
-                  addTransaction(txReceipt, { summary: `Unwrap ${inputAmount.toSignificant(6)} WETH to ETH` })
+                  addTransaction(txReceipt, {
+                    summary: `Unwrap ${inputAmount.toSignificant(6)} ${inputSymbol} to ${outputSymbol}`,
+                  })
                 } catch (error) {
                   console.error('Could not withdraw', error)
                 }
               }
             : undefined,
-        inputError: sufficientBalance ? undefined : hasInputAmount ? 'Insufficient WETH balance' : 'Enter WETH amount',
+        inputError: sufficientBalance
+          ? undefined
+          : hasInputAmount
+          ? `Insufficient ${inputSymbol} balance`
+          : `Enter ${inputSymbol} amount`,
       }
     } else {
       return NOT_APPLICABLE

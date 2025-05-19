@@ -15,100 +15,101 @@ import { SMART_CONTRACT_STRATEGIES } from 'components/LaunchpadIssuance/types'
 export const isDefinedNumber = (foo: any) => ![undefined, null, ''].includes(foo) && !Number.isNaN(foo)
 
 export const getInitialValues = (smartContractStrategy?: SMART_CONTRACT_STRATEGIES) =>
-({
-  profilePicture: null,
-  cardPicture: null,
+  ({
+    profilePicture: null,
+    cardPicture: null,
 
-  shortDescription: '',
-  longDescription: '',
+    shortDescription: '',
+    longDescription: '',
 
-  title: '',
+    title: '',
 
-  companyIdNumber: '',
+    companyIdNumber: '',
 
-  investmentStructure: '',
-  issuerIdentificationNumber: '',
-
-  industry: null,
-  investmentType: null,
-
-  country: '',
-
-  tokenName: '',
-  tokenTicker: '',
-  decimals: '',
-  trusteeAddress: '',
-  tokenType: '',
-
-  network: null,
-
-  hardCap: '',
-  softCap: '',
-
-  tokenPrice: '',
-  tokenStandart:
-    smartContractStrategy === SMART_CONTRACT_STRATEGIES.nonOriginalWithNoAccess ? OfferTokenStandart.erc20 : null,
-  totalSupply: '',
-  tokenReceiverAddress: '',
-
-  minInvestment: '',
-  maxInvestment: '',
-
-  hasPresale: false,
-  presaleAlocated: '',
-  presaleMinInvestment: '',
-  presaleMaxInvestment: '',
-  presaleTokenPrice: '',
-
-  images: [],
-  videos: [{ url: '' }],
-
-  purchaseAgreement: null,
-  investmentMemorandum: null,
-  otherExecutionDocuments: [{ file: null }],
-  additionalDocuments: [{ file: null }],
-
-  members: [
-    {
-      photo: null,
-      name: '',
-      role: '',
-      about: '',
-    },
-  ],
-  faq: [
-    {
-      question: '',
-      answer: '',
-    },
-  ],
-
-  allowOnlyAccredited: false,
-  tokenomicsAgreement: false,
-
-  terms: {
     investmentStructure: '',
-    dividentYield: '',
-    investmentPeriod: '',
-    grossIrr: '',
-    distributionFrequency: '',
-  },
+    issuerIdentificationNumber: '',
 
-  timeframe: {
-    whitelist: null,
-    preSale: null,
-    sale: null,
-    closed: null,
-    claim: null,
-  },
+    industry: null,
+    investmentType: null,
 
-  social: [],
+    country: '',
+    restrictedJurisdictions: ['US', 'KP'] as string[],
 
-  website: '',
-  whitepaper: '',
-  email: '',
-  smartContractStrategy,
-} as unknown as InformationFormValues)
+    tokenName: '',
+    tokenTicker: '',
+    decimals: '',
+    trusteeAddress: '',
+    tokenType: '',
+
+    network: null,
+
+    hardCap: '',
+    softCap: '',
+
+    tokenPrice: '',
+    tokenStandart:
+      smartContractStrategy === SMART_CONTRACT_STRATEGIES.nonOriginalWithNoAccess ? OfferTokenStandart.erc20 : null,
+    totalSupply: '',
+    tokenReceiverAddress: '',
+
+    minInvestment: '',
+    maxInvestment: '',
+
+    hasPresale: false,
+    presaleAlocated: '',
+    presaleMinInvestment: '',
+    presaleMaxInvestment: '',
+    presaleTokenPrice: '',
+
+    images: [],
+    videos: [{ url: '' }],
+
+    purchaseAgreement: null,
+    investmentMemorandum: null,
+    otherExecutionDocuments: [{ file: null }],
+    additionalDocuments: [{ file: null }],
+
+    members: [
+      {
+        photo: null,
+        name: '',
+        role: '',
+        about: '',
+      },
+    ],
+    faq: [
+      {
+        question: '',
+        answer: '',
+      },
+    ],
+
+    allowOnlyAccredited: false,
+    tokenomicsAgreement: false,
+
+    terms: {
+      investmentStructure: '',
+      dividentYield: '',
+      investmentPeriod: '',
+      grossIrr: '',
+      distributionFrequency: '',
+    },
+
+    timeframe: {
+      whitelist: null,
+      preSale: null,
+      sale: null,
+      closed: null,
+      claim: null,
+    },
+
+    social: [],
+
+    website: '',
+    whitepaper: '',
+    email: '',
+    smartContractStrategy,
+  } as unknown as InformationFormValues)
 
 export const industryOptions = [
   { label: 'Blockchain', value: OfferIndustry.blockchain },
@@ -140,7 +141,11 @@ export const networkOptions = [
 
 export const ERC20Option = { label: 'ERC20', value: OfferTokenStandart.erc20 }
 export const RWAERC20Option = { label: 'RWA ERC-20', value: OfferTokenStandart.rwaErc20 }
-export const standardOptions = [ERC20Option, { label: 'XTokenLite', value: OfferTokenStandart.xtokenlite }, RWAERC20Option]
+export const standardOptions = [
+  ERC20Option,
+  { label: 'XTokenLite', value: OfferTokenStandart.xtokenlite },
+  RWAERC20Option,
+]
 
 export const structureOptions = [
   { label: 'ERC20', value: OfferTokenStandart.erc20 },
@@ -206,7 +211,9 @@ export const getSetter = (onChange: (e: Partial<React.ChangeEvent<any>>) => void
     })
 }
 
-export const calculateSupplyForSale = (offer: Pick<InformationFormValues, 'tokenPrice' | 'hasPresale' | 'presaleTokenPrice' | 'presaleAlocated' | 'hardCap'>) => {
+export const calculateSupplyForSale = (
+  offer: Pick<InformationFormValues, 'tokenPrice' | 'hasPresale' | 'presaleTokenPrice' | 'presaleAlocated' | 'hardCap'>
+) => {
   const { tokenPrice, hardCap, hasPresale, presaleTokenPrice, presaleAlocated } = offer
   if (!tokenPrice || !hardCap || +tokenPrice === 0) return '0'
 
