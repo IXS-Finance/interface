@@ -8,9 +8,7 @@ import useTransactions from 'hooks/dex-v2/useTransactions'
 import useExitPool from 'state/dexV2/pool/useExitPool'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import BalActionSteps from './BalActionSteps'
-import ConfirmationIndicator from 'pages/DexV2/common/ConfirmationIndicator'
-import styled from 'styled-components'
-import { Link } from 'react-router-dom'
+import ConfirmationIndicator, { ButtonReturnPool } from 'pages/DexV2/common/ConfirmationIndicator'
 
 interface WithdrawActionsProps {
   pool: Pool
@@ -34,8 +32,7 @@ const WithdrawActions: React.FC<WithdrawActionsProps> = ({ pool, onSuccess, onEr
     isTxPayloadReady,
   } = useExitPool(pool)
 
-  const redirectLabel: string = 'Return to pool page'
-
+  const redirectLabel: string = 'View pool'
   const isBuildingTx = !isTxPayloadReady
 
   // Build actions: merge approval actions with the withdrawal action.
@@ -118,26 +115,3 @@ const WithdrawActions: React.FC<WithdrawActionsProps> = ({ pool, onSuccess, onEr
 }
 
 export default WithdrawActions
-
-const ButtonReturnPool = styled(Link)`
-  text-decoration: none;
-  display: flex;
-  height: 48px;
-  padding: 12px 16px;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  align-self: stretch;
-  border-radius: 8px;
-  border: 1px solid #e6e6ff;
-  background: #fff;
-  width: 100%;
-  margin-top: 24px;
-
-  &:hover {
-    background: #f9f9ff;
-    border-color: #c6c6ff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-  }
-`
