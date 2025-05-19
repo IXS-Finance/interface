@@ -8,8 +8,7 @@ frontend:
   phases:
     preBuild:
       commands:
-        - nvm install $(cat .nvmrc)
-        - nvm use $(cat .nvmrc)
+        - nvm use $VERSION_NODE_20
         - node -v
         - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
         - cat .npmrc

@@ -1,12 +1,8 @@
-import { API_URL } from 'config'
 import { Asset } from 'state/launchpad/types'
 
-export const getPublicAssetUrl = (asset?: Pick<Asset, 'uuid'>): string => {
-  const storageUrl = API_URL + 'storage/file/public/'
-  return `${storageUrl}${asset?.uuid}`
-}
+const apiUrl = process.env.REACT_APP_API_URL
 
-export const getProtectedAssetUrl = (asset?: Pick<Asset, 'uuid'>): string => {
-  const storageUrl = API_URL + 'storage/file/protected/'
+export const getPublicAssetUrl = (asset?: Pick<Asset, 'uuid'>): string => {
+  const storageUrl = apiUrl + 'storage/file/public/'
   return `${storageUrl}${asset?.uuid}`
 }

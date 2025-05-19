@@ -12,7 +12,6 @@ import { PaginateResponse } from 'types/pagination'
 import { deleteWhitelistedWallet, getWhitelistedWallets, saveWhitelistedWallet } from './actions'
 import { emptyIssuanceDataStatistics } from './constants'
 import { ChangesRequestedValues, IssuanceDataStatisticsDto, WhitelistWallet, WhitelistWalletPayload } from './types'
-import saveCsvFile from 'utils/saveCsvFile'
 
 export interface UseDeleteWhitelistedArgs {
   onSuccess?: () => void
@@ -99,12 +98,22 @@ interface UseExtractReportArgs {
 export const useExtractReport = () => {
   const loader = useLoader()
 
+  const saveCsv = (csvData: any, issuanceId: string) => {
+    const blob = new Blob([csvData], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `issuance-${issuanceId}-data.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
   const extract = React.useCallback(({ fields, tab, issuanceId }: UseExtractReportArgs) => {
     loader.start()
     return apiService
       .post(`issuances/extract-report`, { fields, tab, issuanceId })
       .then((res) => res.data as any)
-      .then((data) => saveCsvFile(data, `issuance-${issuanceId}-data`))
+      .then((data) => saveCsv(data, issuanceId))
       .then(loader.stop)
   }, [])
 

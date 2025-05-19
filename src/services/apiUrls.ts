@@ -82,7 +82,6 @@ export const kyc = {
   getStatusStats: `newkyc/status/stats`,
   individualProgress: `newkyc/individual/progress`,
   corporateProgress: `newkyc/corporate/progress`,
-  exportCSV: `newkyc/extract-report`,
 }
 
 export const ip = {

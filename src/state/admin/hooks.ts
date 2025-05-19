@@ -345,7 +345,7 @@ export function useGetKycList() {
     async (params?: Record<string, string | number>) => {
       try {
         dispatch(getKycList.pending())
-        const data = await getKyc(params as Record<string, string | number>)
+        const data = await getKyc(params)
         dispatch(getKycList.fulfilled({ data }))
         return KYC_LIST_STATUS.SUCCESS
       } catch (error: any) {

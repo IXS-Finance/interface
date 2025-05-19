@@ -9,7 +9,7 @@ import { File } from 'react-feather'
 import { LoaderThin } from 'components/Loader/LoaderThin'
 import { getKycById, useAdminState, useGetKycList } from 'state/admin/hooks'
 import { CopyAddress } from 'components/CopyAddress'
-import { IndividualKycRiskRating, IndividualKycVersion, KycItem } from 'state/admin/actions'
+import { IndividualKycVersion, KycItem } from 'state/admin/actions'
 import { AdminKycFilters, TStats } from 'components/AdminKycFilters'
 import { adminOffset as offset } from 'state/admin/constants'
 import { KYCStatuses } from 'pages/KYC/enum'
@@ -20,7 +20,7 @@ import { StatusCell } from './StatusCell'
 import { KycReviewModal } from 'components/KycReviewModal'
 import { AdminParams } from 'pages/Admin'
 import { NoData } from 'components/UsersList/styleds'
-import { getStatusStats, useKYCState } from 'state/kyc/hooks'
+import { getStatusStats } from 'state/kyc/hooks'
 import { MEDIA_WIDTHS, TYPE } from 'theme'
 import { isMobile } from 'react-device-detect'
 import { SortIcon } from 'components/LaunchpadIssuance/utils/SortIcon'
@@ -31,9 +31,6 @@ import { OrderType } from 'state/launchpad/types'
 import { ReactComponent as EyeSvg } from 'assets/svg/eye.svg'
 import { ReactComponent as BellSvg } from 'assets/svg/bell.svg'
 import ReminderModal from './ReminderModal'
-import { CenteredFixed } from 'components/LaunchpadMisc/styled'
-import { Portal } from '@material-ui/core'
-import AdminKycExportCSVModal from 'components/AdminKycExportCSVModal'
 
 const headerCells = [
   { key: 'ethAddress', label: 'Wallet address', show: false },
@@ -45,22 +42,10 @@ const headerCells = [
   { key: 'completedKycOfProvider', label: 'Provider Status', show: false },
   { key: 'updatedAt', label: 'Updated At', show: true },
   { key: 'authorizer', label: 'Authorizer', show: true },
-  { key: 'riskRating', label: 'Risk Rating', show: true },
 ]
 interface RowProps {
   item: KycItem
   openModal: () => void
-}
-
-export type KycFilter = {
-  page: number
-  offset: number
-  search: string
-  identity: string
-  sortBy: string
-  sortDirection: OrderType
-  status?: string
-  date?: string
 }
 
 const Row: FC<RowProps> = ({ item, openModal }: RowProps) => {
@@ -99,8 +84,6 @@ const Row: FC<RowProps> = ({ item, openModal }: RowProps) => {
     approverName = approverUser ? [approverUser?.firstName, approverUser?.lastName].join(' ') : 'Automatic'
   }
 
-  const riskLevel = kyc?.overallRiskRating
-
   return (
     <StyledBodyRow key={id}>
       <Wallet style={{ fontSize: '12px' }}>
@@ -118,11 +101,6 @@ const Row: FC<RowProps> = ({ item, openModal }: RowProps) => {
       </div>
       <div style={{ fontSize: '12px' }}>{dayjs(updatedAt).format('MMM D, YYYY HH:mm')}</div>
       <div style={{ fontSize: '12px' }}>{approverName}</div>
-      <div>
-        {riskLevel && riskLevel !== IndividualKycRiskRating.NOT_SET ? (
-          <StyledRiskRating riskLevel={riskLevel}>{riskLevel}</StyledRiskRating>
-        ) : null}
-      </div>
 
       <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
         {status === KYCStatuses.DRAFT ? (
@@ -167,7 +145,6 @@ export const AdminKycTable = () => {
   const [sortBy, setSortBy] = useState('')
   const [sortDirection, setSortDirection] = useState<OrderType>('DESC')
   const [order, setOrder] = React.useState<KycOrderConfig>({})
-  const { openModalExportCSV } = useKYCState()
 
   const {
     kycList: { totalPages, page, items, totalItems },
@@ -178,7 +155,7 @@ export const AdminKycTable = () => {
   const history = useHistory()
 
   const { id } = useParams<AdminParams>()
-  const getKycFilters = (page: number, withStatus = true): KycFilter => {
+  const getKycFilters = (page: number, withStatus = true) => {
     let kycFilter: any = {
       page,
       offset,
@@ -207,13 +184,13 @@ export const AdminKycTable = () => {
   }, [searchValue, identity, selectedStatuses, endDate])
 
   useEffect(() => {
-    getKycList(getKycFilters(1) as Record<string, string | number>)
+    getKycList(getKycFilters(1))
   }, [getKycList, searchValue, identity, selectedStatuses, endDate, sortBy, sortDirection])
 
   const onPageChange = (page: number) => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
 
-    getKycList(getKycFilters(page) as Record<string, string | number>)
+    getKycList(getKycFilters(page))
   }
 
   const onChangeOrder = useOnChangeOrder(order as AbstractOrder, setOrder)
@@ -268,13 +245,6 @@ export const AdminKycTable = () => {
         endDate={endDate}
         setEndDate={setEndDate}
       />
-      {openModalExportCSV && (
-        <Portal>
-          <CenteredFixed width="100vw" height="100vh">
-            <AdminKycExportCSVModal filters={getKycFilters(0, true)} />
-          </CenteredFixed>
-        </Portal>
-      )}
 
       {items.length === 0 ? (
         <NoData>
@@ -347,7 +317,7 @@ export const StyledDoc = styled(File)`
 `
 
 const StyledHeaderRow = styled(HeaderRow)`
-  grid-template-columns: repeat(10, 1fr) 100px;
+  grid-template-columns: repeat(9, 1fr) 100px;
   padding-bottom: 15px;
   margin-bottom: 20px;
   border-bottom: 1px solid;
@@ -358,40 +328,8 @@ const StyledHeaderRow = styled(HeaderRow)`
 `
 
 const StyledBodyRow = styled(BodyRow)`
-  grid-template-columns: repeat(10, 1fr) 100px;
+  grid-template-columns: repeat(9, 1fr) 100px;
   @media (max-width: ${MEDIA_WIDTHS.upToSmall}px) {
     min-width: 1370px;
   }
-`
-
-const StyledRiskRating = styled.div<{ riskLevel: IndividualKycRiskRating }>`
-  font-size: 12px;
-  text-align: center;
-  width: 100%;
-  max-width: 72px;
-  padding: 6px;
-  border: 1px solid;
-  border-radius: 4px;
-  text-transform: capitalize;
-
-  ${({ riskLevel }) =>
-    riskLevel === IndividualKycRiskRating.LOW
-      ? `
-        border-color: #28c25c4d;
-        background: #28c25c1a;
-        color: #28c25c;
-      `
-      : riskLevel === IndividualKycRiskRating.MEDIUM
-      ? `
-        border-color: #FFC42B4D;
-        background: #FFC42B1A;
-        color: #FFC42B;
-      `
-      : riskLevel === IndividualKycRiskRating.HIGH
-      ? `
-        border-color: #FF99994D;
-        background: #FF99991A;
-        color: #FF9999;
-      `
-      : ''}
 `

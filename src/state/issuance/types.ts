@@ -25,7 +25,6 @@ export interface IssuanceDataExtract {
   transactionId: number
   nationality: string
   country: string
-  restrictedJurisdictions?: string[]
   accredited: number
   email: string
   occupation: string

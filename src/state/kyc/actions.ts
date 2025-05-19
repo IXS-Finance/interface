@@ -52,7 +52,6 @@ export interface MyKyc {
   user: RawGetMePayload
   individual: IndividualKyc | null
   corporate: CorporateKyc | null
-  restrictedJurisdictions: string[]
   audits: Array<{
     id: number
     userKycId: number
@@ -60,16 +59,4 @@ export interface MyKyc {
     createdAt: string
     updatedAt: string
   }>
-}
-
-export const toggleExportCSVModal = createAction<{ open: boolean }>('kyc/toggleExportCSVModal')
-export const setExportCSVOptionsRowLimit = createAction<{ rowLimit: number }>('kyc/setExportCSVOptionsRowLimit')
-export const exportCSV: Readonly<{
-  pending: ActionCreatorWithoutPayload
-  fulfilled: ActionCreatorWithPayload<any>
-  rejected: ActionCreatorWithPayload<{ errorMessage: string }>
-}> = {
-  pending: createAction('kyc/exportCSV/pending'),
-  fulfilled: createAction('kyc/exportCSV/fulfilled'),
-  rejected: createAction('kyc/exportCSV/rejected'),
 }

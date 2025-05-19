@@ -363,7 +363,7 @@ export const VettingForm = (props: Props) => {
                 <text>Supported file formats are doc, docx, PNG, JPG, JPEG and PDF.</text>
                 <br />
                 <ExampleLink
-                  href="https://s3.eu-central-1.amazonaws.com/static.ixswap.io/ownership-structure-example.pdf"
+                  href="https://s3.eu-central-1.amazonaws.com/static..ixswap.io/ownership-structure-example.pdf"
                   target="_blank"
                 >
                   See Examples

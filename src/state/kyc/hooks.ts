@@ -1,25 +1,15 @@
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { toast } from 'react-toastify'
 
 import apiService from 'services/apiService'
 import { kyc } from 'services/apiUrls'
 import { AppDispatch, AppState } from 'state'
 import { BROKER_DEALERS_STATUS } from 'state/brokerDealer/hooks'
-import {
-  createKYC,
-  exportCSV,
-  fetchGetMyKyc,
-  setExportCSVOptionsRowLimit,
-  toggleExportCSVModal,
-  updateKYC,
-} from './actions'
+import { createKYC, fetchGetMyKyc, updateKYC } from './actions'
 
 import { LONG_WAIT_RESPONSE } from 'constants/misc'
 import { KYCStatuses } from 'pages/KYC/enum'
 import React from 'react'
-import saveCsvFile from 'utils/saveCsvFile'
-import { KycFilter } from 'components/AdminKyc'
 
 const individualKYCFiles = ['proofOfAddress', 'proofOfIdentity', 'selfie', 'evidenceOfAccreditation']
 const corporateKYCFiles = [
@@ -46,7 +36,7 @@ export const getMyKyc = async () => {
   }
 }
 
-export const getStatusStats = async (params?: KycFilter) => {
+export const getStatusStats = async (params?: Record<string, string | number>) => {
   try {
     const result = await apiService.get(kyc.getStatusStats, undefined, params)
     return result.data
@@ -112,13 +102,7 @@ export const useEmailEdit = () => {
 
 export const useGenerateEmailVerifyCode = () => {
   return React.useCallback(
-    async (personalInfo: {
-      firstName: string
-      middleName: string
-      lastName: string
-      email: string
-      referralCode?: any
-    }) => {
+    async (personalInfo: { firstName: string; middleName: string; lastName: string; email: string; referralCode?: any }) => {
       try {
         const response = await apiService.post(`/kyc/individual/registration`, personalInfo)
         return { success: true, response }
@@ -658,55 +642,5 @@ export function useGetMyKyc() {
       return BROKER_DEALERS_STATUS.FAILED
     }
   }, [dispatch])
-  return callback
-}
-
-export const exportCSVApi = async (filters: KycFilter) => {
-  return apiService
-    .post(kyc.exportCSV, filters)
-    .then((res) => res.data as any)
-    .then((data) => saveCsvFile(data, `kyc-${new Date().getTime()}-data`))
-}
-
-export function useToggleExportCSVModal() {
-  const dispatch = useDispatch<AppDispatch>()
-  const callback = useCallback(
-    (open: boolean) => {
-      dispatch(toggleExportCSVModal({ open }))
-    },
-    [dispatch]
-  )
-  return callback
-}
-
-export function useSetExportCSVOptionsRowLimit() {
-  const dispatch = useDispatch<AppDispatch>()
-  const callback = useCallback(
-    (rowLimit: number) => {
-      dispatch(setExportCSVOptionsRowLimit({ rowLimit }))
-    },
-    [dispatch]
-  )
-  return callback
-}
-
-export function useExportCSV() {
-  const dispatch = useDispatch<AppDispatch>()
-  const callback = useCallback(
-    async (filters: KycFilter) => {
-      try {
-        dispatch(exportCSV.pending())
-        const data = await exportCSVApi(filters)
-        dispatch(exportCSV.fulfilled(data))
-        toast.success('CSV file has been downloaded.')
-        return data
-      } catch (error: any) {
-        dispatch(exportCSV.rejected({ errorMessage: 'Could not export csv' }))
-        toast.error('Could not export csv')
-        return false
-      }
-    },
-    [dispatch]
-  )
   return callback
 }

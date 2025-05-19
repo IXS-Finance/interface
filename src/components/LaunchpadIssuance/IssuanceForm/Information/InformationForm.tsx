@@ -54,7 +54,6 @@ import { FormSideBar, FormBody } from '../shared/styled'
 import { IssuanceTooltip } from '../shared/fields/IssuanceTooltip'
 import { text10 } from 'components/LaunchpadMisc/typography'
 import { useWhitelabelState } from 'state/whitelabel/hooks'
-import { MultipleDropdownField } from '../shared/fields/MultipleDropdownField'
 
 interface Props {
   formikProps: FormikProps<InformationFormValues>
@@ -352,17 +351,7 @@ export const InformationForm = (props: Props) => {
             error={(touched.country && errors.country) as string}
           />
 
-          <MultipleDropdownField
-            field="restrictedJurisdictions"
-            setter={setFieldValue}
-            touch={setFieldTouched}
-            label="Restricted Jurisdictions"
-            options={countries}
-            searchable
-            value={values.restrictedJurisdictions}
-            error={(touched.restrictedJurisdictions && errors.restrictedJurisdictions) as string}
-          />
-
+          <div id="empty-row" />
           <BaseCheckboxWithLabel
             state={Boolean(values.allowOnlyAccredited)}
             toggle={() => setFieldValue('allowOnlyAccredited', !values.allowOnlyAccredited)}
