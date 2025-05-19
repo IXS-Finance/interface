@@ -89,12 +89,7 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
                   <Asset address={address} size={24} />
                   <Flex flexDirection="column">
                     <div> {symbolFor(i)}</div>
-                    <Box css={{ color: '#B8B8D2' }}>
-                      {fNum(weight || '0', {
-                        style: 'percent',
-                        maximumFractionDigits: 0,
-                      })}
-                    </Box>
+                    <Box css={{ color: '#B8B8D2' }}>{fNum(weight || '0', FNumFormats.percent)}</Box>
                   </Flex>
                 </Flex>
 
