@@ -4,8 +4,8 @@ import numeral from 'numeral'
 import { bnum } from '.'
 
 export function isRequired(field = '') {
-  const _field = field ? `${field} ` : 'Input '
-  return (v: any) => !!v || `${_field} is required`
+  const label = field || 'Field'
+  return (v: any) => !!v || `${label} is required`
 }
 
 export function minChar(minLength: number, field = '') {

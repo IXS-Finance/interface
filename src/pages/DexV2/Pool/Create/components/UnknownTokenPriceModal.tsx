@@ -1,27 +1,15 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { Box, Flex } from 'rebass'
+
 import Modal from '../../../common/modals'
-import styled from 'styled-components'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { TokenPrices } from 'hooks/dex-v2/queries/useTokenPricesQuery'
 import BalStack from '../../../common/BalStack'
-import { isLessThanOrEqualTo } from 'lib/utils/validations'
+import { isLessThanOrEqualTo, isRequired, isGreaterThan } from 'lib/utils/validations'
 import BalBtn from '../../../common/popovers/BalBtn'
 import { bnum, isSameAddress, selectByAddress, formatWordListAsSentence } from 'lib/utils'
 import TokenPriceInput from './TokenPriceInput'
-import { Box, Flex } from 'rebass'
-// import BalStack from '@/components/BalStack';
-// import BalBtn from '@/components/BalBtn';
-// import usePoolCreation from '@/composables/pools/usePoolCreation';
-// import { useTokens } from '@/providers/tokens.provider';
-// import { useTranslation } from 'react-i18next'; // or your i18n hook
-// import {
-//   bnum,
-//   formatWordListAsSentence,
-//   isSameAddress,
-//   selectByAddress,
-// } from '@/lib/utils';
-// import { isLessThanOrEqualTo } from '@/lib/utils/validations';
 
 interface UnknownTokenPriceModalProps {
   visible: boolean
@@ -31,31 +19,28 @@ interface UnknownTokenPriceModalProps {
 
 const PRICE_CAP = 100000000 // hundred million max price
 
-const UnknownTokenPriceModal: React.FC<UnknownTokenPriceModalProps> = ({ visible, onClose, unknownTokens = [] }) => {
-  // Composables/hooks from your existing code.
+const UnknownTokenPriceModal: React.FC<UnknownTokenPriceModalProps> = ({ onClose, unknownTokens = [] }) => {
   const { seedTokens } = usePoolCreation()
   const { getToken, injectPrices } = useTokens()
 
-  // Local state for the user–defined token prices.
+  const [validities, setValidities] = useState<Record<string, boolean>>({})
   const [userDefinedTokenPrices, setUserDefinedTokenPrices] = useState<TokenPrices>({})
 
-  // Compute a comma–separated sentence of token symbols.
   const tokenSymbols = unknownTokens.map((tokenAddress) => getToken(tokenAddress)?.symbol)
   const readableUnknownTokenSymbols = formatWordListAsSentence(tokenSymbols)
 
-  // Determine if the submit button should be disabled.
   const noPricesEntered = unknownTokens.some((token) => selectByAddress(userDefinedTokenPrices, token) === undefined)
   const hasLargePrice = unknownTokens.some((token) =>
     bnum(selectByAddress(userDefinedTokenPrices, token) || '0').gt(PRICE_CAP)
   )
   const isSubmitDisabled = noPricesEntered || hasLargePrice
+  const hasValidationError = unknownTokens.some((addr) => validities[addr] === false)
+  const canSubmit = !isSubmitDisabled && !hasValidationError
 
-  // Find the index of an unknown token in seedTokens.
   function getIndexOfUnknownToken(address: string): number {
     return seedTokens.findIndex((token) => isSameAddress(address, token.tokenAddress))
   }
 
-  // Handler to update token price in local state.
   const handleTokenPriceChange = (address: string, amount: string) => {
     setUserDefinedTokenPrices((prev: any) => ({
       ...prev,
@@ -63,11 +48,18 @@ const UnknownTokenPriceModal: React.FC<UnknownTokenPriceModalProps> = ({ visible
     }))
   }
 
-  // Inject the unknown prices and close the modal.
   const injectUnknownPrices = () => {
     injectPrices(userDefinedTokenPrices)
     onClose()
   }
+
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [])
 
   return (
     <Modal noPadding onClose={onClose}>
@@ -105,12 +97,17 @@ const UnknownTokenPriceModal: React.FC<UnknownTokenPriceModalProps> = ({ visible
                 name={`initial-token-${seedTokens[getIndexOfUnknownToken(address)]?.tokenAddress}`}
                 noMax
                 hideFooter
-                rules={[isLessThanOrEqualTo(PRICE_CAP, `Must be less than $${PRICE_CAP.toLocaleString()}`)]}
+                rules={[
+                  isRequired('Price'),
+                  isGreaterThan(0, 'Price must be greater than 0'),
+                  isLessThanOrEqualTo(PRICE_CAP, `Must be less than $${PRICE_CAP.toLocaleString()}`),
+                ]}
+                onValidityChange={(isValid) => setValidities((prev) => ({ ...prev, [address]: isValid }))}
                 ignoreWalletBalance
               />
             ))}
           </BalStack>
-          <BalBtn disabled={isSubmitDisabled} onClick={injectUnknownPrices}>
+          <BalBtn disabled={!canSubmit} onClick={injectUnknownPrices}>
             Submit
           </BalBtn>
         </Flex>
