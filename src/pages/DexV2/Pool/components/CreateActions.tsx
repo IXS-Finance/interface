@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react'
+import { TransactionReceipt } from '@ethersproject/abstract-provider'
+
 import { TransactionActionInfo } from 'pages/DexV2/types/transactions'
 import { usePoolCreation } from 'state/dexV2/poolCreation/hooks/usePoolCreation'
 import useTokenApprovalActions from 'hooks/dex-v2/approvals/useTokenApprovalActions'
@@ -18,10 +20,10 @@ interface Props {
   amounts: string[]
   createDisabled: boolean
   goBack: () => void
-  success: () => void
+  success: (tx: TransactionReceipt, confirmedAt: string) => void
 }
 
-const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => {
+const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack, success }) => {
   const { needsSeeding, hasRestoredFromSavedState, poolTypeString, createPool, joinPool } = usePoolCreation()
   const { getTokenApprovalActions } = useTokenApprovalActions()
   const { chainId } = useWeb3React()
@@ -98,7 +100,13 @@ const CreateActions: React.FC<Props> = ({ amounts, tokenAddresses, goBack }) => 
 
   return (
     <div>
-      <ActionSteps requiredActions={requiredActions} primaryActionType="createPool" disabled={false} goBack={goBack} />
+      <ActionSteps
+        requiredActions={requiredActions}
+        primaryActionType="createPool"
+        disabled={false}
+        goBack={goBack}
+        onSuccess={success}
+      />
     </div>
   )
 }

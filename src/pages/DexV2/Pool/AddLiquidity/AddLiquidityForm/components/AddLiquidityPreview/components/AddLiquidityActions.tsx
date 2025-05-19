@@ -11,7 +11,7 @@ import { useJoinPool } from 'state/dexV2/pool/useJoinPool'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { usePoolHelpers } from 'hooks/dex-v2/usePoolHelpers'
 import ActionSteps from './ActionSteps'
-import FeedbackCard from 'pages/DexV2/common/FeedbackCard'
+import ConfirmationIndicator, { ButtonReturnPool } from 'pages/DexV2/common/ConfirmationIndicator'
 // import usePoolStaking from '@/hooks/usePoolStaking';
 
 // // UI Components (assumed to be available as React components)
@@ -49,6 +49,9 @@ const AddLiquidityActions: React.FC<Props> = ({ pool, onSuccess }) => {
       stepTooltip: 'Confirm your liquidity add into this pool',
     },
   ]
+
+  const returnRoute = { pathname: `/v2/pool/${pool.id}`, search: '' }
+  const redirectLabel: string = 'View pool'
 
   // Methods
   async function handleSuccess(receipt: TransactionReceipt, confirmedAt: string): Promise<void> {
@@ -109,15 +112,10 @@ const AddLiquidityActions: React.FC<Props> = ({ pool, onSuccess }) => {
         />
       ) : (
         <div>
-          {/* <ConfirmationIndicator txReceipt={txState.receipt} /> */}
-
-          {/* <BalBtn as="a" href={`/pool/${pool.id}`} color="gray" outline block size="sm" style={{ marginTop: '0.5rem' }}>
-            {t('returnToPool')}
-          </BalBtn> */}
+          <ConfirmationIndicator txReceipt={txState.receipt} />
+          <ButtonReturnPool to={`${returnRoute.pathname}${returnRoute.search}`}>{redirectLabel}</ButtonReturnPool>
         </div>
       )}
-
-      {/* {(txState.confirming || txState.confirmed) && <FeedbackCard style={{ marginTop: '0.75rem' }} />} */}
     </Container>
   )
 }
