@@ -416,13 +416,6 @@ export enum IndividualKycVersion {
   v2 = 'v2',
 }
 
-export enum IndividualKycRiskRating {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high',
-  NOT_SET = 'not_set',
-}
-
 export interface IndividualKyc {
   accredited: number
   address: {
@@ -466,7 +459,6 @@ export interface IndividualKyc {
   taxDeclarations: TaxDeclaration[]
   [key: string]: any
   version: IndividualKycVersion
-  overallRiskRating: IndividualKycRiskRating
 }
 
 export interface TaxDeclaration {
@@ -512,7 +504,6 @@ export interface CorporateKyc {
   usTin: string | null
   investorDeclarationStatus: InvestorDeclaration
   taxDeclarations: TaxDeclaration[]
-  countryOfIncorporation: string
   [key: string]: any
 }
 
@@ -539,7 +530,6 @@ interface Audit {
 }
 
 export interface KycItem {
-  authorizerNote?: string
   customerId?: number
   documentVerificationStatus?: string | undefined
   amlVerificationStatus?: string | undefined

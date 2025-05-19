@@ -249,7 +249,6 @@ export interface Offer {
   capitalStructure: OfferCapitalStructure
 
   country: string
-  restrictedJurisdictions: string[]
 
   socialMedia: OfferSocialMediaLinks
 

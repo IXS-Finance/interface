@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import styled from 'styled-components'
 import dayjs from 'dayjs'
+import axios from 'axios'
 
 import pdfIcon from 'assets/images/pdf.svg'
 import { EllipsisText, MEDIA_WIDTHS } from 'theme'
 import { Document } from 'state/admin/actions'
 import { KycDocPreviewModal } from 'components/KycDocPreviewModal'
-import { getProtectedAssetUrl } from 'components/TokenLogo/utils'
-import apiService from 'services/apiService'
+import { getPublicAssetUrl } from 'components/TokenLogo/utils'
 
 const headerCells = [`File`, `Type`, `Uploaded At`]
 
@@ -34,11 +34,14 @@ const extractDocType = (docName: any) => docName?.substring(docName.lastIndexOf(
 const downloadFile = async (url: string, name: string, type: string) => {
   const link = document.createElement('a')
 
-  const { data } = await apiService.get(url, {
+  const { data } = (await axios(url, {
     responseType: 'blob',
-  })
+  })) as any
+
+  const blob = new Blob([data], { type })
+
   link.download = name
-  link.href = URL.createObjectURL(data)
+  link.href = URL.createObjectURL(blob)
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
@@ -73,7 +76,7 @@ const Row = ({
   kycKey: any
 }) => {
   const name = asset?.name || ''
-  const publicUrl = getProtectedAssetUrl(asset) || ''
+  const publicUrl = getPublicAssetUrl(asset) || ''
   const mimeType = asset?.mimeType || ''
 
   const openModal = () => {
