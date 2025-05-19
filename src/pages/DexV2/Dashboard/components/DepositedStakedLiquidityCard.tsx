@@ -28,7 +28,7 @@ type CardBodyProps = {
   gaugeAddress: string
   userLpBalance?: bigint
   userGaugeBalance?: bigint
-  aprValue: bigint
+  aprValue: string
   lpSupply?: BigNumber
   showMore: boolean
   rowIndex?: number
@@ -198,7 +198,7 @@ interface CardItemProps {
     balance: string
     symbol?: string
   }[]
-  apr?: bigint
+  apr?: string
   userGaugeBalance?: bigint
   userLpBalance?: bigint
   emissionsAmount?: string
@@ -245,9 +245,7 @@ const CardItem = ({
           <Box>
             {apr !== undefined && (
               <Stack direction="row" alignItems="center" gap={0.5}>
-                <TYPE.subHeader1 color="text1">
-                  {fNum('apr', new Big(apr.toString()).div(10000).toString())}
-                </TYPE.subHeader1>
+                <TYPE.subHeader1 color="text1">{fNum('apr', apr)}</TYPE.subHeader1>
               </Stack>
             )}
           </Box>
