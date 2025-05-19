@@ -1086,6 +1086,7 @@ export const useOfferFormInitialValues = (
         tokenomicsAgreement: payload.tokenomicsAgreement,
 
         country: payload.country,
+        restrictedJurisdictions: payload.restrictedJurisdictions,
         email: payload.contactUsEmail,
         website: payload.issuerWebsite,
         whitepaper: payload.whitepaperUrl,
@@ -1214,7 +1215,10 @@ export const useSubmitOffer = () => {
       const findDoc = (prefix: 'member.photo' | 'document' | 'image' | 'otherExecutionDocument', idx: number) =>
         uploadedFiles.find((x) => x.name === `${prefix}.${idx}`)?.id
       const purchaseAgreementId =
-        uploadedFiles.find((x) => x.name === 'purchaseAgreement')?.id || payload.purchaseAgreement?.file?.file?.id || null
+        uploadedFiles.find((x) => x.name === 'purchaseAgreement')?.id ||
+        payload.purchaseAgreement?.file?.file?.id ||
+        null
+
       const investmentMemorandumId =
         uploadedFiles.find((x) => x.name === 'investmentMemorandum')?.id ||
         payload.investmentMemorandum?.file?.file?.id ||
@@ -1246,6 +1250,7 @@ export const useSubmitOffer = () => {
         industry: payload.industry,
         investmentType: payload.investmentType,
         country: payload.country,
+        restrictedJurisdictions: payload.restrictedJurisdictions,
 
         socialMedia: payload.social.reduce((acc, e) => ({ ...acc, [e.type]: e.url }), {}),
 
@@ -1404,9 +1409,13 @@ export const useMinimalOfferEdit = () => {
       files.find((x) => x.name === `${prefix}.${idx}`)?.id
 
     const purchaseAgreementId =
-      files.find((x) => x.name === 'purchaseAgreement')?.id || payload.purchaseAgreement?.file?.id || null
+      files.find((x) => x.name === 'purchaseAgreement')?.id || // file id is from uploaded files
+      payload.purchaseAgreement?.file?.file.id || // if we keep the file in the state
+      null
     const investmentMemorandumId =
-      files.find((x) => x.name === 'investmentMemorandum')?.id || payload.investmentMemorandum?.file?.id || null
+      files.find((x) => x.name === 'investmentMemorandum')?.id || // file id is from uploaded files
+      payload.investmentMemorandum?.file?.file.id || // if we keep the file in the state
+      null
 
     const executionDocuments = []
     if (purchaseAgreementId)
@@ -1429,6 +1438,7 @@ export const useMinimalOfferEdit = () => {
       industry: payload.industry,
       investmentType: payload.investmentType,
       country: payload.country,
+      restrictedJurisdictions: payload.restrictedJurisdictions,
 
       contactUsEmail: payload.email,
       issuerWebsite: payload.website,

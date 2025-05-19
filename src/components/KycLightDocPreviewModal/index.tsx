@@ -11,7 +11,8 @@ import RedesignedLightWideModal from 'components/Modal/RedesignedLightWideModal'
 import { IconWrapper } from 'components/AccountDetails/styleds'
 import { ButtonGradient } from 'components/Button'
 import { AcceptFiles } from 'components/Upload/types'
-import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer'
+import { getPublicAssetUrl } from 'components/TokenLogo/utils'
+import DocumentViewer from 'components/DocumentViewer'
 
 export const Image = styled.img`
   max-width: 100%;
@@ -32,52 +33,49 @@ interface Props {
 
 export const KycLightDocPreviewModal = ({ isOpen, onClose, data, downloadFile }: Props) => {
   return (
-    <>
-      <RedesignedLightWideModal isOpen={isOpen} onDismiss={onClose}>
-        <ModalLightBlurWrapper style={{ position: 'relative' }}>
-          <ModalContent>
-            <TitleContainer>
-              <Title>
-                <Trans>Documents</Trans>
-                <Wrapper>
-                  <CloseIcon data-testid="cross" onClick={onClose} />
-                </Wrapper>
-              </Title>
-            </TitleContainer>
-            <Body className="file-viewer-canvas-wrapper">
-              {data?.map(({ asset, id }: any) => {
-                const docs = [{ uri: asset.public }]
-                return (
-                  <>
-                    {asset.mimeType === AcceptFiles.PDF ? (
-                      <div>
-                        <div className="file-viewer-title">
-                          <EllipsisText style={{ width: 'calc(100% - 40px)', whiteSpace: 'pre-wrap' }}>
-                            {asset.name}
-                          </EllipsisText>
-                          <StyledDocPreviewButton
-                            onClick={() => downloadFile(asset.public, asset.name, asset.mimeType)}
-                          >
-                            <IconWrapper style={{ margin: 0 }} size={18}>
-                              <StyledDownload />
-                            </IconWrapper>
-                          </StyledDocPreviewButton>
-                        </div>
-                        <FileContainer>
-                          <DocViewer documents={docs} pluginRenderers={DocViewerRenderers} />
-                        </FileContainer>
+    <RedesignedLightWideModal isOpen={isOpen} onDismiss={onClose}>
+      <ModalLightBlurWrapper style={{ position: 'relative' }}>
+        <ModalContent>
+          <TitleContainer>
+            <Title>
+              <Trans>Documents</Trans>
+              <Wrapper>
+                <CloseIcon data-testid="cross" onClick={onClose} />
+              </Wrapper>
+            </Title>
+          </TitleContainer>
+          <Body className="file-viewer-canvas-wrapper">
+            {data?.map(({ asset, id }: any) => {
+              const publicUrl = getPublicAssetUrl(asset)
+
+              return (
+                <>
+                  {asset.mimeType === AcceptFiles.PDF ? (
+                    <div key={`file-viewer-${id}`}>
+                      <div className="file-viewer-title">
+                        <EllipsisText style={{ width: 'calc(100% - 40px)', whiteSpace: 'pre-wrap' }}>
+                          {asset.name}
+                        </EllipsisText>
+                        <StyledDocPreviewButton onClick={() => downloadFile(publicUrl, asset.name, asset.mimeType)}>
+                          <IconWrapper style={{ margin: 0 }} size={18}>
+                            <StyledDownload />
+                          </IconWrapper>
+                        </StyledDocPreviewButton>
                       </div>
-                    ) : (
-                      <Image key={id} src={asset.public} alt="" />
-                    )}
-                  </>
-                )
-              })}
-            </Body>
-          </ModalContent>
-        </ModalLightBlurWrapper>
-      </RedesignedLightWideModal>
-    </>
+                      <FileContainer>
+                        <DocumentViewer file={publicUrl} />
+                      </FileContainer>
+                    </div>
+                  ) : (
+                    <Image key={id} src={publicUrl} alt="" />
+                  )}
+                </>
+              )
+            })}
+          </Body>
+        </ModalContent>
+      </ModalLightBlurWrapper>
+    </RedesignedLightWideModal>
   )
 }
 
