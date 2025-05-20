@@ -1,12 +1,15 @@
 import React, { useMemo } from 'react'
 import ReactECharts from 'echarts-for-react'
 
-import { bnum } from 'lib/utils'
+import { Pool } from 'services/pool/types'
 import useNumbers from 'hooks/dex-v2/useNumbers'
 import dayjs from 'dayjs'
 import { Box } from 'rebass'
+import usePoolSnapshotsQuery from 'hooks/dex-v2/queries/usePoolSnapshotsQuery'
 
-interface PoolChartProps {}
+interface PoolChartProps {
+  pool: Pool
+}
 
 export const getDefaultPoolChartOptions = (currencyFormatter: any) => {
   // Light mode tooltip styles (static)
@@ -104,21 +107,15 @@ export const getDefaultPoolChartOptions = (currencyFormatter: any) => {
   }
 }
 
-const PoolCharts: React.FC<PoolChartProps> = () => {
+const PoolCharts: React.FC<PoolChartProps> = ({ pool }) => {
   const { fNum } = useNumbers()
+  const { data: snapshotValues } = usePoolSnapshotsQuery(pool.id, 30)
 
   const defaultChartOptions = getDefaultPoolChartOptions(fNum)
-  const processedChartData = Array.from({ length: 30 }, (_, i) => {
-    // Get timestamp in seconds. Today minus (29 - i) days for 30 total points.
-    const timestamp = Math.floor(
-      dayjs()
-        .subtract(29 - i, 'day')
-        .valueOf() / 1000
-    )
-    // Generate a fake value between 100 and 500.
-    const value = 100 + Math.random() * 400
-    return [timestamp, value]
-  })
+  const processedChartData = Object.keys(snapshotValues || {}).map((date: string) => [
+    +date / 1000,
+    snapshotValues[+date].swapVolume,
+  ])
 
   const options = useMemo(() => {
     const activeTabOptions = {
