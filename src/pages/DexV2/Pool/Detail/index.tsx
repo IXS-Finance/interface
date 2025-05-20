@@ -72,7 +72,7 @@ const PoolDetail: React.FC = () => {
                   <LoadingBlock darker rounded="lg" className="h-375" />
                 ) : (
                   <Box>
-                    <PoolChart />
+                    <PoolChart pool={pool} />
                   </Box>
                 )}
               </Box>

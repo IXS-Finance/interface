@@ -44,9 +44,10 @@ export default function usePoolSnapshotsQuery(id: string, days?: number, options
     const createTime = storedPool?.createTime || pool?.createTime || 0
 
     const nowTimestap = new Date().getTime()
+    const daysInMs = days ? days * oneDayInMs : oneDayInMs
     const thousandDaysInMs = 1000 * oneDayInMs
 
-    let timestamp = Math.floor((nowTimestap - thousandDaysInMs) / 1000)
+    let timestamp = Math.floor((nowTimestap - (days ? daysInMs : thousandDaysInMs)) / 1000)
 
     if (timestamp < createTime) {
       timestamp = createTime
