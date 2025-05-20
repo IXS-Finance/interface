@@ -14,9 +14,9 @@ import CurrencyLogoSet from 'components/CurrencyLogoSet'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import useFlattenedLocks from 'hooks/dex-v2/queries/useFlattenedLocks'
 import { LockedData } from 'services/balancer/contracts/ve-sugar'
-import useLiquidityPool from '../hooks/useLiquidityPool'
 import ClaimVotingRewardButton from './ClaimVotingRewardButton'
 import EmptyList from './EmptyList'
+import useGauges from 'hooks/dex-v2/pools/useGauges'
 
 const VotingRewards = () => {
   return (
@@ -85,7 +85,7 @@ type FeeAndBribeRewardPerRow = {
 
 const VotingRewardPerVote = ({ votedLockReward, lockData }: { votedLockReward: VoteItem; lockData: LockedData }) => {
   const pools = votedLockReward.pools
-  const { gaugesByPool } = useLiquidityPool()
+  const { gaugeFor } = useGauges()
   const poolAddresses = pools.map((pool) => pool.lp)
 
   const { data: votingRewardsPerPool } = useVotingQuery(poolAddresses, votedLockReward.id)
@@ -99,7 +99,7 @@ const VotingRewardPerVote = ({ votedLockReward, lockData }: { votedLockReward: V
           bribeRewards: votingRewardsPerPool?.bribeRewards[i],
           bribeTokens: votingRewardsPerPool?.bribeTokens[i],
         } as FeeAndBribeRewardPerRow
-        const gaugeAddress = gaugesByPool[poolAddress.lp.toLowerCase() as Address]
+        const gaugeAddress = gaugeFor(poolAddress.lp.toLowerCase())?.address as Address
         return (
           <Grid item key={`vote-${votedLockReward.id}-pool-${poolAddress}`}>
             <VotingRewardRow votingReward={votingReward} lockData={lockData} gaugeAddress={gaugeAddress} />

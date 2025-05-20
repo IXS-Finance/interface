@@ -10,14 +10,15 @@ import { useDispatch } from 'react-redux'
 import { setAllowances } from 'state/dexV2/tokens'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import EmptyList from './EmptyList'
+import useGauges from 'hooks/dex-v2/pools/useGauges'
 
 const DepositedStakedLiquidity = () => {
   const dispatch = useDispatch()
+  const { gauges, gaugeFor } = useGauges()
   const {
     lpSupplyByPool,
     userLpBalanceByPool,
     userGaugeBalanceByGauge,
-    gaugesByPool,
     pools,
     earnedTradingFeesByGauge,
     earnedEmissionsByGauge,
@@ -25,10 +26,10 @@ const DepositedStakedLiquidity = () => {
   } = useLiquidityPool()
   const { injectSpenders, injectTokens, refetchAllowances } = useTokens()
   const lpTokenAddresses = pools?.map((data) => data.address)
-  const gaugeAddresses = lpTokenAddresses?.map((address) => gaugesByPool[address])
+  const gaugeAddresses = gauges?.map((gauge) => gauge.address)
   const { data: allowanceData } = useAllowancesQuery({
     tokenAddresses: lpTokenAddresses,
-    contractAddresses: gaugeAddresses,
+    contractAddresses: gaugeAddresses!,
     isEnabled: !!(lpTokenAddresses?.length && gaugeAddresses?.length),
   })
   useEffect(() => {
@@ -39,9 +40,14 @@ const DepositedStakedLiquidity = () => {
 
   useEffect(() => {
     injectTokens(pools?.map((data) => data.address))
-    injectSpenders(gaugeAddresses)
     refetchAllowances()
   }, [JSON.stringify(pools)])
+
+  useEffect(() => {
+    if (!gaugeAddresses) return
+
+    injectSpenders(gaugeAddresses)
+  }, [JSON.stringify(gaugeAddresses)])
 
   return (
     <Box mb={8}>
@@ -57,7 +63,7 @@ const DepositedStakedLiquidity = () => {
         {(!pools || pools?.length === 0) && <EmptyList />}
         {pools
           ?.filter((pool) => {
-            const gaugeAddress = gaugesByPool[pool.address]
+            const gaugeAddress = gaugeFor(pool.address)?.address
             const hasStaked = gaugeAddress && userGaugeBalanceByGauge?.[gaugeAddress] > 0
             const hasLpBalance = userLpBalanceByPool?.[pool.address] > 0
             const hasEarnedTradingFees =
@@ -66,18 +72,18 @@ const DepositedStakedLiquidity = () => {
             return hasStaked || hasLpBalance || hasEarnedTradingFees || hasEmissions
           })
           .map((data, index) => {
-            const gaugeAddress = gaugesByPool[data.address]
+            const gaugeAddress = gaugeFor(data.address)?.address
             return (
               <DepositedStakedLiquidityRow
                 data={data}
                 gaugeAddress={gaugeAddress}
                 userLpBalance={userLpBalanceByPool?.[data.address]}
-                userGaugeBalance={userGaugeBalanceByGauge?.[gaugeAddress]}
+                userGaugeBalance={gaugeAddress && userGaugeBalanceByGauge?.[gaugeAddress]}
                 lpSupply={lpSupplyByPool?.[data.address]}
                 key={data.id}
                 rowIndex={index}
-                earnedTradingFees={earnedTradingFeesByGauge?.[gaugeAddress]}
-                earnedEmissions={earnedEmissionsByGauge?.[gaugeAddress]}
+                earnedTradingFees={gaugeAddress && earnedTradingFeesByGauge?.[gaugeAddress]}
+                earnedEmissions={gaugeAddress && earnedEmissionsByGauge?.[gaugeAddress]}
                 claim={claim}
               />
             )

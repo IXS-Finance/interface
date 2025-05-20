@@ -23,7 +23,7 @@ const MAX_TOKEN_WEIGHT_DIGITS = 2
 
 type DepositedStakedLiquidityRowProps = {
   data: Pool
-  gaugeAddress: string
+  gaugeAddress?: string
   userLpBalance?: bigint
   userGaugeBalance?: bigint
   lpSupply?: BigNumber
