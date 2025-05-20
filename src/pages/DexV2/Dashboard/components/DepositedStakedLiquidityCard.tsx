@@ -2,7 +2,7 @@ import { toast } from 'react-toastify'
 import { formatUnits } from 'viem'
 import { BigNumber } from 'ethers'
 import { TransactionResponse } from '@ethersproject/providers'
-import Big from 'big.js'
+import Big from 'bignumber.js'
 import { useHistory } from 'react-router-dom'
 import { Box, Button, Grid, Stack } from '@mui/material'
 
@@ -20,12 +20,13 @@ import { TYPE } from 'theme'
 import { Line } from 'components/Line'
 import { fNum } from 'lib/balancer/utils/numbers'
 import { Pool, PoolToken } from 'services/pool/types'
+import { bnum } from 'lib/utils'
 
 const MAX_FRACTION_DIGITS = 5
 
 type CardBodyProps = {
   data: Pool
-  gaugeAddress: string
+  gaugeAddress?: string
   userLpBalance?: bigint
   userGaugeBalance?: bigint
   aprValue: string
@@ -58,10 +59,10 @@ const CardBody = ({
   const getStakedAmount = useCallback(
     (token: PoolToken): Big => {
       if (!userGaugeBalance || !lpSupply || lpSupply.toString() === '0') {
-        return new Big(0)
+        return bnum(0)
       }
 
-      return new Big(userGaugeBalance.toString()).div(lpSupply.toString()).mul(token.balance)
+      return bnum(userGaugeBalance).div(lpSupply.toString()).times(token.balance.toString())
     },
     [userGaugeBalance, lpSupply]
   )
@@ -69,10 +70,10 @@ const CardBody = ({
   const getUnstakedAmount = useCallback(
     (token: PoolToken): Big => {
       if (!userLpBalance || !lpSupply || lpSupply.toString() === '0') {
-        return new Big(0)
+        return bnum(0)
       }
 
-      return new Big(userLpBalance.toString()).div(lpSupply.toString()).mul(token.balance)
+      return bnum(userLpBalance).div(lpSupply.toString()).times(token.balance)
     },
     [userLpBalance]
   )
@@ -268,9 +269,9 @@ const CardItem = ({
           {showStakeBtn && (
             <CardButton
               size="small"
-              disabled={userLpBalance && new Big(userLpBalance?.toString() || '0').gt(0) ? false : true}
+              disabled={userLpBalance && bnum(userLpBalance || '0').gt(0) ? false : true}
               onClick={() => {
-                if (userLpBalance && new Big(userLpBalance?.toString() || '0').gt(0)) {
+                if (userLpBalance && bnum(userLpBalance || '0').gt(0)) {
                   handleStakeAction?.()
                 }
               }}
@@ -282,9 +283,9 @@ const CardItem = ({
           {showWithdrawBtn && (
             <CardButton
               size="small"
-              disabled={userLpBalance && new Big(userLpBalance?.toString() || '0').gt(0) ? false : true}
+              disabled={userLpBalance && bnum(userLpBalance || '0').gt(0) ? false : true}
               onClick={() => {
-                if (userLpBalance && new Big(userLpBalance?.toString() || '0').gt(0)) {
+                if (userLpBalance && bnum(userLpBalance || '0').gt(0)) {
                   handleWithdrawAction?.()
                 }
               }}
@@ -295,9 +296,9 @@ const CardItem = ({
           {showUnstakeBtn && (
             <CardButton
               size="small"
-              disabled={userGaugeBalance && new Big(userGaugeBalance?.toString() || '0').gt(0) ? false : true}
+              disabled={userGaugeBalance && bnum(userGaugeBalance || '0').gt(0) ? false : true}
               onClick={() => {
-                if (userGaugeBalance && new Big(userGaugeBalance?.toString() || '0').gt(0)) {
+                if (userGaugeBalance && bnum(userGaugeBalance || '0').gt(0)) {
                   handleUnstakeAction?.()
                 }
               }}
