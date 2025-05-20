@@ -113,20 +113,19 @@ const SelectTokenModal: React.FC<SelectTokenModalProps> = (props) => {
         const parsed = JSON.parse(stored)
         const validTokens = parsed.filter((address: string) => tokensRaw[address] !== undefined).slice(0, 4)
 
-        const recentTokenObjects = validTokens
-          .map((address: string) => {
-            const token = getToken(address)
-            const balance = balanceFor(address)
-            const price = priceFor(address)
+        const filteredTokens = validTokens.filter((address: string) => !excludedTokens.includes(address))
+        const recentTokenObjects = filteredTokens.map((address: string) => {
+          const token = getToken(address)
+          const balance = balanceFor(address)
+          const price = priceFor(address)
 
-            return {
-              ...token,
-              balance,
-              price,
-              value: Number(balance) * price,
-            }
-          })
-          .filter(Boolean)
+          return {
+            ...token,
+            balance,
+            price,
+            value: Number(balance) * price,
+          }
+        })
 
         setRecentTokens(recentTokenObjects)
       }
