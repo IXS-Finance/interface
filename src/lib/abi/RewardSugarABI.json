@@ -5,6 +5,28 @@
     "type": "constructor"
   },
   {
+    "inputs": [],
+    "name": "DURATION",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address[]", "name": "_pools", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "_createdAts", "type": "uint256[]" }
+    ],
+    "name": "getAllRewardOfPools",
+    "outputs": [
+      { "internalType": "address[][]", "name": "feeTokens", "type": "address[][]" },
+      { "internalType": "address[][]", "name": "bribeTokens", "type": "address[][]" },
+      { "internalType": "uint256[][]", "name": "feeRewards", "type": "uint256[][]" },
+      { "internalType": "uint256[][]", "name": "bribeRewards", "type": "uint256[][]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       { "internalType": "address", "name": "_pool", "type": "address" },
       { "internalType": "uint256", "name": "_tokenId", "type": "uint256" }
@@ -38,6 +60,21 @@
       { "internalType": "uint256", "name": "_tokenId", "type": "uint256" }
     ],
     "name": "getFeeAndBribeVotingRewardsForTokenIdAndPools",
+    "outputs": [
+      { "internalType": "address[][]", "name": "feeTokens", "type": "address[][]" },
+      { "internalType": "address[][]", "name": "bribeTokens", "type": "address[][]" },
+      { "internalType": "uint256[][]", "name": "feeRewards", "type": "uint256[][]" },
+      { "internalType": "uint256[][]", "name": "bribeRewards", "type": "uint256[][]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address[]", "name": "_pools", "type": "address[]" },
+      { "internalType": "uint256", "name": "_timestamp", "type": "uint256" }
+    ],
+    "name": "getFeeAndBribeVotingRewardsOfPools",
     "outputs": [
       { "internalType": "address[][]", "name": "feeTokens", "type": "address[][]" },
       { "internalType": "address[][]", "name": "bribeTokens", "type": "address[][]" },

@@ -23,6 +23,13 @@ const QUERY_KEYS = {
         filterOptions,
       },
     ],
+     AllPoolsNoFilter: (networkId: Network) => [
+      POOLS_ROOT_KEY,
+      'AllPoolsNoFilter',
+      {
+        networkId,
+      },
+    ],
     PoolsHasGauge: (networkId: Network) => [
       POOLS_ROOT_KEY,
       'poolsHasGauge',

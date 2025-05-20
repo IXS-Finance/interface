@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import _get from 'lodash/get'
 import { useQuery } from '@tanstack/react-query'
 import { BigNumber } from '@ethersproject/bignumber'
 import { formatUnits } from '@ethersproject/units'
@@ -6,9 +7,15 @@ import QUERY_KEYS from 'constants/dexV2/queryKeys'
 import { getMulticaller } from 'dependencies/Multicaller'
 import useWeb3 from '../useWeb3'
 import { configService } from 'services/config/config.service'
+import useAllPoolsQuery, { Pool } from './useAllPoolsQuery'
 
 export default function useVoteInfoQuery() {
   const { account, isWalletReady } = useWeb3()
+  const { data: allPools } = useAllPoolsQuery()
+
+  const pools = _get(allPools, 'pools', [])
+  const poolsAddresses = pools.map((pool: Pool) => pool.address)
+  const createAts = pools.map((pool: Pool) => pool.createTime)
 
   const queryKey = useMemo(() => {
     return QUERY_KEYS.User.Vote.VoteInfo(account)
@@ -50,11 +57,21 @@ export default function useVoteInfoQuery() {
       abi: ['function epochVoteStart(uint256) returns (uint256)'],
       params: [timestamp],
     })
+    multicaller.call({
+      key: 'allRewardOfPools',
+      address: '0x9d07c750C1028542Ffc044a13232cd3a99b35Ac9',
+      function: 'getAllRewardOfPools',
+      abi: [
+        'function getAllRewardOfPools(address[], uint256[]) returns (address[][], address[][], uint256[][], uint256[][])',
+      ],
+      params: [poolsAddresses, createAts],
+    })
 
     result = await multicaller.execute()
 
-    const { epochVoteEnd, totalSupply, availableDeposit, epochVoteStart } = result as any
+    const { epochVoteEnd, totalSupply, availableDeposit, epochVoteStart, allRewardOfPools } = result as any
 
+    console.log('allRewardOfPools', allRewardOfPools)
     return {
       epochVoteEnd: epochVoteEnd.toString(),
       totalSupply: formatUnits(totalSupply.toString(), 18),
