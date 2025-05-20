@@ -45,7 +45,7 @@ const DepositedStakedLiquidityRow = ({
   claim,
 }: DepositedStakedLiquidityRowProps) => {
   const tokens = data.tokens
-  const aprValue = useEmissionApr(data, gaugeAddress)
+  const aprValue = useEmissionApr(data)
 
   const tokenAddresses = tokens.map((token) => token.address as Address)
   const poolName = tokens.map((token) => token.symbol).join('/')

@@ -19,6 +19,8 @@ import Asset from 'pages/DexV2/common/Asset'
 import usePools from 'hooks/dex-v2/pools/usePools'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 import { PinnedContentButton } from 'components/Button'
+import { bnum } from 'lib/utils'
+import usePoolDayDatasQuery from 'hooks/dex-v2/queries/usePoolDayDatasQuery'
 
 export default function PoolList() {
   const { pools, isLoading, loadMorePools } = usePools()
@@ -88,6 +90,15 @@ const Row = ({ pool }: { pool: any }) => {
   const theme = useTheme()
   const { toCurrency } = useCurrency()
   const history = useHistory()
+  const { data: dailySwaps } = usePoolDayDatasQuery({}, { poolId: pool.id })
+  const averageDailySwaps = !dailySwaps
+    ? '0'
+    : dailySwaps.reduce((acc, day) => acc.plus(day.dailySwapFeesUSD || '0'), bnum(0)).div(dailySwaps.length)
+  const daysPerYear = 365
+  const aprValue =
+    pool.totalLiquidity && pool.totalLiquidity !== '0'
+      ? bnum(averageDailySwaps).times(daysPerYear).div(pool.totalLiquidity).toString()
+      : '0'
 
   return (
     <StyledBodyRow onClick={() => history.push(`/v2/pool/${pool.id}`)}>
@@ -105,7 +116,7 @@ const Row = ({ pool }: { pool: any }) => {
       <TYPE.main color={'text1'}>{toCurrency(pool.totalLiquidity)}</TYPE.main>
       <TYPE.main color={'text1'}>{toCurrency(pool.totalSwapVolume)}</TYPE.main>
       <TYPE.main1 color={theme.blue5}>SAMPLE</TYPE.main1>
-      <TYPE.main0 fontSize={16}>aprToShow</TYPE.main0>
+      <TYPE.main0 fontSize={16}>{fNum('apr', aprValue)}</TYPE.main0>
     </StyledBodyRow>
   )
 }

@@ -11,13 +11,16 @@ import { Pool } from 'services/pool/types'
 import { IXS_ADDRESS } from 'constants/addresses'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { useWeb3React } from 'hooks/useWeb3React'
-import { fiatValueOf } from 'hooks/dex-v2/usePoolHelpers'
+import { bptPriceFor } from 'hooks/dex-v2/usePoolHelpers'
 import { timePeriods } from 'utils/time'
+import useGauges from './pools/useGauges'
 
-export default function useEmissionApr(pool: Pool, gaugeAddress?: string): string {
+export default function useEmissionApr(pool: Pool): string {
   const poolAddress = pool.address
+  const { gaugeFor } = useGauges()
+  const gaugeAddress = gaugeFor(pool.address)?.address
   const { priceFor } = useTokens()
-  const bptTokenPrice = fiatValueOf(pool, pool.totalLiquidity)
+  const bptTokenPrice = bptPriceFor(pool)
 
   const { chainId } = useWeb3React()
   const ixsTokenPrice = priceFor(IXS_ADDRESS[chainId])
