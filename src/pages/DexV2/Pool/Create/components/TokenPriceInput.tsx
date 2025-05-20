@@ -118,13 +118,12 @@ const TokenPriceInput: React.FC<Props> = (props = defaultProps) => {
 
   const { address: account } = useAccount()
   const isWalletReady = account !== null
-  const { getToken, balanceFor } = useTokens()
+  const { balanceFor } = useTokens()
 
   const tokenBalance = customBalance ? customBalance : balanceFor(_get(props, 'address', ''))
   const hasToken = !!props.address
-  const token: TokenInfo | undefined = !hasToken ? undefined : getToken(_get(props, 'address', ''))
   const inputRules = getInputRules(hasToken, isWalletReady, props, tokenBalance)
-  const decimalLimit = 6;
+  const decimalLimit = 6
 
   function handleAmountChange(val: string) {
     // Remove commas from the input.
@@ -143,7 +142,7 @@ const TokenPriceInput: React.FC<Props> = (props = defaultProps) => {
       let limitToFormat = decimalLimit
 
       // Get string after . of value
-      const decimalPart = value.indexOf('.') > -1 ? value.substring(value.indexOf('.') + 1) : '';
+      const decimalPart = value.indexOf('.') > -1 ? value.substring(value.indexOf('.') + 1) : ''
 
       // Compare with decimalLimit to get exact amount decimal to format
       if (decimalPart.length < decimalLimit) {
@@ -151,7 +150,6 @@ const TokenPriceInput: React.FC<Props> = (props = defaultProps) => {
       }
 
       const safeAmount = overflowProtected(value || '0', limitToFormat)
-
 
       setAmount(safeAmount)
       props.updateAmount(safeAmount)
@@ -214,7 +212,7 @@ const TokenPriceInput: React.FC<Props> = (props = defaultProps) => {
   return (
     <Container isError={isInvalid && !!errors[0]}>
       <Flex justifyContent="space-between" alignItems="center">
-        <div>
+        <Flex alignItems="center" fontSize="14px" color="#666680" fontWeight={600} lineHeight="20px" maxWidth="175px">
           <span style={{ fontSize: '28px', fontWeight: 600 }}>$</span>
           <StyledInput
             disabled={disabled}
@@ -232,7 +230,7 @@ const TokenPriceInput: React.FC<Props> = (props = defaultProps) => {
               props.setExactInOnChange?.()
             }}
           />
-        </div>
+        </Flex>
 
         <Flex alignItems="center" style={{ gap: 8 }}>
           <TokenSelectInput

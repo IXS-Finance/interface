@@ -2,9 +2,11 @@ import React from 'react'
 import Select, { components, MenuListProps, SingleValueProps, StylesConfig } from 'react-select'
 import styled from 'styled-components'
 import dayjs from 'dayjs'
+import { Box, Flex } from 'rebass'
+import { useHistory } from 'react-router-dom'
 
 import lockImg from 'assets/images/dex-v2/lockIcon.png'
-import { Box, Flex } from 'rebass'
+import { routes } from 'utils/routes'
 
 function transformOptions(options: any, epochVoteStart: number, epochVoteEnd: number) {
   if (!options) return []
@@ -31,7 +33,7 @@ function transformOptions(options: any, epochVoteStart: number, epochVoteEnd: nu
     const isVoted =
       option.votedAt &&
       dayjs.unix(Number(option.votedAt)).isAfter(dayjs.unix(epochVoteStart)) &&
-      dayjs.unix(Number(option.votedAt)).isBefore(dayjs.unix(epochVoteEnd));
+      dayjs.unix(Number(option.votedAt)).isBefore(dayjs.unix(epochVoteEnd))
 
     return {
       value: option.id,
@@ -105,11 +107,29 @@ const StyledMenuItem = styled.div<StyledMenuItemProps>`
 `
 
 const CustomMenuList: React.FC<MenuListProps<any, false>> = (props) => {
+  const history = useHistory()
+
   return (
     <components.MenuList {...props}>
       {props.options.length === 0 ? (
         <Box fontSize="14px" color="#B8B8D2" fontWeight={500} textAlign="center">
-          No locks available
+          Voting requires a Lock.
+          <Box mt={3}>
+            <button
+              style={{
+                background: '#6666FF',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '8px 16px',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+              onClick={() => history.push(routes.dexV2Lock)}
+            >
+              Create Lock
+            </button>
+          </Box>
         </Box>
       ) : (
         <>
