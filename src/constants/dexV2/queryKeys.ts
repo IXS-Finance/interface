@@ -81,15 +81,15 @@ const QUERY_KEYS = {
         singleAmountOut: unknown,
         relayerSignature: string | undefined
       ) => [
-          ...QUERY_EXIT_ROOT_KEY,
-          {
-            account,
-            bptIn,
-            isSingleAssetExit,
-            singleAmountOut,
-            relayerSignature,
-          },
-        ],
+        ...QUERY_EXIT_ROOT_KEY,
+        {
+          account,
+          bptIn,
+          isSingleAssetExit,
+          singleAmountOut,
+          relayerSignature,
+        },
+      ],
       SingleAssetMax: (bptBalance: string, isSingleAssetExit: unknown, singleAmountOut: unknown) => [
         POOLS_ROOT_KEY,
         'singleAssetMax',
@@ -117,12 +117,7 @@ const QUERY_KEYS = {
       ],
     },
     Vote: {
-      VoteInfo: (account: string) => [
-        'user',
-        'pool',
-        'VoteInfo',
-        { account },
-      ],
+      VoteInfo: (account: string) => ['user', 'pool', 'VoteInfo', { account }],
     },
     Pools: (account: string) => ['user', 'pools', { account }],
     Gauges: (account: string, poolAddress: string | undefined) => ['user', 'gauges', { account, poolAddress }],
@@ -152,16 +147,16 @@ const QUERY_KEYS = {
       nativeAsset: NativeAsset,
       wrappedNativeAsset: TokenInfo
     ) => [
-        'pairPriceData',
-        {
-          tokenInAddress,
-          tokenOutAddress,
-          activeTimespan,
-          userNetworkId,
-          nativeAsset,
-          wrappedNativeAsset,
-        },
-      ],
+      'pairPriceData',
+      {
+        tokenInAddress,
+        tokenOutAddress,
+        activeTimespan,
+        userNetworkId,
+        nativeAsset,
+        wrappedNativeAsset,
+      },
+    ],
     Prices: (networkId: Network, pricesToInject: TokenPrices) => ['tokens', 'prices', { networkId, pricesToInject }],
     AllPrices: ['tokens', 'prices'],
     VeBAL: (networkId: Network, account: string) => ['tokens', 'veBAL', { networkId, account }],
@@ -206,6 +201,11 @@ const QUERY_KEYS = {
     ],
     OmniEscrowLocks: (networkId: Network, account: string) => ['omniEscrowLocks', { account, networkId }],
     Voting: (account: string) => ['gauges', 'voting', { account }],
+  },
+  PoolDayDatas: {
+    All: {
+      Static: () => ['pool', 'day', 'datas'],
+    },
   },
   Transaction: {
     ConfirmationDate: (receipt: TransactionReceipt) => ['tx', 'confirmation', 'date', { receipt }],
