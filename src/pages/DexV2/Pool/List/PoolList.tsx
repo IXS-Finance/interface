@@ -94,7 +94,7 @@ const Row = ({ pool }: { pool: any }) => {
       <Flex flexWrap="wrap">
         {pool?.tokens?.map((token: any) => {
           return (
-            <Flex key={token.ticker} alignItems="center" className="token">
+            <Flex key={`pool-${pool.id}-token-${token.address}`} alignItems="center" className="token">
               <Asset address={token.address} />
               <span>{token.symbol}</span>
               <span className="percentage">{fNum('weight', token.weight || '')}</span>
