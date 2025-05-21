@@ -30,7 +30,7 @@ export const VoteHistoryRecords: React.FC<Props> = ({ pools, data }) => {
             </tr>
           </TableHead>
           <tbody>
-            {voteHistories.map((item: any) => {
+            {voteHistories.map((item: any, idx: number) => {
               const weight = formatUnits(item.weight, 18)
               const totalWeight = formatUnits(item.totalWeight, 18)
               const weightPercentage = (Number(weight) / Number(totalWeight)) * 100
@@ -38,7 +38,7 @@ export const VoteHistoryRecords: React.FC<Props> = ({ pools, data }) => {
               const date = dayjs.unix(Number(item.timestamp)).format('MMM D, YYYY HH:mm')
 
               return (
-                <TableRow key={item.pool}>
+                <TableRow key={idx}>
                   <TableCell>{date || '---'}</TableCell>
                   <TableCell>
                     <Flex alignItems="center" css={{ gap: '8px', height: '32px' }}>

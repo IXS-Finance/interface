@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 
-import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
+import useNumbers from 'hooks/dex-v2/useNumbers'
 
 import timerImg from 'assets/images/dex-v2/timer.svg'
 import Countdown, { renderer } from 'components/Countdown'
@@ -15,23 +15,37 @@ interface VotingRoundStatsProps {
   totalSupply: number | string
   availableDeposit: number | string
   isLoading: boolean
+  totalFees: number | string
+  totalIncentives: number | string
+  totalRewards: number | string
 }
 
 export const VotingRoundStats: React.FC<VotingRoundStatsProps> = ({
   epochVoteEnd,
   totalSupply,
   availableDeposit,
+  totalFees,
+  totalIncentives,
+  totalRewards,
   isLoading = false,
 }) => {
   const { fNum } = useNumbers()
 
   const statistics = [
     { label: 'Total Voting Power', value: fNum(totalSupply, { abbreviate: true }) },
-    { label: 'Total Fees', value: '$201,803.76' },
-    { label: 'Total Incentives', value: '$46,583.08' },
-    { label: 'Total Rewards', value: '$206,386.85' },
-    { label: 'New Emissions', value: fNum(availableDeposit, FNumFormats.fiat) },
+    { label: 'Total Fees', value: fNum(totalFees, { style: 'currency', currency: 'USD', fixedFormat: true }) },
+    {
+      label: 'Total Incentives',
+      value: fNum(totalIncentives, { style: 'currency', currency: 'USD', fixedFormat: true }),
+    },
+    { label: 'Total Rewards', value: fNum(totalRewards, { style: 'currency', currency: 'USD', fixedFormat: true }) },
+    { label: 'New Emissions', value: `${Number(availableDeposit).toLocaleString()} IXS` },
   ]
+
+  const filteredStatistics = statistics.filter(
+    (stat) => !(stat.label === 'Total Incentives' && Number(totalIncentives) === 0)
+  )
+
   return (
     <MainContainer>
       <HeaderContainer>
@@ -58,7 +72,7 @@ export const VotingRoundStats: React.FC<VotingRoundStatsProps> = ({
       <Divider />
       <StatsContainer>
         <StatsGrid>
-          {statistics.map((stat, index) => (
+          {filteredStatistics.map((stat, index) => (
             <CardWrapper key={index}>
               <StatLabel>{stat.label}</StatLabel>
               <StatValue>{stat.value}</StatValue>
