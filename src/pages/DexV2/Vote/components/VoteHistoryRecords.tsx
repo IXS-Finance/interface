@@ -15,6 +15,7 @@ interface Props {
 
 export const VoteHistoryRecords: React.FC<Props> = ({ pools, data }) => {
   const voteHistories = get(data, 'voteHistories', [])
+  voteHistories.sort((a: any, b: any) => Number(b.timestamp) - Number(a.timestamp))
 
   return (
     <Container>
