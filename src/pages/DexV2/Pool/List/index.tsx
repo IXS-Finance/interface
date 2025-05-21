@@ -62,14 +62,13 @@ export default function LiquidityPool() {
 
 const BannerContainer = styled.div`
   background-image: url(${bannerImg});
-  background-size: contain;
-  background-position: right 50px;
+  background-size: 65%;
+  background-position: right;
   background-repeat: no-repeat;
-  height: 620px;
+  height: 580px;
   width: 100%;
   margin-bottom: 30px;
   background-color: #f4f4ff;
-  margin-top: -8px;
 `
 
 const Pager = styled.div`
