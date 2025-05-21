@@ -4,6 +4,7 @@ import baseLogoUrl from 'assets/images/base.svg'
 import ozeanLogoUrl from 'assets/images/chains/ozean.png'
 import kaiaLogoUrl from 'assets/images/chains/kaia.png'
 import redBellyLogoUrl from 'assets/images/chains/redbelly.png'
+import avaxLogoUrl from 'assets/images/chains/avax.png'
 import { InterfaceChainId } from 'types/chains'
 
 export enum SupportedChainId {
@@ -19,6 +20,9 @@ export enum SupportedChainId {
   KAIA = 8217,
   REDBELLY = 151,
   REDBELLY_TESNET = 153,
+  SEPOLIA = 11155111,
+  AVALANCE = 43114,
+  AVALANCE_FUJI = 43113,
 }
 
 export const NETWORK_LOGOS: { [chainName: string]: string } = {
@@ -28,6 +32,7 @@ export const NETWORK_LOGOS: { [chainName: string]: string } = {
   ozean: ozeanLogoUrl,
   kaia: kaiaLogoUrl,
   redbelly: redBellyLogoUrl,
+  avalanche: avaxLogoUrl,
 }
 
 export const NETWORK_LABELS: { [chainId: number]: string } = {
@@ -46,6 +51,9 @@ export const NETWORK_LABELS: { [chainId: number]: string } = {
   [8217]: 'Kaia',
   [151]: 'RedBelly',
   [153]: 'RedBelly Testnet',
+  [11155111]: 'Sepolia',
+  [43114]: 'Avalanche',
+  [43113]: 'Avalanche Fuji',
 }
 
 export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = [
@@ -75,7 +83,6 @@ export const nameChainMap = {
   kovan: SupportedChainId.KOVAN,
   ethereum: SupportedChainId.MAINNET,
   base: SupportedChainId.BASE,
-
 }
 
 export const getChainFromName = (name: string, isTestnet = false): SupportedChainId => {
@@ -85,6 +92,8 @@ export const getChainFromName = (name: string, isTestnet = false): SupportedChai
     kaia: isTestnet ? SupportedChainId.KAIROS_TESTNET : SupportedChainId.KAIA,
     ozean: isTestnet ? SupportedChainId.OZEAN_TESTNET : SupportedChainId.OZEAN_TESTNET,
     redBelly: isTestnet ? SupportedChainId.REDBELLY_TESNET : SupportedChainId.REDBELLY,
+    avalanche: isTestnet ? SupportedChainId.AVALANCE_FUJI : SupportedChainId.AVALANCE,
+    etherenum: isTestnet ? SupportedChainId.SEPOLIA : SupportedChainId.MAINNET,
   } as any
 
   return chainByName[name]
@@ -219,6 +228,39 @@ export const CHAIN_INFO: ChainInfoMap = {
     logoUrl: redBellyLogoUrl,
     rpcUrls: ['https://governors.mainnet.redbelly.network'],
     blockExplorerUrls: ['https://redbelly.routescan.io'],
+  },
+  [SupportedChainId.SEPOLIA]: {
+    chainName: 'Sepolia',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    logoUrl: ethereumLogoUrl,
+    rpcUrls: ['https://sepolia.drpc.org'],
+    blockExplorerUrls: ['https://sepolia.etherscan.io/'],
+  },
+  [SupportedChainId.AVALANCE]: {
+    chainName: 'Avalanche',
+    nativeCurrency: {
+      name: 'AVAX',
+      symbol: 'AVAX',
+      decimals: 18,
+    },
+    logoUrl: avaxLogoUrl,
+    rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+    blockExplorerUrls: ['https://snowtrace.io/'],
+  },
+  [SupportedChainId.AVALANCE_FUJI]: {
+    chainName: 'Avalanche Fuji',
+    nativeCurrency: {
+      name: 'AVAX',
+      symbol: 'AVAX',
+      decimals: 18,
+    },
+    logoUrl: avaxLogoUrl,
+    rpcUrls: ['https://api.avax-test.network/ext/bc/C/rpc'],
+    blockExplorerUrls: ['https://testnet.snowtrace.io/'],
   },
 }
 

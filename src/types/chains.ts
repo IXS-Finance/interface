@@ -9,6 +9,9 @@ export enum SupportedChainId {
   KAIA = 8217,
   REDBELLY = 151,
   REDBELLY_TESNET = 153,
+  SEPOLIA = 11155111,
+  AVALANCE = 43114,
+  AVALANCE_FUJI = 43113,
 }
 
 export enum ChainId {
@@ -22,6 +25,9 @@ export enum ChainId {
   Kaia = SupportedChainId.KAIA,
   RedBelly = SupportedChainId.REDBELLY,
   RedBellyTestnet = SupportedChainId.REDBELLY_TESNET,
+  Sepolia = SupportedChainId.SEPOLIA,
+  Avalanche = SupportedChainId.AVALANCE,
+  AvalancheFuji = SupportedChainId.AVALANCE_FUJI,
 }
 
 export interface RetryOptions {
