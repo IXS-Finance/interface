@@ -13,6 +13,7 @@ export type PoolsHasGauge = {
   name: string
   id: string
   address: string
+  createTime: string
   totalLiquidity: string
   tokensList: string[]
   gauge: {
@@ -52,6 +53,7 @@ export default function usePoolsHasGaugeQuery() {
         __args: queryArgs,
         id: true,
         address: true,
+        createTime: true,
         totalLiquidity: true,
         name: true,
         tokensList: true,
