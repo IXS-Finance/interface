@@ -10,6 +10,7 @@ import {
 import _ from 'lodash';
 import Service from '../../balancer-subgraph.service';
 import queryBuilder from './query';
+import { getAliveSubgraphUrl } from 'lib/utils';
 
 export default class Pools {
   service: Service;
@@ -30,8 +31,16 @@ export default class Pools {
 
     if (!this.repository || !_.isEqual(query, this.lastQuery)) {
       this.lastQuery = _.cloneDeep(query);
+       const urls = configService.network.subgraphs.main
+
+      if (urls.length === 0) {
+        throw new Error('No subgraph URLs found')
+      }
+
+      const subgraphUrl = await getAliveSubgraphUrl(urls)
+
       this.repository = new PoolsSubgraphRepository({
-        url: configService.network.subgraph,
+        url: subgraphUrl,
         chainId: configService.network.chainId as Network,
         query: query,
       });

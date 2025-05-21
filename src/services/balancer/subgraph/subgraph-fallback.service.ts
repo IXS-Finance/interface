@@ -18,7 +18,8 @@ export class SubgraphFallbackService {
       throw new Error('Payload is required');
     }
     try {
-      const response = await axios.post(this.url, payload);
+      const currentUrl = this.urls[this.urlIndex];
+      const response = await axios.post(currentUrl, payload);
       const errorMessage = response?.data.errors?.message;
       if (errorMessage) {
         throw new Error(errorMessage);

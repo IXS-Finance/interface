@@ -278,3 +278,21 @@ export async function sleep(time: any) {
     setTimeout(resolve, time)
   })
 }
+
+export async function getAliveSubgraphUrl(urls: string[]): Promise<string> {
+  let aliveUrl: string | undefined = undefined
+  for (const url of urls) {
+    try {
+      const response = await fetch(url, { method: 'HEAD' })
+      if (response.status === 200) {
+        aliveUrl = url
+        break
+      }
+    } catch (e) {
+    }
+  }
+  if (!aliveUrl) {
+    throw new Error('No alive subgraph URLs found')
+  }
+  return aliveUrl
+}
