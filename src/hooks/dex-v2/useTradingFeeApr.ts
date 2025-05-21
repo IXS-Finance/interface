@@ -13,7 +13,7 @@ import { useMemo } from 'react'
 
 export default function useTradingFeeApr(pool: Pool): string {
   const { gaugeFor } = useGauges()
-  const { data: dailySwaps } = usePoolDayDatasQuery({}, { poolId: pool.id })
+  const { data: dailySwaps } = usePoolDayDatasQuery({}, { poolAddresses: [pool.address] })
 
   const gaugeAddress = gaugeFor(pool.address)?.address
   const bptTokenPrice = bptPriceFor(pool)

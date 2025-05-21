@@ -7,6 +7,7 @@ import { GaugeShare } from 'hooks/dex-v2/queries/useUserGaugeSharesQuery'
 import { TokenPrices } from 'hooks/dex-v2//queries/useTokenPricesQuery'
 import { MerkleOrchardVersion } from 'services/claim/claim.service'
 import { PoolFilterOptions } from 'types/pools'
+import Pool from 'pages/Pool/v2'
 export const POOLS_ROOT_KEY = 'pools'
 export const BALANCES_ROOT_KEY = 'accountBalances'
 export const CLAIMS_ROOT_KEY = 'claims'
@@ -206,6 +207,8 @@ const QUERY_KEYS = {
   PoolDayDatas: {
     All: {
       Static: () => ['pool', 'day', 'datas'],
+      Pool: (poolId: string) => ['pool', 'day', 'datas', { poolId }],
+      Pools: (poolIds: string[]) => ['pool', 'day', 'datas', { poolIds }],
     },
   },
   Transaction: {

@@ -1,13 +1,13 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query'
 import QUERY_KEYS from 'constants/dexV2/queryKeys'
-import { poolDayDatasSubgraphService } from 'services/balancer/poolDayDatas/poolDayDatas.service'
 import { SubgraphPoolDayData } from 'services/balancer/poolDayDatas/types'
+import { balancerSubgraphService } from 'services/balancer/subgraph/balancer-subgraph.service'
 
 /**
  * TYPES
  */
 type Args = {
-  poolId: string
+  poolAddresses: string[]
 }
 type QueryResponse = SubgraphPoolDayData[]
 type QueryOptions = Omit<UseQueryOptions<QueryResponse>, 'queryKey'>
@@ -19,17 +19,17 @@ export default function usePoolDayDatasQuery(options: QueryOptions = {}, args: A
   /**
    * QUERY KEY
    */
-  const queryKey = QUERY_KEYS.PoolDayDatas.All.Static()
+  const queryKey = QUERY_KEYS.PoolDayDatas.All.Pools(args.poolAddresses)
 
   /**
    * QUERY FUNCTION
    */
   const queryFn = async () => {
     try {
-      return await poolDayDatasSubgraphService.poolDayDatas.get({
+      return await balancerSubgraphService.poolDayDatas.get({
         where: {
           pool_: {
-            id: args.poolId,
+            address_in: args.poolAddresses,
           },
         },
       })
