@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { Trans } from '@lingui/macro'
 import { darken } from 'polished'
 import { NavLink } from 'react-router-dom'
@@ -53,7 +53,6 @@ export const HeaderLinks = () => {
       [config]
     )
 
-    //
     return (
       <PopOverContent
         onClick={(e: any) => (e ? e.stopPropagation() : null)}
@@ -234,6 +233,7 @@ export const HeaderLinks = () => {
           ref={v2Node as any}
           id="dexV2-nav-link"
           to="#"
+          onClick={(e) => e.preventDefault()}
           isActive={(match, { pathname }) => pathname.startsWith('/v2')}
         >
           <Popover hideArrow show={openV2} content={<DexV2Popover />} placement="bottom-start">
