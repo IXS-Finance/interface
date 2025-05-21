@@ -61,7 +61,7 @@ Asset.defaultProps = {
   disabled: false,
 }
 
-const BalAssetButton = styled.button`
+const BalAssetButton = styled.div`
   padding: 0;
   width: fit-content;
   height: fit-content;
