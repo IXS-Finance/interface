@@ -100,7 +100,6 @@ const LockDetailContent: React.FC<{ lockDetail?: LockedData }> = ({ lockDetail }
         openConnectModal && openConnectModal()
       } else if (approvalState === ApprovalState.NOT_APPROVED) {
         await approve()
-        await handleSubmitIncrease()
       } else {
         await handleSubmitIncrease()
       }
@@ -187,11 +186,11 @@ const LockDetailContent: React.FC<{ lockDetail?: LockedData }> = ({ lockDetail }
             onClick={() => handleProceed()}
             type="button"
             disabled={
-              approvalState === ApprovalState.PENDING
-              || isLoading
-              || (isIncrease && !userInput)
-              || (isIncrease && increased)
-              || (isExtend && extended)
+              approvalState === ApprovalState.PENDING ||
+              isLoading ||
+              (isIncrease && !userInput) ||
+              (isIncrease && increased) ||
+              (isExtend && extended)
             }
             success={(isIncrease && increased) || (isExtend && extended)}
           >
@@ -204,7 +203,7 @@ const LockDetailContent: React.FC<{ lockDetail?: LockedData }> = ({ lockDetail }
   )
 }
 
-const StyledPrimaryButton = styled(PinnedContentButton) <{ success: boolean }>`
+const StyledPrimaryButton = styled(PinnedContentButton)<{ success: boolean }>`
   ${({ success, theme }) =>
     success &&
     `
