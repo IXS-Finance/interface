@@ -9,6 +9,7 @@ import { subgraphRequest } from 'lib/utils/subgraph'
 import { configService } from 'services/config/config.service'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from '../tokens/hooks/useTokens'
+import useLiquidityPool from 'pages/DexV2/Dashboard/hooks/useLiquidityPool'
 
 import { AppState } from 'state'
 import { setPoolGaugeQuery, setPoolStakingState } from '.'
@@ -29,8 +30,9 @@ export const usePoolStaking = (props: UsePoolStakingProps) => {
     isFetchingStakedBalance = false,
   } = useSelector((state: AppState) => state.dexV2Staking)
   const dispatch = useDispatch()
-  const { balanceFor } = useTokens()
+  const { balanceFor, refetchAllowances } = useTokens()
   const { account } = useWeb3()
+  const { refetchGaugesOnChain, refetchPoolsOnChain } = useLiquidityPool()
 
   const poolGauge = poolGaugeQuery?.data as PoolGauge
   // The current preferential gauge for the specified pool.
@@ -61,11 +63,14 @@ export const usePoolStaking = (props: UsePoolStakingProps) => {
 
   const refetchAllPoolStakingData = async () => {
     return Promise.all([
-      refetchPoolGauges(),
+      refetchPoolGauges?.(),
       getBalance(),
       // refetchStakedShares(),
       // refetchUserGaugeShares(),
       // refetchUserBoosts(),
+      refetchGaugesOnChain(),
+      refetchPoolsOnChain(),
+      refetchAllowances(),
     ])
   }
 
