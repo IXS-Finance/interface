@@ -1,12 +1,9 @@
-import { PoolDayDatasSubgraphService } from '../../poolDayDatas.service'
 import { QueryBuilder, SubgraphPoolDayData } from '../../types'
 import { poolDayDatasQueryBuilder } from './query'
+import Service from '../../../subgraph/balancer-subgraph.service'
 
 export class PoolDayDatasEntity {
-  constructor(
-    private readonly service: PoolDayDatasSubgraphService,
-    private readonly query: QueryBuilder = poolDayDatasQueryBuilder
-  ) {}
+  constructor(private readonly service: Service, private readonly query: QueryBuilder = poolDayDatasQueryBuilder) {}
 
   public async get(args = {}, attrs = {}): Promise<SubgraphPoolDayData[]> {
     const queryName = 'PoolDayDatas'

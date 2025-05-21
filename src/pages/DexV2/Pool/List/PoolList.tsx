@@ -20,7 +20,8 @@ import usePools from 'hooks/dex-v2/pools/usePools'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 import { PinnedContentButton } from 'components/Button'
 import { bnum } from 'lib/utils'
-import usePoolDayDatasQuery from 'hooks/dex-v2/queries/usePoolDayDatasQuery'
+import usePoolDayDatas from 'hooks/dex-v2/pools/usePoolDayDatas'
+import { SubgraphPoolDayData } from 'services/balancer/poolDayDatas/types'
 
 export default function PoolList() {
   const { pools, isLoading, loadMorePools } = usePools()
@@ -50,12 +51,14 @@ interface IBody {
   items: any[]
 }
 const Body = ({ items }: IBody) => {
+  const { poolDayDatasFor } = usePoolDayDatas(items.map((pool) => pool.address))
+
   return (
     <BodyContainer>
       {items.map((pool, index) => (
         <Fragment key={`pool-${pool.id}`}>
           <Line />
-          <Row pool={pool} />
+          <Row pool={pool} poolDayDatas={poolDayDatasFor(pool.address)} />
           {index === items.length - 1 && <Line />}
         </Fragment>
       ))}
@@ -86,14 +89,13 @@ const Header = () => {
   )
 }
 
-const Row = ({ pool }: { pool: any }) => {
+const Row = ({ pool, poolDayDatas }: { pool: any; poolDayDatas?: SubgraphPoolDayData[] }) => {
   const theme = useTheme()
   const { toCurrency } = useCurrency()
   const history = useHistory()
-  const { data: dailySwaps } = usePoolDayDatasQuery({}, { poolId: pool.id })
-  const averageDailySwaps = !dailySwaps
+  const averageDailySwaps = !poolDayDatas
     ? '0'
-    : dailySwaps.reduce((acc, day) => acc.plus(day.dailySwapFeesUSD || '0'), bnum(0)).div(dailySwaps.length)
+    : poolDayDatas.reduce((acc, day) => acc.plus(day.dailySwapFeesUSD || '0'), bnum(0)).div(poolDayDatas.length)
   const daysPerYear = 365
   const aprValue =
     pool.totalLiquidity && pool.totalLiquidity !== '0'
