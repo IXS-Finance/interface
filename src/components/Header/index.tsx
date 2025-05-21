@@ -320,12 +320,12 @@ const HeaderWrapper = styled.div`
   flex-direction: column;
   width: 100%;
   align-items: space-between;
-  position: fixed;
+  position: sticky;
   top: 0;
   z-index: 2;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-  position: relative;
+  position: sticky;
   `};
 
   ${({ theme }) =>
