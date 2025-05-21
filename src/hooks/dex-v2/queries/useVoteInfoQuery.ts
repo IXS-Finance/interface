@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import _get from 'lodash/get'
 import { useQuery } from '@tanstack/react-query'
 import { BigNumber } from '@ethersproject/bignumber'
 import { formatUnits } from '@ethersproject/units'
@@ -20,7 +21,6 @@ export default function useVoteInfoQuery() {
     let result = {} as Record<string, Record<string, BigNumber>>
     const Multicaller = getMulticaller()
     const multicaller = new Multicaller()
-
     // timestamp = now() in unix seconds
     const timestamp = Math.floor(Date.now() / 1000).toString()
 

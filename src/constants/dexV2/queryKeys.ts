@@ -118,6 +118,7 @@ const QUERY_KEYS = {
     },
     Vote: {
       VoteInfo: (account: string) => ['user', 'pool', 'VoteInfo', { account }],
+      VoteReward: (account: string) => ['user', 'pool', 'VoteReward', { account }],
     },
     Pools: (account: string) => ['user', 'pools', { account }],
     Gauges: (account: string, poolAddress: string | undefined) => ['user', 'gauges', { account, poolAddress }],
