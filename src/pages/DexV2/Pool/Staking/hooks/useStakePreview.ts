@@ -136,7 +136,6 @@ export function useStakePreview(props: UseStakePreviewProps) {
         amountsToApprove,
         spender: gaugeAddress, // dependency handled here
         actionType: ApprovalAction.Staking,
-        skipAllowanceCheck: true, // skip allowance update to speed up validation, must ensure the tokens and spenders are injected before
         forceMax: false,
       })
 

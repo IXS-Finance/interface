@@ -48,7 +48,7 @@ const useLiquidityPool = () => {
   ])
 
   // @ts-ignore
-  const { data } = useReadContracts({
+  const { data, refetch: refetchPoolsOnChain } = useReadContracts({
     // @ts-ignore
     contracts: poolContracts,
     query: {
@@ -88,7 +88,7 @@ const useLiquidityPool = () => {
     },
   ])
   // @ts-ignore
-  const { data: dataFromGauge } = useReadContracts({
+  const { data: dataFromGauge, refetch: refetchGaugesOnChain } = useReadContracts({
     // @ts-ignore
     contracts: gaugeContracts,
     query: {
@@ -132,6 +132,8 @@ const useLiquidityPool = () => {
     earnedTradingFeesByGauge,
     earnedEmissionsByGauge,
     claim,
+    refetchPoolsOnChain,
+    refetchGaugesOnChain,
   }
 }
 
