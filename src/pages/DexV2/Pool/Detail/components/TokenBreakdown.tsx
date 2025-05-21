@@ -55,6 +55,8 @@ const TokenBreakdown: React.FC<TokenBreakdownProps> = ({
   // Determine asset size based on the nested level.
   const assetSize = isDeepPool && currentLevel > 2 ? 24 : isDeepPool && currentLevel > 1 ? 28 : 36
 
+  const balanceLabel = showUserShares ? tokenData.userBalanceLabel : tokenData.balanceLabel
+  const fiatLabel = showUserShares ? tokenData.userFiatLabel : tokenData.fiatLabel
   return (
     <>
       <Container level={currentLevel} isWeighted={isWeighted}>
@@ -66,8 +68,8 @@ const TokenBreakdown: React.FC<TokenBreakdownProps> = ({
           <ArrowUpRight size="16" color="#B8B8CC" />
         </StyledLink>
         {isWeighted && <GridCell>{tokenData.tokenWeightLabel}</GridCell>}
-        <GridCell>{showUserShares ? tokenData.userBalanceLabel : tokenData.balanceLabel}</GridCell>
-        <Value>{showUserShares ? tokenData.userFiatLabel : tokenData.fiatLabel}</Value>
+        <GridCell>{balanceLabel && !Number.isNaN(balanceLabel) ? balanceLabel : '-'}</GridCell>
+        <Value>{fiatLabel && !Number.isNaN(fiatLabel) ? fiatLabel : '-'}</Value>
       </Container>
       {isDeepPool &&
         token.token?.pool?.tokens &&
