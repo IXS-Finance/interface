@@ -24,7 +24,7 @@ import { SubgraphPoolDayData } from 'services/balancer/poolDayDatas/types'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { TokenType } from 'types/TokenList'
 import { PoolTypes } from './constants'
-import useEmissionApr from 'hooks/dex-v2/useEmissionApr'
+import { getPoolAprValue } from 'lib/utils/poolApr'
 
 export default function PoolList() {
   const { pools, isLoading, loadMorePools } = usePools()
@@ -97,7 +97,6 @@ const Row = ({ pool, poolDayDatas }: { pool: any; poolDayDatas?: SubgraphPoolDay
   const { toCurrency } = useCurrency()
   const history = useHistory()
   const { getToken } = useTokens()
-  const emissionAprValue = useEmissionApr(pool)
 
   /**
    * Indentify the pool type
@@ -107,14 +106,7 @@ const Row = ({ pool, poolDayDatas }: { pool: any; poolDayDatas?: SubgraphPoolDay
   /**
    * Calculate the average daily swap fees in USD for the pool
    */
-  const averageDailySwaps = !poolDayDatas
-    ? '0'
-    : poolDayDatas.reduce((acc, day) => acc.plus(day.dailySwapFeesUSD || '0'), bnum(0)).div(poolDayDatas.length)
-  const daysPerYear = 365
-  const aprValue =
-    pool.totalLiquidity && pool.totalLiquidity !== '0'
-      ? bnum(averageDailySwaps).times(daysPerYear).div(pool.totalLiquidity).plus(emissionAprValue).toString()
-      : '0'
+  const aprValue = getPoolAprValue(pool, poolDayDatas)
 
   return (
     <StyledBodyRow onClick={() => history.push(`/v2/pool/${pool.id}`)}>
