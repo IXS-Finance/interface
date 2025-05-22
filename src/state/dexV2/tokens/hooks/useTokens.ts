@@ -214,7 +214,14 @@ export const useTokens = () => {
       omit(allTokens, tokenListUris.Balancer.Allowlisted)
     )
 
-    dispatch(setTokensState({ injectedTokens: newTokens }))
+    dispatch(
+      setTokensState({
+        injectedTokens: {
+          ...state.injectedTokens,
+          ...newTokens,
+        },
+      })
+    )
     // await forChange(onchainDataLoading, false);
   }
 
