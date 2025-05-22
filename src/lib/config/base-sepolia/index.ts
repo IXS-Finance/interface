@@ -29,9 +29,9 @@ const config: Config = {
   poolsUrlV2: '',
   subgraphs: {
     main: [
-      'https://api.studio.thegraph.com/query/27946/v2-basesepolia/version/latest',
       'https://api.studio.thegraph.com/query/27946/v2-basesepolia/0.2.8',
-      'https://api.studio.thegraph.com/query/27946/v2-basesepolia/version/0.2.9',
+      'https://api.studio.thegraph.com/query/27946/v2-basesepolia/0.2.9',
+      'https://api.studio.thegraph.com/query/27946/v2-basesepolia/version/latest',
     ],
     aave: '',
     gauge: 'https://api.studio.thegraph.com/query/27946/v2-basesepolia/version/latest',
