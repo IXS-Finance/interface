@@ -1,4 +1,3 @@
-import React from 'react'
 import { Box, Flex } from 'rebass'
 import { BodyRow, HeaderRow, Table } from 'components/Table'
 import { BodyContainer } from 'components/TmPayoutHistory/styleds'
@@ -22,6 +21,8 @@ import { PinnedContentButton } from 'components/Button'
 import { bnum } from 'lib/utils'
 import usePoolDayDatas from 'hooks/dex-v2/pools/usePoolDayDatas'
 import { SubgraphPoolDayData } from 'services/balancer/poolDayDatas/types'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import { TokenType } from 'types/TokenList'
 
 export default function PoolList() {
   const { pools, isLoading, loadMorePools } = usePools()
@@ -93,6 +94,16 @@ const Row = ({ pool, poolDayDatas }: { pool: any; poolDayDatas?: SubgraphPoolDay
   const theme = useTheme()
   const { toCurrency } = useCurrency()
   const history = useHistory()
+  const { getToken } = useTokens()
+
+  /**
+   * Indentify the pool type
+   */
+  const isRwa = pool?.tokens?.some((token: any) => getToken(token.address)?.type === TokenType.RWA)
+
+  /**
+   * Calculate the average daily swap fees in USD for the pool
+   */
   const averageDailySwaps = !poolDayDatas
     ? '0'
     : poolDayDatas.reduce((acc, day) => acc.plus(day.dailySwapFeesUSD || '0'), bnum(0)).div(poolDayDatas.length)
@@ -117,7 +128,7 @@ const Row = ({ pool, poolDayDatas }: { pool: any; poolDayDatas?: SubgraphPoolDay
       </Flex>
       <TYPE.main color={'text1'}>{toCurrency(pool.totalLiquidity)}</TYPE.main>
       <TYPE.main color={'text1'}>{toCurrency(pool.totalSwapVolume)}</TYPE.main>
-      <TYPE.main1 color={theme.blue5}>SAMPLE</TYPE.main1>
+      <TYPE.main1 color={theme.blue5}>{isRwa ? 'RWA' : 'Crypto'}</TYPE.main1>
       <TYPE.main0 fontSize={16}>{fNum('apr', aprValue)}</TYPE.main0>
     </StyledBodyRow>
   )
