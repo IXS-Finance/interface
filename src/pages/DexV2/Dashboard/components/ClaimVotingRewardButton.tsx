@@ -4,20 +4,24 @@ import useTransactions from 'hooks/dex-v2/useTransactions'
 import { Voter } from 'services/balancer/contracts/voter'
 import { useState } from 'react'
 import Loader from 'components/Loader'
+import useEthers from 'hooks/dex-v2/useEthers'
 
 const ClaimVotingRewardButton = ({
   gaugeAddress,
   feeTokenAddresses,
   bribeTokenAddresses,
   tokenId,
+  refetch,
 }: {
   gaugeAddress: Address
   tokenId: string
   feeTokenAddresses?: Address[]
   bribeTokenAddresses?: Address[]
+  refetch: () => void
 }) => {
   const [loading, setLoading] = useState(false)
   const { addTransaction } = useTransactions()
+  const { txListener } = useEthers()
 
   const handleClaim = async () => {
     if (!feeTokenAddresses || !bribeTokenAddresses) return
@@ -36,6 +40,12 @@ const ClaimVotingRewardButton = ({
         tokenId
       )
 
+      txListener(tx, {
+        onTxConfirmed: async (receipt) => {
+          refetch()
+        },
+        onTxFailed: () => {},
+      })
       addTransaction({
         id: tx.hash,
         type: 'tx',
