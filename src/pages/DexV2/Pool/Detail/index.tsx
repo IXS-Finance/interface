@@ -110,14 +110,21 @@ const PoolDetail: React.FC = () => {
 export default PoolDetail
 
 const Container = styled.div`
+  @media (min-width: 1024px) {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 1280px) {
+    max-width: 1250px;
+    margin: 0 auto;
+    width: 1250px;
+  }
+
   @media (min-width: 1536px) {
     max-width: 1536px;
     margin: 0 auto;
     width: 1536px;
-  }
-  @media (min-width: 1024px) {
-    padding-left: 1rem;
-    padding-right: 1rem;
   }
 
   .h-20 {
