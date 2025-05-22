@@ -29,7 +29,8 @@ type CardBodyProps = {
   gaugeAddress?: string
   userLpBalance?: bigint
   userGaugeBalance?: bigint
-  aprValue: string
+  emissionApr: string
+  tradingFeeApr: string
   lpSupply?: BigNumber
   showMore: boolean
   rowIndex?: number
@@ -48,7 +49,8 @@ const CardBody = ({
   earnedTradingFees,
   earnedEmissions,
   claim,
-  aprValue,
+  emissionApr,
+  tradingFeeApr,
 }: CardBodyProps) => {
   const { chainId } = useActiveWeb3React()
   const { allowanceFor } = useTokens()
@@ -152,7 +154,7 @@ const CardBody = ({
                   MAX_FRACTION_DIGITS
                 )}
                 emissionsSymbol="IXS"
-                apr={aprValue}
+                emissionApr={emissionApr}
                 showClaimEmissionsBtn={!!gaugeAddress}
                 handleClaimEmissionsAction={handleClaimEmissions}
               />
@@ -160,7 +162,8 @@ const CardBody = ({
             <Grid item xs={2.4}>
               <CardItem
                 title="Trading Fees"
-                secondTitle=""
+                secondTitle="APR"
+                tradingFeeApr={tradingFeeApr}
                 tokens={tokens?.map((token, index) => ({
                   balance: formatAmount(
                     +formatUnits(earnedTradingFees?.[index] || BigInt(0), token.decimals || 18),
@@ -199,7 +202,8 @@ interface CardItemProps {
     balance: string
     symbol?: string
   }[]
-  apr?: string
+  emissionApr?: string
+  tradingFeeApr?: string
   userGaugeBalance?: bigint
   userLpBalance?: bigint
   emissionsAmount?: string
@@ -218,7 +222,8 @@ const CardItem = ({
   title,
   secondTitle,
   tokens,
-  apr,
+  emissionApr,
+  tradingFeeApr,
   userGaugeBalance,
   userLpBalance,
   emissionsAmount,
@@ -244,9 +249,14 @@ const CardItem = ({
       <Stack style={{ minHeight: '75px' }} justifyContent="space-between">
         <Stack direction="row" justifyContent="space-between">
           <Box>
-            {apr !== undefined && (
+            {emissionApr !== undefined && (
               <Stack direction="row" alignItems="center" gap={0.5}>
-                <TYPE.subHeader1 color="text1">{fNum('apr', apr)}</TYPE.subHeader1>
+                <TYPE.subHeader1 color="text1">{fNum('apr', emissionApr)}</TYPE.subHeader1>
+              </Stack>
+            )}
+            {tradingFeeApr !== undefined && (
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <TYPE.subHeader1 color="text1">{fNum('apr', tradingFeeApr)}</TYPE.subHeader1>
               </Stack>
             )}
           </Box>

@@ -6,10 +6,11 @@ import gaugeAbi from 'abis/gaugeABI.json'
 import voterAbi from 'abis/voterABI.json'
 import { configService } from 'services/config/config.service'
 import { bptPriceFor } from './usePoolHelpers'
-import { bnum } from 'lib/utils'
+import { bnum, scale } from 'lib/utils'
 import useGauges from './pools/useGauges'
 import usePoolDayDatasQuery from './queries/usePoolDayDatasQuery'
 import { useMemo } from 'react'
+import { LP_DECIMALS } from 'pages/DexV2/Pool/Staking/constants'
 
 export default function useTradingFeeApr(pool: Pool): string {
   const { gaugeFor } = useGauges()
@@ -57,7 +58,7 @@ export default function useTradingFeeApr(pool: Pool): string {
     return bnum(feePercentageForLPers)
       .times(averageDailySwaps)
       .times(daysPerYear)
-      .div(bnum(totalSupply))
+      .div(scale(bnum(totalSupply), -1 * LP_DECIMALS))
       .div(bptTokenPrice)
       .toString()
   }, [feePercentageForLPers, dailySwaps?.length, totalSupply, bptTokenPrice])
