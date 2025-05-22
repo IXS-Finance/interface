@@ -31,11 +31,13 @@ const LockContent: React.FC = () => {
   const maxInputAmount: CurrencyAmount<Currency> | undefined = maxAmountSpend(currencyBalance)
 
   const needsApproval = useMemo(() => {
-    return account &&
+    return (
+      account &&
       userInput &&
-      approvalState === ApprovalState.NOT_APPROVED &&
+      approvalState !== ApprovalState.APPROVED &&
       maxInputAmount &&
       !new Big(userInput).gt(maxInputAmount.toExact())
+    )
   }, [account, approvalState, userInput, maxInputAmount])
 
   const handleApprove = async () => {
@@ -68,23 +70,27 @@ const LockContent: React.FC = () => {
   }
 
   const isApproveDisabled = useMemo(() => {
-    return !account ||
+    return (
+      !account ||
       approvalState === ApprovalState.APPROVED ||
       approvalState === ApprovalState.PENDING ||
       isLoading.approve ||
       !userInput ||
       !maxInputAmount ||
       new Big(userInput).gt(maxInputAmount.toExact())
+    )
   }, [account, approvalState, isLoading.approve, userInput, maxInputAmount])
 
   const isLockDisabled = useMemo(() => {
-    return !account ||
+    return (
+      !account ||
       locked ||
       isLoading.lock ||
       !userInput ||
       !maxInputAmount ||
       new Big(userInput).gt(maxInputAmount.toExact()) ||
       approvalState !== ApprovalState.APPROVED
+    )
   }, [account, locked, isLoading.lock, userInput, maxInputAmount, approvalState])
 
   const showApproveButton = needsApproval
@@ -97,6 +103,8 @@ const LockContent: React.FC = () => {
   }, [isLoading.approve, approvalState])
 
   const lockButtonLabel = useMemo(() => {
+    if (isLoading.lock || isLoading.approve) return 'Processing...'
+
     if (locked) {
       return (
         <Flex alignItems="center" style={{ gap: 6 }}>
@@ -105,7 +113,6 @@ const LockContent: React.FC = () => {
         </Flex>
       )
     }
-    if (isLoading.lock) return 'Processing...'
     return 'Confirm Lock'
   }, [locked, isLoading.lock])
 
@@ -155,7 +162,7 @@ const LockContent: React.FC = () => {
   )
 }
 
-const StyledPrimaryButton = styled(PinnedContentButton) <{ locked: boolean; isLoading?: boolean }>`
+const StyledPrimaryButton = styled(PinnedContentButton)<{ locked: boolean; isLoading?: boolean }>`
   ${({ locked, theme }) =>
     locked &&
     `
