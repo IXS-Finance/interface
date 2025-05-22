@@ -1,6 +1,6 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query'
 import QUERY_KEYS from 'constants/dexV2/queryKeys'
-import { gaugesSubgraphService } from 'services/balancer/gauges/gauges-subgraph.service'
+import { balancerSubgraphService } from 'services/balancer/subgraph/balancer-subgraph.service'
 import { SubgraphGauge } from 'services/dexV2/gauges/types'
 
 /**
@@ -23,7 +23,7 @@ export default function useGaugesQuery(options: QueryOptions = {}) {
    */
   const queryFn = async () => {
     try {
-      return await gaugesSubgraphService.gauges.get()
+      return await balancerSubgraphService.gauges.get()
     } catch (error) {
       console.error('Failed to fetch gauges', error)
       return []
