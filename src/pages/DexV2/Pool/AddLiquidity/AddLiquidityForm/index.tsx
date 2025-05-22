@@ -95,6 +95,10 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
       if (amountsIn.every((item) => Number(item.value) > 0)) {
         setAmountsIn(amountsIn)
       }
+
+      if (value === '') {
+        setAmountsIn(amountsIn.map((item) => ({ ...item, value: '' })))
+      }
       setTypingIndex(index)
     } else {
       if (!value) {
@@ -161,7 +165,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
         <SwitchText>Auto optimize liquidity</SwitchText>
       </Flex>
 
-      <AddLiquidityTotals isLoadingQuery={isLoadingQuery} pool={pool} />
+      {hasAmountsIn ? <AddLiquidityTotals isLoadingQuery={isLoadingQuery} pool={pool} /> : null}
 
       {highPriceImpact && (
         <HighPriceImpactContainer className="p-2 pb-2 mt-5 rounded-lg border dark:border-gray-700">
