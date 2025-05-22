@@ -88,7 +88,7 @@ const VotingRewardPerVote = ({ votedLockReward, lockData }: { votedLockReward: V
   const { gaugeFor } = useGauges()
   const poolAddresses = pools.map((pool) => pool.lp)
 
-  const { data: votingRewardsPerPool } = useVotingQuery(poolAddresses, votedLockReward.id)
+  const { data: votingRewardsPerPool, refetch } = useVotingQuery(poolAddresses, votedLockReward.id)
 
   return (
     <>
@@ -102,7 +102,12 @@ const VotingRewardPerVote = ({ votedLockReward, lockData }: { votedLockReward: V
         const gaugeAddress = gaugeFor(poolAddress.lp.toLowerCase())?.address as Address
         return (
           <Grid item key={`vote-${votedLockReward.id}-pool-${poolAddress}`}>
-            <VotingRewardRow votingReward={votingReward} lockData={lockData} gaugeAddress={gaugeAddress} />
+            <VotingRewardRow
+              votingReward={votingReward}
+              lockData={lockData}
+              gaugeAddress={gaugeAddress}
+              refetch={refetch}
+            />
           </Grid>
         )
       })}
@@ -114,10 +119,12 @@ const VotingRewardRow = ({
   votingReward,
   lockData,
   gaugeAddress,
+  refetch,
 }: {
   votingReward?: FeeAndBribeRewardPerRow
   lockData: LockedData
   gaugeAddress: Address
+  refetch: () => void
 }) => {
   const { getToken } = useTokens()
   const feeTokenAddresses = votingReward?.feeTokens
@@ -208,6 +215,7 @@ const VotingRewardRow = ({
                 tokenId={lockData.id}
                 feeTokenAddresses={feeTokenAddresses}
                 bribeTokenAddresses={bribeTokenAddresses}
+                refetch={refetch}
               />
             ) : null}
           </Stack>
