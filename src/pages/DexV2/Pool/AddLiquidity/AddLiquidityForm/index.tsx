@@ -92,11 +92,8 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
         value,
       })
 
-      // Just apply when value of item > 0
       if (amountsIn.every((item) => Number(item.value) > 0)) {
         setAmountsIn(amountsIn)
-      } else {
-        setAmountsIn(amountsIn.map((item) => ({ ...item, value: '' })))
       }
       setTypingIndex(index)
     } else {
