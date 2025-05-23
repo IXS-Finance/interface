@@ -94,8 +94,8 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
                 </Flex>
 
                 <Flex flexDirection="column">
-                  <div>{fNum(propAmountToken?.value || '', FNumFormats.token)}</div>
-                  <Box css={{ color: '#B8B8D2' }}>
+                  <Box textAlign="right">{fNum(propAmountToken?.value || '', FNumFormats.token)}</Box>
+                  <Box textAlign="right" css={{ color: '#B8B8D2' }}>
                     {fNum(fiatValueOf(pool, propAmountToken?.value || ''), FNumFormats.fiat)}
                   </Box>
                 </Flex>
