@@ -26,6 +26,7 @@ import useTokenApprovalActions from 'hooks/dex-v2/approvals/useTokenApprovalActi
 import useNetwork from 'hooks/dex-v2/useNetwork'
 import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
 import { TransactionActionInfo } from 'pages/DexV2/types/transactions'
+import { useParams } from 'react-router-dom'
 
 const SwapCard: React.FC = () => {
   const { inputAsset, outputAsset } = useSwapAssets()
@@ -34,6 +35,7 @@ const SwapCard: React.FC = () => {
   const isMounted = useIsMounted()
   const { getTokenApprovalActions } = useTokenApprovalActions()
   const { networkConfig } = useNetwork()
+  const params: any = useParams()
 
   const [tokenApprovalActions, setTokenApprovalActions] = useState<TransactionActionInfo[]>([])
   const [loadingApprovals, setLoadingApprovals] = useState(true)
@@ -135,7 +137,7 @@ const SwapCard: React.FC = () => {
 
   function populateInitialTokens(): void {
     const assetIn = getFirstValidAddress([
-      '', // TODO: Router.currentRoute.value.params.assetIn
+      params?.assetIn ?? '',
       inputAsset,
       appNetworkConfig.tokens.InitialSwapTokens.input,
     ])
@@ -144,20 +146,12 @@ const SwapCard: React.FC = () => {
       setTokenInAddress(assetIn)
     }
     const assetOut = getFirstValidAddress([
-      '', // TODO: router.currentRoute.value.params.assetOut,
+      params?.assetOut ?? '',
       outputAsset,
       appNetworkConfig.tokens.InitialSwapTokens.output,
     ])
     if (assetOut) {
       setTokenOutAddress(assetOut)
-    }
-    let assetInAmount = undefined // TODO: router.currentRoute.value.query?.inAmount as string;
-    let assetOutAmount = undefined // TODO: router.currentRoute.value.query?.outAmount as string;
-    if (assetInAmount) {
-      setTokenInAmount(assetInAmount)
-    }
-    if (!assetInAmount && assetOutAmount) {
-      setTokenOutAmount(assetOutAmount)
     }
   }
 
@@ -209,14 +203,50 @@ const SwapCard: React.FC = () => {
   const loadingText = isLoading ? 'Fetching swap...' : 'Next'
   const showSwapRoute = swapping.isBalancerSwap
 
+  const linkSwap = `${window.location.origin}/#/v2/swap/${swapping.tokenIn?.address}/${swapping.tokenOut?.address}`
+
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyLink = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(linkSwap)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1200)
+    }
+  }
+
   return (
     <Container>
       <Flex justifyContent="space-between" alignItems="center">
         <Title>{title}</Title>
 
         <Flex alignItems="center">
-          <Flex alignItems="center">
-            <img src={chainIcon} alt="link" />
+          <Flex
+            alignItems="center"
+            style={{ cursor: 'pointer', position: 'relative' }}
+            onClick={handleCopyLink}
+          >
+            <img src={chainIcon} alt="link" title="Copy swap link" />
+            {copied && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '-24px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  background: '#000',
+                  color: '#fff',
+                  fontSize: 12,
+                  padding: '2px 8px',
+                  borderRadius: 8,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                  zIndex: 10,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Copied!
+              </span>
+            )}
           </Flex>
           <HorizontalLine />
           <SwapSettingsPopover context={SwapSettingsContext.swap} isGasless={swapping.swapGasless} />
