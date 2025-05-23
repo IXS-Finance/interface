@@ -17,6 +17,7 @@ import { LockedData } from 'services/balancer/contracts/ve-sugar'
 import ClaimVotingRewardButton from './ClaimVotingRewardButton'
 import EmptyList from './EmptyList'
 import useGauges from 'hooks/dex-v2/pools/useGauges'
+import { FeeAndBribeRewardPerRow } from './types'
 
 const VotingRewards = () => {
   return (
@@ -76,13 +77,6 @@ const TableBody = () => {
   )
 }
 
-type FeeAndBribeRewardPerRow = {
-  feeRewards: BigNumber[]
-  feeTokens: Address[]
-  bribeRewards: BigNumber[]
-  bribeTokens: Address[]
-}
-
 const VotingRewardPerVote = ({ votedLockReward, lockData }: { votedLockReward: VoteItem; lockData: LockedData }) => {
   const pools = votedLockReward.pools
   const { gaugeFor } = useGauges()
@@ -131,13 +125,6 @@ const VotingRewardRow = ({
   const bribeTokenAddresses = votingReward?.bribeTokens
   const feeTokens = feeTokenAddresses?.map((tokenAddress) => getToken(tokenAddress))
   const pairName = feeTokens?.map((token) => token.symbol).join('/')
-
-  const isClaimable = useMemo(() => {
-    return (
-      votingReward?.bribeRewards?.some((reward) => reward.gt(0)) ||
-      votingReward?.feeRewards?.some((reward) => reward.gt(0))
-    )
-  }, [votingReward])
 
   return (
     <Card>
@@ -209,12 +196,11 @@ const VotingRewardRow = ({
               })}
             </Stack>
 
-            {isClaimable ? (
+            {gaugeAddress ? (
               <ClaimVotingRewardButton
                 gaugeAddress={gaugeAddress}
                 tokenId={lockData.id}
-                feeTokenAddresses={feeTokenAddresses}
-                bribeTokenAddresses={bribeTokenAddresses}
+                votingReward={votingReward}
                 refetch={refetch}
               />
             ) : null}

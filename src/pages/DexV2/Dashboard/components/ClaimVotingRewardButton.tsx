@@ -5,23 +5,28 @@ import { Voter } from 'services/balancer/contracts/voter'
 import { useState } from 'react'
 import Loader from 'components/Loader'
 import useEthers from 'hooks/dex-v2/useEthers'
+import { FeeAndBribeRewardPerRow } from './types'
 
 const ClaimVotingRewardButton = ({
   gaugeAddress,
-  feeTokenAddresses,
-  bribeTokenAddresses,
+  votingReward,
   tokenId,
   refetch,
 }: {
   gaugeAddress: Address
   tokenId: string
-  feeTokenAddresses?: Address[]
-  bribeTokenAddresses?: Address[]
+  votingReward?: FeeAndBribeRewardPerRow
   refetch: () => void
 }) => {
   const [loading, setLoading] = useState(false)
   const { addTransaction } = useTransactions()
   const { txListener } = useEthers()
+
+  const feeTokenAddresses = votingReward?.feeTokens
+  const bribeTokenAddresses = votingReward?.bribeTokens
+  const isClaimable =
+    votingReward?.bribeRewards?.some((reward) => reward.gt(0)) ||
+    votingReward?.feeRewards?.some((reward) => reward.gt(0))
 
   const handleClaim = async () => {
     if (!feeTokenAddresses || !bribeTokenAddresses) return
@@ -65,7 +70,7 @@ const ClaimVotingRewardButton = ({
         paddingBottom: 12,
       }}
       onClick={() => handleClaim()}
-      disabled={loading}
+      disabled={loading || !isClaimable}
     >
       {loading ? <Loader size="12px" /> : null} Claim
     </PinnedContentButton>
