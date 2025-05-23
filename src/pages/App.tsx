@@ -92,7 +92,9 @@ export default function App() {
   const affUnique1 = query.get('aff_unique1')
   const isIxSwap = whiteLabelConfig?.isIxSwap ?? false
   const routeFinalConfig = isAdmin ? routeConfigs : routeConfigs.filter((route) => !lbpAdminRoutes.includes(route.path))
-  const isPublic = ['/launchpad'].includes(pathname)
+  const isPublic = ['/launchpad', '/v2/'].some((p) =>
+    pathname.includes(p)
+  )
 
   const canAccessKycForm = (kycType: string) => {
     if (!account) return false
