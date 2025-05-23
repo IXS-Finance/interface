@@ -18,6 +18,7 @@ import { ReactComponent as ChevronDownIcon } from 'assets/images/chevron-down.sv
 import { ReactComponent as InfoIcon } from 'assets/images/info.svg'
 import CardBody from './DepositedStakedLiquidityCard'
 import useEmissionApr from 'hooks/dex-v2/useEmissionApr'
+import useTradingFeeApr from 'hooks/dex-v2/useTradingFeeApr'
 
 const MAX_TOKEN_WEIGHT_DIGITS = 2
 
@@ -45,7 +46,8 @@ const DepositedStakedLiquidityRow = ({
   claim,
 }: DepositedStakedLiquidityRowProps) => {
   const tokens = data.tokens
-  const aprValue = useEmissionApr(data)
+  const emissionAprValue = useEmissionApr(data)
+  const tradingFeeAprValue = useTradingFeeApr(data)
 
   const tokenAddresses = tokens.map((token) => token.address as Address)
   const poolName = tokens.map((token) => token.symbol).join('/')
@@ -106,7 +108,8 @@ const DepositedStakedLiquidityRow = ({
         earnedTradingFees={earnedTradingFees}
         earnedEmissions={earnedEmissions}
         claim={claim}
-        aprValue={aprValue}
+        emissionApr={emissionAprValue}
+        tradingFeeApr={tradingFeeAprValue}
       />
     </Card>
   )
