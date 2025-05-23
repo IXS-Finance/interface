@@ -1,13 +1,10 @@
 import { SubgraphGauge } from 'services/dexV2/gauges/types'
-import { GaugesSubgraphService } from '../../gauges-subgraph.service'
 import { QueryBuilder } from '../../types'
 import { gaugeQueryBuilder } from './query'
+import Service from '../../../subgraph/balancer-subgraph.service'
 
 export class GaugesEntity {
-  constructor(
-    private readonly service: GaugesSubgraphService,
-    private readonly query: QueryBuilder = gaugeQueryBuilder
-  ) {}
+  constructor(private readonly service: Service, private readonly query: QueryBuilder = gaugeQueryBuilder) {}
 
   public async get(args = {}, attrs = {}): Promise<SubgraphGauge[]> {
     const queryName = 'Gauges'
