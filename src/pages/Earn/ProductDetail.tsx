@@ -7,6 +7,7 @@ import { format } from 'date-fns'
 import { useActiveWeb3React } from 'hooks/web3'
 import { products } from './products' // Import the Treasury.png image
 import TreasuryImg from './images/Treasury.png'
+import { useSubgraphQuery } from 'hooks/useSubgraphQuery'
 
 // Token icon
 import USDCIcon from '../../assets/images/usdcNew.svg'
@@ -19,10 +20,10 @@ import { WithdrawRequestTab } from './components/tabs/WithdrawRequest'
 import { ClaimTab } from './components/tabs/Claim'
 
 interface Transaction {
-  date: Date
+  date: number
   type: string
   tokenSymbol: string
-  amount: number
+  amount: string
   hash: string
 }
 
@@ -31,7 +32,7 @@ interface Transaction {
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>()
   const history = useHistory()
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw' | 'claim'>('deposit')
   const [amount, setAmount] = useState('')
@@ -44,6 +45,91 @@ export default function ProductDetail() {
 
   // Get product data from earnProducts based on id
   const product = products.find((p) => p.id === id)
+
+  // Subgraph Queries
+  const userAddress = account?.toLowerCase()
+
+  const DEPOSITS_QUERY = `
+    query {
+      deposits(where: { user: "${userAddress}" }) {
+        amount
+        timestamp
+        transactionHash
+      }
+    }
+  `
+
+  const WITHDRAWS_QUERY = `
+    query {
+      withdraws(where: { user: "${userAddress}" }) {
+        amount
+        timestamp
+        transactionHash
+      }
+    }
+  `
+
+  const CLAIMS_QUERY = `
+    query {
+      claims(where: { user: "${userAddress}" }) {
+        amountClaimed
+        timestamp
+        transactionHash
+      }
+    }
+  `
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+
+  // Fetching data based on active tab
+  let query = ''
+  if (activeTab === 'deposit') {
+    query = DEPOSITS_QUERY
+  } else if (activeTab === 'withdraw') {
+    query = WITHDRAWS_QUERY
+  } else if (activeTab === 'claim') {
+    query = CLAIMS_QUERY
+  }
+
+  const subgraphData = useSubgraphQuery({
+    feature: 'EARN_V2_TREASURY',
+    chainId: chainId,
+    query: query,
+    autoPolling: true,
+  })
+
+  React.useEffect(() => {
+    if (subgraphData && account && chainId) {
+      let formattedTransactions: Transaction[] = []
+      if (activeTab === 'deposit' && subgraphData.deposits) {
+        formattedTransactions = subgraphData.deposits.map((tx: any) => ({
+          date: parseInt(tx.timestamp, 10),
+          type: 'Deposit',
+          tokenSymbol: product.asset,
+          amount: tx.amount,
+          hash: tx.transactionHash,
+        }))
+      } else if (activeTab === 'withdraw' && subgraphData.withdraws) {
+        formattedTransactions = subgraphData.withdraws.map((tx: any) => ({
+          date: parseInt(tx.timestamp, 10),
+          type: 'Withdraw',
+          tokenSymbol: product.asset,
+          amount: tx.amount,
+          hash: tx.transactionHash,
+        }))
+      } else if (activeTab === 'claim' && subgraphData.claims) {
+        formattedTransactions = subgraphData.claims.map((tx: any) => ({
+          date: parseInt(tx.timestamp, 10),
+          type: 'Claim',
+          tokenSymbol: product.asset,
+          amount: tx.amountClaimed,
+          hash: tx.transactionHash,
+        }))
+      }
+      setTransactions(formattedTransactions)
+    } else {
+      setTransactions([])
+    }
+  }, [subgraphData, activeTab, product.asset, account, chainId])
 
   // Handle case when product is not found
   if (!product) {
@@ -65,38 +151,6 @@ export default function ProductDetail() {
   const platformFee = '2.595810' // 0.25% fee
   const serviceFee = '0.000000'
   const actualClaimableAmount = '1,035.728235' // Claimable minus fees
-
-  // Mock transactions
-  const transactions: Transaction[] = [
-    {
-      date: new Date('2023-06-05 08:54:00'),
-      type: 'Deposit',
-      tokenSymbol: 'USDC',
-      amount: 5500,
-      hash: '0x0a1...fe65',
-    },
-    {
-      date: new Date('2023-06-04 08:54:00'),
-      type: 'Deposit',
-      tokenSymbol: 'USDC',
-      amount: 2400,
-      hash: '0x0a1...fe55',
-    },
-    {
-      date: new Date('2023-06-04 08:54:00'),
-      type: 'Deposit',
-      tokenSymbol: 'USDC',
-      amount: 2000,
-      hash: '0x0a1...fe45',
-    },
-    {
-      date: new Date('2023-06-02 08:54:00'),
-      type: 'Deposit',
-      tokenSymbol: 'USDC',
-      amount: 8300,
-      hash: '0x0a1...fe35',
-    },
-  ]
 
   const handleDeposit = () => {
     setLoading(true)
@@ -234,7 +288,6 @@ export default function ProductDetail() {
             setTermsAccepted={setTermsAccepted}
             handlePreviewDeposit={handlePreviewDeposit}
             handleBackFromPreview={handleBackFromPreview}
-            handleDeposit={handleDeposit}
             productAsset={product.asset}
             network={product.network}
             investingTokenAddress={product.investingTokenAddress} // USDC on Polygon
@@ -279,39 +332,45 @@ export default function ProductDetail() {
       {/* Transactions Section */}
       <TransactionsSection>
         <SectionTitle>
-          <Trans>Transactions</Trans>
+          <Trans>Transactions</Trans> ({activeTab})
         </SectionTitle>
 
         <TransactionsTable>
-          <TableHeader>
+          <TableHeader columns={5}>
             <HeaderCell>Date</HeaderCell>
+            <HeaderCell>Type</HeaderCell>
             <HeaderCell>Token Symbol</HeaderCell>
-            <HeaderCell>Deposit Amount</HeaderCell>
+            <HeaderCell>Amount</HeaderCell>
             <HeaderCell>Transaction Hash</HeaderCell>
           </TableHeader>
 
-          {transactions.map((tx: Transaction, index: number) => (
-            <TransactionRow key={index}>
-              <Cell>{format(tx.date, 'dd MMM yyyy HH:mm')}</Cell>
-              <Cell>
-                <CurrencyDisplay>
-                  <SmallCurrencyIcon>
-                    <img src={USDCIcon} alt="USDC" />
-                  </SmallCurrencyIcon>
-                  {tx.tokenSymbol}
-                </CurrencyDisplay>
-              </Cell>
-              <Cell>{tx.amount.toLocaleString()}.00</Cell>
-              <Cell>
-                <HashDisplay>
-                  {tx.hash}
-                  <CopyIcon>
-                    <img src="/images/icons/copy.svg" alt="Copy" />
-                  </CopyIcon>
-                </HashDisplay>
-              </Cell>
-            </TransactionRow>
-          ))}
+          {transactions.length > 0 ? (
+            transactions.map((tx: Transaction, index: number) => (
+              <TransactionRow key={index} columns={5}>
+                <Cell>{format(new Date(tx.date * 1000), 'dd MMM yyyy HH:mm')}</Cell>
+                <Cell>{tx.type}</Cell>
+                <Cell>
+                  <CurrencyDisplay>
+                    <SmallCurrencyIcon>
+                      <img src={USDCIcon} alt={tx.tokenSymbol} />
+                    </SmallCurrencyIcon>
+                    {tx.tokenSymbol}
+                  </CurrencyDisplay>
+                </Cell>
+                <Cell>{tx.amount}</Cell>
+                <Cell>
+                  <HashDisplay>
+                    {tx.hash.substring(0, 6)}...{tx.hash.substring(tx.hash.length - 4)}
+                    <CopyIcon onClick={() => navigator.clipboard.writeText(tx.hash)}>
+                      <img src="/images/icons/copy.svg" alt="Copy" />
+                    </CopyIcon>
+                  </HashDisplay>
+                </Cell>
+              </TransactionRow>
+            ))
+          ) : (
+            <NoTransactionsRow columns={5}>No transactions found for this type.</NoTransactionsRow>
+          )}
         </TransactionsTable>
 
         <Pagination>
@@ -640,9 +699,9 @@ const TransactionsTable = styled.div`
   margin-bottom: 24px;
 `
 
-const TableHeader = styled.div`
+const TableHeader = styled.div<{ columns?: number }>`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: ${({ columns }) => `repeat(${columns || 4}, 1fr)`};
   padding: 16px 0;
   border-bottom: 1px solid #e8e8e8;
 `
@@ -653,11 +712,18 @@ const HeaderCell = styled.div`
   color: #666666;
 `
 
-const TransactionRow = styled.div`
+const TransactionRow = styled.div<{ columns?: number }>`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: ${({ columns }) => `repeat(${columns || 4}, 1fr)`};
   padding: 16px 0;
   border-bottom: 1px solid #f5f5f5;
+`
+
+const NoTransactionsRow = styled(TransactionRow)`
+  grid-column: span ${({ columns }) => columns || 4};
+  text-align: center;
+  color: #7e829b;
+  padding: 32px 0;
 `
 
 const Cell = styled.div`
