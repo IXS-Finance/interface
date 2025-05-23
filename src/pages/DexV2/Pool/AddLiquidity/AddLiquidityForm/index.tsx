@@ -44,7 +44,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
     tokensIn,
     setAmountsIn,
   } = useJoinPool(pool)
-
+  const { account, startConnectWithInjectedProvider } = useWeb3()
   const queryJoinQuery = useQuery({
     queryKey: QUERY_KEYS.Pools.Joins.QueryJoin(amountsIn, isSingleAssetJoin),
     queryFn: queryJoin,
@@ -149,6 +149,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
                 name={amountIn.address}
                 weight={tokenWeight(pool, amountIn.address)}
                 updateAddress={() => {}}
+                noRules={!account}
                 fixedToken
                 autoFocus={index === typingIndex}
                 updateAmount={(value: string) => {
@@ -165,7 +166,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
         <SwitchText>Auto optimize liquidity</SwitchText>
       </Flex>
 
-      {hasAmountsIn ? <AddLiquidityTotals isLoadingQuery={isLoadingQuery} pool={pool} /> : null}
+      {hasAmountsIn && account ? <AddLiquidityTotals isLoadingQuery={isLoadingQuery} pool={pool} /> : null}
 
       {highPriceImpact && (
         <HighPriceImpactContainer className="p-2 pb-2 mt-5 rounded-lg border dark:border-gray-700">
@@ -182,16 +183,22 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
         </HighPriceImpactContainer>
       )}
 
-      {queryError && (
-        <BalAlert type="error" title="There was an error">
-          {queryError}
-        </BalAlert>
+      {account && queryError && (
+        <div>
+          <BalAlert type="error" title="There was an error" block>
+            {queryError}
+          </BalAlert>
+        </div>
       )}
 
       <div className="mt-4">
-        <ButtonPrimary disabled={!!disabled} onClick={() => setShowPreview(true)}>
-          Preview
-        </ButtonPrimary>
+        {!account ? (
+          <ButtonPrimary onClick={startConnectWithInjectedProvider}>Connect Wallet</ButtonPrimary>
+        ) : (
+          <ButtonPrimary disabled={!!disabled} onClick={() => setShowPreview(true)}>
+            Preview
+          </ButtonPrimary>
+        )}
       </div>
 
       {pool && showPreview ? (
