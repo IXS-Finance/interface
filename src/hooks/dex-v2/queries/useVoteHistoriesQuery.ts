@@ -74,6 +74,7 @@ export default function useVoteHistoriesQuery() {
   const queryOptions = {
     enabled,
     refetchOnWindowFocus: false,
+    refetchInterval: 10000, // refetch every 10 seconds
   }
 
   return useQuery({ queryKey, queryFn, ...queryOptions })
