@@ -38,7 +38,7 @@ import {
 import USDCIcon from 'assets/images/usdcNew.svg';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useBalance } from 'wagmi';
-import { useAllowanceV2, ApprovalState } from 'hooks/useApproveCallback';
+import { useAllowance, ApprovalState } from 'hooks/useApproveCallback';
 import { ethers, BigNumber } from 'ethers';
 import VaultABI from '../../../abis/Vault.json';
 import { earn } from 'services/apiUrls';
@@ -59,7 +59,6 @@ interface DepositTabProps {
   setTermsAccepted: (accepted: boolean) => void;
   handlePreviewDeposit: () => void;
   handleBackFromPreview: () => void;
-  handleDeposit: () => void;
   productAsset: string;
   network?: string;
   vaultAddress?: string;
@@ -75,7 +74,6 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   setTermsAccepted,
   handlePreviewDeposit,
   handleBackFromPreview,
-  handleDeposit,
   productAsset,
   network,
   vaultAddress,
@@ -83,7 +81,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
 }) => {
   const { address } = useAccount();
   
-  const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
+  const { data: balanceData, isLoading: isBalanceLoading, refetch: refetchBalanceData } = useBalance({
     address: address,
     token: investingTokenAddress as `0x${string}`,
     query: {
@@ -116,6 +114,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
 
   const [isFetchingSignature, setIsFetchingSignature] = useState(false);
   const [whitelistAttemptError, setWhitelistAttemptError] = useState<string | null>(null);
+  const [depositError, setDepositError] = useState<string | null>(null);
 
   const {
     data: whitelistTxHash,
@@ -135,6 +134,25 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     },
   });
 
+  const {
+    data: depositTxHash,
+    writeContractAsync: depositContractAsync,
+    isPending: isDepositContractCallPending,
+    error: depositContractWriteError,
+    reset: resetDepositContract,
+  } = useWriteContract();
+
+  const {
+    isLoading: isConfirmingDepositTx,
+    isSuccess: isDepositTxConfirmed,
+    error: depositTxConfirmError,
+  } = useWaitForTransactionReceipt({
+    hash: depositTxHash,
+    query: {
+      enabled: !!depositTxHash,
+    },
+  });
+
   useEffect(() => {
     if (isWhitelistTxConfirmed) {
       refetchIsWhitelisted();
@@ -150,6 +168,38 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     }
   }, [whitelistContractWriteError, whitelistTxConfirmError]);
 
+  useEffect(() => {
+    if (isDepositTxConfirmed) {
+      setDepositError(null);
+      refreshAllowance();
+      if (refetchBalanceData) {
+        refetchBalanceData();
+      }
+      setAmount('');
+      resetDepositContract(); // Reset contract call state
+      // Optionally, navigate back or show persistent success message
+      handleBackFromPreview(); // Go back to the form after successful deposit
+    }
+  }, [isDepositTxConfirmed, refetchBalanceData, setAmount, resetDepositContract, handleBackFromPreview]);
+
+  useEffect(() => {
+    let message: string | null = null;
+    if (depositContractWriteError) {
+      message = depositContractWriteError.message || depositContractWriteError.message || "Failed to send deposit transaction.";
+      console.error('Deposit contract write error:', depositContractWriteError);
+      resetDepositContract(); // Reset to allow retry
+    } else if (depositTxConfirmError) {
+      message = depositTxConfirmError.message || depositTxConfirmError.message || "Deposit transaction failed to confirm.";
+      console.error('Deposit transaction confirm error:', depositTxConfirmError);
+      resetDepositContract(); // Reset to allow retry if confirmation fails
+    }
+    // Set error if a new message is generated
+    if (message) {
+      setDepositError(message);
+    }
+    // Note: Clearing of depositError is handled on new attempt or success
+  }, [depositContractWriteError, depositTxConfirmError, resetDepositContract]);
+
   const amountInWei = useMemo(() => {
     try {
       return amount ? ethers.utils.parseUnits(amount, 6) : BigNumber.from(0);
@@ -158,15 +208,21 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     }
   }, [amount]);
 
-  const [approvalState, approve, refreshAllowance] = useAllowanceV2(
+
+  console.log('amountInWei', amountInWei.toString());
+  const [approvalState, approve, refreshAllowance] = useAllowance(
     investingTokenAddress,
     amountInWei,
     vaultAddress
   );
 
+  console.log('approvalState', approvalState);
+
   const isApprovalNeeded = approvalState === ApprovalState.NOT_APPROVED;
   const isApproving = approvalState === ApprovalState.PENDING;
   const isApproved = approvalState === ApprovalState.APPROVED;
+
+  console.log('isApproving', isApproving);
 
   const handleMaxClick = () => {
     if (balanceData) {
@@ -226,6 +282,39 @@ export const DepositTab: React.FC<DepositTabProps> = ({
       setWhitelistAttemptError(message);
     }
   };
+
+  const handleDeposit = async () => {
+    if (!isApproved) {
+      setDepositError("Deposit cannot proceed without approval.");
+      console.error('Deposit attempt without approval.');
+      return;
+    }
+    if (!vaultAddress || !amountInWei || amountInWei.isZero()) {
+      const errorMsg = "Vault address or amount is invalid for deposit.";
+      setDepositError(errorMsg);
+      console.error(errorMsg, { vaultAddress, amount: amount.toString() });
+      return;
+    }
+
+    setDepositError(null); // Clear previous deposit errors
+
+    try {
+      await depositContractAsync({
+        abi: VaultABI.abi,
+        address: vaultAddress as `0x${string}`,
+        functionName: 'deposit',
+        args: [amountInWei],
+      });
+    } catch (error: any) {
+      // This catch might not be strictly necessary if using the error from useWriteContract,
+      // but can catch synchronous errors during the call setup.
+      console.error('Error initiating deposit transaction:', error);
+      const message = error.shortMessage || error.message || "An unexpected error occurred during deposit initiation.";
+      setDepositError(message);
+    }
+  };
+
+  const isDepositing = isDepositContractCallPending || isConfirmingDepositTx;
 
   return (
     <>
@@ -357,20 +446,34 @@ export const DepositTab: React.FC<DepositTabProps> = ({
             <BackButton onClick={handleBackFromPreview}>
               Back
             </BackButton>
-            <StyledButtonPrimary 
-              onClick={handleDeposit}
-              disabled={!termsAccepted || loading || isApprovalNeeded}
-            >
-              {loading ? 'Processing...' : isApprovalNeeded ? 'Approve Required' : 'Approve and Deposit'}
-            </StyledButtonPrimary>
-            {isApprovalNeeded && (
+            {isApprovalNeeded ? (
               <StyledButtonPrimary 
                 onClick={handleApproval}
-                disabled={isApproving}
-                style={{ marginTop: '10px' }}
+                disabled={isApproving || loading}
               >
-                {isApproving ? 'Approving...' : 'Approve USDC'}
+                {isApproving ? <Trans>Approving...</Trans> : <Trans>Approve USDC</Trans>}
               </StyledButtonPrimary>
+            ) : (
+              <StyledButtonPrimary 
+                onClick={handleDeposit}
+                disabled={
+                  !termsAccepted || 
+                  loading ||
+                  isDepositing ||
+                  !amount || 
+                  amountInWei.isZero()
+                }
+              >
+                {isDepositing ? <Trans>Depositing...</Trans> : 
+                 depositError ? <Trans>Retry Deposit</Trans> :
+                 <Trans>Deposit</Trans> 
+                }
+              </StyledButtonPrimary>
+            )}
+            {depositError && !isDepositing && !isApprovalNeeded && (
+              <div style={{ color: 'red', marginTop: '10px', fontSize: '0.875em', textAlign: 'center', width: '100%' }}>
+                Error: {depositError}
+              </div>
             )}
           </ButtonsRow>
         </PreviewContainer>
