@@ -5,6 +5,7 @@ import { Box, Flex } from 'rebass'
 
 import { bnum } from 'lib/utils'
 import { Pool } from 'services/pool/types'
+import { fNum as numF } from 'lib/balancer/utils/numbers'
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
 import { StakeAction } from './hooks/useStakePreview'
 import { usePoolStaking } from 'state/dexV2/poolStaking/usePoolStaking'
@@ -19,12 +20,15 @@ import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
 import Tooltip from 'pages/DexV2/common/Tooltip'
 import { parseUnits } from 'viem'
 import { LP_DECIMALS } from './constants'
+import usePoolDayDatas from 'hooks/dex-v2/pools/usePoolDayDatas'
+import { getPoolAprValue } from 'lib/utils/poolApr'
 
 type Props = {
   pool: Pool
 }
 
 const StakingCard: React.FC<Props> = ({ pool }) => {
+  const { poolDayDatasFor } = usePoolDayDatas([pool.address])
   const [isStakePreviewVisible, setIsStakePreviewVisible] = useState(false)
   const [stakeAction, setStakeAction] = useState<StakeAction>('stake')
 
@@ -95,6 +99,8 @@ const StakingCard: React.FC<Props> = ({ pool }) => {
     refetchAllowances()
   }, [gaugeAddress])
 
+  const poolApr = getPoolAprValue(pool, poolDayDatasFor(pool.address))
+
   if (isLoadingStakingData) {
     return <LoadingBlock darker rounded="lg" style={{ height: 238 }} />
   }
@@ -107,7 +113,7 @@ const StakingCard: React.FC<Props> = ({ pool }) => {
     <BalCard shadow="none" noBorder className="p-4">
       <Flex justifyContent="space-between">
         <Title>Staking LP Token</Title>
-        <Title>24.8%</Title>
+        <Title>{numF('apr', poolApr)}</Title>
       </Flex>
       <Flex justifyContent="space-between" mt="4px">
         <Description>Start earning rewards</Description>

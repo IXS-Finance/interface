@@ -1,29 +1,30 @@
 import React, { Fragment } from 'react'
 import styled from 'styled-components'
-import { AprBreakdown } from '@ixswap1/dex-v2-sdk'
 
 import useNumbers, { FNumFormats } from 'hooks/dex-v2/useNumbers'
-import { APR_THRESHOLD, VOLUME_THRESHOLD } from 'constants/dexV2/pools'
+import { VOLUME_THRESHOLD } from 'constants/dexV2/pools'
 import { Pool } from 'services/pool/types'
-import useWeb3 from 'hooks/dex-v2/useWeb3'
-import { shouldHideAprs, totalAprLabel } from 'hooks/dex-v2/usePoolHelpers'
 import { Flex } from 'rebass'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
+import { fNum as numF } from 'lib/balancer/utils/numbers'
+import usePoolDayDatas from 'hooks/dex-v2/pools/usePoolDayDatas'
+import { getPoolAprValue } from 'lib/utils/poolApr'
 
 interface Props {
   pool?: Pool | null
-  poolApr: AprBreakdown | null
   loading?: boolean
-  loadingApr?: boolean
 }
 
-const PoolStatCards: React.FC<Props> = ({ pool = null, poolApr = null, loading = false, loadingApr = false }) => {
+const PoolAprCard = ({ pool }: { pool: Pool }) => {
+  const { poolDayDatasFor } = usePoolDayDatas([pool.address])
+  const poolApr = getPoolAprValue(pool, poolDayDatasFor(pool.address))
+
+  return <>{numF('apr', poolApr)}</>
+}
+
+const PoolStatCards: React.FC<Props> = ({ pool = null, loading = false }) => {
   // Hooks (replace these with your React equivalents)
   const { fNum } = useNumbers()
-  const { isWalletReady } = useWeb3()
-
-  // Calculate APR label
-  const aprLabel = poolApr ? totalAprLabel(poolApr, pool?.boost, isWalletReady) : '0'
 
   // Calculate snapshot values and stats
   const volumeSnapshot = Number(pool?.volumeSnapshot || '0')
@@ -50,8 +51,8 @@ const PoolStatCards: React.FC<Props> = ({ pool = null, poolApr = null, loading =
     {
       id: 'apr',
       label: 'APR',
-      value: Number(poolApr?.swapFees || '0') > APR_THRESHOLD || shouldHideAprs(pool?.id || '') ? '-' : aprLabel,
-      loading: loading || loadingApr,
+      value: pool && <PoolAprCard pool={pool} />,
+      loading: loading,
       tooltip: '',
     },
   ]
