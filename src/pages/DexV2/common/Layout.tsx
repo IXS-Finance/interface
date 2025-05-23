@@ -5,17 +5,13 @@ import styled from 'styled-components'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { fetchTokenLists } from 'state/dexV2/tokenLists'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
-import { NetworkNotAvailable } from 'components/Launchpad/NetworkNotAvailable'
-import Portal from '@reach/portal'
-import { CenteredFixed } from 'components/LaunchpadMisc/styled'
-import { ChainId } from 'types/chains'
 
 interface DexV2LayoutProps {
   children: React.ReactNode
 }
 
 const DexV2Layout: FC<DexV2LayoutProps> = ({ children }) => {
-  const { isWalletReady, appNetworkConfig, isMismatchedNetwork } = useWeb3()
+  const { isWalletReady, appNetworkConfig } = useWeb3()
   const dispatch = useDispatch()
   const { injectSpenders } = useTokens()
 
@@ -23,16 +19,6 @@ const DexV2Layout: FC<DexV2LayoutProps> = ({ children }) => {
     injectSpenders([appNetworkConfig.addresses.vault])
     dispatch(fetchTokenLists())
   }, [isWalletReady])
-
-  if (isMismatchedNetwork) {
-    return (
-      <Portal>
-        <CenteredFixed width="100vw" height="100vh">
-          <NetworkNotAvailable expectChainId={ChainId.BaseSepolia} />
-        </CenteredFixed>
-      </Portal>
-    )
-  }
 
   return <Container className="dexv2-layout">{children}</Container>
 }

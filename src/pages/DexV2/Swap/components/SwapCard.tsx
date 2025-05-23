@@ -29,7 +29,7 @@ import { TransactionActionInfo } from 'pages/DexV2/types/transactions'
 
 const SwapCard: React.FC = () => {
   const { inputAsset, outputAsset } = useSwapAssets()
-  const { appNetworkConfig, isMismatchedNetwork } = useWeb3()
+  const { account, appNetworkConfig, isMismatchedNetwork, startConnectWithInjectedProvider } = useWeb3()
   const { nativeAsset, tokens, dynamicDataLoading } = useTokens()
   const isMounted = useIsMounted()
   const { getTokenApprovalActions } = useTokenApprovalActions()
@@ -70,7 +70,11 @@ const SwapCard: React.FC = () => {
   const hasAmountsError = !tokenInAmount || !tokenOutAmount
   const hasBalancerErrors = swapping.isBalancerSwap && isHighPriceImpact
   const swapDisabled =
-    hasAmountsError || hasBalancerErrors || hasMismatchedNetwork || errorMessage !== SwapValidation.VALID || dynamicDataLoading
+    hasAmountsError ||
+    hasBalancerErrors ||
+    hasMismatchedNetwork ||
+    errorMessage !== SwapValidation.VALID ||
+    dynamicDataLoading
   const swapLoading = swapping.isBalancerSwap ? swapping.isLoading : false
   const sorReturn = swapping.sor.sorReturn
   const hasSwaps = sorReturn.hasSwaps
@@ -247,9 +251,13 @@ const SwapCard: React.FC = () => {
       ) : null}
 
       <Box>
-        <ButtonPrimary disabled={!!swapDisabled} onClick={handlePreviewButton}>
-          {loadingText}
-        </ButtonPrimary>
+        {!account ? (
+          <ButtonPrimary onClick={startConnectWithInjectedProvider}>Connect Wallet</ButtonPrimary>
+        ) : (
+          <ButtonPrimary disabled={!!swapDisabled} onClick={handlePreviewButton}>
+            {loadingText}
+          </ButtonPrimary>
+        )}
       </Box>
 
       {showSwapRoute && swapping?.tokenIn && swapping?.tokenOut ? (
