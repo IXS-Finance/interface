@@ -6,7 +6,7 @@ import rewardsDistributorAbi from 'abis/rewardsDistributorABI.json'
 import gaugeAbi from 'abis/gaugeABI.json'
 import { Address, Abi } from 'viem'
 import { useMemo } from 'react'
-import { bnum } from 'lib/utils'
+import { bnum, scale } from 'lib/utils'
 import { Pool } from 'services/pool/types'
 import { IXS_ADDRESS } from 'constants/addresses'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
@@ -81,13 +81,22 @@ export default function useEmissionApr(pool: Pool): string {
       rewardRate = availableDeposit / epochDuration
     }
 
-    return bnum(rewardRate)
+    if (pool.name === '50USDT-50USDC') {
+      console.log('rewardRate', rewardRate)
+      console.log('ixsTokenPrice', ixsTokenPrice)
+      console.log('poolWeight', poolWeight)
+      console.log('totalSupply', totalSupply)
+      console.log('bptTokenPrice', bptTokenPrice)
+      console.log('totalWeight', totalWeight)
+    }
+
+    return bnum(rewardRate) // x 10e18
       .times(timePeriods['1 year'])
       .times(bnum(ixsTokenPrice))
-      .times(bnum(poolWeight))
-      .div(bnum(totalSupply))
+      .times(bnum(poolWeight)) // x 10e18
+      .div(bnum(totalSupply)) // x 10e18
       .div(bnum(bptTokenPrice))
-      .div(bnum(totalWeight))
+      .div(bnum(totalWeight)) // x 10e18
       .toString()
   }, [
     gaugeAddress,

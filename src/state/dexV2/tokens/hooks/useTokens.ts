@@ -80,7 +80,7 @@ export const useTokens = () => {
     isRefetching: priceQueryRefetching,
     isError: priceQueryError,
     refetch: refetchPrices,
-  } = useTokenPricesQuery(state.injectedPrices)
+  } = useTokenPricesQuery(state.injectedPrices, tokens)
 
   const {
     data: balanceData,

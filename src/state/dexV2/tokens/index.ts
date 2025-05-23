@@ -12,16 +12,6 @@ export type BalanceMap = { [address: string]: string }
 export type AllowanceMap = { [address: string]: string }
 export type TokenPrices = { [address: string]: number }
 
-const initTokenPrices: TokenPrices = {
-  ['0x4a2b0767ACEE85C7825F09F48A9347285F58a5C2']: 2700,
-  ['0xb6cd7297d7f0D761C5C395383219333d47F47b2a']: 1,
-  ['0x8e3b0aEEF4b75d5aF86eF027fFe2d7C2AeC21CA4']: 1,
-  ['0x949546713004ee02537292b1F41046f705909191']: 0.3,
-  ['0x8a1887973f72D43B023EA2EF848BB3614664cE5b']: 0.71,
-  ['0xbeD7ef47506556B96839E6607DDEe9B49de55fDB']: 5.8,
-  ['0xdba068f4486C9d7409976AdECF43417403aD1121']: 0.69,
-  ['0x00A276Ae9b8A3Ca5128B7aba8EAeF62E4C59F871']: 25,
-}
 interface TokensState {
   balances: BalanceMap
   allowances: ContractAllowancesMap
@@ -55,7 +45,7 @@ const initialState: TokensState = {
   allowanceLoading: false,
   loading: false,
   injectedTokens: {},
-  injectedPrices: initTokenPrices,
+  injectedPrices: {},
 }
 
 const tokensSlice = createSlice({
