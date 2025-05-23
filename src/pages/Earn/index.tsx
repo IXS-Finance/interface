@@ -7,6 +7,7 @@ import { routes } from 'utils/routes'
 import { useActiveWeb3React } from 'hooks/web3'
 import { ButtonPrimary } from 'components/Button'
 import { EarnProductCard } from './components/EarnProductCard'
+import { products } from './products' // Import products from products.ts file
 
 // Define product interface to match what EarnProductCard expects
 interface EarnProduct {
@@ -18,68 +19,9 @@ interface EarnProduct {
   iconUrl: string | null
   tvl?: number
   underlyingAsset?: string
+  network?: string // blockchain network: 'ethereum', 'polygon', etc.
+  address?: string // contract address of the vault
 }
-
-// This would typically come from a shared components module
-const PageWrapper = styled.div`
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px 24px;
-`
-
-const Text = styled.div<{
-  fontSize?: number | number[]
-  fontWeight?: number
-  color?: string
-  mb?: number
-  mt?: number
-}>`
-  font-size: ${({ fontSize }) => 
-    typeof fontSize === 'number' 
-      ? `${fontSize}px` 
-      : fontSize 
-        ? `${fontSize[0]}px` 
-        : '16px'
-  };
-  font-weight: ${({ fontWeight }) => fontWeight || 400};
-  color: ${({ color, theme }) => (color ? color : theme.text1)};
-  margin-bottom: ${({ mb }) => mb ? `${mb * 8}px` : 0};
-  margin-top: ${({ mt }) => mt ? `${mt * 8}px` : 0};
-`
-
-const Flex = styled.div<{
-  flexDirection?: string | string[]
-  justifyContent?: string
-  alignItems?: string
-  width?: string
-  mb?: number
-  mt?: number
-  flexWrap?: string
-}>`
-  display: flex;
-  flex-direction: ${({ flexDirection }) => 
-    Array.isArray(flexDirection) 
-      ? flexDirection[0] 
-      : flexDirection || 'row'
-  };
-  justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
-  align-items: ${({ alignItems }) => alignItems || 'stretch'};
-  width: ${({ width }) => width || 'auto'};
-  margin-bottom: ${({ mb }) => mb ? `${mb * 8}px` : 0};
-  margin-top: ${({ mt }) => mt ? `${mt * 8}px` : 0};
-  flex-wrap: ${({ flexWrap }) => flexWrap || 'nowrap'};
-  
-  @media (min-width: 768px) {
-    flex-direction: ${({ flexDirection }) => 
-      Array.isArray(flexDirection) && flexDirection.length > 1 
-        ? flexDirection[1] 
-        : Array.isArray(flexDirection) 
-          ? flexDirection[0] 
-          : flexDirection || 'row'
-    };
-  }
-`
 
 export default function Earn() {
   const history = useHistory()
@@ -88,29 +30,6 @@ export default function Earn() {
   // Replace useEarnProducts with local mock data
   const [loading] = useState(false)
   
-  // Mock products data
-  const products: EarnProduct[] = [
-    {
-      id: 'treasury-bill',
-      name: 'U.S. Treasury Backed Yield',
-      asset: 'USDC',
-      apy: 3.9,
-      tvl: 5000000,
-      description: 'Flexible Term USDC Vault',
-      iconUrl: null,
-      underlyingAsset: 'U.S. Treasury Bill'
-    },
-    {
-      id: 'stablecoin-yield',
-      name: 'Stablecoin Yield',
-      asset: 'USDT',
-      apy: 4.2,
-      tvl: 2800000,
-      description: 'Earn yield on stablecoin deposits',
-      iconUrl: null
-    }
-  ]
-
   // Featured product is the first one
   const featuredProduct = products[0]
 
@@ -165,15 +84,15 @@ export default function Earn() {
         </Flex>
       </FeaturedProductCard>
 
-      {/* Secondary Products (if any) */}
-      {products.length > 1 && (
+      {/* All Products */}
+      {products.length > 0 && (
         <>
           <Text fontSize={24} fontWeight={600} mt={5} mb={4}>
-            <Trans>More ways to earn</Trans>
+            <Trans>All earning opportunities</Trans>
           </Text>
           
           <ProductsGrid>
-            {products.slice(1).map((product) => (
+            {products.map((product) => (
               <EarnProductCard 
                 key={product.id} 
                 product={product}
@@ -245,7 +164,7 @@ const IconWrapper = styled.div`
   margin-right: 8px;
 `
 
-const LearnMoreLink = styled(Text)`
+const LearnMoreLink = styled.div`
   color: ${({ theme }) => theme.primary1};
   font-size: 14px;
   font-weight: 500;
@@ -292,3 +211,64 @@ const ConnectWalletBanner = styled.div`
   text-align: center;
   margin-top: 32px;
 ` 
+
+// This would typically come from a shared components module
+const PageWrapper = styled.div`
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+`
+
+const Text = styled.div<{
+  fontSize?: number | number[]
+  fontWeight?: number
+  color?: string
+  mb?: number
+  mt?: number
+}>`
+  font-size: ${({ fontSize }) => 
+    typeof fontSize === 'number' 
+      ? `${fontSize}px` 
+      : fontSize 
+        ? `${fontSize[0]}px` 
+        : '16px'
+  };
+  font-weight: ${({ fontWeight }) => fontWeight || 400};
+  color: ${({ color, theme }) => (color ? color : theme.text1)};
+  margin-bottom: ${({ mb }) => mb ? `${mb * 8}px` : 0};
+  margin-top: ${({ mt }) => mt ? `${mt * 8}px` : 0};
+`
+
+const Flex = styled.div<{
+  flexDirection?: string | string[]
+  justifyContent?: string
+  alignItems?: string
+  width?: string
+  mb?: number
+  mt?: number
+  flexWrap?: string
+}>`
+  display: flex;
+  flex-direction: ${({ flexDirection }) => 
+    Array.isArray(flexDirection) 
+      ? flexDirection[0] 
+      : flexDirection || 'row'
+  };
+  justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
+  align-items: ${({ alignItems }) => alignItems || 'stretch'};
+  width: ${({ width }) => width || 'auto'};
+  margin-bottom: ${({ mb }) => mb ? `${mb * 8}px` : 0};
+  margin-top: ${({ mt }) => mt ? `${mt * 8}px` : 0};
+  flex-wrap: ${({ flexWrap }) => flexWrap || 'nowrap'};
+  
+  @media (min-width: 768px) {
+    flex-direction: ${({ flexDirection }) => 
+      Array.isArray(flexDirection) && flexDirection.length > 1 
+        ? flexDirection[1] 
+        : Array.isArray(flexDirection) 
+          ? flexDirection[0] 
+          : flexDirection || 'row'
+    };
+  }
+`
