@@ -63,7 +63,11 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
   const { formatErrorMsg } = useErrorMsg()
   const onSuccess = () => {}
   const { actionStates, updateActionState } = useSwapState()
-  const { stakeActions, handleSuccess } = useStakePreview({
+  const {
+    stakeActions,
+    handleSuccess,
+    isLoading: isStakePreviewLoading,
+  } = useStakePreview({
     lpToken,
     gaugeAddress,
     currentShares,
@@ -83,7 +87,11 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
       if (!actionState) return null
       return {
         label: actionInfo.label,
-        loadingLabel: actionState.init ? actionInfo.loadingLabel : actionInfo.confirmingLabel,
+        loadingLabel: isStakePreviewLoading
+          ? 'Validating...'
+          : actionState.init
+          ? actionInfo.loadingLabel
+          : actionInfo.confirmingLabel,
         pending: actionState.init || actionState.confirming,
         isSignAction: actionInfo.isSignAction,
         promise: submit.bind(null, actionInfo, actionState, idx),
@@ -210,8 +218,8 @@ const ActionSteps: React.FC<ActionStepsProps> = ({
             block
             color={currentAction?.label === 'Unstake' ? 'red' : 'blue'}
             onClick={() => currentAction?.promise()}
-            disabled={disabled}
-            loading={loading}
+            disabled={disabled || isStakePreviewLoading}
+            loading={loading || isStakePreviewLoading}
             loadingLabel={currentAction?.loadingLabel}
           >
             {currentAction?.label}
