@@ -17,10 +17,11 @@ import dayjs from 'dayjs'
 import { useVotingEscrowContract } from 'hooks/useContract'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import EmptyList from './EmptyList'
+import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 
 const LockRewards: React.FC = () => {
   const { account } = useWeb3()
-  const { lockRewards, refetch } = useLocksQuery(account)
+  const { lockRewards, isLoadingLockRewards, refetch } = useLocksQuery(account)
 
   return (
     <Box mb={8}>
@@ -30,7 +31,11 @@ const LockRewards: React.FC = () => {
           <InfoIcon />
         </Tooltip>
       </Stack>
-      {(!lockRewards || lockRewards?.length === 0) && <EmptyList />}
+      {isLoadingLockRewards ? (
+        <LoadingBlock style={{ height: '132px' }} />
+      ) : (
+        (!lockRewards || lockRewards?.length === 0) && <EmptyList />
+      )}
       {lockRewards?.map((data) => (
         <Box mb={1} key={`lock-${data.id}`}>
           <Card>
