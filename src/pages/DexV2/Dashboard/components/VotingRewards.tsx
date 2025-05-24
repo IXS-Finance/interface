@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { Box, Chip, Grid, Stack, Tooltip } from '@mui/material'
 import { TYPE } from 'theme'
 import styled from 'styled-components'
@@ -18,6 +18,8 @@ import ClaimVotingRewardButton from './ClaimVotingRewardButton'
 import EmptyList from './EmptyList'
 import useGauges from 'hooks/dex-v2/pools/useGauges'
 import { FeeAndBribeRewardPerRow } from './types'
+import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
+import { fNum } from 'lib/balancer/utils/numbers'
 
 const VotingRewards = () => {
   return (
@@ -48,7 +50,7 @@ type VoteItem = {
 
 const TableBody = () => {
   const { account } = useWeb3()
-  const { lockRewards } = useLocksQuery(account)
+  const { lockRewards, isLoadingLockRewards } = useLocksQuery(account)
   const { flattenedLocks } = useFlattenedLocks(account)
 
   const lockHasVotes = useMemo(() => {
@@ -65,7 +67,11 @@ const TableBody = () => {
 
   return (
     <Grid container direction="column" spacing={0.5}>
-      {(!lockHasVotes || lockHasVotes?.length === 0) && <EmptyList />}
+      {isLoadingLockRewards ? (
+        <LoadingBlock style={{ height: '132px' }} />
+      ) : (
+        (!lockHasVotes || lockHasVotes?.length === 0) && <EmptyList />
+      )}
       {lockHasVotes?.map((votedLockReward) => (
         <VotingRewardPerVote
           key={votedLockReward.id}
@@ -187,7 +193,7 @@ const VotingRewardRow = ({
                     gap={1}
                   >
                     <TYPE.black fontSize={14}>
-                      {utils.formatUnits(votingReward?.bribeRewards[i] ?? 0, token.decimals)}{' '}
+                      {fNum('token', utils.formatUnits(votingReward?.bribeRewards[i] ?? 0, token.decimals))}{' '}
                       <FeeAndBribeRewardTokenSymbol>{token.symbol}</FeeAndBribeRewardTokenSymbol>
                     </TYPE.black>
                     <FeeAndBribeRewardLabel size="small" label="Incentive" variant="outlined" />
