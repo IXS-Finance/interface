@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import QUERY_KEYS from 'constants/dexV2/queryKeys'
 import useNetwork from '../useNetwork'
-import { getApi } from 'dependencies/balancer-api'
-import { GqlTokenPrice } from 'services/api/graphql/generated/api-types'
 import { oneMinInMs } from '../useTime'
 import { getAddress } from '@ethersproject/address'
+import apiService from 'services/apiService'
+import { tokenPrice } from 'services/apiUrls'
+import { TokenInfoMap, TokenPrice } from 'types/TokenList'
 
 /**
  * TYPES
@@ -15,11 +16,11 @@ type QueryResponse = TokenPrices
 /**
  * Fetches token prices for all provided addresses.
  */
-export default function useTokenPricesQuery(pricesToInject: TokenPrices = {}, options: any = {}) {
+export default function useTokenPricesQuery(pricesToInject: TokenPrices = {}, tokens: TokenInfoMap, options: any = {}) {
   const { networkId } = useNetwork()
   const queryKey = QUERY_KEYS.Tokens.Prices(networkId, pricesToInject)
 
-  function priceArrayToMap(prices: GqlTokenPrice[]): TokenPrices {
+  function priceArrayToMap(prices: TokenPrice[]): TokenPrices {
     return prices.reduce((obj: any, item: any) => ((obj[getAddress(item.address)] = item.price), obj), {})
   }
 
@@ -30,11 +31,14 @@ export default function useTokenPricesQuery(pricesToInject: TokenPrices = {}, op
     return prices
   }
 
-  const api = getApi()
   const queryFn = async () => {
-    // const { prices } = await api.GetCurrentTokenPrices()
-    const prices: any = []
-    let pricesMap = priceArrayToMap(prices as GqlTokenPrice[])
+    const { data: prices } = await apiService.post(tokenPrice.get, {
+      addresses: Object.values(tokens).map((token) => ({
+        networkId: token.chainId,
+        address: token.address,
+      })),
+    })
+    let pricesMap = priceArrayToMap(prices as TokenPrice[])
     pricesMap = injectCustomTokens(pricesMap, pricesToInject)
     return pricesMap
   }
