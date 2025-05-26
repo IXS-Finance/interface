@@ -96,7 +96,12 @@ export const HeaderLinks = () => {
         </Row>
 
         <Column style={{ gap: 3 }}>
-          <SubMenuLink style={{ fontSize: '13px' }} id={`swap`} to={routes.dexV2Swap} onClick={toggleV2}>
+          <SubMenuLink
+            style={{ fontSize: '13px' }}
+            id={`swap`}
+            to={routes.dexV2Swap.replace('/:assetIn?/:assetOut?', '')}
+            onClick={toggleV2}
+          >
             <Trans>Swap</Trans>
           </SubMenuLink>
         </Column>
