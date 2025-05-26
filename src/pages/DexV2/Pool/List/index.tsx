@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Trans } from '@lingui/macro'
 import { useDispatch } from 'react-redux'
@@ -6,21 +6,17 @@ import { Flex } from 'rebass'
 
 import { MEDIA_WIDTHS, TYPE } from 'theme'
 import styled from 'styled-components'
-import Filters from './Filters'
 import PoolList from './PoolList'
 import { FilterProvider } from './FilterProvider'
 import bannerImg from 'assets/images/dex-v2/liquidity-pool-banner.png'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { fetchTokenLists } from 'state/dexV2/tokenLists'
-
 import { routes } from 'utils/routes'
-import usePools from 'hooks/dex-v2/pools/usePools'
 
 export default function LiquidityPool() {
   const { isWalletReady } = useWeb3()
   const dispatch = useDispatch()
   const history = useHistory()
-  usePools();
 
   useEffect(() => {
     dispatch(fetchTokenLists())
@@ -52,7 +48,6 @@ export default function LiquidityPool() {
             <Button onClick={() => history.push(routes.dexV2CreatePool)}>+ Create Pool</Button>
           </Flex>
 
-          <Filters />
           <PoolList />
         </PageContainer>
       </Pager>

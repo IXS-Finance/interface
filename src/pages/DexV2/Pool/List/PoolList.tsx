@@ -23,7 +23,6 @@ import usePoolDayDatas from 'hooks/dex-v2/pools/usePoolDayDatas'
 import { SubgraphPoolDayData } from 'services/balancer/poolDayDatas/types'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { TokenType } from 'types/TokenList'
-import { PoolTypes } from './constants'
 import { getPoolAprValue } from 'lib/utils/poolApr'
 
 export default function PoolList() {
