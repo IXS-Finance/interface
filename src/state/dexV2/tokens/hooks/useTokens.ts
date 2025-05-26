@@ -122,6 +122,11 @@ export const useTokens = () => {
       dispatch(setTokensState({ balances: balanceData }))
     }
   }, [JSON.stringify(balanceData)])
+  useEffect(() => {
+    if (Object.keys(prices).length > 0) {
+      dispatch(setTokensState({ prices, injectedPrices: { ...state.injectedPrices, ...prices } }))
+    }
+  }, [JSON.stringify(prices)])
 
   const onchainDataLoading: boolean =
     isWalletReady &&
