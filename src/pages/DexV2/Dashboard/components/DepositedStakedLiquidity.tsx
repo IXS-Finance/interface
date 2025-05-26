@@ -5,12 +5,13 @@ import { ReactComponent as InfoIcon } from 'assets/images/info.svg'
 import DepositedStakedLiquidityRow from './DepositedStakedLiquidityRow'
 import useLiquidityPool from '../hooks/useLiquidityPool'
 import useAllowancesQuery from 'hooks/dex-v2/queries/useAllowancesQuery'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { setAllowances } from 'state/dexV2/tokens'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import EmptyList from './EmptyList'
 import useGauges from 'hooks/dex-v2/pools/useGauges'
+import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 
 const DepositedStakedLiquidity = () => {
   const dispatch = useDispatch()
@@ -20,6 +21,7 @@ const DepositedStakedLiquidity = () => {
     userLpBalanceByPool,
     userGaugeBalanceByGauge,
     pools,
+    isPoolsLoading,
     earnedTradingFeesByGauge,
     earnedEmissionsByGauge,
     claim,
@@ -60,7 +62,11 @@ const DepositedStakedLiquidity = () => {
         </Stack>
       </Stack>
       <Stack direction="column" gap={2}>
-        {(!pools || pools?.length === 0) && <EmptyList />}
+        {isPoolsLoading ? (
+          <LoadingBlock style={{ height: '132px' }} />
+        ) : (
+          (!pools || pools?.length === 0) && <EmptyList />
+        )}
         {pools
           ?.filter((pool) => {
             const gaugeAddress = gaugeFor(pool.address)?.address
