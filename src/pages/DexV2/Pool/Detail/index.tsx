@@ -7,7 +7,6 @@ import { usePool } from 'state/dexV2/pool/usePool'
 import useWeb3 from 'hooks/dex-v2/useWeb3'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import { tokenTreeLeafs, usePoolHelpers, orderedPoolTokens } from 'hooks/dex-v2/usePoolHelpers'
-import usePoolAprQuery from 'hooks/dex-v2/queries/usePoolAprQuery'
 import { includesAddress } from 'lib/utils'
 import { PoolToken } from 'services/pool/types'
 import MyPoolBalancesCard from './components/MyPoolBalancesCard'
@@ -16,7 +15,6 @@ import DexV2Layout from '../../common/Layout'
 import { Box, Flex } from 'rebass'
 import BalCard from 'pages/DexV2/common/Card'
 import PoolStatCards from './components/PoolStatCards'
-import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
 import PoolCompositionCard from './components/PoolCompositionCard'
 import StakingCard from '../Staking/StakingCard'
 import PoolChart from './components/PoolCharts'
@@ -31,10 +29,6 @@ const PoolDetail: React.FC = () => {
   const { isStableLikePool } = usePoolHelpers(pool)
 
   const loadingPool = isLoadingPool || !pool
-
-  const aprQuery = usePoolAprQuery(poolId)
-  const loadingApr = isQueryLoading(aprQuery)
-  const poolApr = aprQuery.data
 
   const missingPrices = (() => {
     if (pool && prices && !priceQueryLoading) {
@@ -78,7 +72,7 @@ const PoolDetail: React.FC = () => {
               </Box>
             </BalCard>
 
-            <PoolStatCards pool={pool} poolApr={poolApr} loading={loadingPool} loadingApr={loadingApr} />
+            <PoolStatCards pool={pool} loading={loadingPool} />
 
             {loadingPool ? <LoadingBlock darker rounded="lg" className="h-375" /> : <PoolCompositionCard pool={pool} />}
           </Flex>
