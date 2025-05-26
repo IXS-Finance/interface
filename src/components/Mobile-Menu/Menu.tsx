@@ -351,7 +351,7 @@ export const Menu = ({ close, isAdminMenu }: Props) => {
               <MenuItem onClick={handleCloseDexV2}>
                 <ExternalListItem
                   style={{ fontSize: '15px', margin: '0px', height: '10px', fontWeight: '400' }}
-                  href={routes.dexV2Swap}
+                  href={routes.dexV2Swap.replace('/:assetIn?/:assetOut?', '')}
                 >
                   <Trans>Swap</Trans>
                 </ExternalListItem>
