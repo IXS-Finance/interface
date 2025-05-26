@@ -1,14 +1,3 @@
-/*
-Usage Example:
-
-<TokenBreakdown
-  token={yourToken}
-  showUserShares={true}
-  rootPool={yourRootPool}
-  tokensData={yourTokensData}
-/>
-*/
-
 import React from 'react'
 import styled, { css } from 'styled-components'
 import { Pool, PoolToken } from 'services/pool/types'
@@ -23,40 +12,29 @@ import { ArrowUpRight } from 'react-feather'
 interface TokenBreakdownProps {
   token: PoolToken
   parentLevel?: number
-  showUserShares: boolean
   rootPool: Pool
   tokensData: TokensData
 }
 
-const TokenBreakdown: React.FC<TokenBreakdownProps> = ({
-  token,
-  parentLevel = 0,
-  showUserShares,
-  rootPool,
-  tokensData,
-}) => {
-  // Hooks similar to your Vue composables.
+const TokenBreakdown: React.FC<TokenBreakdownProps> = ({ token, parentLevel = 0, rootPool, tokensData }) => {
   const { explorerLinks } = useWeb3()
   const { isDeepPool } = usePoolHelpers(rootPool)
   const isWeighted = isWeightedLike(rootPool.poolType)
   const { getToken } = useTokens()
 
-  // Get token data from the provided tokensData object.
   const tokenData = tokensData[token.address]
 
-  // Compute the current (nested) level.
   const currentLevel = parentLevel + 1
 
-  // Helper to get the token symbol.
   function symbolFor(token: PoolToken): string {
     return getToken(token.address)?.symbol || token.symbol || '---'
   }
 
-  // Determine asset size based on the nested level.
   const assetSize = isDeepPool && currentLevel > 2 ? 24 : isDeepPool && currentLevel > 1 ? 28 : 36
 
-  const balanceLabel = showUserShares ? tokenData.userBalanceLabel : tokenData.balanceLabel
-  const fiatLabel = showUserShares ? tokenData.userFiatLabel : tokenData.fiatLabel
+  const balanceLabel = tokenData.balanceLabel
+  const fiatLabel = tokenData.fiatLabel
+
   return (
     <>
       <Container level={currentLevel} isWeighted={isWeighted}>
@@ -71,29 +49,12 @@ const TokenBreakdown: React.FC<TokenBreakdownProps> = ({
         <GridCell>{balanceLabel && !Number.isNaN(balanceLabel) ? balanceLabel : '-'}</GridCell>
         <Value>{fiatLabel && !Number.isNaN(fiatLabel) ? fiatLabel : '-'}</Value>
       </Container>
-      {isDeepPool &&
-        token.token?.pool?.tokens &&
-        token.token.pool.tokens.map((nestedToken: PoolToken) => (
-          <TokenBreakdown
-            key={nestedToken.address}
-            token={nestedToken}
-            parentLevel={currentLevel}
-            showUserShares={showUserShares}
-            rootPool={rootPool}
-            tokensData={tokensData}
-          />
-        ))}
     </>
   )
 }
 
 export default TokenBreakdown
 
-/**
- * Styled Components
- */
-
-// The container mimics the grid layout and applies level–specific styles.
 const Container = styled.div<{ level: number; isWeighted: boolean }>`
   display: grid;
   width: 100%;
