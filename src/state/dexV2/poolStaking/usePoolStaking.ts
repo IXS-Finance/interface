@@ -2,8 +2,6 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { formatUnits } from '@ethersproject/units'
 
-import { PoolGauge } from 'hooks/dex-v2/queries/usePoolGaugeQuery'
-import { isQueryLoading } from 'hooks/dex-v2//queries/useQueryHelpers'
 import { LiquidityGauge } from 'services/balancer/contracts/liquidity-gauge'
 import { subgraphRequest } from 'lib/utils/subgraph'
 import { configService } from 'services/config/config.service'
@@ -12,9 +10,10 @@ import { useTokens } from '../tokens/hooks/useTokens'
 import useLiquidityPool from 'pages/DexV2/Dashboard/hooks/useLiquidityPool'
 
 import { AppState } from 'state'
-import { setPoolGaugeQuery, setPoolStakingState } from '.'
+import { setPoolStakingState } from '.'
 import { Pool } from 'services/pool/types'
 import { BigNumber } from 'ethers'
+import useGauges from 'hooks/dex-v2/pools/useGauges'
 
 export type UsePoolStakingProps = {
   gaugeAddress?: string // The current preferential gauge for the specified pool.
@@ -24,29 +23,18 @@ export const usePoolStaking = (props: UsePoolStakingProps) => {
   const { gaugeAddress } = props
 
   const {
-    poolGaugeQuery,
     currentPool,
     stakedBalance = '0',
     isFetchingStakedBalance = false,
   } = useSelector((state: AppState) => state.dexV2Staking)
   const dispatch = useDispatch()
   const { balanceFor, refetchAllowances } = useTokens()
+  const { isLoading } = useGauges()
   const { account } = useWeb3()
   const { refetchGaugesOnChain, refetchPoolsOnChain } = useLiquidityPool()
 
-  const poolGauge = poolGaugeQuery?.data as PoolGauge
-  // The current preferential gauge for the specified pool.
-  // const preferentialGaugeAddress = poolGauge?.pool?.gauge?.address
-  const poolId = poolGauge?.pool?.id
-  const poolAddress = poolGauge?.pool?.address
-
-  const refetchPoolGauges = poolGaugeQuery?.refetch
-  const isLoading = poolGaugeQuery ? isQueryLoading(poolGaugeQuery) : false
-  // ||
-  // (isWalletReady &&
-  //   (isQueryLoading(stakedSharesQuery) ||
-  //     isQueryLoading(userGaugeSharesQuery) ||
-  //     isQueryLoading(userBoostsQuery)))
+  const poolId = currentPool?.id
+  const poolAddress = currentPool?.address
 
   const isStakablePool = gaugeAddress
   const unstakeBalance = poolAddress ? balanceFor(poolAddress) : '0'
@@ -63,7 +51,6 @@ export const usePoolStaking = (props: UsePoolStakingProps) => {
 
   const refetchAllPoolStakingData = async () => {
     return Promise.all([
-      refetchPoolGauges?.(),
       getBalance(),
       // refetchStakedShares(),
       // refetchUserGaugeShares(),
@@ -113,10 +100,6 @@ export const usePoolStaking = (props: UsePoolStakingProps) => {
     }
   }
 
-  const injectPoolGaugeQuery = (poolGaugeQuery: any) => {
-    dispatch(setPoolGaugeQuery(poolGaugeQuery))
-  }
-
   const injectCurrentPool = (pool: Pool | undefined) => {
     dispatch(setPoolStakingState({ currentPool: pool }))
   }
@@ -130,13 +113,11 @@ export const usePoolStaking = (props: UsePoolStakingProps) => {
     isLoading,
     isStakablePool,
     // boost,
-    poolGauge,
     // METHODS
     refetchAllPoolStakingData,
     stake,
     unstake,
     fetchPreferentialGaugeAddress,
-    injectPoolGaugeQuery,
     isFetchingStakedBalance,
     stakedBalance,
     injectCurrentPool,
