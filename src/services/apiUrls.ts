@@ -142,6 +142,10 @@ export const pool = {
   removeLiquidity: (id: number) => `/liquidity-pool/${id}`,
 }
 
+export const tokenPrice = {
+  get: `/token-price`,
+}
+
 export interface PaginateWithFilter {
   tokenId?: number | null
   page?: number
