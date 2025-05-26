@@ -1,6 +1,6 @@
 // usePools.ts
 import { useEffect, useMemo } from 'react'
-import { flatten, isArray } from 'lodash'
+import { flatten } from 'lodash'
 
 import { isQueryLoading } from 'hooks/dex-v2/queries/useQueryHelpers'
 import { tokenTreeLeafs } from '../usePoolHelpers'

@@ -29,7 +29,7 @@ const useLiquidityPool = () => {
     (data) => data.pool.id
   )
 
-  const { pools } = usePools({
+  const { pools, isLoading: isPoolsLoading } = usePools({
     poolIds: joinedPoolIds,
   })
 
@@ -126,6 +126,7 @@ const useLiquidityPool = () => {
 
   return {
     pools,
+    isPoolsLoading,
     lpSupplyByPool,
     userLpBalanceByPool,
     userGaugeBalanceByGauge,
