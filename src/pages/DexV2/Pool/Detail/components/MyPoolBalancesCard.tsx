@@ -91,9 +91,11 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
                 </Flex>
 
                 <Flex flexDirection="column">
-                  <Box textAlign="right">{userBalanceLabel}</Box>
+                  <Box textAlign="right">
+                    {userBalanceLabel && !Number.isNaN(userBalanceLabel) ? userBalanceLabel : '-'}
+                  </Box>
                   <Box textAlign="right" css={{ color: '#B8B8D2' }}>
-                    {userFiatLabel}
+                    {userFiatLabel && !Number.isNaN(userFiatLabel) ? userFiatLabel : '-'}
                   </Box>
                 </Flex>
               </Flex>
