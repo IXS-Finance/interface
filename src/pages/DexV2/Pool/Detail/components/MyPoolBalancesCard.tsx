@@ -16,6 +16,8 @@ import useExitPool from 'state/dexV2/pool/useExitPool'
 import BalBtn from 'pages/DexV2/common/popovers/BalBtn'
 import { routes } from 'utils/routes'
 import { shortAddress } from 'utils'
+import { removeBptFrom } from 'hooks/dex-v2/usePoolHelpers'
+import { useTokenBreakdown } from './useTokenBreakdown'
 
 interface MyPoolBalancesCardProps {
   pool: Pool
@@ -31,7 +33,8 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
   const params = useParams<any>()
   const history = useHistory()
   const { isWalletReady, explorerLinks: explorer } = useWeb3()
-  const { propAmountsOut, setBptIn } = useExitPool(pool)
+  const rootPool = removeBptFrom(pool)
+  const tokenData = useTokenBreakdown(rootPool)
 
   const poolId = (params.id as string).toLowerCase()
   const hasBpt = pool?.address ? bnum(balanceFor(pool?.address)).gt(0) : false
@@ -55,13 +58,6 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
     history.push(path)
   }
 
-  useEffect(() => {
-    setBptIn(bptBalance)
-    return () => {
-      setBptIn('0')
-    }
-  }, [bptBalance])
-
   return (
     <Flex flexDirection="column" css={{ gap: '20px' }}>
       <BalCard shadow="none" noBorder className="p-4">
@@ -70,7 +66,8 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
 
         <div>
           {titleTokens.map(({ address, weight }, i) => {
-            const propAmountToken = propAmountsOut.find(({ address: _address }) => _address.toLowerCase() === address)
+            const userFiatLabel = tokenData[address]?.userFiatLabel || ''
+            const userBalanceLabel = tokenData[address]?.userBalanceLabel || ''
             return (
               <Flex
                 key={i}
@@ -94,9 +91,9 @@ const MyPoolBalancesCard: React.FC<MyPoolBalancesCardProps> = (props) => {
                 </Flex>
 
                 <Flex flexDirection="column">
-                  <Box textAlign="right">{fNum(propAmountToken?.value || '', FNumFormats.token)}</Box>
+                  <Box textAlign="right">{userBalanceLabel}</Box>
                   <Box textAlign="right" css={{ color: '#B8B8D2' }}>
-                    {fNum(fiatValueOf(pool, propAmountToken?.value || ''), FNumFormats.fiat)}
+                    {userFiatLabel}
                   </Box>
                 </Flex>
               </Flex>
