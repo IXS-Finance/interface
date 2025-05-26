@@ -2,13 +2,14 @@ import { createContext, PropsWithChildren, useCallback, useContext, useEffect, u
 import { utils } from 'ethers'
 import { useVotingEscrowContract } from 'hooks/useContract'
 import useIXSCurrency from 'hooks/useIXSCurrency'
-import { useTransactionAdder } from 'state/transactions/hooks'
 import { safeParseUnits } from 'utils/formatCurrencyAmount'
 import { WEEK } from './constants'
 import { ApprovalState, useAllowance } from 'hooks/useApproveCallback'
 import { useWeb3React } from 'hooks/useWeb3React'
 import { IXS_ADDRESS } from 'constants/addresses'
 import { configService } from 'services/config/config.service'
+import useTransactions from 'hooks/dex-v2/useTransactions'
+import useEthers from 'hooks/dex-v2/useEthers'
 
 export type UseLockResult = ReturnType<typeof _useLock>
 export const LockContext = createContext<UseLockResult | null>(null)
@@ -20,23 +21,30 @@ export function _useLock() {
   const [locked, setLocked] = useState(false)
 
   const votingEscrowContract = useVotingEscrowContract()
-  const addTransaction = useTransactionAdder()
   const currency = useIXSCurrency()
+  const { addTransaction } = useTransactions()
+  const { txListener } = useEthers()
 
   const handleLock = useCallback(async () => {
     setLocking(true)
-    try {
-      const tx = await votingEscrowContract?.createLock(safeParseUnits(+userInput, currency?.decimals), duration)
-      await tx.wait()
+    const tx = await votingEscrowContract?.createLock(safeParseUnits(+userInput, currency?.decimals), duration)
+    await tx.wait()
 
-      if (!tx.hash) return
-      setLocked(true)
-      addTransaction(tx, {
-        summary: `Lock ${userInput} IXS in ${Math.round(duration / WEEK)} weeks`,
-      })
-    } finally {
-      setLocking(false)
-    }
+    if (!tx.hash) return
+    txListener(tx, {
+      onTxConfirmed: async () => {
+        setLocking(false)
+        setLocked(true)
+      },
+      onTxFailed: () => {},
+    })
+
+    addTransaction({
+      id: tx.hash,
+      type: 'tx',
+      action: 'createLock',
+      summary: `Lock ${userInput} IXS in ${Math.round(duration / WEEK)} weeks`,
+    })
   }, [userInput, duration, votingEscrowContract, addTransaction, currency])
 
   const { chainId } = useWeb3React()
