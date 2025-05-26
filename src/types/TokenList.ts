@@ -54,3 +54,10 @@ export interface TokenListURLMap {
   }
   External: string[]
 }
+
+export interface TokenPrice {
+  address: string
+  price: number
+  lastUpdated: Date
+  networkId: number
+}
