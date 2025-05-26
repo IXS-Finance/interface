@@ -266,7 +266,7 @@ const ContentContainer = styled.div`
   flex-direction: column;
   gap: 16px;
   padding: 16px;
-  height: 560px;
+  height: 400px;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
   background: white;
