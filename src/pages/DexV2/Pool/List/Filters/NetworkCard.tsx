@@ -145,7 +145,7 @@ const NetworkLabel = styled.div`
 const StyledBox = styled.div`
   border: 1px solid #e6e6ff;
   padding: 10px;
-  border-radius: 4px;
+  border-radius: 6px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
      padding: 10px 20px 10px 20px;
   `};
