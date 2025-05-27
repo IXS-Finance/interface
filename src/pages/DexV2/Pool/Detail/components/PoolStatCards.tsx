@@ -16,7 +16,7 @@ interface Props {
 }
 
 const PoolAprCard = ({ pool }: { pool: Pool }) => {
-  const { poolDayDatasFor } = usePoolDayDatas([pool.address])
+  const { poolDayDatasFor } = usePoolDayDatas()
   const poolApr = getPoolAprValue(pool, poolDayDatasFor(pool.address))
 
   return <>{numF('apr', poolApr)}</>

@@ -15,6 +15,7 @@ export type UsePoolsProps = {
   poolIds?: string[]
   poolTypes?: PoolType[]
   poolAttributes?: PoolAttributeFilter[]
+  enabled?: boolean
 }
 
 export default function usePools({
@@ -23,6 +24,7 @@ export default function usePools({
   poolIds = [],
   poolTypes = [],
   poolAttributes = [],
+  enabled = true,
 }: UsePoolsProps = {}) {
   // Create filter options object – similar to Vue's computed property.
   // @ts-ignore
@@ -41,7 +43,7 @@ export default function usePools({
   const poolsQuery = usePoolsQuery(
     filterOptions,
     // @ts-ignore
-    { enabled: true, refetchOnWindowFocus: false, placeholderData: true },
+    { enabled, refetchOnWindowFocus: false, placeholderData: true },
     false
   )
 
