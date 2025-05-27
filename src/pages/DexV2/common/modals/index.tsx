@@ -1,5 +1,5 @@
 import Portal from '@reach/portal'
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
 import { ReactComponent as CrossIcon } from 'assets/launchpad/svg/close.svg'
@@ -12,6 +12,14 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ noPadding, children, onClose }) => {
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [])
+
   return (
     <Portal>
       <ModalBackdrop>
