@@ -10,7 +10,6 @@ const Container = styled.div`
   border-radius: 8px;
   border: 1px solid #e6e6ff;
   background: #fff;
-  overflow: hidden;
   width: 100%;
   display: flex;
   flex-direction: column;
