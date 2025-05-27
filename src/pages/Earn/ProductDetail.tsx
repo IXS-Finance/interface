@@ -294,6 +294,7 @@ export default function ProductDetail() {
             investingTokenAddress={product.investingTokenAddress} // USDC on Polygon
             vaultAddress={product.address} // Vault contract address
             exchangeRate={openTradeExchangeRate}
+            investingTokenDecimals={product.investingTokenDecimals}
           />
         )}
 

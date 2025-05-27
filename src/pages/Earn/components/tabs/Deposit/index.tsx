@@ -44,6 +44,16 @@ import VaultABI from '../../../abis/Vault.json'
 import { earn } from 'services/apiUrls'
 import apiService from 'services/apiService'
 import { formatAmount } from 'utils/formatCurrencyAmount'
+import { createUseReadContract, createUseWriteContract, createUseWatchContractEvent } from 'wagmi/codegen'
+import erc20Abi from 'abis/erc20.json'
+import { parseUnits } from 'viem'
+import { toast } from 'react-toastify'
+
+
+const useWatchTokenApprovalEvent = createUseWatchContractEvent({
+  abi: erc20Abi,
+  eventName: 'Approval',
+})
 
 interface EarnV2SignatureData {
   v: number
@@ -65,6 +75,7 @@ interface DepositTabProps {
   vaultAddress?: string
   investingTokenAddress?: string
   exchangeRate?: string
+  investingTokenDecimals?: number
 }
 
 export const DepositTab: React.FC<DepositTabProps> = ({
@@ -81,8 +92,18 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   vaultAddress,
   investingTokenAddress,
   exchangeRate,
+  investingTokenDecimals,
 }) => {
   const { address } = useAccount()
+  const [isApproving, setIsApproving] = useState(false)
+
+  const useWriteInvestingTokeApprove = createUseWriteContract({
+    abi: erc20Abi,
+    address: investingTokenAddress as `0x${string}`,
+    functionName: 'approve',
+  })
+
+  const { writeContract: approve, data: approveTxHash } = useWriteInvestingTokeApprove()
 
   const {
     data: balanceData,
@@ -93,6 +114,58 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     token: investingTokenAddress as `0x${string}`,
     query: {
       enabled: !!address && !!investingTokenAddress,
+    },
+  })
+
+  const { data: allowanceData, refetch: refetchAllowance } = useReadContract({
+    abi: erc20Abi,
+    address: investingTokenAddress as `0x${string}`,
+    functionName: 'allowance',
+    args: [address, vaultAddress],
+    query: {
+      enabled: !!address && !!investingTokenAddress && !!vaultAddress,
+    },
+  })
+
+
+  const amountRaw = useMemo(() => {
+    try {
+      return amount ? parseUnits(amount, investingTokenDecimals || 6) : BigNumber.from(0)
+    } catch (e) {
+      return 0
+    }
+  }, [amount])
+
+  const isApprovalNeeded = useMemo(() => {
+    if (!allowanceData) {
+      return true
+    }
+
+    if (!amountRaw) {
+      return false
+    }
+
+    const currentAllowance = BigNumber.from(allowanceData.toString())
+    return currentAllowance.lt(amountRaw)
+  }, [allowanceData, amountRaw, isApproving])
+
+  const approveResult = useWaitForTransactionReceipt({
+    // wait for tx confirmation
+    hash: approveTxHash,
+  })
+
+  useEffect(() => {
+    if (approveResult.isSuccess) {
+      refetchAllowance()
+      setIsApproving(false)
+    }
+  }, [approveResult.isSuccess, refetchAllowance])
+
+  useWatchTokenApprovalEvent({
+    address: investingTokenAddress as `0x${string}`,
+    onLogs(log) {
+      setIsApproving(false)
+      refetchAllowance()
     },
   })
 
@@ -177,8 +250,8 @@ export const DepositTab: React.FC<DepositTabProps> = ({
 
   useEffect(() => {
     if (isDepositTxConfirmed) {
+      refetchAllowance()
       setDepositError(null)
-      refreshAllowance()
       if (refetchBalanceData) {
         refetchBalanceData()
       }
@@ -186,6 +259,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
       resetDepositContract() // Reset contract call state
       // Optionally, navigate back or show persistent success message
       handleBackFromPreview() // Go back to the form after successful deposit
+      toast.success('Deposit successful! Your funds have been deposited into the vault.')
     }
   }, [isDepositTxConfirmed, refetchBalanceData, setAmount, resetDepositContract, handleBackFromPreview])
 
@@ -209,24 +283,8 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     // Note: Clearing of depositError is handled on new attempt or success
   }, [depositContractWriteError, depositTxConfirmError, resetDepositContract])
 
-  const amountInWei = useMemo(() => {
-    try {
-      return amount ? ethers.utils.parseUnits(amount, 6) : BigNumber.from(0)
-    } catch (e) {
-      return BigNumber.from(0)
-    }
-  }, [amount])
-
-  console.log('amountInWei', amountInWei.toString())
-  const [approvalState, approve, refreshAllowance] = useAllowance(investingTokenAddress, amountInWei, vaultAddress)
-
-  console.log('approvalState', approvalState)
-
-  const isApprovalNeeded = approvalState === ApprovalState.NOT_APPROVED
-  const isApproving = approvalState === ApprovalState.PENDING
-  const isApproved = approvalState === ApprovalState.APPROVED
-
-  console.log('isApproving', isApproving)
+  console.log('amountInWei', amountRaw.toString())
+  // const [approvalState, approve, refreshAllowance] = useAllowance(investingTokenAddress, amountInWei, vaultAddress)
 
   const handleMaxClick = () => {
     if (balanceData) {
@@ -236,9 +294,20 @@ export const DepositTab: React.FC<DepositTabProps> = ({
 
   const handleApproval = async () => {
     try {
-      await approve()
+      setIsApproving(true)
+      approve(
+        {
+          args: [vaultAddress, parseUnits(amount, investingTokenDecimals || 6)],
+        },
+        {
+          onError(error) {
+            setIsApproving(false)
+          },
+        }
+      )
     } catch (error) {
       console.error('Approval failed:', error)
+      setIsApproving(false)
     }
   }
 
@@ -279,12 +348,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   }
 
   const handleDeposit = async () => {
-    if (!isApproved) {
-      setDepositError('Deposit cannot proceed without approval.')
-      console.error('Deposit attempt without approval.')
-      return
-    }
-    if (!vaultAddress || !amountInWei || amountInWei.isZero()) {
+    if (!vaultAddress || !amountRaw) {
       const errorMsg = 'Vault address or amount is invalid for deposit.'
       setDepositError(errorMsg)
       console.error(errorMsg, { vaultAddress, amount: amount.toString() })
@@ -298,7 +362,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
         abi: VaultABI.abi,
         address: vaultAddress as `0x${string}`,
         functionName: 'deposit',
-        args: [amountInWei],
+        args: [amountRaw],
       })
     } catch (error: any) {
       // This catch might not be strictly necessary if using the error from useWriteContract,
@@ -469,7 +533,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
             ) : (
               <StyledButtonPrimary
                 onClick={handleDeposit}
-                disabled={!termsAccepted || loading || isDepositing || !amount || amountInWei.isZero()}
+                disabled={!termsAccepted || loading || isDepositing || !amount || !amountRaw}
               >
                 {isDepositing ? (
                   <Trans>Depositing...</Trans>
@@ -491,4 +555,3 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     </>
   )
 }
-
