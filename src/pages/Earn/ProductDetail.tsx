@@ -33,7 +33,7 @@ interface Transaction {
   hash: string
 }
 
-// Removed ClaimButtonContainer and ClaimButton as they are now covered by StyledButtonPrimary in ClaimTab
+const POLLING_INTERVAL: number = 5000
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>()
@@ -139,6 +139,7 @@ export default function ProductDetail() {
     chainId: chainId,
     query: query,
     autoPolling: true,
+    pollingInterval: POLLING_INTERVAL,
   })
 
   React.useEffect(() => {
