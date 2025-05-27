@@ -327,34 +327,15 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
     })
   }
 
-  // === WATCHERS / EFFECTS ===
-
-  // When isSingleAssetExit changes, reset bptIn and (if false) initialize propAmountsOut.
-  // useEffect(() => {
-  //   dispatch(setPoolState({ bptIn: '' }))
-  //   exitPoolService.setExitHandler(exitHandlerType)
-  //   if (!isSingleAssetExit) {
-  //     setInitialPropAmountsOut()
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [isSingleAssetExit])
-
-  // onBeforeMount equivalent: run once on mount.
   useEffect(() => {
     injectTokens([...exitTokenAddresses, pool.address])
     exitPoolService.setExitHandler(exitHandlerType)
-    if (!isSingleAssetExit) {
-      setInitialPropAmountsOut()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(exitTokenAddresses), JSON.stringify(pool)])
 
-  // onMounted equivalent:
   useEffect(() => {
     setIsMounted(true)
   }, [])
 
-  // === RETURN OBJECT (exposing state, computed values, and methods) ===
   return {
     // state
     txState,
@@ -403,6 +384,7 @@ export const useExitPool = (pool: Pool, debounceQueryExitMillis = 1000, debounce
     setIsSingleAssetExit,
     exit,
     setBptIn,
+    setInitialPropAmountsOut,
   }
 }
 
