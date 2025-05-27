@@ -32,6 +32,7 @@ import {
   TermsLink,
   ButtonsRow,
   BackButton,
+  CompactButtonPrimary,
   StyledButtonPrimary,
 } from '../SharedStyles'
 
@@ -424,26 +425,19 @@ export const DepositTab: React.FC<DepositTabProps> = ({
             </ExchangeRateInfo>
 
             {isCheckingWhitelist ? (
-              <StyledButtonPrimary disabled={true}>
+              <CompactButtonPrimary disabled={true}>
                 <Trans>Checking whitelist...</Trans>
-              </StyledButtonPrimary>
+              </CompactButtonPrimary>
             ) : isWhitelisted ? (
-              <StyledButtonPrimary
+              <CompactButtonPrimary
                 onClick={handlePreviewDeposit}
                 disabled={!amount || loading}
-                style={{
-                  flex: '1',
-                  padding: '12px 24px',
-                  borderRadius: '12px',
-                  backgroundColor: '#6C5DD3',
-                  marginLeft: '20px',
-                }}
               >
                 {loading ? <Trans>Processing...</Trans> : <Trans>Preview Deposit</Trans>}
-              </StyledButtonPrimary>
+              </CompactButtonPrimary>
             ) : (
               <>
-                <StyledButtonPrimary
+                <CompactButtonPrimary
                   onClick={handleGetSignatureAndWhitelist}
                   disabled={
                     loading ||
@@ -464,7 +458,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
                     if (whitelistAttemptError) return <Trans>Whitelist Failed. Retry?</Trans>
                     return <Trans>Get Whitelisted</Trans>
                   })()}
-                </StyledButtonPrimary>
+                </CompactButtonPrimary>
                 {whitelistAttemptError &&
                   !isConfirmingWhitelistTx &&
                   !isWhitelistContractCallPending &&

@@ -246,6 +246,22 @@ export const StyledButtonPrimary = styled(ButtonPrimary)`
   flex: 1;
 `;
 
+// New compact button for deposit form
+export const CompactButtonPrimary = styled(ButtonPrimary)`
+  height: 48px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 0 24px;
+  width: auto;
+  min-width: 160px;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
 // Specific for Claim Preview
 export const SeparatorRow = styled.div`
   display: flex;
