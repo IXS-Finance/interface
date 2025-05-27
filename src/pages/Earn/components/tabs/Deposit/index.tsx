@@ -1,5 +1,5 @@
-import React, { useMemo, useEffect, useState } from 'react';
-import { Trans } from '@lingui/macro';
+import React, { useMemo, useEffect, useState } from 'react'
+import { Trans } from '@lingui/macro'
 import {
   FormContentContainer,
   FormSectionTitle,
@@ -32,39 +32,39 @@ import {
   TermsLink,
   ButtonsRow,
   BackButton,
-  StyledButtonPrimary
-} from '../SharedStyles';
+  StyledButtonPrimary,
+} from '../SharedStyles'
 
-import USDCIcon from 'assets/images/usdcNew.svg';
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { useBalance } from 'wagmi';
-import { useAllowance, ApprovalState } from 'hooks/useApproveCallback';
-import { ethers, BigNumber } from 'ethers';
-import VaultABI from '../../../abis/Vault.json';
-import { earn } from 'services/apiUrls';
-import apiService from 'services/apiService';
-import { formatAmount } from 'utils/formatCurrencyAmount';
+import USDCIcon from 'assets/images/usdcNew.svg'
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { useBalance } from 'wagmi'
+import { useAllowance, ApprovalState } from 'hooks/useApproveCallback'
+import { ethers, BigNumber } from 'ethers'
+import VaultABI from '../../../abis/Vault.json'
+import { earn } from 'services/apiUrls'
+import apiService from 'services/apiService'
+import { formatAmount } from 'utils/formatCurrencyAmount'
 
 interface EarnV2SignatureData {
-  v: number;
-  r: string;
-  s: string;
+  v: number
+  r: string
+  s: string
 }
 
 interface DepositTabProps {
-  amount: string;
-  setAmount: (amount: string) => void;
-  loading: boolean;
-  showPreview: boolean;
-  termsAccepted: boolean;
-  setTermsAccepted: (accepted: boolean) => void;
-  handlePreviewDeposit: () => void;
-  handleBackFromPreview: () => void;
-  productAsset: string;
-  network?: string;
-  vaultAddress?: string;
-  investingTokenAddress?: string;
-  exchangeRate?: string;
+  amount: string
+  setAmount: (amount: string) => void
+  loading: boolean
+  showPreview: boolean
+  termsAccepted: boolean
+  setTermsAccepted: (accepted: boolean) => void
+  handlePreviewDeposit: () => void
+  handleBackFromPreview: () => void
+  productAsset?: string
+  network?: string
+  vaultAddress?: string
+  investingTokenAddress?: string
+  exchangeRate?: string
 }
 
 export const DepositTab: React.FC<DepositTabProps> = ({
@@ -80,17 +80,21 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   network,
   vaultAddress,
   investingTokenAddress,
-  exchangeRate
+  exchangeRate,
 }) => {
-  const { address } = useAccount();
-  
-  const { data: balanceData, isLoading: isBalanceLoading, refetch: refetchBalanceData } = useBalance({
+  const { address } = useAccount()
+
+  const {
+    data: balanceData,
+    isLoading: isBalanceLoading,
+    refetch: refetchBalanceData,
+  } = useBalance({
     address: address,
     token: investingTokenAddress as `0x${string}`,
     query: {
       enabled: !!address && !!investingTokenAddress,
     },
-  });
+  })
 
   const result = useReadContract({
     abi: VaultABI.abi,
@@ -102,7 +106,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     },
   })
 
-  const { data: isWhitelisted, isLoading: isCheckingWhitelist, refetch: refetchIsWhitelisted } = result;
+  const { data: isWhitelisted, isLoading: isCheckingWhitelist, refetch: refetchIsWhitelisted } = result
 
   const { data: nonceData, isLoading: isNonceLoading } = useReadContract({
     abi: VaultABI.abi,
@@ -112,19 +116,19 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     query: {
       enabled: !!vaultAddress && !!address && !isWhitelisted,
     },
-  });
-  const userNonce = nonceData as BigNumber | undefined;
+  })
+  const userNonce = nonceData as BigNumber | undefined
 
-  const [isFetchingSignature, setIsFetchingSignature] = useState(false);
-  const [whitelistAttemptError, setWhitelistAttemptError] = useState<string | null>(null);
-  const [depositError, setDepositError] = useState<string | null>(null);
+  const [isFetchingSignature, setIsFetchingSignature] = useState(false)
+  const [whitelistAttemptError, setWhitelistAttemptError] = useState<string | null>(null)
+  const [depositError, setDepositError] = useState<string | null>(null)
 
   const {
     data: whitelistTxHash,
     writeContractAsync: whitelistUserContractAsync,
     isPending: isWhitelistContractCallPending,
     error: whitelistContractWriteError,
-  } = useWriteContract();
+  } = useWriteContract()
 
   const {
     isLoading: isConfirmingWhitelistTx,
@@ -135,7 +139,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     query: {
       enabled: !!whitelistTxHash,
     },
-  });
+  })
 
   const {
     data: depositTxHash,
@@ -143,7 +147,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     isPending: isDepositContractCallPending,
     error: depositContractWriteError,
     reset: resetDepositContract,
-  } = useWriteContract();
+  } = useWriteContract()
 
   const {
     isLoading: isConfirmingDepositTx,
@@ -154,152 +158,140 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     query: {
       enabled: !!depositTxHash,
     },
-  });
+  })
 
   useEffect(() => {
     if (isWhitelistTxConfirmed) {
-      refetchIsWhitelisted();
-      setWhitelistAttemptError(null);
+      refetchIsWhitelisted()
+      setWhitelistAttemptError(null)
     }
-  }, [isWhitelistTxConfirmed, refetchIsWhitelisted]);
+  }, [isWhitelistTxConfirmed, refetchIsWhitelisted])
 
   useEffect(() => {
     if (whitelistContractWriteError) {
-      setWhitelistAttemptError(whitelistContractWriteError.message || "Failed to send whitelist transaction.");
+      setWhitelistAttemptError(whitelistContractWriteError.message || 'Failed to send whitelist transaction.')
     } else if (whitelistTxConfirmError) {
-      setWhitelistAttemptError(whitelistTxConfirmError.message || "Whitelist transaction failed to confirm.");
+      setWhitelistAttemptError(whitelistTxConfirmError.message || 'Whitelist transaction failed to confirm.')
     }
-  }, [whitelistContractWriteError, whitelistTxConfirmError]);
+  }, [whitelistContractWriteError, whitelistTxConfirmError])
 
   useEffect(() => {
     if (isDepositTxConfirmed) {
-      setDepositError(null);
-      refreshAllowance();
+      setDepositError(null)
+      refreshAllowance()
       if (refetchBalanceData) {
-        refetchBalanceData();
+        refetchBalanceData()
       }
-      setAmount('');
-      resetDepositContract(); // Reset contract call state
+      setAmount('')
+      resetDepositContract() // Reset contract call state
       // Optionally, navigate back or show persistent success message
-      handleBackFromPreview(); // Go back to the form after successful deposit
+      handleBackFromPreview() // Go back to the form after successful deposit
     }
-  }, [isDepositTxConfirmed, refetchBalanceData, setAmount, resetDepositContract, handleBackFromPreview]);
+  }, [isDepositTxConfirmed, refetchBalanceData, setAmount, resetDepositContract, handleBackFromPreview])
 
   useEffect(() => {
-    let message: string | null = null;
+    let message: string | null = null
     if (depositContractWriteError) {
-      message = depositContractWriteError.message || depositContractWriteError.message || "Failed to send deposit transaction.";
-      console.error('Deposit contract write error:', depositContractWriteError);
-      resetDepositContract(); // Reset to allow retry
+      message =
+        depositContractWriteError.message || depositContractWriteError.message || 'Failed to send deposit transaction.'
+      console.error('Deposit contract write error:', depositContractWriteError)
+      resetDepositContract() // Reset to allow retry
     } else if (depositTxConfirmError) {
-      message = depositTxConfirmError.message || depositTxConfirmError.message || "Deposit transaction failed to confirm.";
-      console.error('Deposit transaction confirm error:', depositTxConfirmError);
-      resetDepositContract(); // Reset to allow retry if confirmation fails
+      message =
+        depositTxConfirmError.message || depositTxConfirmError.message || 'Deposit transaction failed to confirm.'
+      console.error('Deposit transaction confirm error:', depositTxConfirmError)
+      resetDepositContract() // Reset to allow retry if confirmation fails
     }
     // Set error if a new message is generated
     if (message) {
-      setDepositError(message);
+      setDepositError(message)
     }
     // Note: Clearing of depositError is handled on new attempt or success
-  }, [depositContractWriteError, depositTxConfirmError, resetDepositContract]);
+  }, [depositContractWriteError, depositTxConfirmError, resetDepositContract])
 
   const amountInWei = useMemo(() => {
     try {
-      return amount ? ethers.utils.parseUnits(amount, 6) : BigNumber.from(0);
+      return amount ? ethers.utils.parseUnits(amount, 6) : BigNumber.from(0)
     } catch (e) {
-      return BigNumber.from(0);
+      return BigNumber.from(0)
     }
-  }, [amount]);
+  }, [amount])
 
+  console.log('amountInWei', amountInWei.toString())
+  const [approvalState, approve, refreshAllowance] = useAllowance(investingTokenAddress, amountInWei, vaultAddress)
 
-  console.log('amountInWei', amountInWei.toString());
-  const [approvalState, approve, refreshAllowance] = useAllowance(
-    investingTokenAddress,
-    amountInWei,
-    vaultAddress
-  );
+  console.log('approvalState', approvalState)
 
-  console.log('approvalState', approvalState);
+  const isApprovalNeeded = approvalState === ApprovalState.NOT_APPROVED
+  const isApproving = approvalState === ApprovalState.PENDING
+  const isApproved = approvalState === ApprovalState.APPROVED
 
-  const isApprovalNeeded = approvalState === ApprovalState.NOT_APPROVED;
-  const isApproving = approvalState === ApprovalState.PENDING;
-  const isApproved = approvalState === ApprovalState.APPROVED;
-
-  console.log('isApproving', isApproving);
+  console.log('isApproving', isApproving)
 
   const handleMaxClick = () => {
     if (balanceData) {
-      setAmount(balanceData.formatted);
+      setAmount(balanceData.formatted)
     }
-  };
+  }
 
   const handleApproval = async () => {
     try {
-      await approve();
+      await approve()
     } catch (error) {
-      console.error('Approval failed:', error);
+      console.error('Approval failed:', error)
     }
-  };
+  }
 
   const handleGetSignatureAndWhitelist = async () => {
-    console.log('handleGetSignatureAndWhitelist', { address, vaultAddress, network, userNonce });
+    console.log('handleGetSignatureAndWhitelist', { address, vaultAddress, network, userNonce })
     if (!address || !vaultAddress || !network || userNonce === undefined) {
-      const errorMsg = "Cannot proceed: Missing address, vault, network, or nonce.";
-      console.error(errorMsg, { address, vaultAddress, network, userNonce });
-      setWhitelistAttemptError(errorMsg);
-      return;
+      const errorMsg = 'Cannot proceed: Missing address, vault, network, or nonce.'
+      console.error(errorMsg, { address, vaultAddress, network, userNonce })
+      setWhitelistAttemptError(errorMsg)
+      return
     }
 
-    setIsFetchingSignature(true);
-    setWhitelistAttemptError(null);
+    setIsFetchingSignature(true)
+    setWhitelistAttemptError(null)
 
     try {
-      const apiUrl = earn.getEIP712Signature(network);
-      const signatureResponse = await apiService.post<EarnV2SignatureData>(
-        apiUrl,
-        {
-          product: 'EARN_V2_TREASURY',
-        }
-      );
+      const apiUrl = earn.getEIP712Signature(network)
+      const signatureResponse = await apiService.post<EarnV2SignatureData>(apiUrl, {
+        product: 'EARN_V2_TREASURY',
+      })
 
-      const { v, r, s } = signatureResponse.data;
-      setIsFetchingSignature(false);
+      const { v, r, s } = signatureResponse.data
+      setIsFetchingSignature(false)
 
       await whitelistUserContractAsync({
         abi: VaultABI.abi,
         address: vaultAddress as `0x${string}`,
         functionName: 'whitelistUser',
-        args: [
-          userNonce,
-          v,
-          r as `0x${string}`,
-          s as `0x${string}`,
-        ],
-      });
+        args: [userNonce, v, r as `0x${string}`, s as `0x${string}`],
+      })
     } catch (error: any) {
-      console.error('Error during whitelist signature or transaction:', error);
-      setIsFetchingSignature(false);
-      const message = error.response?.data?.message ||
-                      error.message ||
-                      "An unexpected error occurred during whitelisting.";
-      setWhitelistAttemptError(message);
+      console.error('Error during whitelist signature or transaction:', error)
+      setIsFetchingSignature(false)
+      const message =
+        error.response?.data?.message || error.message || 'An unexpected error occurred during whitelisting.'
+      setWhitelistAttemptError(message)
     }
-  };
+  }
 
   const handleDeposit = async () => {
     if (!isApproved) {
-      setDepositError("Deposit cannot proceed without approval.");
-      console.error('Deposit attempt without approval.');
-      return;
+      setDepositError('Deposit cannot proceed without approval.')
+      console.error('Deposit attempt without approval.')
+      return
     }
     if (!vaultAddress || !amountInWei || amountInWei.isZero()) {
-      const errorMsg = "Vault address or amount is invalid for deposit.";
-      setDepositError(errorMsg);
-      console.error(errorMsg, { vaultAddress, amount: amount.toString() });
-      return;
+      const errorMsg = 'Vault address or amount is invalid for deposit.'
+      setDepositError(errorMsg)
+      console.error(errorMsg, { vaultAddress, amount: amount.toString() })
+      return
     }
 
-    setDepositError(null); // Clear previous deposit errors
+    setDepositError(null) // Clear previous deposit errors
 
     try {
       await depositContractAsync({
@@ -307,17 +299,17 @@ export const DepositTab: React.FC<DepositTabProps> = ({
         address: vaultAddress as `0x${string}`,
         functionName: 'deposit',
         args: [amountInWei],
-      });
+      })
     } catch (error: any) {
       // This catch might not be strictly necessary if using the error from useWriteContract,
       // but can catch synchronous errors during the call setup.
-      console.error('Error initiating deposit transaction:', error);
-      const message = error.shortMessage || error.message || "An unexpected error occurred during deposit initiation.";
-      setDepositError(message);
+      console.error('Error initiating deposit transaction:', error)
+      const message = error.shortMessage || error.message || 'An unexpected error occurred during deposit initiation.'
+      setDepositError(message)
     }
-  };
+  }
 
-  const isDepositing = isDepositContractCallPending || isConfirmingDepositTx;
+  const isDepositing = isDepositContractCallPending || isConfirmingDepositTx
 
   return (
     <>
@@ -326,7 +318,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
           <FormSectionTitle>
             <Trans>Deposit Amount</Trans>
           </FormSectionTitle>
-          
+
           <InputContainer>
             <InputRow style={{ minHeight: '60px' }}>
               <AmountInput
@@ -343,44 +335,43 @@ export const DepositTab: React.FC<DepositTabProps> = ({
               </CurrencySelector>
             </InputRow>
           </InputContainer>
-          
+
           <BalanceRow>
             <div></div>
             <BalanceText>
-              Balance: <BalanceAmount>
-                {isBalanceLoading ? 'Loading...' : balanceData?.formatted || '0.00'}
-              </BalanceAmount>
+              Balance:{' '}
+              <BalanceAmount>{isBalanceLoading ? 'Loading...' : balanceData?.formatted || '0.00'}</BalanceAmount>
               <MaxButton onClick={handleMaxClick}>MAX</MaxButton>
             </BalanceText>
           </BalanceRow>
-          
+
           <ActionRow>
             <ExchangeRateInfo>
               <ExchangeRateLabel>Exchange Rate</ExchangeRateLabel>
               <ExchangeRateValue>{exchangeRate}</ExchangeRateValue>
             </ExchangeRateInfo>
-            
+
             {isCheckingWhitelist ? (
               <StyledButtonPrimary disabled={true}>
                 <Trans>Checking whitelist...</Trans>
               </StyledButtonPrimary>
             ) : isWhitelisted ? (
-              <StyledButtonPrimary 
-                onClick={handlePreviewDeposit} 
+              <StyledButtonPrimary
+                onClick={handlePreviewDeposit}
                 disabled={!amount || loading}
-                style={{ 
+                style={{
                   flex: '1',
                   padding: '12px 24px',
                   borderRadius: '12px',
                   backgroundColor: '#6C5DD3',
-                  marginLeft: '20px'
+                  marginLeft: '20px',
                 }}
               >
                 {loading ? <Trans>Processing...</Trans> : <Trans>Preview Deposit</Trans>}
               </StyledButtonPrimary>
             ) : (
               <>
-                <StyledButtonPrimary 
+                <StyledButtonPrimary
                   onClick={handleGetSignatureAndWhitelist}
                   disabled={
                     loading ||
@@ -393,20 +384,31 @@ export const DepositTab: React.FC<DepositTabProps> = ({
                   }
                 >
                   {(() => {
-                    if (isCheckingWhitelist || isNonceLoading) return <Trans>Loading data...</Trans>;
-                    if (userNonce === undefined && !isWhitelisted) return <Trans>Whitelist Unavailable</Trans>;
-                    if (isFetchingSignature) return <Trans>Getting Signature...</Trans>;
-                    if (isWhitelistContractCallPending) return <Trans>Whitelisting... Check Wallet</Trans>;
-                    if (isConfirmingWhitelistTx) return <Trans>Confirming Whitelist...</Trans>;
-                    if (whitelistAttemptError) return <Trans>Whitelist Failed. Retry?</Trans>;
-                    return <Trans>Get Whitelisted</Trans>;
+                    if (isCheckingWhitelist || isNonceLoading) return <Trans>Loading data...</Trans>
+                    if (userNonce === undefined && !isWhitelisted) return <Trans>Whitelist Unavailable</Trans>
+                    if (isFetchingSignature) return <Trans>Getting Signature...</Trans>
+                    if (isWhitelistContractCallPending) return <Trans>Whitelisting... Check Wallet</Trans>
+                    if (isConfirmingWhitelistTx) return <Trans>Confirming Whitelist...</Trans>
+                    if (whitelistAttemptError) return <Trans>Whitelist Failed. Retry?</Trans>
+                    return <Trans>Get Whitelisted</Trans>
                   })()}
                 </StyledButtonPrimary>
-                {whitelistAttemptError && !isConfirmingWhitelistTx && !isWhitelistContractCallPending && !isFetchingSignature && (
-                  <div style={{ color: 'red', marginTop: '10px', fontSize: '0.875em', textAlign: 'right', width: '100%' }}>
-                    {whitelistAttemptError}
-                  </div>
-                )}
+                {whitelistAttemptError &&
+                  !isConfirmingWhitelistTx &&
+                  !isWhitelistContractCallPending &&
+                  !isFetchingSignature && (
+                    <div
+                      style={{
+                        color: 'red',
+                        marginTop: '10px',
+                        fontSize: '0.875em',
+                        textAlign: 'right',
+                        width: '100%',
+                      }}
+                    >
+                      {whitelistAttemptError}
+                    </div>
+                  )}
               </>
             )}
           </ActionRow>
@@ -417,12 +419,12 @@ export const DepositTab: React.FC<DepositTabProps> = ({
             <PreviewTitle>Request Made To</PreviewTitle>
             <AddressBox>{vaultAddress || '0×510E94...e56370'}</AddressBox>
           </PreviewSection>
-          
+
           <PreviewSection>
             <PreviewTitle>Network</PreviewTitle>
             <AddressBox>{network || 'Polygon'}</AddressBox>
           </PreviewSection>
-          
+
           <PreviewSection>
             <PreviewTitle>Summary</PreviewTitle>
             <SummaryTable>
@@ -439,58 +441,43 @@ export const DepositTab: React.FC<DepositTabProps> = ({
                 <SummaryValue>
                   VT{' '}
                   {(() => {
-                    const numericAmount = parseFloat(amount);
-                    const numericExchangeRate = exchangeRate ? parseFloat(exchangeRate) : 0;
-                    if (
-                      !isNaN(numericAmount) &&
-                      numericExchangeRate > 0
-                    ) {
-                      return formatAmount(numericAmount / numericExchangeRate, 3);
+                    const numericAmount = parseFloat(amount)
+                    const numericExchangeRate = exchangeRate ? parseFloat(exchangeRate) : 0
+                    if (!isNaN(numericAmount) && numericExchangeRate > 0) {
+                      return formatAmount(numericAmount / numericExchangeRate, 3)
                     }
-                    return formatAmount(0, 3); // Or 'N/A' if preferred
+                    return formatAmount(0, 3) // Or 'N/A' if preferred
                   })()}
                 </SummaryValue>
               </SummaryRow>
             </SummaryTable>
           </PreviewSection>
-          
+
           <TermsContainer>
-            <Checkbox 
-              type="checkbox" 
-              checked={termsAccepted}
-              onChange={() => setTermsAccepted(!termsAccepted)}
-            />
+            <Checkbox type="checkbox" checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
             <TermsText>
               I agree to the <TermsLink>IXS Earn Terms and Conditions</TermsLink>.
             </TermsText>
           </TermsContainer>
-          
+
           <ButtonsRow>
-            <BackButton onClick={handleBackFromPreview}>
-              Back
-            </BackButton>
+            <BackButton onClick={handleBackFromPreview}>Back</BackButton>
             {isApprovalNeeded ? (
-              <StyledButtonPrimary 
-                onClick={handleApproval}
-                disabled={!termsAccepted || isApproving || loading}
-              >
+              <StyledButtonPrimary onClick={handleApproval} disabled={!termsAccepted || isApproving || loading}>
                 {isApproving ? <Trans>Approving...</Trans> : <Trans>Approve USDC</Trans>}
               </StyledButtonPrimary>
             ) : (
-              <StyledButtonPrimary 
+              <StyledButtonPrimary
                 onClick={handleDeposit}
-                disabled={
-                  !termsAccepted || 
-                  loading ||
-                  isDepositing ||
-                  !amount || 
-                  amountInWei.isZero()
-                }
+                disabled={!termsAccepted || loading || isDepositing || !amount || amountInWei.isZero()}
               >
-                {isDepositing ? <Trans>Depositing...</Trans> : 
-                 depositError ? <Trans>Retry Deposit</Trans> :
-                 <Trans>Deposit</Trans> 
-                }
+                {isDepositing ? (
+                  <Trans>Depositing...</Trans>
+                ) : depositError ? (
+                  <Trans>Retry Deposit</Trans>
+                ) : (
+                  <Trans>Deposit</Trans>
+                )}
               </StyledButtonPrimary>
             )}
             {depositError && !isDepositing && !isApprovalNeeded && (
@@ -502,5 +489,6 @@ export const DepositTab: React.FC<DepositTabProps> = ({
         </PreviewContainer>
       )}
     </>
-  );
-}; 
+  )
+}
+

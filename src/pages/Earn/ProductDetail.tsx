@@ -48,21 +48,11 @@ export default function ProductDetail() {
   const [showWithdrawPreview, setShowWithdrawPreview] = useState(false)
   const [showClaimPreview, setShowClaimPreview] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
-
-  // State for the fetched OpenTrade exchange rate is now derived from useReadContract
-  // const [openTradeExchangeRate, setOpenTradeExchangeRate] = useState<string | null>(null) // Removed
-  // const [exchangeRateError, setExchangeRateError] = useState<string | null>(null) // Removed
-
-  // Get product data from earnProducts based on id
   const product = products.find((p) => p.id === id)
-
-  // Effect to load OpenTrade exchange rate is replaced by useReadContract
-  // React.useEffect(() => { ... }, [product, chainId]) // Removed
 
   const {
     data: rawRate, // This will be the raw data from the contract (likely a BigInt)
     error: fetchRateError, // Error object if the hook fails
-    // isLoading: isExchangeRateLoading, // You can use this if you need a specific loading state
   } = useReadContract({
     abi: OpenTradeABI,
     address: product?.opentradeVaultAddress as `0x${string}` | undefined,
@@ -75,28 +65,18 @@ export default function ProductDetail() {
   })
 
   // Derived state for the formatted exchange rate
-  const openTradeExchangeRate = React.useMemo<string | null>(() => {
+  const openTradeExchangeRate = React.useMemo<string | undefined>(() => {
     if (rawRate) {
       try {
         // Assuming rawRate is BigInt and the exchange rate has 18 decimals
         return formatAmount(Number(formatUnits(rawRate as bigint, 18) || 0), 3)
       } catch (e) {
         console.error('Error formatting exchange rate:', e)
-        return null // Handle potential formatting errors
+        return // Handle potential formatting errors
       }
     }
-    return null
+    return
   }, [rawRate])
-
-  console.log('openTradeExchangeRate', openTradeExchangeRate)
-  // Derived state for any error during fetching
-  const exchangeRateError = React.useMemo<string | null>(() => {
-    if (fetchRateError) {
-      console.error('Failed to fetch OpenTrade exchange rate via useReadContract:', fetchRateError)
-      return 'Failed to load exchange rate.'
-    }
-    return null
-  }, [fetchRateError])
 
   // Subgraph Queries
   const userAddress = account?.toLowerCase()
@@ -168,24 +148,24 @@ export default function ProductDetail() {
         formattedTransactions = subgraphData.deposits.map((tx: any) => ({
           date: parseInt(tx.timestamp, 10),
           type: 'Deposit',
-          tokenSymbol: product.asset,
-          amount: formatAmount(Number(formatUnits(tx.amount, product.investingTokenDecimals)), 6),
+          tokenSymbol: product?.investingTokenSymbol,
+          amount: formatAmount(Number(formatUnits(tx.amount, product?.investingTokenDecimals || 0)), 6),
           hash: tx.transactionHash,
         }))
       } else if (activeTab === 'withdraw' && subgraphData.withdraws) {
         formattedTransactions = subgraphData.withdraws.map((tx: any) => ({
           date: parseInt(tx.timestamp, 10),
           type: 'Withdraw',
-          tokenSymbol: product.asset,
-          amount: formatAmount(Number(formatUnits(tx.amount, product.investingTokenDecimals)), 6),
+          tokenSymbol: product?.investingTokenSymbol,
+          amount: formatAmount(Number(formatUnits(tx.amount, product?.investingTokenDecimals || 0)), 6),
           hash: tx.transactionHash,
         }))
       } else if (activeTab === 'claim' && subgraphData.claims) {
         formattedTransactions = subgraphData.claims.map((tx: any) => ({
           date: parseInt(tx.timestamp, 10),
           type: 'Claim',
-          tokenSymbol: product.asset,
-          amount: formatAmount(Number(formatUnits(tx.amountClaimed, product.investingTokenDecimals)), 6),
+          tokenSymbol: product?.investingTokenSymbol,
+          amount: formatAmount(Number(formatUnits(tx.amountClaimed, product?.investingTokenDecimals || 0)), 6),
           hash: tx.transactionHash,
         }))
       }
@@ -193,7 +173,7 @@ export default function ProductDetail() {
     } else {
       setTransactions([])
     }
-  }, [subgraphData, activeTab, product.asset, product.investingTokenDecimals, account, chainId])
+  }, [subgraphData, activeTab, product?.investingTokenSymbol, product?.investingTokenDecimals, account, chainId])
 
   // Handle case when product is not found
   if (!product) {
@@ -206,23 +186,6 @@ export default function ProductDetail() {
         <LearnMoreLink onClick={() => history.push('/earn')}>Return to products</LearnMoreLink>
       </PageWrapper>
     )
-  }
-
-  // Mock balance data
-  const vaultTokenBalance = '2,889.764278'
-  const claimableAmount = '1,038.324045'
-  const platformFee = '2.595810' // 0.25% fee
-  const serviceFee = '0.000000'
-
-  const handleDeposit = () => {
-    setLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false)
-      // Here we would normally call a contract function
-      alert(`Deposited ${amount} ${product.asset}`)
-      setShowPreview(false)
-    }, 1500)
   }
 
   const handlePreviewDeposit = () => {
@@ -241,34 +204,12 @@ export default function ProductDetail() {
     setShowWithdrawPreview(false)
   }
 
-  const handleWithdraw = () => {
-    setLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false)
-      // Here we would normally call a contract function
-      alert(`Withdrawing ${withdrawAmount} Vault Tokens`)
-      setShowWithdrawPreview(false)
-    }, 1500)
-  }
-
   const handlePreviewClaim = () => {
     setShowClaimPreview(true)
   }
 
   const handleBackFromClaimPreview = () => {
     setShowClaimPreview(false)
-  }
-
-  const handleClaim = () => {
-    setLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false)
-      // Here we would normally call a contract function
-      alert(`Claimed ${actualClaimableAmount} USDC`)
-      setShowClaimPreview(false)
-    }, 1500)
   }
 
   const handleTabChange = (tab: 'deposit' | 'withdraw' | 'claim') => {
@@ -315,9 +256,6 @@ export default function ProductDetail() {
         <InfoCard>
           <InfoCardLabel>Underlying Asset</InfoCardLabel>
           <InfoCardValue>{product.underlyingAsset}</InfoCardValue>
-          <AssetIcon>
-            <img src="/images/icons/building.svg" alt="Building icon" />
-          </AssetIcon>
         </InfoCard>
 
         <InfoCard>
@@ -351,7 +289,7 @@ export default function ProductDetail() {
             setTermsAccepted={setTermsAccepted}
             handlePreviewDeposit={handlePreviewDeposit}
             handleBackFromPreview={handleBackFromPreview}
-            productAsset={product.asset}
+            productAsset={product?.investingTokenSymbol}
             network={product.network}
             investingTokenAddress={product.investingTokenAddress} // USDC on Polygon
             vaultAddress={product.address} // Vault contract address
@@ -383,9 +321,6 @@ export default function ProductDetail() {
             setTermsAccepted={setTermsAccepted}
             handlePreviewClaim={handlePreviewClaim}
             handleBackFromClaimPreview={handleBackFromClaimPreview}
-            claimableAmount={claimableAmount}
-            platformFee={platformFee}
-            serviceFee={serviceFee}
             vaultAddress={product.address}
             investingTokenAddress={product.investingTokenAddress}
             investingTokenSymbol={product.asset}
@@ -424,9 +359,9 @@ export default function ProductDetail() {
                 <Cell>{tx.amount}</Cell>
                 <Cell>
                   <HashDisplay>
-                    <a 
-                      href={getExplorerLink(chainId, tx.hash, ExplorerDataType.TRANSACTION)} 
-                      target="_blank" 
+                    <a
+                      href={getExplorerLink(chainId, tx.hash, ExplorerDataType.TRANSACTION)}
+                      target="_blank"
                       rel="noopener noreferrer"
                       style={{ textDecoration: 'none', color: 'inherit' }}
                     >
@@ -439,7 +374,7 @@ export default function ProductDetail() {
           ) : (
             <NoTransactionsRow columns={5}>
               No {activeTab} transactions found yet.
-              {activeTab === 'deposit' && " Make your first deposit to get started!"}
+              {activeTab === 'deposit' && ' Make your first deposit to get started!'}
               {activeTab === 'withdraw' && " You haven't made any withdrawal requests yet."}
               {activeTab === 'claim' && " You don't have any claims to show yet."}
             </NoTransactionsRow>
@@ -656,11 +591,6 @@ const AssetIcon = styled.div`
   justify-content: center;
   background: #f5f7ff;
   border-radius: 50%;
-
-  img {
-    width: 24px;
-    height: 24px;
-  }
 `
 
 const ApySmallText = styled.div`
@@ -795,10 +725,10 @@ const TransactionRow = styled.div<{ columns?: number }>`
 const NoTransactionsRow = styled(TransactionRow)`
   grid-column: span ${({ columns }) => columns || 4};
   text-align: center;
-  color: #7E829B;
+  color: #7e829b;
   padding: 48px 0;
   font-size: 16px;
-  background: #F8F9FF;
+  background: #f8f9ff;
   border-radius: 8px;
   margin: 16px 0;
 

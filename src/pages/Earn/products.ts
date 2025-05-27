@@ -2,7 +2,6 @@
 export interface EarnProduct {
   id: string
   name: string
-  asset: string
   apy: number
   description: string
   iconUrl: string | null
@@ -22,7 +21,6 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
   {
     id: 'treasury-bill',
     name: 'Flexible TERM USDC Vault',
-    asset: 'USDC',
     apy: 3.9,
     tvl: 5000000,
     description: 'US Treasuries, USD Money Market Funds',
@@ -33,19 +31,18 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
     investingTokenDecimals: 6,
     chainId: 11155111,
   },
-  {
-    id: 'stablecoin-yield',
-    name: 'High Yield Corporate Bond Vault',
-    asset: 'USDT',
-    apy: 4.2,
-    tvl: 2800000,
-    description: 'BlackRock High Yield Corporate Bond ETF',
-    iconUrl: null,
-    network: 'polygon',
-    investingTokenSymbol: 'USDC',
-    investingTokenDecimals: 6,
-    chainId: 137,
-  },
+  // {
+  //   id: 'stablecoin-yield',
+  //   name: 'High Yield Corporate Bond Vault',
+  //   apy: 4.2,
+  //   tvl: 2800000,
+  //   description: 'BlackRock High Yield Corporate Bond ETF',
+  //   iconUrl: null,
+  //   network: 'polygon',
+  //   investingTokenSymbol: 'USDC',
+  //   investingTokenDecimals: 6,
+  //   chainId: 137,
+  // },
 ]
 
 // Environment-specific addresses
@@ -67,13 +64,13 @@ const addresses: Record<string, Record<string, string>> = {
 // Environment-specific investing token addresses organized by token symbol
 const investingTokenAddresses: Record<string, Record<string, string>> = {
   development: {
-    'USDC': '0xfd4f11a2aae86165050688c85ec9ed6210c427a9',
+    USDC: '0xfd4f11a2aae86165050688c85ec9ed6210c427a9',
   },
   staging: {
-    'USDC': '0xStgUSDC12345678901234567890123456789012345',
+    USDC: '0xStgUSDC12345678901234567890123456789012345',
   },
   production: {
-    'USDC': '0xProdUSDC12345678901234567890123456789012345',
+    USDC: '0xProdUSDC12345678901234567890123456789012345',
   },
 }
 
@@ -101,10 +98,10 @@ const products: EarnProduct[] = baseProducts.map((product) => ({
   ...product,
   address: addresses[currentEnv][product.id] || '0x0000000000000000000000000000000000000000',
   investingTokenAddress:
-    investingTokenAddresses[currentEnv][product.investingTokenSymbol || ''] || '0x0000000000000000000000000000000000000000',
+    investingTokenAddresses[currentEnv][product.investingTokenSymbol || ''] ||
+    '0x0000000000000000000000000000000000000000',
   opentradeVaultAddress:
     opentradeVaultAddresses[currentEnv][product.id] || '0x0000000000000000000000000000000000000000',
 }))
 
 export { products }
-

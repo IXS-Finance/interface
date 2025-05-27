@@ -2,22 +2,7 @@ import React from 'react'
 import styled from 'styled-components/macro'
 import { Trans } from '@lingui/macro'
 import { ButtonPrimary } from 'components/Button'
-
-// Using a local interface to avoid Redux dependency issues
-interface EarnProduct {
-  id: string
-  name: string
-  asset: string
-  apy: number
-  description: string
-  iconUrl: string | null
-  tvl?: number
-  underlyingAsset?: string
-  networks?: Array<{
-    name: string
-    iconUrl: string
-  }>
-}
+import { EarnProduct } from '../products'
 
 interface EarnProductCardProps {
   product: EarnProduct
@@ -27,7 +12,7 @@ interface EarnProductCardProps {
 // Add these constants at the top of the file after imports
 const NETWORK_ICONS = {
   ethereum: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
-  avalanche: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/avalanchec/info/logo.png'
+  avalanche: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/avalanchec/info/logo.png',
 }
 
 export function EarnProductCard({ product, onClick }: EarnProductCardProps) {
@@ -52,9 +37,9 @@ export function EarnProductCard({ product, onClick }: EarnProductCardProps) {
         <ProductNameRow>
           <ProductIcon>
             {product.iconUrl ? (
-              <img src={product.iconUrl} alt={product.asset} />
+              <img src={product.iconUrl} alt={product.investingTokenSymbol} />
             ) : (
-              <AssetCircle>{product.asset[0]}</AssetCircle>
+              <AssetCircle>{product.investingTokenSymbol}</AssetCircle>
             )}
           </ProductIcon>
           <ProductInfo>
@@ -62,21 +47,26 @@ export function EarnProductCard({ product, onClick }: EarnProductCardProps) {
             <ProductDescription>{product.description}</ProductDescription>
           </ProductInfo>
         </ProductNameRow>
-        
+
         <InfoRow>
           <InfoCard>
             <InfoLabel>Underlying Asset</InfoLabel>
-            <InfoValue>{product.underlyingAsset || product.asset}</InfoValue>
+            <InfoValue>{product.underlyingAsset || product.investingTokenSymbol}</InfoValue>
           </InfoCard>
-          
+
           <InfoCard>
             <InfoLabel>Annual Percentage Rate</InfoLabel>
             <APYValue>{product.apy.toFixed(2)}%</APYValue>
           </InfoCard>
         </InfoRow>
-        
+
         <ButtonContainer>
-          <ViewDetailsButton onClick={(e) => { e.stopPropagation(); onClick(); }}>
+          <ViewDetailsButton
+            onClick={(e) => {
+              e.stopPropagation()
+              onClick()
+            }}
+          >
             <Trans>View Details</Trans>
           </ViewDetailsButton>
         </ButtonContainer>
@@ -94,7 +84,7 @@ const CardContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  
+
   &:hover {
     transform: translateY(-4px);
   }
@@ -150,7 +140,7 @@ const ProductNameRow = styled.div`
 const ProductIcon = styled.div`
   margin-right: 16px;
   flex-shrink: 0;
-  
+
   img {
     width: 40px;
     height: 40px;
@@ -264,14 +254,15 @@ const NetworkIcon = styled.div`
   border: 1px solid white;
   overflow: hidden;
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.15);
-  
+
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  
+
   &:not(:last-child) {
     margin-left: -6px;
   }
-` 
+`
+
