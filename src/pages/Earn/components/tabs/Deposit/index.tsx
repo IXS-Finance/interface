@@ -48,6 +48,7 @@ import { createUseReadContract, createUseWriteContract, createUseWatchContractEv
 import erc20Abi from 'abis/erc20.json'
 import { parseUnits } from 'viem'
 import { toast } from 'react-toastify'
+import { SuccessPopup } from './SuccessPopup'
 
 
 const useWatchTokenApprovalEvent = createUseWatchContractEvent({
@@ -76,6 +77,7 @@ interface DepositTabProps {
   investingTokenAddress?: string
   exchangeRate?: string
   investingTokenDecimals?: number
+  chainId?: number
 }
 
 export const DepositTab: React.FC<DepositTabProps> = ({
@@ -93,9 +95,11 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   investingTokenAddress,
   exchangeRate,
   investingTokenDecimals,
+  chainId,
 }) => {
   const { address } = useAccount()
   const [isApproving, setIsApproving] = useState(false)
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
 
   const useWriteInvestingTokeApprove = createUseWriteContract({
     abi: erc20Abi,
@@ -158,6 +162,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     if (approveResult.isSuccess) {
       refetchAllowance()
       setIsApproving(false)
+      toast.success('Approval successful! Your funds have been approved for deposit.')
     }
   }, [approveResult.isSuccess, refetchAllowance])
 
@@ -222,6 +227,8 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     reset: resetDepositContract,
   } = useWriteContract()
 
+  console.log('depositTxHash', depositTxHash)
+
   const {
     isLoading: isConfirmingDepositTx,
     isSuccess: isDepositTxConfirmed,
@@ -257,11 +264,9 @@ export const DepositTab: React.FC<DepositTabProps> = ({
       }
       setAmount('')
       resetDepositContract() // Reset contract call state
-      // Optionally, navigate back or show persistent success message
-      handleBackFromPreview() // Go back to the form after successful deposit
-      toast.success('Deposit successful! Your funds have been deposited into the vault.')
+      setShowSuccessPopup(true) // Show success popup instead of going back immediately
     }
-  }, [isDepositTxConfirmed, refetchBalanceData, setAmount, resetDepositContract, handleBackFromPreview])
+  }, [isDepositTxConfirmed, refetchBalanceData, setAmount, resetDepositContract])
 
   useEffect(() => {
     let message: string | null = null
@@ -283,8 +288,6 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     // Note: Clearing of depositError is handled on new attempt or success
   }, [depositContractWriteError, depositTxConfirmError, resetDepositContract])
 
-  console.log('amountInWei', amountRaw.toString())
-  // const [approvalState, approve, refreshAllowance] = useAllowance(investingTokenAddress, amountInWei, vaultAddress)
 
   const handleMaxClick = () => {
     if (balanceData) {
@@ -374,6 +377,11 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   }
 
   const isDepositing = isDepositContractCallPending || isConfirmingDepositTx
+
+  const handleClosePopup = () => {
+    setShowSuccessPopup(false)
+    handleBackFromPreview() // Go back to the form after closing popup
+  }
 
   return (
     <>
@@ -551,6 +559,14 @@ export const DepositTab: React.FC<DepositTabProps> = ({
             )}
           </ButtonsRow>
         </PreviewContainer>
+      )}
+      
+      {showSuccessPopup && (
+        <SuccessPopup
+          onClose={handleClosePopup}
+          txHash={depositTxHash}
+          chainId={chainId}
+        />
       )}
     </>
   )

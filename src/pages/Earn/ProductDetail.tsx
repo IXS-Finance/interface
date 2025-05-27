@@ -295,6 +295,7 @@ export default function ProductDetail() {
             vaultAddress={product.address} // Vault contract address
             exchangeRate={openTradeExchangeRate}
             investingTokenDecimals={product.investingTokenDecimals}
+            chainId={chainId}
           />
         )}
 
