@@ -32,6 +32,25 @@ import VaultABI from '../../../abis/Vault.json' // Adjusted path
 import ERC20ABI from 'abis/erc20.json' // Add ERC20 ABI import
 import { formatAmount } from 'utils/formatCurrencyAmount' // Assuming alias or correct path
 import { useMemo } from 'react'
+import styled from 'styled-components'
+
+// Add styled component for info badge
+const InfoBadge = styled.div`
+  background-color: #E3F2FD;
+  color: #1976D2;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 14px;
+  border: 1px solid #BBDEFB;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`
+
+const InfoIcon = styled.span`
+  font-size: 16px;
+`
 
 // Add the platform fee hook
 const usePlatformFee = (contractAddress: `0x${string}`) => {
@@ -242,11 +261,12 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
             </ClaimAmount>
           </ClaimRow>
 
-          {/* Show warning if claiming is not possible */}
+          {/* Show info badge if claiming is not possible */}
           {!isAnyLoading && !isFetchedClaimableAmountZero && !isClaimingPossible && (
-            <div style={{ color: 'red', marginBottom: '1rem', fontSize: '14px' }}>
+            <InfoBadge>
+              <InfoIcon>ℹ️</InfoIcon>
               <Trans>We are processing your withdrawal requests. Please come back later.</Trans>
-            </div>
+            </InfoBadge>
           )}
 
           <StyledButtonPrimary
