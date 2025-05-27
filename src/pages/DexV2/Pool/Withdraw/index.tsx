@@ -13,9 +13,12 @@ import SwapSettingsPopover, { SwapSettingsContext } from 'pages/DexV2/common/pop
 import WithdrawForm from './components/WithdrawForm'
 import WithdrawTabs from './components/WithdrawTabs'
 import useWithdrawPageTabs from 'state/dexV2/pool/useWithdrawPageTabs'
-import { setPoolState } from 'state/dexV2/pool'
-import { useDispatch } from 'react-redux'
+import { setDataForSingleAmountOut, setPoolState } from 'state/dexV2/pool'
+import { useDispatch, useSelector } from 'react-redux'
 import DexV2Layout from 'pages/DexV2/common/Layout'
+import { isDeep, tokenTreeLeafs } from 'hooks/dex-v2/usePoolHelpers'
+import { AppState } from 'state'
+import { isSameAddress } from 'lib/utils'
 
 function useInterval(callback: () => void, delay: number | null) {
   useEffect(() => {
@@ -26,6 +29,7 @@ function useInterval(callback: () => void, delay: number | null) {
 }
 
 const Withdraw: FC = () => {
+  const { isSingleAssetExit } = useSelector((state: AppState) => state.dexV2Pool)
   const params = useParams<any>()
   const poolId = (params.id as string).toLowerCase()
   const { pool, isLoadingPool, refetchOnchainPoolData } = usePool(poolId)
@@ -36,9 +40,32 @@ const Withdraw: FC = () => {
 
   const isLoading = isLoadingPool || !pool || balanceQueryLoading
 
+  function setInitialPropAmountsOut() {
+    if (!pool || !pool.tokensList) return
+    const leafNodes: string[] = isDeep(pool)
+      ? tokenTreeLeafs(pool.tokens)
+      : pool.tokensList.filter((token) => !isSameAddress(token, pool.address))
+    dispatch(
+      setPoolState({
+        propAmountsOut: leafNodes.map((address) => ({
+          address,
+          value: '0',
+          max: '',
+          valid: true,
+        })),
+      })
+    )
+  }
+
   useEffect(() => {
     resetTabs()
     dispatch(setPoolState({ bptIn: '' }))
+
+    if (!isSingleAssetExit) {
+      setInitialPropAmountsOut()
+    } else {
+      dispatch(setDataForSingleAmountOut({ key: 'value', value: '' }))
+    }
   }, [isLoading])
 
   return (

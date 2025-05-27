@@ -12,11 +12,13 @@ interface WithdrawTabsProps {
 }
 
 const WithdrawTabs: React.FC<WithdrawTabsProps> = ({ pool }) => {
-  const { setIsSingleAssetExit, setBptIn } = useExitPool(pool)
+  const { setIsSingleAssetExit, setBptIn, setInitialPropAmountsOut } = useExitPool(pool)
   const dispatch = useDispatch()
   const { activeTab, tabs, setActiveTab } = useWithdrawPageTabs()
 
   useEffect(() => {
+    setInitialPropAmountsOut()
+
     if (activeTab === Tab.SingleToken) {
       setIsSingleAssetExit(true)
       dispatch(setDataForSingleAmountOut({ key: 'value', value: '' }))
