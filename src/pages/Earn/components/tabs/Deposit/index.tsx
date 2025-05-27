@@ -228,8 +228,6 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     reset: resetDepositContract,
   } = useWriteContract()
 
-  console.log('depositTxHash', depositTxHash)
-
   const {
     isLoading: isConfirmingDepositTx,
     isSuccess: isDepositTxConfirmed,
@@ -410,7 +408,10 @@ export const DepositTab: React.FC<DepositTabProps> = ({
           </InputContainer>
 
           <BalanceRow>
-            <div></div>
+            <ExchangeRateInfo>
+              <ExchangeRateLabel>Exchange Rate</ExchangeRateLabel>
+              <ExchangeRateValue>{exchangeRate}</ExchangeRateValue>
+            </ExchangeRateInfo>
             <BalanceText>
               Balance:{' '}
               <BalanceAmount>{isBalanceLoading ? 'Loading...' : balanceData?.formatted || '0.00'}</BalanceAmount>
@@ -418,66 +419,59 @@ export const DepositTab: React.FC<DepositTabProps> = ({
             </BalanceText>
           </BalanceRow>
 
-          <ActionRow>
-            <ExchangeRateInfo>
-              <ExchangeRateLabel>Exchange Rate</ExchangeRateLabel>
-              <ExchangeRateValue>{exchangeRate}</ExchangeRateValue>
-            </ExchangeRateInfo>
-
-            {isCheckingWhitelist ? (
-              <CompactButtonPrimary disabled={true}>
-                <Trans>Checking whitelist...</Trans>
-              </CompactButtonPrimary>
-            ) : isWhitelisted ? (
-              <CompactButtonPrimary
-                onClick={handlePreviewDeposit}
-                disabled={!amount || loading}
+          {isCheckingWhitelist ? (
+            <StyledButtonPrimary disabled={true}>
+              <Trans>Checking whitelist...</Trans>
+            </StyledButtonPrimary>
+          ) : isWhitelisted ? (
+            <StyledButtonPrimary
+              onClick={handlePreviewDeposit}
+              disabled={!amount || loading}
+            >
+              {loading ? <Trans>Processing...</Trans> : <Trans>Preview Deposit</Trans>}
+            </StyledButtonPrimary>
+          ) : (
+            <>
+              <StyledButtonPrimary
+                onClick={handleGetSignatureAndWhitelist}
+                disabled={
+                  loading ||
+                  isCheckingWhitelist ||
+                  isNonceLoading ||
+                  (userNonce === undefined && !isWhitelisted) ||
+                  isFetchingSignature ||
+                  isWhitelistContractCallPending ||
+                  isConfirmingWhitelistTx
+                }
               >
-                {loading ? <Trans>Processing...</Trans> : <Trans>Preview Deposit</Trans>}
-              </CompactButtonPrimary>
-            ) : (
-              <>
-                <CompactButtonPrimary
-                  onClick={handleGetSignatureAndWhitelist}
-                  disabled={
-                    loading ||
-                    isCheckingWhitelist ||
-                    isNonceLoading ||
-                    (userNonce === undefined && !isWhitelisted) ||
-                    isFetchingSignature ||
-                    isWhitelistContractCallPending ||
-                    isConfirmingWhitelistTx
-                  }
-                >
-                  {(() => {
-                    if (isCheckingWhitelist || isNonceLoading) return <Trans>Loading data...</Trans>
-                    if (userNonce === undefined && !isWhitelisted) return <Trans>Whitelist Unavailable</Trans>
-                    if (isFetchingSignature) return <Trans>Getting Signature...</Trans>
-                    if (isWhitelistContractCallPending) return <Trans>Whitelisting... Check Wallet</Trans>
-                    if (isConfirmingWhitelistTx) return <Trans>Confirming Whitelist...</Trans>
-                    if (whitelistAttemptError) return <Trans>Whitelist Failed. Retry?</Trans>
-                    return <Trans>Get Whitelisted</Trans>
-                  })()}
-                </CompactButtonPrimary>
-                {whitelistAttemptError &&
-                  !isConfirmingWhitelistTx &&
-                  !isWhitelistContractCallPending &&
-                  !isFetchingSignature && (
-                    <div
-                      style={{
-                        color: 'red',
-                        marginTop: '10px',
-                        fontSize: '0.875em',
-                        textAlign: 'right',
-                        width: '100%',
-                      }}
-                    >
-                      {whitelistAttemptError}
-                    </div>
-                  )}
-              </>
-            )}
-          </ActionRow>
+                {(() => {
+                  if (isCheckingWhitelist || isNonceLoading) return <Trans>Loading data...</Trans>
+                  if (userNonce === undefined && !isWhitelisted) return <Trans>Whitelist Unavailable</Trans>
+                  if (isFetchingSignature) return <Trans>Getting Signature...</Trans>
+                  if (isWhitelistContractCallPending) return <Trans>Whitelisting... Check Wallet</Trans>
+                  if (isConfirmingWhitelistTx) return <Trans>Confirming Whitelist...</Trans>
+                  if (whitelistAttemptError) return <Trans>Whitelist Failed. Retry?</Trans>
+                  return <Trans>Get Whitelisted</Trans>
+                })()}
+              </StyledButtonPrimary>
+              {whitelistAttemptError &&
+                !isConfirmingWhitelistTx &&
+                !isWhitelistContractCallPending &&
+                !isFetchingSignature && (
+                  <div
+                    style={{
+                      color: 'red',
+                      marginTop: '10px',
+                      fontSize: '0.875em',
+                      textAlign: 'center',
+                      width: '100%',
+                    }}
+                  >
+                    {whitelistAttemptError}
+                  </div>
+                )}
+            </>
+          )}
         </FormContentContainer>
       ) : (
         <PreviewContainer>
