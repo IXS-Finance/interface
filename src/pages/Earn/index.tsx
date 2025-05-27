@@ -43,46 +43,14 @@ export default function Earn() {
         <Text fontSize={32} fontWeight={600}>Earn</Text>
       </EarnHeader>
 
-      {/* Featured Product */}
-      <FeaturedProductCard onClick={() => handleViewProduct(featuredProduct.id)}>
-        <Flex flexDirection={['column', 'row']} width="100%">
-          <TreasuryContent>
-            <Text fontSize={[32, 42]} fontWeight={600} mb={3} color="#1F1F1F">
-              {featuredProduct.name}
-            </Text>
-            
-            <Flex alignItems="center" mb={4}>
-              <IconWrapper>
-                <img src="/images/tokens/usdc.png" alt="USDC" width="24" height="24" />
-              </IconWrapper>
-              <Text fontSize={16} fontWeight={500} color="#666666">
-                {featuredProduct.description}
-              </Text>
-              <LearnMoreLink>Learn more</LearnMoreLink>
-            </Flex>
-
-            <InfoCardContainer>
-              <InfoCard>
-                <Text fontSize={14} color="#666666" mb={1}>
-                  Underlying Asset
-                </Text>
-                <Text fontSize={16} fontWeight={600} color="#1F1F1F">
-                  {featuredProduct.underlyingAsset}
-                </Text>
-              </InfoCard>
-
-              <InfoCard>
-                <Text fontSize={14} color="#666666" mb={1}>
-                  Annual Percentage Rate
-                </Text>
-                <ApyValue>{featuredProduct.apy.toFixed(2)}%</ApyValue>
-              </InfoCard>
-            </InfoCardContainer>
-          </TreasuryContent>
-
-          <TreasuryImage />
+      {/* Banner Placeholder */}
+      <BannerPlaceholder>
+        <Flex justifyContent="center" alignItems="center" width="100%">
+          <Text fontSize={24} fontWeight={500} color="#666666">
+            Featured instituional-grade yield opportunities
+          </Text>
         </Flex>
-      </FeaturedProductCard>
+      </BannerPlaceholder>
 
       {/* All Products */}
       {products.length > 0 && (
@@ -102,17 +70,6 @@ export default function Earn() {
           </ProductsGrid>
         </>
       )}
-      
-      {!account && (
-        <ConnectWalletBanner>
-          <Text fontSize={18} fontWeight={500} mb={3}>
-            <Trans>Connect your wallet to start earning</Trans>
-          </Text>
-          <ButtonPrimary>
-            <Trans>Connect Wallet</Trans>
-          </ButtonPrimary>
-        </ConnectWalletBanner>
-      )}
     </PageWrapper>
   )
 }
@@ -122,79 +79,22 @@ const EarnHeader = styled.div`
   margin-bottom: 32px;
 `
 
-const FeaturedProductCard = styled.div`
-  background: ${({ theme }) => theme.bg1};
+const BannerPlaceholder = styled.div`
+  background: ${({ theme }) => theme.bg2};
+  border: 2px dashed ${({ theme }) => theme.text3};
   border-radius: 20px;
-  padding: 32px;
+  padding: 80px 32px;
   margin-bottom: 32px;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
   width: 100%;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  
-  &:hover {
-    transform: translateY(-4px);
-  }
-`
-
-const TreasuryContent = styled.div`
-  flex: 1;
-  padding-right: 40px;
-  
-  @media (max-width: 768px) {
-    padding-right: 0;
-    padding-bottom: 24px;
-  }
-`
-
-const TreasuryImage = styled.div`
-  flex: 1;
-  background-image: url('/images/treasury-illustration.png');
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
   min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   @media (max-width: 768px) {
+    padding: 60px 24px;
     min-height: 180px;
   }
-`
-
-const IconWrapper = styled.div`
-  margin-right: 8px;
-`
-
-const LearnMoreLink = styled.div`
-  color: ${({ theme }) => theme.primary1};
-  font-size: 14px;
-  font-weight: 500;
-  margin-left: 8px;
-  cursor: pointer;
-  
-  &:hover {
-    text-decoration: underline;
-  }
-`
-
-const InfoCardContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 32px;
-`
-
-const InfoCard = styled.div`
-  background: ${({ theme }) => theme.bg2};
-  border-radius: 12px;
-  padding: 16px 24px;
-  min-width: 200px;
-  flex: 1;
-`
-
-const ApyValue = styled.div`
-  font-size: 40px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.primary1};
 `
 
 const ProductsGrid = styled.div`

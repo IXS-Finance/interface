@@ -8,9 +8,14 @@ import { useActiveWeb3React } from 'hooks/web3'
 import { products } from './products' // Import the Treasury.png image
 import TreasuryImg from './images/Treasury.png'
 import { useSubgraphQuery } from 'hooks/useSubgraphQuery'
-
+import { formatAmount } from 'utils/formatCurrencyAmount'
 // Token icon
 import USDCIcon from '../../assets/images/usdcNew.svg'
+
+// Added imports for wagmi and ethers
+import { useReadContract } from 'wagmi'
+import { formatUnits } from 'viem'
+import OpenTradeABI from './abis/OpenTrade.json' // Make sure this path is correct
 
 import {} from './components/tabs/SharedStyles' // All shared styles are now used within tab components
 
@@ -18,6 +23,7 @@ import {} from './components/tabs/SharedStyles' // All shared styles are now use
 import { DepositTab } from './components/tabs/Deposit'
 import { WithdrawRequestTab } from './components/tabs/WithdrawRequest'
 import { ClaimTab } from './components/tabs/Claim'
+import { ExplorerDataType, getExplorerLink } from 'utils/getExplorerLink'
 
 interface Transaction {
   date: number
@@ -43,15 +49,65 @@ export default function ProductDetail() {
   const [showClaimPreview, setShowClaimPreview] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
 
+  // State for the fetched OpenTrade exchange rate is now derived from useReadContract
+  // const [openTradeExchangeRate, setOpenTradeExchangeRate] = useState<string | null>(null) // Removed
+  // const [exchangeRateError, setExchangeRateError] = useState<string | null>(null) // Removed
+
   // Get product data from earnProducts based on id
   const product = products.find((p) => p.id === id)
+
+  // Effect to load OpenTrade exchange rate is replaced by useReadContract
+  // React.useEffect(() => { ... }, [product, chainId]) // Removed
+
+  const {
+    data: rawRate, // This will be the raw data from the contract (likely a BigInt)
+    error: fetchRateError, // Error object if the hook fails
+    // isLoading: isExchangeRateLoading, // You can use this if you need a specific loading state
+  } = useReadContract({
+    abi: OpenTradeABI,
+    address: product?.opentradeVaultAddress as `0x${string}` | undefined,
+    functionName: 'exchangeRate',
+    chainId: chainId,
+    query: {
+      // Only enable the query if the address and chainId are available
+      enabled: !!(product?.opentradeVaultAddress && chainId),
+    },
+  })
+
+  // Derived state for the formatted exchange rate
+  const openTradeExchangeRate = React.useMemo<string | null>(() => {
+    if (rawRate) {
+      try {
+        // Assuming rawRate is BigInt and the exchange rate has 18 decimals
+        return formatAmount(Number(formatUnits(rawRate as bigint, 18) || 0), 3)
+      } catch (e) {
+        console.error('Error formatting exchange rate:', e)
+        return null // Handle potential formatting errors
+      }
+    }
+    return null
+  }, [rawRate])
+
+  console.log('openTradeExchangeRate', openTradeExchangeRate)
+  // Derived state for any error during fetching
+  const exchangeRateError = React.useMemo<string | null>(() => {
+    if (fetchRateError) {
+      console.error('Failed to fetch OpenTrade exchange rate via useReadContract:', fetchRateError)
+      return 'Failed to load exchange rate.'
+    }
+    return null
+  }, [fetchRateError])
 
   // Subgraph Queries
   const userAddress = account?.toLowerCase()
 
   const DEPOSITS_QUERY = `
     query {
-      deposits(where: { user: "${userAddress}" }) {
+      deposits(
+        where: { user: "${userAddress}" }
+        orderBy: timestamp
+        orderDirection: desc
+      ) {
         amount
         timestamp
         transactionHash
@@ -61,7 +117,11 @@ export default function ProductDetail() {
 
   const WITHDRAWS_QUERY = `
     query {
-      withdraws(where: { user: "${userAddress}" }) {
+      withdraws(
+        where: { user: "${userAddress}" }
+        orderBy: timestamp
+        orderDirection: desc
+      ) {
         amount
         timestamp
         transactionHash
@@ -71,7 +131,11 @@ export default function ProductDetail() {
 
   const CLAIMS_QUERY = `
     query {
-      claims(where: { user: "${userAddress}" }) {
+      claims(
+        where: { user: "${userAddress}" }
+        orderBy: timestamp
+        orderDirection: desc
+      ) {
         amountClaimed
         timestamp
         transactionHash
@@ -105,7 +169,7 @@ export default function ProductDetail() {
           date: parseInt(tx.timestamp, 10),
           type: 'Deposit',
           tokenSymbol: product.asset,
-          amount: tx.amount,
+          amount: formatAmount(Number(formatUnits(tx.amount, product.investingTokenDecimals)), 6),
           hash: tx.transactionHash,
         }))
       } else if (activeTab === 'withdraw' && subgraphData.withdraws) {
@@ -113,7 +177,7 @@ export default function ProductDetail() {
           date: parseInt(tx.timestamp, 10),
           type: 'Withdraw',
           tokenSymbol: product.asset,
-          amount: tx.amount,
+          amount: formatAmount(Number(formatUnits(tx.amount, product.investingTokenDecimals)), 6),
           hash: tx.transactionHash,
         }))
       } else if (activeTab === 'claim' && subgraphData.claims) {
@@ -121,7 +185,7 @@ export default function ProductDetail() {
           date: parseInt(tx.timestamp, 10),
           type: 'Claim',
           tokenSymbol: product.asset,
-          amount: tx.amountClaimed,
+          amount: formatAmount(Number(formatUnits(tx.amountClaimed, product.investingTokenDecimals)), 6),
           hash: tx.transactionHash,
         }))
       }
@@ -129,7 +193,7 @@ export default function ProductDetail() {
     } else {
       setTransactions([])
     }
-  }, [subgraphData, activeTab, product.asset, account, chainId])
+  }, [subgraphData, activeTab, product.asset, product.investingTokenDecimals, account, chainId])
 
   // Handle case when product is not found
   if (!product) {
@@ -146,11 +210,9 @@ export default function ProductDetail() {
 
   // Mock balance data
   const vaultTokenBalance = '2,889.764278'
-  const exchangeRate = '1.03832404'
   const claimableAmount = '1,038.324045'
   const platformFee = '2.595810' // 0.25% fee
   const serviceFee = '0.000000'
-  const actualClaimableAmount = '1,035.728235' // Claimable minus fees
 
   const handleDeposit = () => {
     setLoading(true)
@@ -221,8 +283,9 @@ export default function ProductDetail() {
 
   // Calculate the converted USDC amount from vault tokens
   const getUsdcEquivalent = (vaultAmount: string) => {
-    if (!vaultAmount || isNaN(parseFloat(vaultAmount))) return '0'
-    return (parseFloat(vaultAmount) * parseFloat(exchangeRate)).toFixed(6)
+    const currentExchangeRate = openTradeExchangeRate || '0' // Use fetched rate, fallback to '0'
+    if (!vaultAmount || isNaN(parseFloat(vaultAmount)) || isNaN(parseFloat(currentExchangeRate))) return '0'
+    return (parseFloat(vaultAmount) * parseFloat(currentExchangeRate)).toFixed(6)
   }
 
   return (
@@ -292,6 +355,7 @@ export default function ProductDetail() {
             network={product.network}
             investingTokenAddress={product.investingTokenAddress} // USDC on Polygon
             vaultAddress={product.address} // Vault contract address
+            exchangeRate={openTradeExchangeRate}
           />
         )}
 
@@ -305,10 +369,9 @@ export default function ProductDetail() {
             setTermsAccepted={setTermsAccepted}
             handlePreviewWithdraw={handlePreviewWithdraw}
             handleBackFromWithdrawPreview={handleBackFromWithdrawPreview}
-            handleWithdraw={handleWithdraw}
-            vaultTokenBalance={vaultTokenBalance}
-            exchangeRate={exchangeRate}
+            exchangeRate={openTradeExchangeRate || '0'}
             getUsdcEquivalent={getUsdcEquivalent}
+            vaultAddress={product.address}
           />
         )}
 
@@ -320,11 +383,12 @@ export default function ProductDetail() {
             setTermsAccepted={setTermsAccepted}
             handlePreviewClaim={handlePreviewClaim}
             handleBackFromClaimPreview={handleBackFromClaimPreview}
-            handleClaim={handleClaim}
             claimableAmount={claimableAmount}
             platformFee={platformFee}
             serviceFee={serviceFee}
-            actualClaimableAmount={actualClaimableAmount}
+            vaultAddress={product.address}
+            investingTokenAddress={product.investingTokenAddress}
+            investingTokenSymbol={product.asset}
           />
         )}
       </FormContainer>
@@ -360,16 +424,25 @@ export default function ProductDetail() {
                 <Cell>{tx.amount}</Cell>
                 <Cell>
                   <HashDisplay>
-                    {tx.hash.substring(0, 6)}...{tx.hash.substring(tx.hash.length - 4)}
-                    <CopyIcon onClick={() => navigator.clipboard.writeText(tx.hash)}>
-                      <img src="/images/icons/copy.svg" alt="Copy" />
-                    </CopyIcon>
+                    <a 
+                      href={getExplorerLink(chainId, tx.hash, ExplorerDataType.TRANSACTION)} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {tx.hash.substring(0, 6)}...{tx.hash.substring(tx.hash.length - 4)}
+                    </a>
                   </HashDisplay>
                 </Cell>
               </TransactionRow>
             ))
           ) : (
-            <NoTransactionsRow columns={5}>No transactions found for this type.</NoTransactionsRow>
+            <NoTransactionsRow columns={5}>
+              No {activeTab} transactions found yet.
+              {activeTab === 'deposit' && " Make your first deposit to get started!"}
+              {activeTab === 'withdraw' && " You haven't made any withdrawal requests yet."}
+              {activeTab === 'claim' && " You don't have any claims to show yet."}
+            </NoTransactionsRow>
           )}
         </TransactionsTable>
 
@@ -722,8 +795,17 @@ const TransactionRow = styled.div<{ columns?: number }>`
 const NoTransactionsRow = styled(TransactionRow)`
   grid-column: span ${({ columns }) => columns || 4};
   text-align: center;
-  color: #7e829b;
-  padding: 32px 0;
+  color: #7E829B;
+  padding: 48px 0;
+  font-size: 16px;
+  background: #F8F9FF;
+  border-radius: 8px;
+  margin: 16px 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 `
 
 const Cell = styled.div`

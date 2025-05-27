@@ -11,30 +11,40 @@ export interface EarnProduct {
   network?: string // blockchain network: 'ethereum', 'polygon', etc.
   address?: string // contract address of the vault
   investingTokenAddress?: string // address of the token being invested
+  investingTokenSymbol?: string // symbol of the token being invested
+  opentradeVaultAddress?: string // address of the opentrade vault
+  investingTokenDecimals?: number
+  chainId: number
 }
 
 // Base product data without environment-specific values
-const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress'>[] = [
+const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'opentradeVaultAddress'>[] = [
   {
     id: 'treasury-bill',
-    name: 'U.S. Treasury Backed Yield',
+    name: 'Flexible TERM USDC Vault',
     asset: 'USDC',
     apy: 3.9,
     tvl: 5000000,
-    description: 'Flexible Term USDC Vault',
+    description: 'US Treasuries, USD Money Market Funds',
     iconUrl: null,
     underlyingAsset: 'U.S. Treasury Bill',
     network: 'ethereum',
+    investingTokenSymbol: 'USDC',
+    investingTokenDecimals: 6,
+    chainId: 11155111,
   },
   {
     id: 'stablecoin-yield',
-    name: 'Stablecoin Yield',
+    name: 'High Yield Corporate Bond Vault',
     asset: 'USDT',
     apy: 4.2,
     tvl: 2800000,
-    description: 'Earn yield on stablecoin deposits',
+    description: 'BlackRock High Yield Corporate Bond ETF',
     iconUrl: null,
     network: 'polygon',
+    investingTokenSymbol: 'USDC',
+    investingTokenDecimals: 6,
+    chainId: 137,
   },
 ]
 
@@ -54,19 +64,32 @@ const addresses: Record<string, Record<string, string>> = {
   },
 }
 
-// Environment-specific investing token addresses
+// Environment-specific investing token addresses organized by token symbol
 const investingTokenAddresses: Record<string, Record<string, string>> = {
   development: {
-    'treasury-bill': '0xfd4f11a2aae86165050688c85ec9ed6210c427a9',
-    'stablecoin-yield': '0xDevUSDT12345678901234567890123456789012345',
+    'USDC': '0xfd4f11a2aae86165050688c85ec9ed6210c427a9',
   },
   staging: {
-    'treasury-bill': '0xStgUSDC12345678901234567890123456789012345',
-    'stablecoin-yield': '0xStgUSDT12345678901234567890123456789012345',
+    'USDC': '0xStgUSDC12345678901234567890123456789012345',
   },
   production: {
-    'treasury-bill': '0xProdUSDC12345678901234567890123456789012345',
-    'stablecoin-yield': '0xProdUSDT12345678901234567890123456789012345',
+    'USDC': '0xProdUSDC12345678901234567890123456789012345',
+  },
+}
+
+// Environment-specific opentrade vault addresses
+const opentradeVaultAddresses: Record<string, Record<string, string>> = {
+  development: {
+    'treasury-bill': '0xb76Ce5dDfF947eA5f0fE7B587bF53925d09266bd',
+    'stablecoin-yield': '0xDevOTVSY00000000000000000000000000000000000',
+  },
+  staging: {
+    'treasury-bill': '0xStgOTVTB00000000000000000000000000000000000',
+    'stablecoin-yield': '0xStgOTVSY00000000000000000000000000000000000',
+  },
+  production: {
+    'treasury-bill': '0xProdOTVTB0000000000000000000000000000000000',
+    'stablecoin-yield': '0xProdOTVSY0000000000000000000000000000000000',
   },
 }
 
@@ -78,7 +101,9 @@ const products: EarnProduct[] = baseProducts.map((product) => ({
   ...product,
   address: addresses[currentEnv][product.id] || '0x0000000000000000000000000000000000000000',
   investingTokenAddress:
-    investingTokenAddresses[currentEnv][product.id] || '0x0000000000000000000000000000000000000000',
+    investingTokenAddresses[currentEnv][product.investingTokenSymbol || ''] || '0x0000000000000000000000000000000000000000',
+  opentradeVaultAddress:
+    opentradeVaultAddresses[currentEnv][product.id] || '0x0000000000000000000000000000000000000000',
 }))
 
 export { products }

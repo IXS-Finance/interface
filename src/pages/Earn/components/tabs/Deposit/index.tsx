@@ -43,6 +43,7 @@ import { ethers, BigNumber } from 'ethers';
 import VaultABI from '../../../abis/Vault.json';
 import { earn } from 'services/apiUrls';
 import apiService from 'services/apiService';
+import { formatAmount } from 'utils/formatCurrencyAmount';
 
 interface EarnV2SignatureData {
   v: number;
@@ -63,6 +64,7 @@ interface DepositTabProps {
   network?: string;
   vaultAddress?: string;
   investingTokenAddress?: string;
+  exchangeRate?: string;
 }
 
 export const DepositTab: React.FC<DepositTabProps> = ({
@@ -78,6 +80,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   network,
   vaultAddress,
   investingTokenAddress,
+  exchangeRate
 }) => {
   const { address } = useAccount();
   
@@ -325,11 +328,12 @@ export const DepositTab: React.FC<DepositTabProps> = ({
           </FormSectionTitle>
           
           <InputContainer>
-            <InputRow>
+            <InputRow style={{ minHeight: '60px' }}>
               <AmountInput
-                placeholder="10,500.00"
+                placeholder="0"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
+                style={{ fontSize: '24px' }}
               />
               <CurrencySelector>
                 <CurrencyIcon>
@@ -338,7 +342,6 @@ export const DepositTab: React.FC<DepositTabProps> = ({
                 <CurrencyText>USDC</CurrencyText>
               </CurrencySelector>
             </InputRow>
-            <ConversionText>~$10,449.32</ConversionText>
           </InputContainer>
           
           <BalanceRow>
@@ -354,7 +357,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
           <ActionRow>
             <ExchangeRateInfo>
               <ExchangeRateLabel>Exchange Rate</ExchangeRateLabel>
-              <ExchangeRateValue>$3.87</ExchangeRateValue>
+              <ExchangeRateValue>{exchangeRate}</ExchangeRateValue>
             </ExchangeRateInfo>
             
             {isCheckingWhitelist ? (
@@ -365,6 +368,13 @@ export const DepositTab: React.FC<DepositTabProps> = ({
               <StyledButtonPrimary 
                 onClick={handlePreviewDeposit} 
                 disabled={!amount || loading}
+                style={{ 
+                  flex: '1',
+                  padding: '12px 24px',
+                  borderRadius: '12px',
+                  backgroundColor: '#6C5DD3',
+                  marginLeft: '20px'
+                }}
               >
                 {loading ? <Trans>Processing...</Trans> : <Trans>Preview Deposit</Trans>}
               </StyledButtonPrimary>
@@ -418,15 +428,28 @@ export const DepositTab: React.FC<DepositTabProps> = ({
             <SummaryTable>
               <SummaryRow>
                 <SummaryLabel>Deposit Amount</SummaryLabel>
-                <SummaryValue>USDC {parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 6, maximumFractionDigits: 6 })}</SummaryValue>
+                <SummaryValue>USDC {formatAmount(parseFloat(amount), 6)}</SummaryValue>
               </SummaryRow>
               <SummaryRow>
                 <SummaryLabel>Exchange Rate</SummaryLabel>
-                <SummaryValue>1.03832404</SummaryValue>
+                <SummaryValue>{exchangeRate ? formatAmount(parseFloat(exchangeRate), 6) : 'N/A'}</SummaryValue>
               </SummaryRow>
               <SummaryRow>
                 <SummaryLabel>Estimated Vault Tokens Received</SummaryLabel>
-                <SummaryValue>VT {(parseFloat(amount) / 1.03832404).toLocaleString('en-US', { minimumFractionDigits: 6, maximumFractionDigits: 6 })}</SummaryValue>
+                <SummaryValue>
+                  VT{' '}
+                  {(() => {
+                    const numericAmount = parseFloat(amount);
+                    const numericExchangeRate = exchangeRate ? parseFloat(exchangeRate) : 0;
+                    if (
+                      !isNaN(numericAmount) &&
+                      numericExchangeRate > 0
+                    ) {
+                      return formatAmount(numericAmount / numericExchangeRate, 3);
+                    }
+                    return formatAmount(0, 3); // Or 'N/A' if preferred
+                  })()}
+                </SummaryValue>
               </SummaryRow>
             </SummaryTable>
           </PreviewSection>
@@ -438,7 +461,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
               onChange={() => setTermsAccepted(!termsAccepted)}
             />
             <TermsText>
-              I agree to the <TermsLink>InvestaX Earn Terms and Conditions</TermsLink>.
+              I agree to the <TermsLink>IXS Earn Terms and Conditions</TermsLink>.
             </TermsText>
           </TermsContainer>
           
@@ -449,7 +472,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
             {isApprovalNeeded ? (
               <StyledButtonPrimary 
                 onClick={handleApproval}
-                disabled={isApproving || loading}
+                disabled={!termsAccepted || isApproving || loading}
               >
                 {isApproving ? <Trans>Approving...</Trans> : <Trans>Approve USDC</Trans>}
               </StyledButtonPrimary>
