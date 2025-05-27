@@ -26,6 +26,15 @@ const DepositedStakedLiquidity = () => {
     earnedEmissionsByGauge,
     claim,
   } = useLiquidityPool()
+  const userActivePools = pools?.filter((pool) => {
+    const gaugeAddress = gaugeFor(pool.address)?.address
+    const hasStaked = gaugeAddress && userGaugeBalanceByGauge?.[gaugeAddress] > 0
+    const hasLpBalance = userLpBalanceByPool?.[pool.address] > 0
+    const hasEarnedTradingFees =
+      gaugeAddress && earnedTradingFeesByGauge?.[gaugeAddress]?.some?.((tradingFee: bigint) => tradingFee > 0)
+    const hasEmissions = gaugeAddress && earnedEmissionsByGauge?.[gaugeAddress] > 0
+    return hasStaked || hasLpBalance || hasEarnedTradingFees || hasEmissions
+  })
   const { injectSpenders, injectTokens, refetchAllowances } = useTokens()
   const lpTokenAddresses = pools?.map((data) => data.address)
   const gaugeAddresses = gauges?.map((gauge) => gauge.address)
@@ -65,35 +74,25 @@ const DepositedStakedLiquidity = () => {
         {isPoolsLoading ? (
           <LoadingBlock style={{ height: '132px' }} />
         ) : (
-          (!pools || pools?.length === 0) && <EmptyList />
+          (!userActivePools || userActivePools?.length === 0) && <EmptyList />
         )}
-        {pools
-          ?.filter((pool) => {
-            const gaugeAddress = gaugeFor(pool.address)?.address
-            const hasStaked = gaugeAddress && userGaugeBalanceByGauge?.[gaugeAddress] > 0
-            const hasLpBalance = userLpBalanceByPool?.[pool.address] > 0
-            const hasEarnedTradingFees =
-              gaugeAddress && earnedTradingFeesByGauge?.[gaugeAddress]?.some?.((tradingFee: bigint) => tradingFee > 0)
-            const hasEmissions = gaugeAddress && earnedEmissionsByGauge?.[gaugeAddress] > 0
-            return hasStaked || hasLpBalance || hasEarnedTradingFees || hasEmissions
-          })
-          .map((data, index) => {
-            const gaugeAddress = gaugeFor(data.address)?.address
-            return (
-              <DepositedStakedLiquidityRow
-                data={data}
-                gaugeAddress={gaugeAddress}
-                userLpBalance={userLpBalanceByPool?.[data.address]}
-                userGaugeBalance={gaugeAddress && userGaugeBalanceByGauge?.[gaugeAddress]}
-                lpSupply={lpSupplyByPool?.[data.address]}
-                key={data.id}
-                rowIndex={index}
-                earnedTradingFees={gaugeAddress && earnedTradingFeesByGauge?.[gaugeAddress]}
-                earnedEmissions={gaugeAddress && earnedEmissionsByGauge?.[gaugeAddress]}
-                claim={claim}
-              />
-            )
-          })}
+        {userActivePools?.map((data, index) => {
+          const gaugeAddress = gaugeFor(data.address)?.address
+          return (
+            <DepositedStakedLiquidityRow
+              data={data}
+              gaugeAddress={gaugeAddress}
+              userLpBalance={userLpBalanceByPool?.[data.address]}
+              userGaugeBalance={gaugeAddress && userGaugeBalanceByGauge?.[gaugeAddress]}
+              lpSupply={lpSupplyByPool?.[data.address]}
+              key={data.id}
+              rowIndex={index}
+              earnedTradingFees={gaugeAddress && earnedTradingFeesByGauge?.[gaugeAddress]}
+              earnedEmissions={gaugeAddress && earnedEmissionsByGauge?.[gaugeAddress]}
+              claim={claim}
+            />
+          )
+        })}
       </Stack>
     </Box>
   )
