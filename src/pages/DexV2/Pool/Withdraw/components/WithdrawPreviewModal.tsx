@@ -36,6 +36,7 @@ const WithdrawPreviewModal: React.FC<WithdrawPreviewModalProps> = ({ pool, onClo
     isSingleAssetExit,
     hasBpt,
     setBptIn,
+    setInitialPropAmountsOut,
   } = useExitPool(pool)
 
   // Local state for whether the withdrawal is confirmed.
@@ -61,50 +62,45 @@ const WithdrawPreviewModal: React.FC<WithdrawPreviewModalProps> = ({ pool, onClo
     amountsOutMap[item.address] = item.value
   })
 
-  // Close handler: if no BPT, navigate to the pool page; else call onClose callback.
   const handleClose = () => {
     if (!hasBpt) {
       history.push(`/pool/${pool.id}?networkSlug=${networkSlug}`)
     } else {
+      setBptIn('')
+      dispatch(setDataForSingleAmountOut({ key: 'value', value: '' }))
+      setInitialPropAmountsOut()
       onClose()
     }
   }
 
   const onSuccess = () => {
     setWithdrawalConfirmed(true)
-    if (showTokensIn) {
-      setBptIn('')
-    } else {
-      dispatch(setDataForSingleAmountOut({ key: 'value', value: '' }))
-    }
   }
 
   return (
-    <Modal onClose={onClose}>
+    <Modal onClose={handleClose}>
       <Title>{title}</Title>
 
-      {!withdrawalConfirmed ? (
-        <>
-          {showTokensIn && (
-            <TokenAmounts
-              title="You’re providing"
-              amountMap={amountInMap}
-              tokenMap={tokenInMap}
-              fiatAmountMap={fiatAmountInMap}
-              fiatTotal={fiatValueIn}
-            />
-          )}
+      <>
+        {showTokensIn && (
           <TokenAmounts
-            title="You’re expected to receive"
-            className="mt-4"
-            amountMap={amountsOutMap}
-            tokenMap={tokenOutMap}
-            fiatAmountMap={fiatAmountsOut}
-            fiatTotal={fiatTotalOut}
+            title="You’re providing"
+            amountMap={amountInMap}
+            tokenMap={tokenInMap}
+            fiatAmountMap={fiatAmountInMap}
+            fiatTotal={fiatValueIn}
           />
-          <WithdrawSummary fiatTotal={fiatTotalOut} priceImpact={priceImpact} className="mt-4" />
-        </>
-      ) : null}
+        )}
+        <TokenAmounts
+          title="You’re expected to receive"
+          className="mt-4"
+          amountMap={amountsOutMap}
+          tokenMap={tokenOutMap}
+          fiatAmountMap={fiatAmountsOut}
+          fiatTotal={fiatTotalOut}
+        />
+        <WithdrawSummary fiatTotal={fiatTotalOut} priceImpact={priceImpact} className="mt-4" />
+      </>
 
       <div className="mt-4">
         <WithdrawActions pool={pool} onError={handleClose} onSuccess={onSuccess} />
