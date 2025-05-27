@@ -24,8 +24,6 @@ export interface BalAlertProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode
 }
 
-/* Styled Components */
-
 interface AlertWrapperProps {
   bgColor: string
   borderColor: string
@@ -133,6 +131,7 @@ const ActionButton = styled.button`
   color: blue;
   font-size: 0.75rem;
   cursor: pointer;
+  text-transform: capitalize;
 `
 
 const DismissButtonWrapper = styled.div`
