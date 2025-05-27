@@ -58,6 +58,11 @@ const CardBody = ({
   const [stakeAction, setStakeAction] = useState<StakeAction | null>(null)
   const tokens = data.tokens
   const history = useHistory()
+  const emissionAmount = formatAmount(
+    +formatUnits(earnedEmissions || BigInt(0), IXS[chainId]?.decimals),
+    MAX_FRACTION_DIGITS
+  )
+
   const getStakedAmount = useCallback(
     (token: PoolToken): Big => {
       if (!userGaugeBalance || !lpSupply || lpSupply.toString() === '0') {
@@ -149,13 +154,12 @@ const CardBody = ({
               <CardItem
                 title="Emissions"
                 secondTitle="APR"
-                emissionsAmount={formatAmount(
-                  +formatUnits(earnedEmissions || BigInt(0), IXS[chainId]?.decimals),
-                  MAX_FRACTION_DIGITS
-                )}
+                emissionsAmount={emissionAmount}
                 emissionsSymbol="IXS"
                 emissionApr={emissionApr}
-                showClaimEmissionsBtn={!!gaugeAddress}
+                showClaimEmissionsBtn={
+                  !!gaugeAddress && (!!earnedEmissions || !!earnedTradingFees?.some((fee) => fee > 0))
+                }
                 handleClaimEmissionsAction={handleClaimEmissions}
               />
             </Grid>
