@@ -267,6 +267,7 @@ const SwapCard: React.FC = () => {
           size="sm"
           title={error.header}
           description={error.body}
+          actionLabel={error.label}
           block
           onActionClick={handleErrorButtonClick}
         />
