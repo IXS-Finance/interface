@@ -177,6 +177,14 @@ export const HeaderLinks = () => {
         </StyledNavLink>
       ),
     },
+    {
+      condition: true,
+      component: (
+        <StyledNavLink key="earn" id="earn-nav-link" to={routes.earn} data-testid="earn-nav-link">
+          <Trans>Earn</Trans> <NewBadge>New</NewBadge>
+        </StyledNavLink>
+      ),
+    },
   ]
 
   return (
@@ -347,4 +355,24 @@ const PopOverContent = styled.div`
   flex-direction: column;
   align-items: flex-start;
   padding: 15px 22px;
+`
+
+export const NewBadge = styled.div`
+  border-radius: 4px;
+  border: 1px solid #66f;
+  background: #66f;
+  width: 33px;
+  height: 18px;
+  flex-shrink: 0;
+  color: #fff;
+  font-family: Inter;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 5px;
 `

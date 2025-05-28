@@ -1,10 +1,10 @@
+import React from 'react'
 import styled from 'styled-components/macro'
-import { Trans } from '@lingui/macro'
 import { useHistory } from 'react-router-dom'
 
 import { routes } from 'utils/routes'
 import { EarnProductCard } from './components/EarnProductCard'
-import { products } from './products' // Import products from products.ts file
+import { products } from './products'
 
 export default function Earn() {
   const history = useHistory()
@@ -15,117 +15,79 @@ export default function Earn() {
 
   return (
     <PageWrapper>
-      <EarnHeader>
-        <Text fontSize={32} fontWeight={600}>
-          Earn
-        </Text>
-      </EarnHeader>
+      <Title>
+        Institutional-Grade Yield <br /> Solutions Backed <br /> by Real-World Assets
+      </Title>
 
-      {/* Banner Placeholder */}
-      <BannerPlaceholder>
-        <Flex justifyContent="center" alignItems="center" width="100%">
-          <Text fontSize={24} fontWeight={500} color="#666666">
-            Featured instituional-grade yield opportunities
-          </Text>
-        </Flex>
-      </BannerPlaceholder>
+      <SubTitle>
+        IXS offers regulated, secure, and scalable stablecoin yield strategies tailored for institutional investors and
+        fintech platforms. Our yield products are underpinned by real-world assets and designed to meet the risk,
+        return, and compliance expectations of the next generation of financial infrastructure.
+      </SubTitle>
 
-      {/* All Products */}
       {products.length > 0 && (
-        <>
-          <Text fontSize={24} fontWeight={600} mt={5} mb={4}>
-            <Trans>All earning opportunities</Trans>
-          </Text>
-
-          <ProductsGrid>
-            {products.map((product) => (
-              <EarnProductCard key={product.id} product={product} onClick={() => handleViewProduct(product.id)} />
-            ))}
-          </ProductsGrid>
-        </>
+        <ProductsGrid>
+          {products.map((product) => (
+            <EarnProductCard key={product.id} product={product} onClick={() => handleViewProduct(product.id)} />
+          ))}
+        </ProductsGrid>
       )}
     </PageWrapper>
   )
 }
 
-// Styled Components
-const EarnHeader = styled.div`
-  margin-bottom: 32px;
+const Title = styled.div`
+  color: #292933;
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 120%;
+  letter-spacing: -1.6px;
+
+  @media (min-width: 768px) {
+    line-height: 110%;
+    letter-spacing: -2.56px;
+    margin-top: 16px;
+    font-size: 64px;
+  }
 `
 
-const BannerPlaceholder = styled.div`
-  background: ${({ theme }) => theme.bg2};
-  border: 2px dashed ${({ theme }) => theme.text3};
-  border-radius: 20px;
-  padding: 80px 32px;
-  margin-bottom: 32px;
-  width: 100%;
-  min-height: 240px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+const SubTitle = styled.div`
+  max-width: 600px;
+  font-family: Inter;
+  font-size: 14px;
+  color: #8f8fb2;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%;
+  letter-spacing: -0.28px;
+  margin-top: 24px;
 
-  @media (max-width: 768px) {
-    padding: 60px 24px;
-    min-height: 180px;
+  @media (min-width: 768px) {
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: -0.32px;
+    margin-top: 32px;
   }
 `
 
 const ProductsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: 1fr;
   gap: 24px;
   margin-bottom: 40px;
+  margin-top: 40px;
+
+  @media (min-width: 768px) {
+    margin-top: 48px;
+    grid-template-columns: 1fr 1fr;
+  }
 `
 
-// This would typically come from a shared components module
 const PageWrapper = styled.div`
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 32px 24px;
+  padding: 32px 16px;
 `
-
-const Text = styled.div<{
-  fontSize?: number | number[]
-  fontWeight?: number
-  color?: string
-  mb?: number
-  mt?: number
-}>`
-  font-size: ${({ fontSize }) =>
-    typeof fontSize === 'number' ? `${fontSize}px` : fontSize ? `${fontSize[0]}px` : '16px'};
-  font-weight: ${({ fontWeight }) => fontWeight || 400};
-  color: ${({ color, theme }) => (color ? color : theme.text1)};
-  margin-bottom: ${({ mb }) => (mb ? `${mb * 8}px` : 0)};
-  margin-top: ${({ mt }) => (mt ? `${mt * 8}px` : 0)};
-`
-
-const Flex = styled.div<{
-  flexDirection?: string | string[]
-  justifyContent?: string
-  alignItems?: string
-  width?: string
-  mb?: number
-  mt?: number
-  flexWrap?: string
-}>`
-  display: flex;
-  flex-direction: ${({ flexDirection }) => (Array.isArray(flexDirection) ? flexDirection[0] : flexDirection || 'row')};
-  justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
-  align-items: ${({ alignItems }) => alignItems || 'stretch'};
-  width: ${({ width }) => width || 'auto'};
-  margin-bottom: ${({ mb }) => (mb ? `${mb * 8}px` : 0)};
-  margin-top: ${({ mt }) => (mt ? `${mt * 8}px` : 0)};
-  flex-wrap: ${({ flexWrap }) => flexWrap || 'nowrap'};
-
-  @media (min-width: 768px) {
-    flex-direction: ${({ flexDirection }) =>
-      Array.isArray(flexDirection) && flexDirection.length > 1
-        ? flexDirection[1]
-        : Array.isArray(flexDirection)
-        ? flexDirection[0]
-        : flexDirection || 'row'};
-  }
-`
-
