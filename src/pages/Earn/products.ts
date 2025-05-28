@@ -31,18 +31,18 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
     investingTokenDecimals: 6,
     chainId: 11155111,
   },
-  // {
-  //   id: 'stablecoin-yield',
-  //   name: 'High Yield Corporate Bond Vault',
-  //   apy: 4.2,
-  //   tvl: 2800000,
-  //   description: 'BlackRock High Yield Corporate Bond ETF',
-  //   iconUrl: null,
-  //   network: 'polygon',
-  //   investingTokenSymbol: 'USDC',
-  //   investingTokenDecimals: 6,
-  //   chainId: 137,
-  // },
+  {
+    id: 'stablecoin-yield',
+    name: 'High Yield Corporate Bond Vault',
+    apy: 4.2,
+    tvl: 2800000,
+    description: 'BlackRock High Yield Corporate Bond ETF',
+    iconUrl: null,
+    network: 'avalanche',
+    investingTokenSymbol: 'USDC',
+    investingTokenDecimals: 6,
+    chainId: 43113,
+  },
 ]
 
 // Environment-specific addresses

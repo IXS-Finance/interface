@@ -3,23 +3,25 @@ import { useParams, useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 import { Trans } from '@lingui/macro'
 import { format } from 'date-fns'
-
-import { useActiveWeb3React } from 'hooks/web3'
-import { products } from './products' // Import the Treasury.png image
-import TreasuryImg from './images/Treasury.png'
-import { useSubgraphQuery } from 'hooks/useSubgraphQuery'
-import { formatAmount } from 'utils/formatCurrencyAmount'
-import USDCIcon from '../../assets/images/usdcNew.svg'
 import { useReadContract } from 'wagmi'
 import { formatUnits } from 'viem'
-import OpenTradeABI from './abis/OpenTrade.json' // Make sure this path is correct
-import {} from './components/tabs/SharedStyles' // All shared styles are now used within tab components
-// Import Tab Components
+import Portal from '@reach/portal'
+
+import { useActiveWeb3React } from 'hooks/web3'
+import { EarnProduct, products } from './products'
+import { useSubgraphQuery } from 'hooks/useSubgraphQuery'
+import { formatAmount } from 'utils/formatCurrencyAmount'
 import { DepositTab } from './components/tabs/Deposit'
 import { WithdrawRequestTab } from './components/tabs/WithdrawRequest'
 import { ClaimTab } from './components/tabs/Claim'
 import { ExplorerDataType, getExplorerLink } from 'utils/getExplorerLink'
+import { checkWrongChain } from 'utils/chains'
+import { CenteredFixed } from 'components/LaunchpadMisc/styled'
+import { NetworkNotAvailable } from 'components/Launchpad/NetworkNotAvailable'
 
+import OpenTradeABI from './abis/OpenTrade.json'
+import TreasuryImg from './images/Treasury.png'
+import USDCIcon from '../../assets/images/usdcNew.svg'
 interface Transaction {
   date: number
   type: string
@@ -43,7 +45,10 @@ export default function ProductDetail() {
   const [showWithdrawPreview, setShowWithdrawPreview] = useState(false)
   const [showClaimPreview, setShowClaimPreview] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
-  const product = products.find((p) => p.id === id)
+  const product = products.find((p) => p.id === id) as EarnProduct
+
+  const network = product.network ?? ''
+  const { isWrongChain, expectChain } = checkWrongChain(chainId, network)
 
   const {
     data: rawRate, // This will be the raw data from the contract (likely a BigInt)
@@ -227,6 +232,14 @@ export default function ProductDetail() {
 
   return (
     <PageWrapper>
+      {account && chainId && isWrongChain ? (
+        <Portal>
+          <CenteredFixed width="100vw" height="100vh">
+            <NetworkNotAvailable expectChainId={expectChain} />
+          </CenteredFixed>
+        </Portal>
+      ) : null}
+
       {/* Header section with product title and description */}
       <HeroSection>
         <ContentWrapper>

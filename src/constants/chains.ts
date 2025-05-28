@@ -21,8 +21,8 @@ export enum SupportedChainId {
   REDBELLY = 151,
   REDBELLY_TESNET = 153,
   SEPOLIA = 11155111,
-  AVALANCE = 43114,
-  AVALANCE_FUJI = 43113,
+  AVALANCHE = 43114,
+  AVALANCHE_FUJI = 43113,
 }
 
 export const NETWORK_LOGOS: { [chainName: string]: string } = {
@@ -92,7 +92,7 @@ export const getChainFromName = (name: string, isTestnet = false): SupportedChai
     kaia: isTestnet ? SupportedChainId.KAIROS_TESTNET : SupportedChainId.KAIA,
     ozean: isTestnet ? SupportedChainId.OZEAN_TESTNET : SupportedChainId.OZEAN_TESTNET,
     redBelly: isTestnet ? SupportedChainId.REDBELLY_TESNET : SupportedChainId.REDBELLY,
-    avalanche: isTestnet ? SupportedChainId.AVALANCE_FUJI : SupportedChainId.AVALANCE,
+    avalanche: isTestnet ? SupportedChainId.AVALANCHE_FUJI : SupportedChainId.AVALANCHE,
     etherenum: isTestnet ? SupportedChainId.SEPOLIA : SupportedChainId.MAINNET,
   } as any
 
@@ -240,7 +240,7 @@ export const CHAIN_INFO: ChainInfoMap = {
     rpcUrls: ['https://sepolia.drpc.org'],
     blockExplorerUrls: ['https://sepolia.etherscan.io/'],
   },
-  [SupportedChainId.AVALANCE]: {
+  [SupportedChainId.AVALANCHE]: {
     chainName: 'Avalanche',
     nativeCurrency: {
       name: 'AVAX',
@@ -251,7 +251,7 @@ export const CHAIN_INFO: ChainInfoMap = {
     rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
     blockExplorerUrls: ['https://snowtrace.io/'],
   },
-  [SupportedChainId.AVALANCE_FUJI]: {
+  [SupportedChainId.AVALANCHE_FUJI]: {
     chainName: 'Avalanche Fuji',
     nativeCurrency: {
       name: 'AVAX',
