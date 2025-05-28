@@ -28,6 +28,7 @@ interface PoolState {
   approvalActions: TransactionActionInfo[]
   actionStates: TransactionActionState[]
   pools: Pool[] | null
+  tokensSelectedFilters: any[]
 }
 
 const initialState: PoolState = {
@@ -49,6 +50,7 @@ const initialState: PoolState = {
   approvalActions: [],
   actionStates: [],
   pools: null,
+  tokensSelectedFilters: [],
 }
 
 const poolSlice = createSlice({
@@ -79,10 +81,13 @@ const poolSlice = createSlice({
         ...value,
       }
     },
+    setTokensSelectedFilters(state, action) {
+      state.tokensSelectedFilters = action.payload
+    },
   },
 })
 
-export const { setPoolState, setValueOfAmountIn, setDataForSingleAmountOut, setValueOfActionState, setActionStates } =
+export const { setPoolState, setValueOfAmountIn, setDataForSingleAmountOut, setValueOfActionState, setActionStates, setTokensSelectedFilters } =
   poolSlice.actions
 
 export default poolSlice.reducer
