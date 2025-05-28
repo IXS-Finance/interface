@@ -50,8 +50,6 @@ export default function ProductDetail() {
   const network = product.network ?? ''
   const { isWrongChain, expectChain } = checkWrongChain(chainId, network)
 
-  console.log('Product Detail - Product:', { isWrongChain, expectChain })
-
   const {
     data: rawRate, // This will be the raw data from the contract (likely a BigInt)
     error: fetchRateError, // Error object if the hook fails
