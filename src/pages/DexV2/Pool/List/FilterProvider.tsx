@@ -1,6 +1,6 @@
-import { createContext, PropsWithChildren, useContext, useState } from "react"
-import { PoolTypes } from "./constants"
-import { CHAINS } from "components/Web3Provider/constants"
+import { createContext, PropsWithChildren, useContext, useState } from 'react'
+import { PoolTypes } from './constants'
+import { CHAINS } from 'components/Web3Provider/constants'
 
 export type UsePoolFilterResult = ReturnType<typeof _usePoolFilter>
 export const PoolFilterContext = createContext<UsePoolFilterResult | null>(null)
@@ -24,6 +24,10 @@ export function _usePoolFilter() {
     network: CHAINS[0].id,
   })
 
+  const [tokensSelectedFilters, setTokensSelectedFilters] = useState<string[]>([])
+  const [isMyPosition, setIsMyPosition] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
   const [order, setOrder] = useState<OrderConfig>({})
 
   const [page, setPage] = useState(0)
@@ -35,12 +39,16 @@ export function _usePoolFilter() {
     setOrder,
     page,
     setPage,
+    tokensSelectedFilters,
+    setTokensSelectedFilters,
+    isMyPosition,
+    setIsMyPosition,
+    searchQuery,
+    setSearchQuery,
   }
 }
 
-export function FilterProvider({
-  children,
-}: PropsWithChildren) {
+export function FilterProvider({ children }: PropsWithChildren) {
   const value = _usePoolFilter()
   return <PoolFilterContext.Provider value={value}>{children}</PoolFilterContext.Provider>
 }
