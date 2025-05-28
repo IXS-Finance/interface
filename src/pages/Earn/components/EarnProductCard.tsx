@@ -1,4 +1,3 @@
-import React from 'react'
 import styled from 'styled-components/macro'
 import { Trans } from '@lingui/macro'
 import { ButtonPrimary } from 'components/Button'
@@ -265,4 +264,3 @@ const NetworkIcon = styled.div`
     margin-left: -6px;
   }
 `
-

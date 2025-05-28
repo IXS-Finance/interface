@@ -9,16 +9,11 @@ import { products } from './products' // Import the Treasury.png image
 import TreasuryImg from './images/Treasury.png'
 import { useSubgraphQuery } from 'hooks/useSubgraphQuery'
 import { formatAmount } from 'utils/formatCurrencyAmount'
-// Token icon
 import USDCIcon from '../../assets/images/usdcNew.svg'
-
-// Added imports for wagmi and ethers
 import { useReadContract } from 'wagmi'
 import { formatUnits } from 'viem'
 import OpenTradeABI from './abis/OpenTrade.json' // Make sure this path is correct
-
 import {} from './components/tabs/SharedStyles' // All shared styles are now used within tab components
-
 // Import Tab Components
 import { DepositTab } from './components/tabs/Deposit'
 import { WithdrawRequestTab } from './components/tabs/WithdrawRequest'
