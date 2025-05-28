@@ -29,7 +29,7 @@ export const chainIdToNetworkName = (chainId: number): string => {
 }
 
 export const Chains = {
-  [NetworkName.MAINNET]: [SupportedChainId.MAINNET, SupportedChainId.SEPOLIA],
+  [NetworkName.MAINNET]: [SupportedChainId.SEPOLIA, SupportedChainId.MAINNET],
   [NetworkName.BASE]: [SupportedChainId.BASE_SEPOLIA, SupportedChainId.BASE],
   [NetworkName.POLYGON]: [SupportedChainId.AMOY, SupportedChainId.MATIC],
   [NetworkName.OZEAN]: [SupportedChainId.OZEAN_TESTNET],
