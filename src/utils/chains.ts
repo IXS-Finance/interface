@@ -35,7 +35,7 @@ export const Chains = {
   [NetworkName.OZEAN]: [SupportedChainId.OZEAN_TESTNET],
   [NetworkName.KAIA]: [SupportedChainId.KAIROS_TESTNET, SupportedChainId.KAIA],
   [NetworkName.REDBELLY]: [SupportedChainId.REDBELLY_TESNET, SupportedChainId.REDBELLY],
-  [NetworkName.AVALANCHE]: [SupportedChainId.AVALANCE, SupportedChainId.AVALANCE_FUJI],
+  [NetworkName.AVALANCHE]: [SupportedChainId.AVALANCE_FUJI, SupportedChainId.AVALANCE],
 }
 
 export const findChainName = (chainId: number): string | null => {
