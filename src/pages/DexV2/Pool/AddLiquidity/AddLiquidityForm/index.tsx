@@ -30,6 +30,7 @@ interface AddLiquidityFormProps {
 }
 
 const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
+  const [rulesByAddress, setRulesByAddress] = useState<any>({})
   const {
     highPriceImpactAccepted,
     txInProgress,
@@ -68,8 +69,12 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
 
   const forceProportionalInputs: boolean = !!managedPoolWithSwappingHalted
   const poolHasLowLiquidity: boolean = bnum(pool.totalLiquidity).lt(LOW_LIQUIDITY_THRESHOLD)
-
-  // Create an array of refs for the TokenInputs
+  const isOptimizeFailed =
+    autoOptimise &&
+    amountsIn.some((item: any) => {
+      const rules = rulesByAddress[item.address]
+      return Array.isArray(rules) && rules.length > 0
+    })
 
   // Initialize token inputs based on join type
   function initializeTokensForm(isSingle: boolean) {
@@ -94,6 +99,13 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
 
       if (amountsIn.every((item) => Number(item.value) > 0)) {
         setAmountsIn(amountsIn)
+        setRulesByAddress({
+          [address]: undefined,
+        })
+      } else {
+        setRulesByAddress({
+          [address]: [() => 'Cannot optimize. Please reduce this amount.'],
+        })
       }
 
       if (value === '') {
@@ -152,6 +164,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
                 noRules={!account}
                 fixedToken
                 autoFocus={index === typingIndex}
+                rules={amountIn.value && rulesByAddress[amountIn.address] ? rulesByAddress[amountIn.address] : null}
                 updateAmount={(value: string) => {
                   setAmount(index, value, amountIn.address)
                 }}
@@ -195,7 +208,7 @@ const AddLiquidityForm: React.FC<AddLiquidityFormProps> = ({ pool }) => {
         {!account ? (
           <ButtonPrimary onClick={startConnectWithInjectedProvider}>Connect Wallet</ButtonPrimary>
         ) : (
-          <ButtonPrimary disabled={!!disabled} onClick={() => setShowPreview(true)}>
+          <ButtonPrimary disabled={!!disabled || isOptimizeFailed} onClick={() => setShowPreview(true)}>
             Preview
           </ButtonPrimary>
         )}
