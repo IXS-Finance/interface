@@ -2,11 +2,9 @@ import React from 'react'
 import styled, { useTheme } from 'styled-components'
 
 import { ErrorText } from 'components/LaunchpadMisc/styled'
-import { ChevronDown } from 'react-feather'
 import { FormFieldWrapper, OptionalLabel } from '../styled'
 import { text19, text30 } from 'components/LaunchpadMisc/typography'
 import { ReactComponent as Check } from '../../../../../assets/images/dropdownIcon.svg'
-
 
 interface Option<T> {
   value: T
@@ -39,18 +37,17 @@ interface Props<T> {
 
 export function DropdownField<T>(props: Props<T>) {
   const { placeholder = 'Select' } = props
-  const theme = useTheme()
   const disabled = props.disabled || !props.options || props.options.length === 0
   const container = React.useRef<HTMLDivElement>(null)
 
   const [selectedValue, setSelectedValue] = React.useState<Option<T> | undefined>(
-    props.options.find((x) => x.value === props.value)
+    props.options?.find((x) => x.value === props.value)
   )
   const [showDropdown, setShowDropdown] = React.useState(false)
   const [searchActive, setSearchActive] = React.useState(false)
 
   const [optionSearch, setOptionSearch] = React.useState<string>(
-    props.options.find((x) => x.value === props.value)?.label || ''
+    props.options?.find((x) => x.value === props.value)?.label || ''
   )
 
   const options = React.useMemo(() => {
@@ -192,7 +189,7 @@ export function DropdownField<T>(props: Props<T>) {
         )}
 
         <FieldIcon isOpen={showDropdown}>
-          <Check  />
+          <Check />
         </FieldIcon>
       </FieldContainer>
 
