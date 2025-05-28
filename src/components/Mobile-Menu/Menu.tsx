@@ -10,7 +10,7 @@ import { ExternalLink } from 'theme'
 import { routes } from 'utils/routes'
 import { isUserWhitelisted } from 'utils/isUserWhitelisted'
 import { ReactComponent as CloseIcon } from '../../assets/images/newCross.svg'
-import { disabledStyle } from 'components/Header/HeaderLinks'
+import { disabledStyle, NewBadge } from 'components/Header/HeaderLinks'
 import { useWhitelabelState } from 'state/whitelabel/hooks'
 import { useKyc, useRole } from 'state/user/hooks'
 import { Line } from 'components/Line'
@@ -188,6 +188,14 @@ export const Menu = ({ close, isAdminMenu }: Props) => {
             </>
           )}
 
+          <>
+            <MenuListItem id={`earn-nav-link`} to={routes.earn} onClick={close}>
+              <Trans>Earn</Trans> <NewBadge>New</NewBadge>
+            </MenuListItem>
+
+            <Line />
+          </>
+
           {/* {chainId && chains.includes(chainId) && isWhitelisted && (
             <ExternalListItem
               disabled={!isApproved}
@@ -340,7 +348,11 @@ export const Menu = ({ close, isAdminMenu }: Props) => {
             Terms & Conditions
           </a>
 
-          <a href={config?.privacyPolicyUrl || 'https://www.ixs.finance/privacy-policy/'} target="_blank" rel="noreferrer">
+          <a
+            href={config?.privacyPolicyUrl || 'https://www.ixs.finance/privacy-policy/'}
+            target="_blank"
+            rel="noreferrer"
+          >
             Privacy Policy
           </a>
         </div>

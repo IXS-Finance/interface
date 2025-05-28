@@ -14,6 +14,7 @@ export interface EarnProduct {
   opentradeVaultAddress?: string // address of the opentrade vault
   investingTokenDecimals?: number
   chainId: number
+  bgUrl: string // background image URL for the product
 }
 
 // Base product data without environment-specific values
@@ -30,18 +31,21 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
     investingTokenSymbol: 'USDC',
     investingTokenDecimals: 6,
     chainId: 11155111,
+    bgUrl: '/images/earn/bg-tby.svg',
   },
   {
     id: 'stablecoin-yield',
-    name: 'High Yield Corporate Bond Vault',
-    apy: 4.2,
+    name: 'High Yield Corporate Bond',
+    apy: 7,
     tvl: 2800000,
     description: 'BlackRock High Yield Corporate Bond ETF',
     iconUrl: null,
+    underlyingAsset: 'BlackRock High Yield Corporate Bond ETF',
     network: 'avalanche',
     investingTokenSymbol: 'USDC',
     investingTokenDecimals: 6,
     chainId: 43113,
+    bgUrl: '/images/earn/bg-hycb.svg'
   },
 ]
 
