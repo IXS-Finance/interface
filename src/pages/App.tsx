@@ -303,7 +303,6 @@ const BodyWrapper = styled.div<{ hideHeader?: boolean }>`
   display: flex;
   flex-direction: column;
   width: 100%;
-  ${(props) => !props.hideHeader && 'margin-top: 120px;'}
   align-items: center;
   flex: 1;
   z-index: 1;

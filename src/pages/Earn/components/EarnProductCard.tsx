@@ -159,6 +159,7 @@ const InvestButton = styled.button`
   letter-spacing: -0.28px;
   border: none;
   padding: 16px 42px;
+  cursor: pointer;
 
   &:hover {
     background: #55e;

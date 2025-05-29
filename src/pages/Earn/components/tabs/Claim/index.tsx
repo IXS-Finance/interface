@@ -33,16 +33,17 @@ import ERC20ABI from 'abis/erc20.json' // Add ERC20 ABI import
 import { formatAmount } from 'utils/formatCurrencyAmount' // Assuming alias or correct path
 import { useMemo } from 'react'
 import styled from 'styled-components'
+import { Flex } from 'rebass'
 
 // Add styled component for info badge
 const InfoBadge = styled.div`
-  background-color: #E3F2FD;
-  color: #1976D2;
+  background-color: #e3f2fd;
+  color: #1976d2;
   padding: 12px 16px;
   border-radius: 8px;
   margin-bottom: 1rem;
   font-size: 14px;
-  border: 1px solid #BBDEFB;
+  border: 1px solid #bbdefb;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -269,12 +270,14 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
             </InfoBadge>
           )}
 
-          <StyledButtonPrimary
-            onClick={handlePreviewClaim}
-            disabled={isAnyLoading || isFetchedClaimableAmountZero || !isClaimingPossible || loading}
-          >
-            {loading ? <Trans>Processing...</Trans> : <Trans>Preview Claim</Trans>}
-          </StyledButtonPrimary>
+          <Flex justifyContent="flex-end" alignItems="center" mt={3}>
+            <StyledButtonPrimary
+              onClick={handlePreviewClaim}
+              disabled={isAnyLoading || isFetchedClaimableAmountZero || !isClaimingPossible || loading}
+            >
+              {loading ? <Trans>Processing...</Trans> : <Trans>Preview Claim</Trans>}
+            </StyledButtonPrimary>
+          </Flex>
         </FormContentContainer>
       ) : (
         <PreviewContainer>
@@ -343,4 +346,3 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
     </>
   )
 }
-

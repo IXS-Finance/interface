@@ -22,6 +22,7 @@ import { NetworkNotAvailable } from 'components/Launchpad/NetworkNotAvailable'
 import OpenTradeABI from './abis/OpenTrade.json'
 import TreasuryImg from './images/Treasury.png'
 import USDCIcon from '../../assets/images/usdcNew.svg'
+import { Box } from 'rebass'
 interface Transaction {
   date: number
   type: string
@@ -69,7 +70,7 @@ export default function ProductDetail() {
     if (rawRate) {
       try {
         // Assuming rawRate is BigInt and the exchange rate has 18 decimals
-        return formatAmount(Number(formatUnits(rawRate as bigint, 18) || 0), 3)
+        return formatAmount(Number(formatUnits(rawRate as bigint, 18) || 0), 4)
       } catch (e) {
         console.error('Error formatting exchange rate:', e)
         return // Handle potential formatting errors
@@ -232,184 +233,203 @@ export default function ProductDetail() {
 
   return (
     <PageWrapper>
-      {account && chainId && isWrongChain ? (
-        <Portal>
-          <CenteredFixed width="100vw" height="100vh">
-            <NetworkNotAvailable expectChainId={expectChain} />
-          </CenteredFixed>
-        </Portal>
-      ) : null}
+      <div
+        style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+        }}
+      >
+        {account && chainId && isWrongChain ? (
+          <Portal>
+            <CenteredFixed width="100vw" height="100vh">
+              <NetworkNotAvailable expectChainId={expectChain} />
+            </CenteredFixed>
+          </Portal>
+        ) : null}
 
-      {/* Header section with product title and description */}
-      <HeroSection>
-        <ContentWrapper>
-          <MainTitle>
-            U.S. Treasury
-            <br />
-            Backed Yield
-          </MainTitle>
+        {/* Header section with product title and description */}
+        <HeroSection>
+          <ContentWrapper>
+            <MainTitle>{product.name}</MainTitle>
 
-          <TokenInfoRow>
-            <TokenIconCircle>
-              <img src={USDCIcon} alt="USDC" />
-            </TokenIconCircle>
-            <FlexibleTermText>Flexible Term USDC Vault</FlexibleTermText>
-            <LearnMoreLink href="#">Learn more</LearnMoreLink>
-          </TokenInfoRow>
-        </ContentWrapper>
-        <TreasuryImage src={TreasuryImg} alt="Treasury illustration" />
-      </HeroSection>
+            <TokenInfoRow>
+              <TokenIconCircle>
+                <img src={USDCIcon} alt="USDC" />
+              </TokenIconCircle>
+              <div>
+                <FlexibleTermText>{product.description}</FlexibleTermText>
+                <div>
+                  <LearnMoreLink href="#">Learn more</LearnMoreLink>
+                </div>
+              </div>
+            </TokenInfoRow>
+          </ContentWrapper>
 
-      {/* Info Cards Section */}
-      <InfoCardsSection>
-        <InfoCard>
-          <InfoCardLabel>Underlying Asset</InfoCardLabel>
-          <InfoCardValue>{product.underlyingAsset}</InfoCardValue>
-        </InfoCard>
+          {product?.iconUrl ? <TreasuryImage src={product?.bgFullUrl} alt="right-icon" /> : null}
+        </HeroSection>
 
-        <InfoCard>
-          <InfoCardLabel>Annual Percentage Rate</InfoCardLabel>
-          <ApySmallText>{product.apy.toFixed(1)}%</ApySmallText>
-          <ApyBigText>{product.apy.toFixed(3)}%</ApyBigText>
-          <ApySubLabel>Annual Percentage Rate</ApySubLabel>
-        </InfoCard>
-      </InfoCardsSection>
+        {/* Info Cards Section */}
+        <InfoCardsSection>
+          <InfoCard>
+            <div>
+              <InfoCardValue>{product.underlyingAsset}</InfoCardValue>
+              <InfoCardLabel>Underlying Asset</InfoCardLabel>
+            </div>
 
-      <FormContainer>
-        <TabsContainer>
-          <TabButton active={activeTab === 'deposit'} onClick={() => handleTabChange('deposit')}>
-            <Trans>Deposit</Trans>
-          </TabButton>
-          <TabButton active={activeTab === 'withdraw'} onClick={() => handleTabChange('withdraw')}>
-            <Trans>Withdraw Request</Trans>
-          </TabButton>
-          <TabButton active={activeTab === 'claim'} onClick={() => handleTabChange('claim')}>
-            <Trans>Claim</Trans>
-          </TabButton>
-        </TabsContainer>
+            {product.iconUrl ? (
+              <div>
+                <img src={product.iconUrl} alt={product.underlyingAsset} />
+              </div>
+            ) : null}
+          </InfoCard>
 
-        {activeTab === 'deposit' && (
-          <DepositTab
-            amount={amount}
-            setAmount={setAmount}
-            loading={loading}
-            showPreview={showPreview}
-            termsAccepted={termsAccepted}
-            setTermsAccepted={setTermsAccepted}
-            handlePreviewDeposit={handlePreviewDeposit}
-            handleBackFromPreview={handleBackFromPreview}
-            productAsset={product?.investingTokenSymbol}
-            network={product.network}
-            investingTokenAddress={product.investingTokenAddress} // USDC on Polygon
-            vaultAddress={product.address} // Vault contract address
-            exchangeRate={openTradeExchangeRate}
-            investingTokenDecimals={product.investingTokenDecimals}
-            chainId={chainId}
-          />
-        )}
+          <InfoCard>
+            <InfoCardLabel>Annual Percentage Rate</InfoCardLabel>
+            <ApyBigText>
+              {product.apy.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+              %
+            </ApyBigText>
+          </InfoCard>
+        </InfoCardsSection>
 
-        {activeTab === 'withdraw' && (
-          <WithdrawRequestTab
-            withdrawAmount={withdrawAmount}
-            setWithdrawAmount={setWithdrawAmount}
-            loading={loading}
-            showWithdrawPreview={showWithdrawPreview}
-            termsAccepted={termsAccepted}
-            setTermsAccepted={setTermsAccepted}
-            handlePreviewWithdraw={handlePreviewWithdraw}
-            handleBackFromWithdrawPreview={handleBackFromWithdrawPreview}
-            exchangeRate={openTradeExchangeRate || '0'}
-            getUsdcEquivalent={getUsdcEquivalent}
-            vaultAddress={product.address}
-          />
-        )}
+        <FormContainer>
+          <Box css={{ borderBottom: '1px solid #e8e8e8' }}>
+            <TabsContainer>
+              <TabButton active={activeTab === 'deposit'} onClick={() => handleTabChange('deposit')}>
+                <Trans>Deposit</Trans>
+              </TabButton>
+              <TabButton active={activeTab === 'withdraw'} onClick={() => handleTabChange('withdraw')}>
+                <Trans>Withdraw</Trans>
+              </TabButton>
+              <TabButton active={activeTab === 'claim'} onClick={() => handleTabChange('claim')}>
+                <Trans>Claim</Trans>
+              </TabButton>
+            </TabsContainer>
+          </Box>
 
-        {activeTab === 'claim' && (
-          <ClaimTab
-            loading={loading}
-            showClaimPreview={showClaimPreview}
-            termsAccepted={termsAccepted}
-            setTermsAccepted={setTermsAccepted}
-            handlePreviewClaim={handlePreviewClaim}
-            handleBackFromClaimPreview={handleBackFromClaimPreview}
-            vaultAddress={product.address}
-            investingTokenAddress={product.investingTokenAddress}
-            investingTokenSymbol={product.asset}
-          />
-        )}
-      </FormContainer>
-
-      {/* Transactions Section */}
-      <TransactionsSection>
-        <SectionTitle>
-          <Trans>Transactions</Trans> ({activeTab})
-        </SectionTitle>
-
-        <TransactionsTable>
-          <TableHeader columns={5}>
-            <HeaderCell>Date</HeaderCell>
-            <HeaderCell>Type</HeaderCell>
-            <HeaderCell>Token Symbol</HeaderCell>
-            <HeaderCell>Amount</HeaderCell>
-            <HeaderCell>Transaction Hash</HeaderCell>
-          </TableHeader>
-
-          {transactions.length > 0 ? (
-            transactions.map((tx: Transaction, index: number) => (
-              <TransactionRow key={index} columns={5}>
-                <Cell>{format(new Date(tx.date * 1000), 'dd MMM yyyy HH:mm')}</Cell>
-                <Cell>{tx.type}</Cell>
-                <Cell>
-                  <CurrencyDisplay>
-                    <SmallCurrencyIcon>
-                      <img src={USDCIcon} alt={tx.tokenSymbol} />
-                    </SmallCurrencyIcon>
-                    {tx.tokenSymbol}
-                  </CurrencyDisplay>
-                </Cell>
-                <Cell>{tx.amount}</Cell>
-                <Cell>
-                  <HashDisplay>
-                    <a
-                      href={getExplorerLink(chainId, tx.hash, ExplorerDataType.TRANSACTION)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                      {tx.hash.substring(0, 6)}...{tx.hash.substring(tx.hash.length - 4)}
-                    </a>
-                  </HashDisplay>
-                </Cell>
-              </TransactionRow>
-            ))
-          ) : (
-            <NoTransactionsRow columns={5}>
-              No {activeTab} transactions found yet.
-              {activeTab === 'deposit' && ' Make your first deposit to get started!'}
-              {activeTab === 'withdraw' && " You haven't made any withdrawal requests yet."}
-              {activeTab === 'claim' && " You don't have any claims to show yet."}
-            </NoTransactionsRow>
+          {activeTab === 'deposit' && (
+            <DepositTab
+              amount={amount}
+              setAmount={setAmount}
+              loading={loading}
+              showPreview={showPreview}
+              termsAccepted={termsAccepted}
+              setTermsAccepted={setTermsAccepted}
+              handlePreviewDeposit={handlePreviewDeposit}
+              handleBackFromPreview={handleBackFromPreview}
+              productAsset={product?.investingTokenSymbol}
+              network={product.network}
+              investingTokenAddress={product.investingTokenAddress} // USDC on Polygon
+              vaultAddress={product.address} // Vault contract address
+              exchangeRate={openTradeExchangeRate}
+              investingTokenDecimals={product.investingTokenDecimals}
+              chainId={chainId}
+            />
           )}
-        </TransactionsTable>
 
-        <Pagination>
-          <PageInfo>1-5 of 45</PageInfo>
-          <PageControls>
-            <PageButton disabled>&lt;</PageButton>
-            <PageButton>&gt;</PageButton>
-          </PageControls>
-        </Pagination>
-      </TransactionsSection>
+          {activeTab === 'withdraw' && (
+            <WithdrawRequestTab
+              withdrawAmount={withdrawAmount}
+              setWithdrawAmount={setWithdrawAmount}
+              loading={loading}
+              showWithdrawPreview={showWithdrawPreview}
+              termsAccepted={termsAccepted}
+              setTermsAccepted={setTermsAccepted}
+              handlePreviewWithdraw={handlePreviewWithdraw}
+              handleBackFromWithdrawPreview={handleBackFromWithdrawPreview}
+              exchangeRate={openTradeExchangeRate || '0'}
+              getUsdcEquivalent={getUsdcEquivalent}
+              vaultAddress={product.address}
+            />
+          )}
+
+          {activeTab === 'claim' && (
+            <ClaimTab
+              loading={loading}
+              showClaimPreview={showClaimPreview}
+              termsAccepted={termsAccepted}
+              setTermsAccepted={setTermsAccepted}
+              handlePreviewClaim={handlePreviewClaim}
+              handleBackFromClaimPreview={handleBackFromClaimPreview}
+              vaultAddress={product.address}
+              investingTokenAddress={product.investingTokenAddress}
+              investingTokenSymbol={product.asset}
+            />
+          )}
+        </FormContainer>
+      </div>
+
+      <TransactionWrapper>
+        <TransactionsSection>
+          <SectionTitle>
+            <Trans>Transactions</Trans>
+          </SectionTitle>
+
+          <TransactionsTable>
+            <TableHeader columns={5}>
+              <HeaderCell>Date</HeaderCell>
+              <HeaderCell>Type</HeaderCell>
+              <HeaderCell>Token Symbol</HeaderCell>
+              <HeaderCell>Amount</HeaderCell>
+              <HeaderCell>Transaction Hash</HeaderCell>
+            </TableHeader>
+
+            {transactions.length > 0 ? (
+              transactions.map((tx: Transaction, index: number) => (
+                <TransactionRow key={index} columns={5}>
+                  <Cell>{format(new Date(tx.date * 1000), 'dd MMM yyyy HH:mm')}</Cell>
+                  <Cell>{tx.type}</Cell>
+                  <Cell>
+                    <CurrencyDisplay>
+                      <SmallCurrencyIcon>
+                        <img src={USDCIcon} alt={tx.tokenSymbol} />
+                      </SmallCurrencyIcon>
+                      {tx.tokenSymbol}
+                    </CurrencyDisplay>
+                  </Cell>
+                  <Cell>{tx.amount}</Cell>
+                  <Cell>
+                    <HashDisplay>
+                      <a
+                        href={getExplorerLink(chainId, tx.hash, ExplorerDataType.TRANSACTION)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: 'none', color: 'inherit' }}
+                      >
+                        {tx.hash.substring(0, 6)}...{tx.hash.substring(tx.hash.length - 4)}
+                      </a>
+                    </HashDisplay>
+                  </Cell>
+                </TransactionRow>
+              ))
+            ) : (
+              <NoTransactionsRow columns={5}>
+                No {activeTab} transactions found yet.
+                {activeTab === 'deposit' && ' Make your first deposit to get started!'}
+                {activeTab === 'withdraw' && " You haven't made any withdrawal requests yet."}
+                {activeTab === 'claim' && " You don't have any claims to show yet."}
+              </NoTransactionsRow>
+            )}
+          </TransactionsTable>
+
+          <Pagination>
+            <PageInfo>1-5 of 45</PageInfo>
+            <PageControls>
+              <PageButton disabled>&lt;</PageButton>
+              <PageButton>&gt;</PageButton>
+            </PageControls>
+          </Pagination>
+        </TransactionsSection>
+      </TransactionWrapper>
     </PageWrapper>
   )
 }
 
-// Custom page wrapper to avoid dependency on components/Page
 const PageWrapper = styled.div`
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px 24px;
 `
 
 // Custom Text component to replace rebass Text
@@ -430,30 +450,11 @@ const Text = styled.div<{
   margin-top: ${({ mt }) => (mt ? `${mt}px` : 0)};
 `
 
-// Custom Flex component to replace rebass Flex
-const Flex = styled.div<{
-  justifyContent?: string
-  alignItems?: string
-  mb?: number
-  gap?: number
-  mt?: number
-}>`
-  display: flex;
-  justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
-  align-items: ${({ alignItems }) => alignItems || 'stretch'};
-  margin-bottom: ${({ mb }) => (mb ? `${mb}px` : 0)};
-  margin-top: ${({ mt }) => (mt ? `${mt}px` : 0)};
-  gap: ${({ gap }) => (gap ? `${gap}px` : 0)};
-`
 
-// Styled Components - move these before the component
-
-// Hero section with Treasury image
 const HeroSection = styled.div`
   display: flex;
   margin-bottom: 40px;
   align-items: center;
-  background-color: #f8f9ff;
   border-radius: 20px;
   padding: 0;
   overflow: hidden;
@@ -467,27 +468,26 @@ const HeroSection = styled.div`
 `
 
 const ContentWrapper = styled.div`
-  padding: 60px;
   flex: 1;
   z-index: 1;
   width: 50%;
 
   @media (max-width: 768px) {
-    padding: 40px;
     width: 100%;
   }
 `
 
 const MainTitle = styled.h1`
-  font-size: 64px;
   line-height: 1.1;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 32px 0;
   color: #1f1f1f;
   max-width: 480px;
+  font-size: 52px;
 
-  @media (max-width: 768px) {
-    font-size: 52px;
+  @media (min-width: 768px) {
+    font-size: 64px;
+    max-width: 576px;
   }
 `
 
@@ -552,65 +552,37 @@ const TreasuryImage = styled.img`
 // Info cards section
 const InfoCardsSection = styled.div`
   display: flex;
-  margin-bottom: 40px;
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid #e6eaf5;
-  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.03);
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
 
-  @media (max-width: 768px) {
-    flex-direction: column;
+  @media (min-width: 768px) {
+    flex-direction: row;
   }
 `
 
 const InfoCard = styled.div`
-  flex: 1;
-  position: relative;
-  padding: 28px 32px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0px 30px 48px 0px rgba(63, 63, 132, 0.05);
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 180px;
-
-  &:first-child {
-    border-right: 1px solid #e6eaf5;
-  }
+  padding: 40px;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1 0 0;
+  align-self: stretch;
 `
 
 const InfoCardLabel = styled.div`
   font-size: 16px;
   color: #7e829b;
-  margin-bottom: 8px;
 `
 
 const InfoCardValue = styled.div`
   font-size: 32px;
   font-weight: 600;
   color: #1f1f1f;
-`
-
-const AssetIcon = styled.div`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: 32px;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f5f7ff;
-  border-radius: 50%;
-`
-
-const ApySmallText = styled.div`
-  position: absolute;
-  top: 28px;
-  right: 32px;
-  font-size: 16px;
-  font-weight: 500;
-  color: #7e829b;
+  margin-bottom: 8px;
 `
 
 const ApyBigText = styled.div`
@@ -630,28 +602,24 @@ const ApyBigText = styled.div`
   }
 `
 
-const ApySubLabel = styled.div`
-  font-size: 14px;
-  color: #7e829b;
-`
-
 // Forms and other styled components
 const FormContainer = styled.div`
-  border: 1px solid #e8e8e8;
   border-radius: 16px;
-  overflow: hidden;
-  margin-bottom: 48px;
-  background: #ffffff;
+  background: #fff;
+  box-shadow: 0px 30px 48px 0px rgba(63, 63, 132, 0.05);
 `
 
 const TabsContainer = styled.div`
   display: flex;
-  border-bottom: 1px solid #e8e8e8;
+
+  @media (min-width: 768px) {
+    max-width: 420px;
+  }
 `
 
 const TabButton = styled.button<{ active: boolean }>`
   flex: 1;
-  padding: 16px 0;
+  padding: 31px 0;
   font-size: 16px;
   font-weight: 500;
   background: transparent;
@@ -675,37 +643,20 @@ const TabButton = styled.button<{ active: boolean }>`
   }
 `
 
-const TransactionsSection = styled.div`
+const TransactionWrapper = styled.div`
   margin-top: 48px;
-`
+  background: #fff;
+  padding: 24px 0;
 
-const TransactionsFilterRow = styled.div`
-  display: flex;
-  gap: 24px;
-  margin-bottom: 24px;
-`
-
-const FilterField = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-const FilterLabel = styled.label`
-  font-size: 14px;
-  color: #666666;
-  margin-bottom: 8px;
-`
-
-const FilterInput = styled.input`
-  border: 1px solid #e8e8e8;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 14px;
-
-  &:focus {
-    outline: none;
-    border-color: #6c5dd3;
+  @media (min-width: 768px) {
+    margin-top: 80px;
+    padding: 80px 0;
   }
+`
+
+const TransactionsSection = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
 `
 
 const TransactionsTable = styled.div`
@@ -790,8 +741,9 @@ const CopyIcon = styled.button`
 
 const Pagination = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
+  gap: 16px;
 `
 
 const PageInfo = styled.div`
