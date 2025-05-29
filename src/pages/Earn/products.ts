@@ -15,6 +15,7 @@ export interface EarnProduct {
   investingTokenDecimals?: number
   chainId: number
   bgUrl: string // background image URL for the product
+  bgFullUrl: string // full background image URL for the product
 }
 
 // Base product data without environment-specific values
@@ -25,13 +26,14 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
     apy: 3.9,
     tvl: 5000000,
     description: 'US Treasuries, USD Money Market Funds',
-    iconUrl: null,
+    iconUrl: '/images/earn/icon01.svg',
     underlyingAsset: 'U.S. Treasury Bill',
     network: 'ethereum',
     investingTokenSymbol: 'USDC',
     investingTokenDecimals: 6,
     chainId: 11155111,
     bgUrl: '/images/earn/bg-tby.svg',
+    bgFullUrl: '/images/earn/image01.svg',
   },
   {
     id: 'stablecoin-yield',
@@ -39,13 +41,14 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
     apy: 7,
     tvl: 2800000,
     description: 'BlackRock High Yield Corporate Bond ETF',
-    iconUrl: null,
+    iconUrl: '/images/earn/icon02.svg',
     underlyingAsset: 'BlackRock High Yield Corporate Bond ETF',
     network: 'avalanche',
     investingTokenSymbol: 'USDC',
     investingTokenDecimals: 6,
     chainId: 43113,
-    bgUrl: '/images/earn/bg-hycb.svg'
+    bgUrl: '/images/earn/bg-hycb.svg',
+    bgFullUrl: '/images/earn/image02.svg',
   },
 ]
 

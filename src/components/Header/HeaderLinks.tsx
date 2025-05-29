@@ -317,6 +317,8 @@ const StyledNavLink = styled(NavLink).attrs({
 })<{ disabled?: boolean }>`
   ${navLinkStyles};
   ${({ disabled }) => disabled && `${disabledStyle}`};
+  display: flex;
+  align-items: center;
 `
 
 const subMenuLinkStyle = css`
@@ -361,18 +363,18 @@ export const NewBadge = styled.div`
   border-radius: 4px;
   border: 1px solid #66f;
   background: #66f;
-  width: 33px;
-  height: 18px;
+  height: 14px;
   flex-shrink: 0;
   color: #fff;
   font-family: Inter;
-  font-size: 11px;
+  font-size: 8px;
   font-style: normal;
-  font-weight: 600;
+  font-weight: 500;
   line-height: normal;
   letter-spacing: -0.3px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-left: 5px;
+  padding: 0 4px;
 `

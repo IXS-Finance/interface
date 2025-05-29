@@ -32,7 +32,6 @@ import {
   TermsLink,
   ButtonsRow,
   BackButton,
-  CompactButtonPrimary,
   StyledButtonPrimary,
 } from '../SharedStyles'
 
@@ -50,7 +49,8 @@ import erc20Abi from 'abis/erc20.json'
 import { parseUnits } from 'viem'
 import { toast } from 'react-toastify'
 import { SuccessPopup } from './SuccessPopup'
-
+import { Flex } from 'rebass'
+import { formatUnits } from 'viem'
 
 const useWatchTokenApprovalEvent = createUseWatchContractEvent({
   abi: erc20Abi,
@@ -90,7 +90,6 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   setTermsAccepted,
   handlePreviewDeposit,
   handleBackFromPreview,
-  productAsset,
   network,
   vaultAddress,
   investingTokenAddress,
@@ -122,6 +121,8 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     },
   })
 
+  console.log('DepositTab balanceData:', balanceData)
+
   const { data: allowanceData, refetch: refetchAllowance } = useReadContract({
     abi: erc20Abi,
     address: investingTokenAddress as `0x${string}`,
@@ -132,6 +133,25 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     },
   })
 
+  const balanceRaw = useMemo(() => {
+    if (!balanceData?.value) return 0
+
+    try {
+      const formatted = formatUnits(balanceData.value, balanceData.decimals ?? 6)
+      const num = Number(formatted)
+
+      if (isNaN(num)) return 0
+
+      return num
+    } catch {
+      return 0
+    }
+  }, [balanceData?.value, balanceData?.decimals])
+
+  const balanceFormatted = balanceRaw.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
 
   const amountRaw = useMemo(() => {
     try {
@@ -287,11 +307,8 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     // Note: Clearing of depositError is handled on new attempt or success
   }, [depositContractWriteError, depositTxConfirmError, resetDepositContract])
 
-
   const handleMaxClick = () => {
-    if (balanceData) {
-      setAmount(balanceData.formatted)
-    }
+    setAmount(balanceRaw.toString())
   }
 
   const handleApproval = async () => {
@@ -392,86 +409,106 @@ export const DepositTab: React.FC<DepositTabProps> = ({
 
           <InputContainer>
             <InputRow style={{ minHeight: '60px' }}>
-              <AmountInput
-                placeholder="0"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                style={{ fontSize: '24px' }}
-              />
-              <CurrencySelector>
-                <CurrencyIcon>
-                  <img src={USDCIcon} alt="USDC" />
-                </CurrencyIcon>
-                <CurrencyText>USDC</CurrencyText>
-              </CurrencySelector>
+              <AmountInput placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} />
+              <div>
+                <Flex css={{ gap: '8px', alignItems: 'center' }}>
+                  <MaxButton onClick={handleMaxClick}>MAX</MaxButton>
+                  <CurrencySelector>
+                    <CurrencyIcon>
+                      <img src={USDCIcon} alt="USDC" />
+                    </CurrencyIcon>
+                    <CurrencyText>USDC</CurrencyText>
+                  </CurrencySelector>
+                </Flex>
+
+                <BalanceText>
+                  <BalanceAmount>{isBalanceLoading ? 'Loading...' : balanceFormatted}</BalanceAmount>{' '}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M12.6667 13.3334H3.33333C2.59695 13.3334 2 12.7364 2 12V6.00002C2 5.26364 2.59695 4.66669 3.33333 4.66669H12.6667C13.4031 4.66669 14 5.26364 14 6.00002V12C14 12.7364 13.4031 13.3334 12.6667 13.3334Z"
+                      stroke="#B8B8CC"
+                      strokeWidth="1.5"
+                    />
+                    <path
+                      d="M11.0001 9.33335C10.816 9.33335 10.6667 9.18409 10.6667 9.00002C10.6667 8.81595 10.816 8.66669 11.0001 8.66669C11.1841 8.66669 11.3334 8.81595 11.3334 9.00002C11.3334 9.18409 11.1841 9.33335 11.0001 9.33335Z"
+                      fill="#B8B8CC"
+                      stroke="#B8B8CC"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M12 4.66668V3.73549C12 2.85945 11.1696 2.22146 10.3231 2.44718L2.98978 4.40274C2.40611 4.55838 2 5.08698 2 5.69105V6.00001"
+                      stroke="#B8B8CC"
+                      strokeWidth="1.5"
+                    />
+                  </svg>
+                </BalanceText>
+              </div>
             </InputRow>
           </InputContainer>
 
-          <BalanceRow>
-            <ExchangeRateInfo>
-              <ExchangeRateLabel>Exchange Rate</ExchangeRateLabel>
-              <ExchangeRateValue>{exchangeRate}</ExchangeRateValue>
-            </ExchangeRateInfo>
-            <BalanceText>
-              Balance:{' '}
-              <BalanceAmount>{isBalanceLoading ? 'Loading...' : balanceData?.formatted || '0.00'}</BalanceAmount>
-              <MaxButton onClick={handleMaxClick}>MAX</MaxButton>
-            </BalanceText>
-          </BalanceRow>
+          <Flex justifyContent="space-between" alignItems="center" mt="32px">
+            <div>
+              {exchangeRate ? (
+                <ExchangeRateInfo>
+                  <ExchangeRateValue>{exchangeRate}</ExchangeRateValue>
+                  <ExchangeRateLabel>Exchange Rate</ExchangeRateLabel>
+                </ExchangeRateInfo>
+              ) : null}
+            </div>
 
-          {isCheckingWhitelist ? (
-            <StyledButtonPrimary disabled={true}>
-              <Trans>Checking whitelist...</Trans>
-            </StyledButtonPrimary>
-          ) : isWhitelisted ? (
-            <StyledButtonPrimary
-              onClick={handlePreviewDeposit}
-              disabled={!amount || loading}
-            >
-              {loading ? <Trans>Processing...</Trans> : <Trans>Preview Deposit</Trans>}
-            </StyledButtonPrimary>
-          ) : (
-            <>
-              <StyledButtonPrimary
-                onClick={handleGetSignatureAndWhitelist}
-                disabled={
-                  loading ||
-                  isCheckingWhitelist ||
-                  isNonceLoading ||
-                  (userNonce === undefined && !isWhitelisted) ||
-                  isFetchingSignature ||
-                  isWhitelistContractCallPending ||
-                  isConfirmingWhitelistTx
-                }
-              >
-                {(() => {
-                  if (isCheckingWhitelist || isNonceLoading) return <Trans>Loading data...</Trans>
-                  if (userNonce === undefined && !isWhitelisted) return <Trans>Whitelist Unavailable</Trans>
-                  if (isFetchingSignature) return <Trans>Getting Signature...</Trans>
-                  if (isWhitelistContractCallPending) return <Trans>Whitelisting... Check Wallet</Trans>
-                  if (isConfirmingWhitelistTx) return <Trans>Confirming Whitelist...</Trans>
-                  if (whitelistAttemptError) return <Trans>Whitelist Failed. Retry?</Trans>
-                  return <Trans>Get Whitelisted</Trans>
-                })()}
+            {isCheckingWhitelist ? (
+              <StyledButtonPrimary disabled={true}>
+                <Trans>Checking whitelist...</Trans>
               </StyledButtonPrimary>
-              {whitelistAttemptError &&
-                !isConfirmingWhitelistTx &&
-                !isWhitelistContractCallPending &&
-                !isFetchingSignature && (
-                  <div
-                    style={{
-                      color: 'red',
-                      marginTop: '10px',
-                      fontSize: '0.875em',
-                      textAlign: 'center',
-                      width: '100%',
-                    }}
-                  >
-                    {whitelistAttemptError}
-                  </div>
-                )}
-            </>
-          )}
+            ) : isWhitelisted ? (
+              <StyledButtonPrimary onClick={handlePreviewDeposit} disabled={!amount || loading}>
+                {loading ? <Trans>Processing...</Trans> : <Trans>Preview Deposit</Trans>}
+              </StyledButtonPrimary>
+            ) : (
+              <>
+                <StyledButtonPrimary
+                  onClick={handleGetSignatureAndWhitelist}
+                  disabled={
+                    loading ||
+                    isCheckingWhitelist ||
+                    isNonceLoading ||
+                    (userNonce === undefined && !isWhitelisted) ||
+                    isFetchingSignature ||
+                    isWhitelistContractCallPending ||
+                    isConfirmingWhitelistTx
+                  }
+                >
+                  {(() => {
+                    if (isCheckingWhitelist || isNonceLoading) return <Trans>Loading data...</Trans>
+                    if (userNonce === undefined && !isWhitelisted) return <Trans>Whitelist Unavailable</Trans>
+                    if (isFetchingSignature) return <Trans>Getting Signature...</Trans>
+                    if (isWhitelistContractCallPending) return <Trans>Whitelisting... Check Wallet</Trans>
+                    if (isConfirmingWhitelistTx) return <Trans>Confirming Whitelist...</Trans>
+                    if (whitelistAttemptError) return <Trans>Whitelist Failed. Retry?</Trans>
+                    return <Trans>Get Whitelisted</Trans>
+                  })()}
+                </StyledButtonPrimary>
+                {whitelistAttemptError &&
+                  !isConfirmingWhitelistTx &&
+                  !isWhitelistContractCallPending &&
+                  !isFetchingSignature && (
+                    <div
+                      style={{
+                        color: 'red',
+                        marginTop: '10px',
+                        fontSize: '0.875em',
+                        textAlign: 'center',
+                        width: '100%',
+                      }}
+                    >
+                      {whitelistAttemptError}
+                    </div>
+                  )}
+              </>
+            )}
+          </Flex>
         </FormContentContainer>
       ) : (
         <PreviewContainer>
@@ -548,14 +585,8 @@ export const DepositTab: React.FC<DepositTabProps> = ({
           </ButtonsRow>
         </PreviewContainer>
       )}
-      
-      {showSuccessPopup && (
-        <SuccessPopup
-          onClose={handleClosePopup}
-          txHash={depositTxHash}
-          chainId={chainId}
-        />
-      )}
+
+      {showSuccessPopup && <SuccessPopup onClose={handleClosePopup} txHash={depositTxHash} chainId={chainId} />}
     </>
   )
 }

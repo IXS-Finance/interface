@@ -1,5 +1,5 @@
-import React from 'react';
-import { Trans } from '@lingui/macro';
+import React from 'react'
+import { Trans } from '@lingui/macro'
 import {
   FormContentContainer,
   FormSectionTitle,
@@ -33,31 +33,32 @@ import {
   StyledButtonPrimary,
   VaultBalanceInfo,
   WithdrawInfoRow,
-} from '../SharedStyles';
-import USDCIcon from 'assets/images/usdcNew.svg'; // Assuming this might be needed or can be removed if not
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { ethers, BigNumber } from 'ethers';
-import VaultABI from '../../../abis/Vault.json';
-import { formatAmount } from 'utils/formatCurrencyAmount'; // For consistent formatting
-import { useEffect, useMemo, useState } from 'react';
-import { SuccessPopup } from './SuccessPopup';
+} from '../SharedStyles'
+import USDCIcon from 'assets/images/usdcNew.svg' // Assuming this might be needed or can be removed if not
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { ethers, BigNumber } from 'ethers'
+import VaultABI from '../../../abis/Vault.json'
+import { formatAmount } from 'utils/formatCurrencyAmount' // For consistent formatting
+import { useEffect, useMemo, useState } from 'react'
+import { SuccessPopup } from './SuccessPopup'
+import { Flex } from 'rebass'
 
 interface WithdrawRequestTabProps {
-  withdrawAmount: string;
-  setWithdrawAmount: (amount: string) => void;
-  loading: boolean; // Prop from parent, potentially for preview step or global loading
-  showWithdrawPreview: boolean;
-  termsAccepted: boolean;
-  setTermsAccepted: (accepted: boolean) => void;
-  handlePreviewWithdraw: () => void;
-  handleBackFromWithdrawPreview: () => void;
-  exchangeRate: string;
-  getUsdcEquivalent: (vaultAmount: string) => string;
-  network?: string;
-  vaultAddress?: string;
+  withdrawAmount: string
+  setWithdrawAmount: (amount: string) => void
+  loading: boolean // Prop from parent, potentially for preview step or global loading
+  showWithdrawPreview: boolean
+  termsAccepted: boolean
+  setTermsAccepted: (accepted: boolean) => void
+  handlePreviewWithdraw: () => void
+  handleBackFromWithdrawPreview: () => void
+  exchangeRate: string
+  getUsdcEquivalent: (vaultAmount: string) => string
+  network?: string
+  vaultAddress?: string
 }
 
-const VAULT_TOKEN_DECIMALS = 6; // Assumption: Vault tokens have 6 decimals
+const VAULT_TOKEN_DECIMALS = 6 // Assumption: Vault tokens have 6 decimals
 
 export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
   withdrawAmount,
@@ -73,11 +74,15 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
   network,
   vaultAddress,
 }) => {
-  const { address } = useAccount();
-  const [withdrawError, setWithdrawError] = useState<string | null>(null);
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const { address } = useAccount()
+  const [withdrawError, setWithdrawError] = useState<string | null>(null)
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
 
-  const { data: rawVaultTokenBalance, isLoading: isBalanceLoading, refetch: refetchVaultTokenBalance } = useReadContract({
+  const {
+    data: rawVaultTokenBalance,
+    isLoading: isBalanceLoading,
+    refetch: refetchVaultTokenBalance,
+  } = useReadContract({
     abi: VaultABI.abi,
     address: vaultAddress as `0x${string}` | undefined,
     functionName: 'userVaultTokenBalances',
@@ -85,25 +90,25 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
     query: {
       enabled: !!vaultAddress && !!address,
     },
-  });
+  })
 
-  console.log('rawVaultTokenBalance', rawVaultTokenBalance);
+  console.log('rawVaultTokenBalance', rawVaultTokenBalance)
 
   const formattedVaultTokenBalance = useMemo(() => {
     if (rawVaultTokenBalance) {
-      return ethers.utils.formatUnits(rawVaultTokenBalance as BigNumber, VAULT_TOKEN_DECIMALS);
+      return ethers.utils.formatUnits(rawVaultTokenBalance as BigNumber, VAULT_TOKEN_DECIMALS)
     }
-    return '0.00';
-  }, [rawVaultTokenBalance]);
+    return '0.00'
+  }, [rawVaultTokenBalance])
 
   const withdrawAmountInSmallestUnit = useMemo(() => {
     try {
-      return withdrawAmount ? ethers.utils.parseUnits(withdrawAmount, VAULT_TOKEN_DECIMALS) : BigNumber.from(0);
+      return withdrawAmount ? ethers.utils.parseUnits(withdrawAmount, VAULT_TOKEN_DECIMALS) : BigNumber.from(0)
     } catch (e) {
       // Handle invalid input format if necessary
-      return BigNumber.from(0);
+      return BigNumber.from(0)
     }
-  }, [withdrawAmount]);
+  }, [withdrawAmount])
 
   const {
     data: withdrawTxHash,
@@ -111,7 +116,7 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
     isPending: isSubmittingWithdraw,
     error: withdrawContractWriteError,
     reset: resetWithdrawContract,
-  } = useWriteContract();
+  } = useWriteContract()
 
   const {
     isLoading: isConfirmingWithdrawTx,
@@ -122,49 +127,49 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
     query: {
       enabled: !!withdrawTxHash,
     },
-  });
+  })
 
-  const isWithdrawProcessing = isSubmittingWithdraw || isConfirmingWithdrawTx;
+  const isWithdrawProcessing = isSubmittingWithdraw || isConfirmingWithdrawTx
 
   useEffect(() => {
     if (isWithdrawTxConfirmed) {
-      setWithdrawError(null);
-      refetchVaultTokenBalance?.();
-      setWithdrawAmount('');
-      resetWithdrawContract();
-      setShowSuccessPopup(true);
+      setWithdrawError(null)
+      refetchVaultTokenBalance?.()
+      setWithdrawAmount('')
+      resetWithdrawContract()
+      setShowSuccessPopup(true)
     }
-  }, [isWithdrawTxConfirmed, refetchVaultTokenBalance, setWithdrawAmount, resetWithdrawContract]);
+  }, [isWithdrawTxConfirmed, refetchVaultTokenBalance, setWithdrawAmount, resetWithdrawContract])
 
   useEffect(() => {
-    let message: string | null = null;
+    let message: string | null = null
     if (withdrawContractWriteError) {
-      message = withdrawContractWriteError.message || "Failed to send withdrawal transaction.";
-      console.error('Withdraw contract write error:', withdrawContractWriteError);
-      resetWithdrawContract();
+      message = withdrawContractWriteError.message || 'Failed to send withdrawal transaction.'
+      console.error('Withdraw contract write error:', withdrawContractWriteError)
+      resetWithdrawContract()
     } else if (withdrawTxConfirmError) {
-      message = withdrawTxConfirmError.message || "Withdrawal transaction failed to confirm.";
-      console.error('Withdraw transaction confirm error:', withdrawTxConfirmError);
-      resetWithdrawContract();
+      message = withdrawTxConfirmError.message || 'Withdrawal transaction failed to confirm.'
+      console.error('Withdraw transaction confirm error:', withdrawTxConfirmError)
+      resetWithdrawContract()
     }
     if (message) {
-      setWithdrawError(message);
+      setWithdrawError(message)
     }
-  }, [withdrawContractWriteError, withdrawTxConfirmError, resetWithdrawContract]);
+  }, [withdrawContractWriteError, withdrawTxConfirmError, resetWithdrawContract])
 
   const handleActualWithdraw = async () => {
     if (!vaultAddress || withdrawAmountInSmallestUnit.isZero()) {
-      const errorMsg = "Vault address or amount is invalid for withdrawal.";
-      setWithdrawError(errorMsg);
-      console.error(errorMsg, { vaultAddress, amount: withdrawAmount });
-      return;
+      const errorMsg = 'Vault address or amount is invalid for withdrawal.'
+      setWithdrawError(errorMsg)
+      console.error(errorMsg, { vaultAddress, amount: withdrawAmount })
+      return
     }
     if (!termsAccepted) {
-      setWithdrawError("Please accept the terms and conditions.");
-      return;
+      setWithdrawError('Please accept the terms and conditions.')
+      return
     }
 
-    setWithdrawError(null); // Clear previous errors
+    setWithdrawError(null) // Clear previous errors
 
     try {
       await withdrawContractAsync({
@@ -172,18 +177,19 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
         address: vaultAddress as `0x${string}`,
         functionName: 'withdrawalRequest',
         args: [withdrawAmountInSmallestUnit],
-      });
+      })
     } catch (error: any) {
-      console.error('Error initiating withdrawal transaction:', error);
-      const message = error.shortMessage || error.message || "An unexpected error occurred during withdrawal initiation.";
-      setWithdrawError(message);
+      console.error('Error initiating withdrawal transaction:', error)
+      const message =
+        error.shortMessage || error.message || 'An unexpected error occurred during withdrawal initiation.'
+      setWithdrawError(message)
     }
-  };
+  }
 
   const handleClosePopup = () => {
-    setShowSuccessPopup(false);
-    handleBackFromWithdrawPreview();
-  };
+    setShowSuccessPopup(false)
+    handleBackFromWithdrawPreview()
+  }
 
   return (
     <>
@@ -192,49 +198,81 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
           <FormSectionTitle>
             <Trans>Withdrawal Amount</Trans>
           </FormSectionTitle>
-          
+
           <InputContainer>
             <InputRow>
               <AmountInput
-                placeholder="100"
+                placeholder="0.00"
                 value={withdrawAmount}
                 onChange={(e) => {
-                  setWithdrawAmount(e.target.value);
-                  setWithdrawError(null); // Clear error on input change
+                  setWithdrawAmount(e.target.value)
+                  setWithdrawError(null) // Clear error on input change
                 }}
               />
-              <CurrencySelector>
-                <CurrencyText>Vault Tokens</CurrencyText>
-              </CurrencySelector>
+
+              <div>
+                <Flex css={{ gap: '8px', alignItems: 'center' }}>
+                  <MaxButton
+                    onClick={() => {
+                      setWithdrawAmount(formattedVaultTokenBalance)
+                      setWithdrawError(null)
+                    }}
+                  >
+                    MAX
+                  </MaxButton>
+                  <CurrencySelector>
+                    <CurrencyText>Vault Tokens</CurrencyText>
+                  </CurrencySelector>
+                </Flex>
+
+                <BalanceText>
+                  <BalanceAmount>
+                    {isBalanceLoading
+                      ? 'Loading...'
+                      : formatAmount(parseFloat(formattedVaultTokenBalance), VAULT_TOKEN_DECIMALS)}
+                  </BalanceAmount>{' '}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M12.6667 13.3334H3.33333C2.59695 13.3334 2 12.7364 2 12V6.00002C2 5.26364 2.59695 4.66669 3.33333 4.66669H12.6667C13.4031 4.66669 14 5.26364 14 6.00002V12C14 12.7364 13.4031 13.3334 12.6667 13.3334Z"
+                      stroke="#B8B8CC"
+                      strokeWidth="1.5"
+                    />
+                    <path
+                      d="M11.0001 9.33335C10.816 9.33335 10.6667 9.18409 10.6667 9.00002C10.6667 8.81595 10.816 8.66669 11.0001 8.66669C11.1841 8.66669 11.3334 8.81595 11.3334 9.00002C11.3334 9.18409 11.1841 9.33335 11.0001 9.33335Z"
+                      fill="#B8B8CC"
+                      stroke="#B8B8CC"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M12 4.66668V3.73549C12 2.85945 11.1696 2.22146 10.3231 2.44718L2.98978 4.40274C2.40611 4.55838 2 5.08698 2 5.69105V6.00001"
+                      stroke="#B8B8CC"
+                      strokeWidth="1.5"
+                    />
+                  </svg>
+                </BalanceText>
+              </div>
             </InputRow>
-            <ConversionText>~USDC {getUsdcEquivalent(withdrawAmount || '0')}</ConversionText>
           </InputContainer>
-          
-          <BalanceRow>
-            <VaultBalanceInfo>
-              <BalanceText>
-                Vault Token Balance: <BalanceAmount>{isBalanceLoading ? 'Loading...' : formatAmount(parseFloat(formattedVaultTokenBalance), VAULT_TOKEN_DECIMALS)}</BalanceAmount>
-              </BalanceText>
-            </VaultBalanceInfo>
-            <MaxButton onClick={() => {
-              setWithdrawAmount(formattedVaultTokenBalance);
-              setWithdrawError(null);
-            }}>MAX</MaxButton>
-          </BalanceRow>
-          
-          <WithdrawInfoRow>
-            <ExchangeRateInfo>
-              <ExchangeRateLabel>Exchange Rate</ExchangeRateLabel>
-              <ExchangeRateValue>{exchangeRate ? formatAmount(parseFloat(exchangeRate), 3) : 'N/A'}</ExchangeRateValue>
-            </ExchangeRateInfo>
-          </WithdrawInfoRow>
-          
-          <StyledButtonPrimary 
-            onClick={handlePreviewWithdraw} 
-            disabled={!withdrawAmount || parseFloat(withdrawAmount) === 0 || loading || isWithdrawProcessing}
-          >
-            {loading ? <Trans>Processing...</Trans> : <Trans>Preview Withdraw Request</Trans>}
-          </StyledButtonPrimary>
+
+          <Flex justifyContent="space-between" alignItems="center" mt="32px">
+            <div>
+              {exchangeRate ? (
+                <ExchangeRateInfo>
+                  <ExchangeRateValue>{exchangeRate}</ExchangeRateValue>
+                  <ExchangeRateLabel>Exchange Rate</ExchangeRateLabel>
+                </ExchangeRateInfo>
+              ) : null}
+            </div>
+
+            <StyledButtonPrimary
+              onClick={handlePreviewWithdraw}
+              disabled={!withdrawAmount || parseFloat(withdrawAmount) === 0 || loading || isWithdrawProcessing}
+            >
+              {loading ? <Trans>Processing...</Trans> : <Trans>Preview Withdraw Request</Trans>}
+            </StyledButtonPrimary>
+          </Flex>
         </FormContentContainer>
       ) : (
         <PreviewContainer>
@@ -242,18 +280,24 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
             <PreviewTitle>Request Made To</PreviewTitle>
             <AddressBox>{vaultAddress || '0×510E94...e56370'}</AddressBox>
           </PreviewSection>
-          
+
           <PreviewSection>
             <PreviewTitle>Network</PreviewTitle>
             <AddressBox>{network || 'Polygon'}</AddressBox>
           </PreviewSection>
-          
+
           <PreviewSection>
             <PreviewTitle>Summary</PreviewTitle>
             <SummaryTable>
               <SummaryRow>
                 <SummaryLabel>Withdrawal Amount</SummaryLabel>
-                <SummaryValue>VT {parseFloat(withdrawAmount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: VAULT_TOKEN_DECIMALS })}</SummaryValue>
+                <SummaryValue>
+                  VT{' '}
+                  {parseFloat(withdrawAmount || '0').toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: VAULT_TOKEN_DECIMALS,
+                  })}
+                </SummaryValue>
               </SummaryRow>
               <SummaryRow>
                 <SummaryLabel>Exchange Rate</SummaryLabel>
@@ -265,36 +309,35 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
               </SummaryRow>
             </SummaryTable>
           </PreviewSection>
-          
+
           <TermsContainer>
-            <Checkbox 
-              type="checkbox" 
-              checked={termsAccepted}
-              onChange={() => setTermsAccepted(!termsAccepted)}
-            />
+            <Checkbox type="checkbox" checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
             <TermsText>
               I agree to the <TermsLink>IXS Earn Terms and Conditions</TermsLink>.
             </TermsText>
           </TermsContainer>
-          
+
           <ButtonsRow>
             <BackButton onClick={handleBackFromWithdrawPreview} disabled={isWithdrawProcessing}>
               Back
             </BackButton>
-            <StyledButtonPrimary 
+            <StyledButtonPrimary
               onClick={handleActualWithdraw}
               disabled={
-                !termsAccepted || 
+                !termsAccepted ||
                 loading || // Parent loading state
                 isWithdrawProcessing ||
-                !withdrawAmount || 
+                !withdrawAmount ||
                 withdrawAmountInSmallestUnit.isZero()
               }
             >
-              {isWithdrawProcessing ? <Trans>Processing...</Trans> : 
-               withdrawError ? <Trans>Retry Withdraw</Trans> :
-               <Trans>Withdraw</Trans> 
-              }
+              {isWithdrawProcessing ? (
+                <Trans>Processing...</Trans>
+              ) : withdrawError ? (
+                <Trans>Retry Withdraw</Trans>
+              ) : (
+                <Trans>Withdraw</Trans>
+              )}
             </StyledButtonPrimary>
           </ButtonsRow>
           {withdrawError && !isWithdrawProcessing && (
@@ -304,13 +347,8 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
           )}
         </PreviewContainer>
       )}
-      
-      {showSuccessPopup && (
-        <SuccessPopup
-          onClose={handleClosePopup}
-          txHash={withdrawTxHash}
-        />
-      )}
+
+      {showSuccessPopup && <SuccessPopup onClose={handleClosePopup} txHash={withdrawTxHash} />}
     </>
-  );
-}; 
+  )
+}
