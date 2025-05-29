@@ -22,7 +22,7 @@ export enum OfferNetwork {
   base = 'base',
   ozean = 'ozean',
   kaia = 'kaia',
-  redBelly = 'redBelly',
+  redBelly = 'redbelly',
 }
 
 export enum OfferCapitalStructure {
