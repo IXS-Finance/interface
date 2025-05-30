@@ -16,7 +16,8 @@ export default function Earn() {
   return (
     <PageWrapper>
       <Title>
-        Institutional-Grade Yield <br /> Solutions Backed <br /> by Real-World Assets
+        Institutional-Grade
+        <br /> Yield Solutions Backed <br /> by Real-World Assets
       </Title>
 
       <SubTitle>
