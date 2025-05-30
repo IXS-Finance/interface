@@ -39,6 +39,8 @@ import ErrorContent from '../../ToastContent/Error'
 import SuccessContent from '../../ToastContent/Success'
 import AmountInput from '../../AmountInput'
 import { isGreaterThanOrEqualTo } from '../../AmountInput/validations'
+import { KYCPrompt } from 'components/Launchpad/KYCPrompt'
+import { useKyc } from 'state/user/hooks'
 
 const useWatchTokenApprovalEvent = createUseWatchContractEvent({
   abi: erc20Abi,
@@ -89,6 +91,17 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   const [isApproving, setIsApproving] = useState(false)
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
   const [isValid, setIsValid] = useState(true)
+  const [showRequireKyc, setShowRequireKyc] = useState<boolean>(false)
+
+  const { isChangeRequested, isPending, isDraft, isRejected, isNotSubmitted } = useKyc()
+
+  const handlePrimaryAction = () => {
+    if (isChangeRequested || isPending || isDraft || isRejected || isNotSubmitted) {
+      setShowRequireKyc(true)
+    } else {
+      handleGetSignatureAndWhitelist()
+    }
+  }
 
   const useWriteInvestingTokeApprove = createUseWriteContract({
     abi: erc20Abi,
@@ -330,10 +343,6 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     // Note: Clearing of depositError is handled on new attempt or success
   }, [depositContractWriteError, depositTxConfirmError, resetDepositContract])
 
-  const handleMaxClick = () => {
-    setAmount(balanceRaw.toString())
-  }
-
   const handleApproval = async () => {
     try {
       setIsApproving(true)
@@ -424,6 +433,8 @@ export const DepositTab: React.FC<DepositTabProps> = ({
 
   return (
     <>
+      {showRequireKyc ? <KYCPrompt onClose={() => setShowRequireKyc(false)} /> : null}
+
       {!showPreview ? (
         <FormContentContainer>
           <AmountInput
@@ -458,7 +469,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
             ) : (
               <>
                 <StyledButtonPrimary
-                  onClick={handleGetSignatureAndWhitelist}
+                  onClick={handlePrimaryAction}
                   disabled={
                     loading ||
                     isCheckingWhitelist ||
