@@ -1,5 +1,10 @@
-import React from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Trans } from '@lingui/macro'
+import { Flex } from 'rebass'
+import { toast } from 'react-toastify'
+import { ethers, BigNumber } from 'ethers'
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+
 import {
   FormContentContainer,
   FormSectionTitle,
@@ -8,8 +13,6 @@ import {
   AmountInput,
   CurrencySelector,
   CurrencyText,
-  ConversionText,
-  BalanceRow,
   BalanceText,
   BalanceAmount,
   MaxButton,
@@ -31,17 +34,11 @@ import {
   ButtonsRow,
   BackButton,
   StyledButtonPrimary,
-  VaultBalanceInfo,
-  WithdrawInfoRow,
 } from '../SharedStyles'
-import USDCIcon from 'assets/images/usdcNew.svg' // Assuming this might be needed or can be removed if not
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
-import { ethers, BigNumber } from 'ethers'
 import VaultABI from '../../../abis/Vault.json'
 import { formatAmount } from 'utils/formatCurrencyAmount' // For consistent formatting
-import { useEffect, useMemo, useState } from 'react'
 import { SuccessPopup } from './SuccessPopup'
-import { Flex } from 'rebass'
+import ErrorContent from '../../ToastContent/Error'
 
 interface WithdrawRequestTabProps {
   withdrawAmount: string
@@ -153,6 +150,31 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
       resetWithdrawContract()
     }
     if (message) {
+      if (message.includes('User rejected the request')) {
+        toast.error(<ErrorContent title="Error" message="Transaction rejected by user." />, {
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(255, 101, 101, 0.50)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        })
+      } else {
+        toast.error(<ErrorContent title="Error" message={message} />, {
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(255, 101, 101, 0.50)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        })
+      }
       setWithdrawError(message)
     }
   }, [withdrawContractWriteError, withdrawTxConfirmError, resetWithdrawContract])
@@ -340,11 +362,6 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
               )}
             </StyledButtonPrimary>
           </ButtonsRow>
-          {withdrawError && !isWithdrawProcessing && (
-            <div style={{ color: 'red', marginTop: '10px', fontSize: '0.875em', textAlign: 'center', width: '100%' }}>
-              Error: {withdrawError}
-            </div>
-          )}
         </PreviewContainer>
       )}
 

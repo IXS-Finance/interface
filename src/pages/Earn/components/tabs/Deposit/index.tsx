@@ -1,5 +1,13 @@
 import React, { useMemo, useEffect, useState } from 'react'
 import { Trans } from '@lingui/macro'
+import { Flex } from 'rebass'
+import { formatUnits } from 'viem'
+import { parseUnits } from 'viem'
+import { toast } from 'react-toastify'
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useBalance } from 'wagmi'
+import { BigNumber } from 'ethers'
+import { createUseWriteContract, createUseWatchContractEvent } from 'wagmi/codegen'
+
 import {
   FormContentContainer,
   FormSectionTitle,
@@ -9,12 +17,9 @@ import {
   CurrencySelector,
   CurrencyIcon,
   CurrencyText,
-  ConversionText,
-  BalanceRow,
   BalanceText,
   BalanceAmount,
   MaxButton,
-  ActionRow,
   ExchangeRateInfo,
   ExchangeRateLabel,
   ExchangeRateValue,
@@ -34,23 +39,15 @@ import {
   BackButton,
   StyledButtonPrimary,
 } from '../SharedStyles'
-
 import USDCIcon from 'assets/images/usdcNew.svg'
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
-import { useBalance } from 'wagmi'
-import { useAllowance, ApprovalState } from 'hooks/useApproveCallback'
-import { ethers, BigNumber } from 'ethers'
 import VaultABI from '../../../abis/Vault.json'
 import { earn } from 'services/apiUrls'
 import apiService from 'services/apiService'
 import { formatAmount } from 'utils/formatCurrencyAmount'
-import { createUseReadContract, createUseWriteContract, createUseWatchContractEvent } from 'wagmi/codegen'
 import erc20Abi from 'abis/erc20.json'
-import { parseUnits } from 'viem'
-import { toast } from 'react-toastify'
 import { SuccessPopup } from './SuccessPopup'
-import { Flex } from 'rebass'
-import { formatUnits } from 'viem'
+import ErrorContent from '../../ToastContent/Error'
+import SuccessContent from '../../ToastContent/Success'
 
 const useWatchTokenApprovalEvent = createUseWatchContractEvent({
   abi: erc20Abi,
@@ -121,8 +118,6 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     },
   })
 
-  console.log('DepositTab balanceData:', balanceData)
-
   const { data: allowanceData, refetch: refetchAllowance } = useReadContract({
     abi: erc20Abi,
     address: investingTokenAddress as `0x${string}`,
@@ -183,7 +178,23 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     if (approveResult.isSuccess) {
       refetchAllowance()
       setIsApproving(false)
-      toast.success('Approval successful! Your funds have been approved for deposit.')
+      toast.success(
+        <SuccessContent
+          title="Successful!"
+          message="Approval successful! Your funds have been approved for deposit."
+        />,
+        {
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(40, 194, 92, 0.5)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        }
+      )
     }
   }, [approveResult.isSuccess, refetchAllowance])
 
@@ -302,6 +313,31 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     }
     // Set error if a new message is generated
     if (message) {
+      if (message.includes('User rejected the request')) {
+        toast.error(<ErrorContent title="Error" message="Transaction rejected by user." />, {
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(255, 101, 101, 0.50)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        })
+      } else {
+        toast.error(<ErrorContent title="Error" message={message} />, {
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(255, 101, 101, 0.50)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        })
+      }
       setDepositError(message)
     }
     // Note: Clearing of depositError is handled on new attempt or success
@@ -576,11 +612,6 @@ export const DepositTab: React.FC<DepositTabProps> = ({
                   <Trans>Deposit</Trans>
                 )}
               </StyledButtonPrimary>
-            )}
-            {depositError && !isDepositing && !isApprovalNeeded && (
-              <div style={{ color: 'red', marginTop: '10px', fontSize: '0.875em', textAlign: 'center', width: '100%' }}>
-                Error: {depositError}
-              </div>
             )}
           </ButtonsRow>
         </PreviewContainer>

@@ -32,7 +32,6 @@ export const InputRow = styled.div`
 `
 
 export const AmountInput = styled.input`
-  flex: 1;
   border: none;
   background: transparent;
   padding: 0;
@@ -43,6 +42,7 @@ export const AmountInput = styled.input`
   font-weight: 700;
   line-height: normal;
   letter-spacing: -1.92px;
+  width: 150px;
 
   &:focus {
     outline: none;
@@ -50,6 +50,10 @@ export const AmountInput = styled.input`
 
   &::placeholder {
     color: #cccccc;
+  }
+
+  @media (min-width: 768px) {
+    width: 500px;
   }
 `
 
@@ -80,13 +84,6 @@ export const CurrencyText = styled.div`
   color: #1f1f1f;
   margin-right: 4px;
 `
-
-export const ConversionText = styled.div`
-  font-size: 14px;
-  color: #7e829b;
-  padding: 0 24px 16px;
-`
-
 // Balance Specific
 export const BalanceRow = styled.div`
   display: flex;
@@ -194,6 +191,7 @@ export const AddressBox = styled.div`
   font-size: 16px;
   color: #1f1f1f;
   width: 100%;
+  text-transform: capitalize;
 `
 
 export const SummaryTable = styled.div`
@@ -330,14 +328,4 @@ export const ClaimAmount = styled.div`
   font-size: 18px;
   font-weight: 600;
   color: #1f1f1f;
-`
-
-// Vault Balance (Withdraw Tab)
-export const VaultBalanceInfo = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-export const WithdrawInfoRow = styled.div`
-  margin-bottom: 32px;
 `
