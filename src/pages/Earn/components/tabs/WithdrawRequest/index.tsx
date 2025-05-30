@@ -7,15 +7,6 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 
 import {
   FormContentContainer,
-  FormSectionTitle,
-  InputContainer,
-  InputRow,
-  AmountInput,
-  CurrencySelector,
-  CurrencyText,
-  BalanceText,
-  BalanceAmount,
-  MaxButton,
   ExchangeRateInfo,
   ExchangeRateLabel,
   ExchangeRateValue,
@@ -39,6 +30,8 @@ import VaultABI from '../../../abis/Vault.json'
 import { formatAmount } from 'utils/formatCurrencyAmount' // For consistent formatting
 import { SuccessPopup } from './SuccessPopup'
 import ErrorContent from '../../ToastContent/Error'
+import AmountInput from '../../AmountInput'
+import { isGreaterThanOrEqualTo } from '../../AmountInput/validations'
 
 interface WithdrawRequestTabProps {
   withdrawAmount: string
@@ -74,6 +67,7 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
   const { address } = useAccount()
   const [withdrawError, setWithdrawError] = useState<string | null>(null)
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
+  const [isValid, setIsValid] = useState(true)
 
   const {
     data: rawVaultTokenBalance,
@@ -217,66 +211,17 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
     <>
       {!showWithdrawPreview ? (
         <FormContentContainer>
-          <FormSectionTitle>
-            <Trans>Withdrawal Amount</Trans>
-          </FormSectionTitle>
-
-          <InputContainer>
-            <InputRow>
-              <AmountInput
-                placeholder="0.00"
-                value={withdrawAmount}
-                onChange={(e) => {
-                  setWithdrawAmount(e.target.value)
-                  setWithdrawError(null) // Clear error on input change
-                }}
-              />
-
-              <div>
-                <Flex css={{ gap: '8px', alignItems: 'center' }}>
-                  <MaxButton
-                    onClick={() => {
-                      setWithdrawAmount(formattedVaultTokenBalance)
-                      setWithdrawError(null)
-                    }}
-                  >
-                    MAX
-                  </MaxButton>
-                  <CurrencySelector>
-                    <CurrencyText>Vault Tokens</CurrencyText>
-                  </CurrencySelector>
-                </Flex>
-
-                <BalanceText>
-                  <BalanceAmount>
-                    {isBalanceLoading
-                      ? 'Loading...'
-                      : formatAmount(parseFloat(formattedVaultTokenBalance), VAULT_TOKEN_DECIMALS)}
-                  </BalanceAmount>{' '}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path
-                      d="M12.6667 13.3334H3.33333C2.59695 13.3334 2 12.7364 2 12V6.00002C2 5.26364 2.59695 4.66669 3.33333 4.66669H12.6667C13.4031 4.66669 14 5.26364 14 6.00002V12C14 12.7364 13.4031 13.3334 12.6667 13.3334Z"
-                      stroke="#B8B8CC"
-                      strokeWidth="1.5"
-                    />
-                    <path
-                      d="M11.0001 9.33335C10.816 9.33335 10.6667 9.18409 10.6667 9.00002C10.6667 8.81595 10.816 8.66669 11.0001 8.66669C11.1841 8.66669 11.3334 8.81595 11.3334 9.00002C11.3334 9.18409 11.1841 9.33335 11.0001 9.33335Z"
-                      fill="#B8B8CC"
-                      stroke="#B8B8CC"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M12 4.66668V3.73549C12 2.85945 11.1696 2.22146 10.3231 2.44718L2.98978 4.40274C2.40611 4.55838 2 5.08698 2 5.69105V6.00001"
-                      stroke="#B8B8CC"
-                      strokeWidth="1.5"
-                    />
-                  </svg>
-                </BalanceText>
-              </div>
-            </InputRow>
-          </InputContainer>
+          <AmountInput
+            label="Withdrawal Amount"
+            name="withdrawAmount"
+            tokenName="Vault Tokens"
+            amount={withdrawAmount.toString()}
+            customBalance={formattedVaultTokenBalance}
+            balanceLoading={isBalanceLoading}
+            rules={[isGreaterThanOrEqualTo(100, 'Does not meet minimum amount (100 USDC)')]}
+            updateAmount={(value: any) => setWithdrawAmount(value)}
+            updateIsValid={(valid: boolean) => setIsValid(valid)}
+          />
 
           <Flex justifyContent="space-between" alignItems="center" mt="32px">
             <div>
@@ -290,7 +235,9 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
 
             <StyledButtonPrimary
               onClick={handlePreviewWithdraw}
-              disabled={!withdrawAmount || parseFloat(withdrawAmount) === 0 || loading || isWithdrawProcessing}
+              disabled={
+                !withdrawAmount || parseFloat(withdrawAmount) === 0 || loading || isWithdrawProcessing || !isValid
+              }
             >
               {loading ? <Trans>Processing...</Trans> : <Trans>Preview Withdraw Request</Trans>}
             </StyledButtonPrimary>

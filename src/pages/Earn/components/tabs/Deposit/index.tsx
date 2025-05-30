@@ -10,16 +10,6 @@ import { createUseWriteContract, createUseWatchContractEvent } from 'wagmi/codeg
 
 import {
   FormContentContainer,
-  FormSectionTitle,
-  InputContainer,
-  InputRow,
-  AmountInput,
-  CurrencySelector,
-  CurrencyIcon,
-  CurrencyText,
-  BalanceText,
-  BalanceAmount,
-  MaxButton,
   ExchangeRateInfo,
   ExchangeRateLabel,
   ExchangeRateValue,
@@ -39,7 +29,6 @@ import {
   BackButton,
   StyledButtonPrimary,
 } from '../SharedStyles'
-import USDCIcon from 'assets/images/usdcNew.svg'
 import VaultABI from '../../../abis/Vault.json'
 import { earn } from 'services/apiUrls'
 import apiService from 'services/apiService'
@@ -48,6 +37,8 @@ import erc20Abi from 'abis/erc20.json'
 import { SuccessPopup } from './SuccessPopup'
 import ErrorContent from '../../ToastContent/Error'
 import SuccessContent from '../../ToastContent/Success'
+import AmountInput from '../../AmountInput'
+import { isGreaterThanOrEqualTo } from '../../AmountInput/validations'
 
 const useWatchTokenApprovalEvent = createUseWatchContractEvent({
   abi: erc20Abi,
@@ -97,6 +88,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   const { address } = useAccount()
   const [isApproving, setIsApproving] = useState(false)
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
+  const [isValid, setIsValid] = useState(true)
 
   const useWriteInvestingTokeApprove = createUseWriteContract({
     abi: erc20Abi,
@@ -142,11 +134,6 @@ export const DepositTab: React.FC<DepositTabProps> = ({
       return 0
     }
   }, [balanceData?.value, balanceData?.decimals])
-
-  const balanceFormatted = balanceRaw.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
 
   const amountRaw = useMemo(() => {
     try {
@@ -439,50 +426,16 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     <>
       {!showPreview ? (
         <FormContentContainer>
-          <FormSectionTitle>
-            <Trans>Deposit Amount</Trans>
-          </FormSectionTitle>
-
-          <InputContainer>
-            <InputRow style={{ minHeight: '60px' }}>
-              <AmountInput placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} />
-              <div>
-                <Flex css={{ gap: '8px', alignItems: 'center' }}>
-                  <MaxButton onClick={handleMaxClick}>MAX</MaxButton>
-                  <CurrencySelector>
-                    <CurrencyIcon>
-                      <img src={USDCIcon} alt="USDC" />
-                    </CurrencyIcon>
-                    <CurrencyText>USDC</CurrencyText>
-                  </CurrencySelector>
-                </Flex>
-
-                <BalanceText>
-                  <BalanceAmount>{isBalanceLoading ? 'Loading...' : balanceFormatted}</BalanceAmount>{' '}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path
-                      d="M12.6667 13.3334H3.33333C2.59695 13.3334 2 12.7364 2 12V6.00002C2 5.26364 2.59695 4.66669 3.33333 4.66669H12.6667C13.4031 4.66669 14 5.26364 14 6.00002V12C14 12.7364 13.4031 13.3334 12.6667 13.3334Z"
-                      stroke="#B8B8CC"
-                      strokeWidth="1.5"
-                    />
-                    <path
-                      d="M11.0001 9.33335C10.816 9.33335 10.6667 9.18409 10.6667 9.00002C10.6667 8.81595 10.816 8.66669 11.0001 8.66669C11.1841 8.66669 11.3334 8.81595 11.3334 9.00002C11.3334 9.18409 11.1841 9.33335 11.0001 9.33335Z"
-                      fill="#B8B8CC"
-                      stroke="#B8B8CC"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M12 4.66668V3.73549C12 2.85945 11.1696 2.22146 10.3231 2.44718L2.98978 4.40274C2.40611 4.55838 2 5.08698 2 5.69105V6.00001"
-                      stroke="#B8B8CC"
-                      strokeWidth="1.5"
-                    />
-                  </svg>
-                </BalanceText>
-              </div>
-            </InputRow>
-          </InputContainer>
+          <AmountInput
+            label="Deposit Amount"
+            name="depositAmount"
+            amount={amount.toString()}
+            rules={[isGreaterThanOrEqualTo(100, 'Does not meet minimum amount (100 USDC)')]}
+            customBalance={balanceRaw.toString()}
+            balanceLoading={isBalanceLoading}
+            updateAmount={(value: any) => setAmount(value)}
+            updateIsValid={(valid: boolean) => setIsValid(valid)}
+          />
 
           <Flex justifyContent="space-between" alignItems="center" mt="32px">
             <div>
@@ -499,7 +452,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
                 <Trans>Checking whitelist...</Trans>
               </StyledButtonPrimary>
             ) : isWhitelisted ? (
-              <StyledButtonPrimary onClick={handlePreviewDeposit} disabled={!amount || loading}>
+              <StyledButtonPrimary onClick={handlePreviewDeposit} disabled={!amount || loading || !isValid}>
                 {loading ? <Trans>Processing...</Trans> : <Trans>Preview Deposit</Trans>}
               </StyledButtonPrimary>
             ) : (
