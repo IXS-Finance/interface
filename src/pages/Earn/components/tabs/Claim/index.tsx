@@ -1,31 +1,6 @@
 import React from 'react'
 import { Trans } from '@lingui/macro'
-import {
-  FormContentContainer,
-  PreviewContainer,
-  PreviewSection,
-  PreviewTitle,
-  AddressBox,
-  SummaryTable,
-  SummaryRow,
-  SummaryLabel,
-  SummaryValue,
-  TermsContainer,
-  Checkbox,
-  TermsText,
-  TermsLink,
-  ButtonsRow,
-  BackButton,
-  StyledButtonPrimary,
-  SeparatorRow,
-  SeparatorLabel,
-  TotalRow,
-  TotalLabel,
-  TotalValue,
-  ClaimRow,
-  ClaimLabel,
-  ClaimAmount,
-} from '../SharedStyles'
+import { FormContentContainer, StyledButtonPrimary, Card, Value } from '../SharedStyles'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { formatUnits } from 'viem'
 import VaultABI from '../../../abis/Vault.json' // Adjusted path
@@ -34,6 +9,9 @@ import { formatAmount } from 'utils/formatCurrencyAmount' // Assuming alias or c
 import { useMemo } from 'react'
 import styled from 'styled-components'
 import { Flex } from 'rebass'
+import { Label } from '@rebass/forms'
+import { FormSectionTitle } from '../../AmountInput'
+import ClaimPreview from './ClaimPreview'
 
 // Add styled component for info badge
 const InfoBadge = styled.div`
@@ -255,12 +233,14 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
     <>
       {!showClaimPreview ? (
         <FormContentContainer>
-          <ClaimRow>
-            <ClaimLabel>Claimable Amount</ClaimLabel>
-            <ClaimAmount>
-              {investingTokenSymbol} {displayableFetchedClaimableAmount}
-            </ClaimAmount>
-          </ClaimRow>
+          <Card>
+            <Flex flexDirection={['column', 'row']} justifyContent="space-between" alignItems="center">
+              <FormSectionTitle>Claimable Amount</FormSectionTitle>
+              <Value>
+                {displayableFetchedClaimableAmount} {investingTokenSymbol}
+              </Value>
+            </Flex>
+          </Card>
 
           {/* Show info badge if claiming is not possible */}
           {!isAnyLoading && !isFetchedClaimableAmountZero && !isClaimingPossible && (
@@ -280,68 +260,25 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
           </Flex>
         </FormContentContainer>
       ) : (
-        <PreviewContainer>
-          <PreviewSection>
-            <PreviewTitle>Sent From</PreviewTitle>
-            <AddressBox>{vaultAddress}</AddressBox>
-          </PreviewSection>
-
-          <PreviewSection>
-            <PreviewTitle>Network</PreviewTitle>
-            <AddressBox>{network}</AddressBox>
-          </PreviewSection>
-
-          <PreviewSection>
-            <PreviewTitle>Summary</PreviewTitle>
-            <SummaryTable>
-              <SummaryRow>
-                <SummaryLabel>Claimable Amount</SummaryLabel>
-                <SummaryValue>
-                  {investingTokenSymbol} {displayableFetchedClaimableAmount}
-                </SummaryValue>
-              </SummaryRow>
-
-              <SeparatorRow>
-                <SeparatorLabel>Less:</SeparatorLabel>
-              </SeparatorRow>
-
-              <SummaryRow>
-                <SummaryLabel>Platform Fee ({platformFeePercentage}%)</SummaryLabel>
-                <SummaryValue>
-                  {investingTokenSymbol} {platformFee}
-                </SummaryValue>
-              </SummaryRow>
-
-              <SummaryRow>
-                <SummaryLabel>Service Fee</SummaryLabel>
-                <SummaryValue>
-                  {investingTokenSymbol} {finalServiceFee}
-                </SummaryValue>
-              </SummaryRow>
-
-              <TotalRow>
-                <TotalLabel>Actual Claimable Amount</TotalLabel>
-                <TotalValue>
-                  {investingTokenSymbol} {actualClaimableAmount}
-                </TotalValue>
-              </TotalRow>
-            </SummaryTable>
-          </PreviewSection>
-
-          <TermsContainer>
-            <Checkbox type="checkbox" checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
-            <TermsText>
-              I agree to the <TermsLink>IXS Earn Terms and Conditions</TermsLink>.
-            </TermsText>
-          </TermsContainer>
-
-          <ButtonsRow>
-            <BackButton onClick={handleBackFromClaimPreview}>Back</BackButton>
-            <StyledButtonPrimary onClick={handleClaim} disabled={!termsAccepted || !isClaimingPossible || isAnyLoading}>
-              {isClaimPending ? 'Initiating...' : isConfirming ? 'Confirming...' : loading ? 'Processing...' : 'Claim'}
-            </StyledButtonPrimary>
-          </ButtonsRow>
-        </PreviewContainer>
+        <ClaimPreview
+          vaultAddress={vaultAddress as `0x${string}`}
+          network={network as string}
+          investingTokenSymbol={investingTokenSymbol}
+          displayableFetchedClaimableAmount={displayableFetchedClaimableAmount}
+          platformFeePercentage={platformFeePercentage}
+          platformFee={platformFee}
+          finalServiceFee={finalServiceFee}
+          actualClaimableAmount={actualClaimableAmount}
+          termsAccepted={termsAccepted}
+          setTermsAccepted={setTermsAccepted}
+          handleBackFromClaimPreview={handleBackFromClaimPreview}
+          handleClaim={handleClaim}
+          isClaimingPossible={isClaimingPossible}
+          isAnyLoading={isAnyLoading}
+          isClaimPending={isClaimPending}
+          isConfirming={isConfirming}
+          loading={loading}
+        />
       )}
     </>
   )

@@ -10,20 +10,6 @@ import {
   ExchangeRateInfo,
   ExchangeRateLabel,
   ExchangeRateValue,
-  PreviewContainer,
-  PreviewSection,
-  PreviewTitle,
-  AddressBox,
-  SummaryTable,
-  SummaryRow,
-  SummaryLabel,
-  SummaryValue,
-  TermsContainer,
-  Checkbox,
-  TermsText,
-  TermsLink,
-  ButtonsRow,
-  BackButton,
   StyledButtonPrimary,
 } from '../SharedStyles'
 import VaultABI from '../../../abis/Vault.json'
@@ -32,6 +18,7 @@ import { SuccessPopup } from './SuccessPopup'
 import ErrorContent from '../../ToastContent/Error'
 import AmountInput from '../../AmountInput'
 import { isGreaterThanOrEqualTo } from '../../AmountInput/validations'
+import { WithdrawPreview } from './WithdrawPreview'
 
 interface WithdrawRequestTabProps {
   withdrawAmount: string
@@ -218,7 +205,7 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
             amount={withdrawAmount.toString()}
             customBalance={formattedVaultTokenBalance}
             balanceLoading={isBalanceLoading}
-            rules={[isGreaterThanOrEqualTo(100, 'Does not meet minimum amount (100 USDC)')]}
+            // rules={[isGreaterThanOrEqualTo(100, 'Does not meet minimum amount (100 USDC)')]}
             updateAmount={(value: any) => setWithdrawAmount(value)}
             updateIsValid={(valid: boolean) => setIsValid(valid)}
           />
@@ -244,72 +231,21 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
           </Flex>
         </FormContentContainer>
       ) : (
-        <PreviewContainer>
-          <PreviewSection>
-            <PreviewTitle>Request Made To</PreviewTitle>
-            <AddressBox>{vaultAddress || '0×510E94...e56370'}</AddressBox>
-          </PreviewSection>
-
-          <PreviewSection>
-            <PreviewTitle>Network</PreviewTitle>
-            <AddressBox>{network || 'Polygon'}</AddressBox>
-          </PreviewSection>
-
-          <PreviewSection>
-            <PreviewTitle>Summary</PreviewTitle>
-            <SummaryTable>
-              <SummaryRow>
-                <SummaryLabel>Withdrawal Amount</SummaryLabel>
-                <SummaryValue>
-                  VT{' '}
-                  {parseFloat(withdrawAmount || '0').toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: VAULT_TOKEN_DECIMALS,
-                  })}
-                </SummaryValue>
-              </SummaryRow>
-              <SummaryRow>
-                <SummaryLabel>Exchange Rate</SummaryLabel>
-                <SummaryValue>{exchangeRate ? formatAmount(parseFloat(exchangeRate), 6) : 'N/A'}</SummaryValue>
-              </SummaryRow>
-              <SummaryRow>
-                <SummaryLabel>Estimated USDC Received</SummaryLabel>
-                <SummaryValue>USDC {getUsdcEquivalent(withdrawAmount || '0')}</SummaryValue>
-              </SummaryRow>
-            </SummaryTable>
-          </PreviewSection>
-
-          <TermsContainer>
-            <Checkbox type="checkbox" checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
-            <TermsText>
-              I agree to the <TermsLink>IXS Earn Terms and Conditions</TermsLink>.
-            </TermsText>
-          </TermsContainer>
-
-          <ButtonsRow>
-            <BackButton onClick={handleBackFromWithdrawPreview} disabled={isWithdrawProcessing}>
-              Back
-            </BackButton>
-            <StyledButtonPrimary
-              onClick={handleActualWithdraw}
-              disabled={
-                !termsAccepted ||
-                loading || // Parent loading state
-                isWithdrawProcessing ||
-                !withdrawAmount ||
-                withdrawAmountInSmallestUnit.isZero()
-              }
-            >
-              {isWithdrawProcessing ? (
-                <Trans>Processing...</Trans>
-              ) : withdrawError ? (
-                <Trans>Retry Withdraw</Trans>
-              ) : (
-                <Trans>Withdraw</Trans>
-              )}
-            </StyledButtonPrimary>
-          </ButtonsRow>
-        </PreviewContainer>
+        <WithdrawPreview
+          vaultAddress={vaultAddress}
+          network={network}
+          withdrawAmount={withdrawAmount}
+          exchangeRate={exchangeRate}
+          termsAccepted={termsAccepted}
+          setTermsAccepted={setTermsAccepted}
+          handleBackFromWithdrawPreview={handleBackFromWithdrawPreview}
+          handleActualWithdraw={handleActualWithdraw}
+          loading={loading}
+          isWithdrawProcessing={isWithdrawProcessing}
+          withdrawError={!!withdrawError}
+          withdrawAmountInSmallestUnit={withdrawAmountInSmallestUnit}
+          getUsdcEquivalent={getUsdcEquivalent}
+        />
       )}
 
       {showSuccessPopup && <SuccessPopup onClose={handleClosePopup} txHash={withdrawTxHash} />}
