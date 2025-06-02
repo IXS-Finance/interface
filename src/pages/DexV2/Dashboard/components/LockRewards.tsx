@@ -18,6 +18,7 @@ import { useVotingEscrowContract } from 'hooks/useContract'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import EmptyList from './EmptyList'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
+import { formatAmount } from 'utils/formatCurrencyAmount'
 
 const LockRewards: React.FC = () => {
   const { account } = useWeb3()
@@ -54,11 +55,14 @@ const LockRewards: React.FC = () => {
 const TableHeader = ({ id }: { id: number }) => {
   return (
     <Grid container spacing={2}>
-      <Grid item xs={3}>
+      <Grid item xs={2}>
         <TYPE.subHeader1 color="text6">Lock #{id}</TYPE.subHeader1>
       </Grid>
-      <Grid item xs={3}>
+      <Grid item xs={2}>
         <TYPE.subHeader1 color="text6">Amount</TYPE.subHeader1>
+      </Grid>
+      <Grid item xs={2}>
+        <TYPE.subHeader1 color="text6">Voting Power</TYPE.subHeader1>
       </Grid>
       <Grid item xs={3}>
         <TYPE.subHeader1 color="text6">Unlock At</TYPE.subHeader1>
@@ -131,14 +135,17 @@ const TableBody = ({ data, refetch }: { data: LockItem; refetch: () => void }) =
 
   return (
     <Grid container spacing={2} alignItems="center">
-      <Grid item xs={3}>
+      <Grid item xs={2}>
         <Stack direction="row" alignItems="center" gap={1}>
           <CurrencyLogo currency={currency} size="32px" />
           <TYPE.subHeader1 fontSize={16}>veIXS</TYPE.subHeader1>
         </Stack>
       </Grid>
-      <Grid item xs={3}>
+      <Grid item xs={2}>
         <TYPE.label fontSize={16}>{data.amount}</TYPE.label>
+      </Grid>
+      <Grid item xs={2}>
+        <TYPE.label fontSize={16}>{formatAmount(+data.votingAmount, 4)} veIXS</TYPE.label>
       </Grid>
       <Grid item xs={3}>
         <TYPE.label fontSize={16}>{unlockAtLabel}</TYPE.label>
