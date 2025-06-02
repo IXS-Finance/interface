@@ -335,6 +335,7 @@ export default function ProductDetail() {
               withdrawAmount={withdrawAmount}
               setWithdrawAmount={setWithdrawAmount}
               loading={loading}
+              network={product.network}
               showWithdrawPreview={showWithdrawPreview}
               termsAccepted={termsAccepted}
               setTermsAccepted={setTermsAccepted}
@@ -449,7 +450,6 @@ const Text = styled.div<{
   margin-bottom: ${({ mb }) => (mb ? `${mb}px` : 0)};
   margin-top: ${({ mt }) => (mt ? `${mt}px` : 0)};
 `
-
 
 const HeroSection = styled.div`
   display: flex;

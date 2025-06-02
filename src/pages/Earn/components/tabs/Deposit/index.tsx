@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import React, { useMemo, useEffect, useState } from 'react'
 import { Trans } from '@lingui/macro'
 import { Flex } from 'rebass'
@@ -13,26 +14,11 @@ import {
   ExchangeRateInfo,
   ExchangeRateLabel,
   ExchangeRateValue,
-  PreviewContainer,
-  PreviewSection,
-  PreviewTitle,
-  AddressBox,
-  SummaryTable,
-  SummaryRow,
-  SummaryLabel,
-  SummaryValue,
-  TermsContainer,
-  Checkbox,
-  TermsText,
-  TermsLink,
-  ButtonsRow,
-  BackButton,
   StyledButtonPrimary,
 } from '../SharedStyles'
 import VaultABI from '../../../abis/Vault.json'
 import { earn } from 'services/apiUrls'
 import apiService from 'services/apiService'
-import { formatAmount } from 'utils/formatCurrencyAmount'
 import erc20Abi from 'abis/erc20.json'
 import { SuccessPopup } from './SuccessPopup'
 import ErrorContent from '../../ToastContent/Error'
@@ -41,6 +27,7 @@ import AmountInput from '../../AmountInput'
 import { isGreaterThanOrEqualTo } from '../../AmountInput/validations'
 import { KYCPrompt } from 'components/Launchpad/KYCPrompt'
 import { useKyc } from 'state/user/hooks'
+import { DepositPreview } from './DepositPreview'
 
 const useWatchTokenApprovalEvent = createUseWatchContractEvent({
   abi: erc20Abi,
@@ -511,77 +498,26 @@ export const DepositTab: React.FC<DepositTabProps> = ({
           </Flex>
         </FormContentContainer>
       ) : (
-        <PreviewContainer>
-          <PreviewSection>
-            <PreviewTitle>Request Made To</PreviewTitle>
-            <AddressBox>{vaultAddress || '0×510E94...e56370'}</AddressBox>
-          </PreviewSection>
-
-          <PreviewSection>
-            <PreviewTitle>Network</PreviewTitle>
-            <AddressBox>{network || 'Polygon'}</AddressBox>
-          </PreviewSection>
-
-          <PreviewSection>
-            <PreviewTitle>Summary</PreviewTitle>
-            <SummaryTable>
-              <SummaryRow>
-                <SummaryLabel>Deposit Amount</SummaryLabel>
-                <SummaryValue>USDC {formatAmount(parseFloat(amount), 6)}</SummaryValue>
-              </SummaryRow>
-              <SummaryRow>
-                <SummaryLabel>Exchange Rate</SummaryLabel>
-                <SummaryValue>{exchangeRate ? formatAmount(parseFloat(exchangeRate), 6) : 'N/A'}</SummaryValue>
-              </SummaryRow>
-              <SummaryRow>
-                <SummaryLabel>Estimated Vault Tokens Received</SummaryLabel>
-                <SummaryValue>
-                  VT{' '}
-                  {(() => {
-                    const numericAmount = parseFloat(amount)
-                    const numericExchangeRate = exchangeRate ? parseFloat(exchangeRate) : 0
-                    if (!isNaN(numericAmount) && numericExchangeRate > 0) {
-                      return formatAmount(numericAmount / numericExchangeRate, 3)
-                    }
-                    return formatAmount(0, 3) // Or 'N/A' if preferred
-                  })()}
-                </SummaryValue>
-              </SummaryRow>
-            </SummaryTable>
-          </PreviewSection>
-
-          <TermsContainer>
-            <Checkbox type="checkbox" checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
-            <TermsText>
-              I agree to the <TermsLink>IXS Earn Terms and Conditions</TermsLink>.
-            </TermsText>
-          </TermsContainer>
-
-          <ButtonsRow>
-            <BackButton onClick={handleBackFromPreview}>Back</BackButton>
-            {isApprovalNeeded ? (
-              <StyledButtonPrimary onClick={handleApproval} disabled={!termsAccepted || isApproving || loading}>
-                {isApproving ? <Trans>Approving...</Trans> : <Trans>Approve USDC</Trans>}
-              </StyledButtonPrimary>
-            ) : (
-              <StyledButtonPrimary
-                onClick={handleDeposit}
-                disabled={!termsAccepted || loading || isDepositing || !amount || !amountRaw}
-              >
-                {isDepositing ? (
-                  <Trans>Depositing...</Trans>
-                ) : depositError ? (
-                  <Trans>Retry Deposit</Trans>
-                ) : (
-                  <Trans>Deposit</Trans>
-                )}
-              </StyledButtonPrimary>
-            )}
-          </ButtonsRow>
-        </PreviewContainer>
+        <DepositPreview
+          vaultAddress={vaultAddress}
+          network={network}
+          amount={amount}
+          exchangeRate={exchangeRate}
+          termsAccepted={termsAccepted}
+          setTermsAccepted={setTermsAccepted}
+          handleBackFromPreview={handleBackFromPreview}
+          isApprovalNeeded={isApprovalNeeded}
+          isApproving={isApproving}
+          loading={loading}
+          handleApproval={handleApproval}
+          handleDeposit={handleDeposit}
+          isDepositing={isDepositing}
+          depositError={!!depositError}
+          amountRaw={amountRaw.toString()}
+        />
       )}
 
-      {showSuccessPopup && <SuccessPopup onClose={handleClosePopup} txHash={depositTxHash} chainId={chainId} />}
+      {showSuccessPopup && <SuccessPopup onClose={handleClosePopup} txHash={depositTxHash} chainId={chainId ?? 0} />}
     </>
   )
 }

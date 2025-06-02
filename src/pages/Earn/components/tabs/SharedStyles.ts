@@ -48,7 +48,14 @@ export const ExchangeRateValue = styled.div`
 
 // Preview Specific Styles
 export const PreviewContainer = styled.div`
-  padding: 32px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @media (min-width: 768px) {
+    padding: 32px;
+  }
 `
 
 export const PreviewSection = styled.div`
@@ -106,11 +113,17 @@ export const Checkbox = styled.input`
   width: 20px;
   height: 20px;
   cursor: pointer;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
 `
 
 export const TermsText = styled.div`
-  font-size: 14px;
+  font-size: 13px;
   color: #1f1f1f;
+
+  @media (min-width: 768px) {
+    font-size: 14px;
+  }
 `
 
 export const TermsLink = styled.span`
@@ -131,27 +144,41 @@ export const ButtonsRow = styled.div`
 `
 
 export const BackButton = styled.button`
-  height: 56px;
+  height: 48px;
   border-radius: 6px;
-  font-size: 16px;
+  color: #b8b8cc;
+  font-family: Inter;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.26px;
   padding: 0 32px;
   background: transparent;
   border: 1px solid #e8e8e8;
-  color: #1f1f1f;
   cursor: pointer;
-  min-width: 180px;
+  width: fit-content;
 
   &:hover {
     background: #f5f5f5;
   }
+
+  @media (min-width: 768px) {
+    min-width: 180px;
+  }
 `
 
 export const StyledButtonPrimary = styled(ButtonPrimary)`
-  height: 56px;
+  height: 48px;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 14px;
   padding: 0 32px;
   width: fit-content;
+
+  @media (min-width: 768px) {
+    min-width: 180px;
+    width: fit-content;
+  }
 `
 
 // Specific for Claim Preview
@@ -206,4 +233,36 @@ export const ClaimAmount = styled.div`
   font-size: 18px;
   font-weight: 600;
   color: #1f1f1f;
+`
+
+export const Card = styled.div`
+  padding: 24px;
+  gap: 8px;
+  border-radius: 8px;
+  background: #f7f7fa;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    padding: 32px;
+  }
+`
+
+export const Label = styled.div`
+  color: #8f8fb2;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.28px;
+`
+
+export const Value = styled.div`
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
+  text-transform: capitalize;
 `
