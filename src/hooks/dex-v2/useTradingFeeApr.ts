@@ -8,13 +8,14 @@ import { configService } from 'services/config/config.service'
 import { bptPriceFor } from './usePoolHelpers'
 import { bnum, scale } from 'lib/utils'
 import useGauges from './pools/useGauges'
-import usePoolDayDatasQuery from './queries/usePoolDayDatasQuery'
 import { useMemo } from 'react'
 import { LP_DECIMALS } from 'pages/DexV2/Pool/Staking/constants'
+import usePoolDayDatas from './pools/usePoolDayDatas'
 
 export default function useTradingFeeApr(pool: Pool): string {
   const { gaugeFor } = useGauges()
-  const { data: dailySwaps } = usePoolDayDatasQuery({}, { poolAddresses: [pool.address] })
+  const { poolDayDatasFor } = usePoolDayDatas()
+  const dailySwaps = poolDayDatasFor(pool.address)
 
   const gaugeAddress = gaugeFor(pool.address)?.address
   const bptTokenPrice = bptPriceFor(pool)

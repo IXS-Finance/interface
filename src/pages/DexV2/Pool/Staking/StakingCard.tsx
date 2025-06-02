@@ -27,7 +27,7 @@ type Props = {
 }
 
 const StakingCard: React.FC<Props> = ({ pool }) => {
-  const { poolDayDatasFor } = usePoolDayDatas([pool.address])
+  const { poolDayDatasFor } = usePoolDayDatas()
   const [isStakePreviewVisible, setIsStakePreviewVisible] = useState(false)
   const [stakeAction, setStakeAction] = useState<StakeAction>('stake')
 
