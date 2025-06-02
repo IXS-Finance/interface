@@ -40,10 +40,10 @@ export default function Earn() {
 const Title = styled.div`
   color: #292933;
   font-family: Inter;
+  font-size: 36px;
   font-style: normal;
   font-weight: 700;
-  font-size: 32px;
-  line-height: 120%;
+  line-height: 110%;
   letter-spacing: -1.6px;
 
   @media (min-width: 768px) {
@@ -56,20 +56,19 @@ const Title = styled.div`
 
 const SubTitle = styled.div`
   max-width: 600px;
-  font-family: Inter;
-  font-size: 14px;
   color: #8f8fb2;
+  font-family: Inter;
+  font-size: 16px;
   font-style: normal;
   font-weight: 400;
-  line-height: 140%;
-  letter-spacing: -0.28px;
-  margin-top: 24px;
+  line-height: 160%; /* 25.6px */
+  letter-spacing: -0.32px;
+  margin-top: 32px;
 
   @media (min-width: 768px) {
     font-size: 16px;
     line-height: 160%;
     letter-spacing: -0.32px;
-    margin-top: 32px;
   }
 `
 
@@ -90,5 +89,5 @@ const PageWrapper = styled.div`
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 32px 16px;
+  padding: 32px 4px;
 `

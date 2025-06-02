@@ -248,10 +248,19 @@ const AmountInput: React.FC<Props> = (props) => {
 export default AmountInput
 
 export const FormSectionTitle = styled.h2`
-  font-size: 18px;
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 20px;
+  font-style: normal;
   font-weight: 600;
-  margin-bottom: 24px;
-  color: #1f1f1f;
+  line-height: normal;
+  letter-spacing: -0.6px;
+  margin-top: 0;
+
+  @media (min-width: 768px) {
+    font-size: 18px;
+    margin-bottom: 24px;
+  }
 `
 
 export const InputContainer = styled.div<{ isError: boolean }>`
@@ -276,7 +285,10 @@ export const InputContainer = styled.div<{ isError: boolean }>`
 `
 
 const WrapInputRow = styled.div`
-  padding: 32px;
+  padding: 16px;
+  @media (min-width: 768px) {
+    padding: 32px;
+  }
 `
 export const InputRow = styled.div`
   display: flex;
@@ -285,16 +297,20 @@ export const InputRow = styled.div`
 `
 
 export const StyledInput = styled.input`
-  border: none;
-  background: transparent;
-  padding: 0;
   color: #292933;
   font-family: Inter;
-  font-size: 64px;
+  font-size: 24px;
   font-style: normal;
   font-weight: 700;
   line-height: normal;
-  letter-spacing: -1.92px;
+  letter-spacing: -0.72px;
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  border: none;
+  background: transparent;
+  padding: 0;
   width: 150px;
 
   &:focus {
@@ -307,6 +323,8 @@ export const StyledInput = styled.input`
 
   @media (min-width: 768px) {
     width: 500px;
+    font-size: 64px;
+    letter-spacing: -1.92px;
   }
 `
 
@@ -335,6 +353,11 @@ export const CurrencyIcon = styled.div`
 export const CurrencyText = styled.div`
   font-weight: 500;
   color: #1f1f1f;
+  font-size: 14px;
+
+  @media (min-width: 768px) {
+    font-size: 16px;
+  }
 `
 // Balance Specific
 export const BalanceRow = styled.div`
@@ -356,11 +379,15 @@ export const BalanceText = styled.div`
 export const BalanceAmount = styled.span`
   font-weight: 500;
   color: #1f1f1f;
+  font-size: 14px;
+
+  @media (min-width: 768px) {
+    font-size: 16px;
+  }
 `
 
 export const MaxButton = styled.button`
   display: flex;
-  padding: 8px 16px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -370,16 +397,22 @@ export const MaxButton = styled.button`
   background: #fff;
   color: #66f;
   font-family: Inter;
-  font-size: 9px;
+  font-size: 12px;
   font-style: normal;
   font-weight: 600;
   line-height: normal;
   letter-spacing: -0.18px;
   border: none;
   cursor: pointer;
+  padding: 8px 12px 8px 12px;
 
   &:hover {
     background: #e0e0e0;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 14px;
+    padding: 8px 16px;
   }
 `
 

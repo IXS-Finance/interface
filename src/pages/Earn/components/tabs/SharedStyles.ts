@@ -2,7 +2,7 @@ import styled from 'styled-components/macro'
 import { ButtonPrimary } from 'components/Button'
 
 export const FormContentContainer = styled.div`
-  padding: 32px;
+  padding: 24px;
 
   @media (min-width: 768px) {
     padding: 32px 48px;
@@ -23,7 +23,13 @@ export const ActionRow = styled.div`
 
 export const ExchangeRateInfo = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row-reverse;
+  width: 100%;
+  justify-content: space-between;
+
+  @media (min-width: 768px) {
+    flex-direction: column;
+  }
 `
 
 export const ExchangeRateLabel = styled.div`
@@ -173,7 +179,7 @@ export const StyledButtonPrimary = styled(ButtonPrimary)`
   border-radius: 6px;
   font-size: 14px;
   padding: 0 32px;
-  width: fit-content;
+  width: 100%;
 
   @media (min-width: 768px) {
     min-width: 180px;

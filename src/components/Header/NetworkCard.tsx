@@ -114,7 +114,7 @@ const NetworkCardWrapper = styled.div`
   font-size: 13px;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-     padding: 4.6px 0;
+    display: none;
   `};
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
@@ -183,8 +183,9 @@ const StyledBox = styled.div<StyledBoxProps>`
   border: 1px solid ${({ isCorrectNetwork }) => (isCorrectNetwork ? '#e6e6ff' : 'red')};
   padding: 10px 5px 10px 10px;
   border-radius: 4px;
+  background-color: #fff;
   ${({ theme }) => theme.mediaWidth.upToMedium`
-     padding: 10px 20px 10px 20px;
+     padding: 12px;
   `};
   :active {
     border: 1px solid ${({ isCorrectNetwork }) => (isCorrectNetwork ? '#4d8fea' : 'red')};

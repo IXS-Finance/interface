@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import { useReadContract } from 'wagmi'
 import { formatUnits } from 'viem'
 import Portal from '@reach/portal'
+import { Copy, ExternalLink, Link } from 'react-feather'
 
 import { useActiveWeb3React } from 'hooks/web3'
 import { EarnProduct, products } from './products'
@@ -22,7 +23,8 @@ import { NetworkNotAvailable } from 'components/Launchpad/NetworkNotAvailable'
 import OpenTradeABI from './abis/OpenTrade.json'
 import TreasuryImg from './images/Treasury.png'
 import USDCIcon from '../../assets/images/usdcNew.svg'
-import { Box } from 'rebass'
+import { Box, Flex } from 'rebass'
+import { isMobile } from 'react-device-detect'
 interface Transaction {
   date: number
   type: string
@@ -247,7 +249,6 @@ export default function ProductDetail() {
           </Portal>
         ) : null}
 
-        {/* Header section with product title and description */}
         <HeroSection>
           <ContentWrapper>
             <MainTitle>{product.name}</MainTitle>
@@ -357,7 +358,6 @@ export default function ProductDetail() {
               handleBackFromClaimPreview={handleBackFromClaimPreview}
               vaultAddress={product.address}
               investingTokenAddress={product.investingTokenAddress}
-              investingTokenSymbol={product.asset}
             />
           )}
         </FormContainer>
@@ -370,40 +370,71 @@ export default function ProductDetail() {
           </SectionTitle>
 
           <TransactionsTable>
-            <TableHeader columns={5}>
+            <TableHeader columns={isMobile ? 2 : 5}>
               <HeaderCell>Date</HeaderCell>
-              <HeaderCell>Type</HeaderCell>
-              <HeaderCell>Token Symbol</HeaderCell>
-              <HeaderCell>Amount</HeaderCell>
-              <HeaderCell>Transaction Hash</HeaderCell>
+              {!isMobile ? <HeaderCell>Type</HeaderCell> : null}
+              {!isMobile ? <HeaderCell>Token Symbol</HeaderCell> : null}
+              <Box
+                textAlign={['right', 'left']}
+                css={{ fontSize: '14px', fontWeight: 500, color: '#666666', textTransform: 'capitalize' }}
+              >
+                {isMobile ? `${activeTab} ` : null}Amount
+              </Box>
+              {!isMobile ? <HeaderCell>Transaction Hash</HeaderCell> : null}
             </TableHeader>
 
             {transactions.length > 0 ? (
               transactions.map((tx: Transaction, index: number) => (
-                <TransactionRow key={index} columns={5}>
+                <TransactionRow key={index} columns={isMobile ? 2 : 5}>
                   <Cell>{format(new Date(tx.date * 1000), 'dd MMM yyyy HH:mm')}</Cell>
-                  <Cell>{tx.type}</Cell>
-                  <Cell>
-                    <CurrencyDisplay>
-                      <SmallCurrencyIcon>
-                        <img src={USDCIcon} alt={tx.tokenSymbol} />
-                      </SmallCurrencyIcon>
-                      {tx.tokenSymbol}
-                    </CurrencyDisplay>
-                  </Cell>
-                  <Cell>{tx.amount}</Cell>
-                  <Cell>
-                    <HashDisplay>
-                      <a
-                        href={getExplorerLink(chainId, tx.hash, ExplorerDataType.TRANSACTION)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                      >
-                        {tx.hash.substring(0, 6)}...{tx.hash.substring(tx.hash.length - 4)}
-                      </a>
-                    </HashDisplay>
-                  </Cell>
+                  {!isMobile ? <Cell>{tx.type}</Cell> : null}
+                  {!isMobile ? (
+                    <Cell>
+                      <CurrencyDisplay>
+                        <SmallCurrencyIcon>
+                          <img src={USDCIcon} alt={tx.tokenSymbol} />
+                        </SmallCurrencyIcon>
+                        {tx.tokenSymbol}
+                      </CurrencyDisplay>
+                    </Cell>
+                  ) : null}
+                  <Box fontSize="14px" textAlign={['right', 'left']}>
+                    {isMobile ? (
+                      <Flex justifyContent="flex-end" alignItems="center" width={'100%'}>
+                        <CurrencyDisplay>
+                          <SmallCurrencyIcon>
+                            <img src={USDCIcon} alt={tx.tokenSymbol} />
+                          </SmallCurrencyIcon>
+                          {Number(tx.amount).toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </CurrencyDisplay>
+                      </Flex>
+                    ) : (
+                      <>
+                        {Number(tx.amount).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </>
+                    )}
+                  </Box>
+                  {!isMobile ? (
+                    <Cell>
+                      <HashDisplay>
+                        <a
+                          href={getExplorerLink(chainId, tx.hash, ExplorerDataType.TRANSACTION)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ textDecoration: 'none', color: '#6C5DD3' }}
+                        >
+                          {tx.hash.substring(0, 6)}...{tx.hash.substring(tx.hash.length - 4)}
+                          <ExternalLink size={'16'} style={{ marginLeft: 8 }} />
+                        </a>
+                      </HashDisplay>
+                    </Cell>
+                  ) : null}
                 </TransactionRow>
               ))
             ) : (
@@ -415,14 +446,6 @@ export default function ProductDetail() {
               </NoTransactionsRow>
             )}
           </TransactionsTable>
-
-          <Pagination>
-            <PageInfo>1-5 of 45</PageInfo>
-            <PageControls>
-              <PageButton disabled>&lt;</PageButton>
-              <PageButton>&gt;</PageButton>
-            </PageControls>
-          </Pagination>
         </TransactionsSection>
       </TransactionWrapper>
     </PageWrapper>
@@ -431,6 +454,7 @@ export default function ProductDetail() {
 
 const PageWrapper = styled.div`
   width: 100%;
+  padding: 0px 4px;
 `
 
 // Custom Text component to replace rebass Text
@@ -478,12 +502,13 @@ const ContentWrapper = styled.div`
 `
 
 const MainTitle = styled.h1`
-  line-height: 1.1;
+  color: #292933;
+  font-family: Inter;
+  font-size: 48px;
+  font-style: normal;
   font-weight: 700;
-  margin: 0 0 32px 0;
-  color: #1f1f1f;
-  max-width: 480px;
-  font-size: 52px;
+  line-height: 110%; /* 52.8px */
+  letter-spacing: -1.92px;
 
   @media (min-width: 768px) {
     font-size: 64px;
@@ -494,7 +519,6 @@ const MainTitle = styled.h1`
 const TokenInfoRow = styled.div`
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
 `
 
 const FlexibleTermText = styled.span`
@@ -566,39 +590,61 @@ const InfoCard = styled.div`
   background: #fff;
   box-shadow: 0px 30px 48px 0px rgba(63, 63, 132, 0.05);
   display: flex;
-  padding: 40px;
   justify-content: space-between;
   align-items: center;
   flex: 1 0 0;
   align-self: stretch;
+  padding: 24px;
+
+  @media (min-width: 768px) {
+    padding: 40px;
+  }
 `
 
 const InfoCardLabel = styled.div`
-  font-size: 16px;
-  color: #7e829b;
+  color: #8f8fb2;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.28px;
+
+  @media (min-width: 768px) {
+    font-size: 16px;
+  }
 `
 
 const InfoCardValue = styled.div`
-  font-size: 32px;
-  font-weight: 600;
-  color: #1f1f1f;
   margin-bottom: 8px;
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.6px;
+
+  @media (min-width: 768px) {
+    font-size: 32px;
+  }
 `
 
 const ApyBigText = styled.div`
-  color: #6c5dd3;
-  font-size: 50px;
+  color: #66f;
+  text-align: right;
+  font-family: Inter;
+  font-size: 40px;
+  font-style: normal;
   font-weight: 700;
-  line-height: 0.9;
-  margin-top: 8px;
-  margin-bottom: 8px;
+  line-height: 60px; /* 150% */
+  letter-spacing: -1.6px;
 
-  @media (max-width: 1100px) {
-    font-size: 45px;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 50px;
+  @media (min-width: 768px) {
+    color: #66f;
+    font-size: 64px;
+    line-height: 60px; /* 93.75% */
+    letter-spacing: -2.56px;
   }
 `
 
@@ -646,7 +692,7 @@ const TabButton = styled.button<{ active: boolean }>`
 const TransactionWrapper = styled.div`
   margin-top: 48px;
   background: #fff;
-  padding: 24px 0;
+  padding: 16px;
 
   @media (min-width: 768px) {
     margin-top: 80px;

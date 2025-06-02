@@ -167,6 +167,11 @@ const ChevronElement = styled(ChevronDown)`
   height: 20px;
   min-width: 20px;
   color: ${({ theme }) => theme.text1};
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin-left: 0;
+  `};
+
   > svg {
     height: 20px;
     min-width: 20px;
