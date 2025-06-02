@@ -5,7 +5,7 @@ import { getAddress, isAddress } from '@ethersproject/address'
 import { bnum, getAddressFromPoolId, includesAddress, isSameAddress, selectByAddressFast } from 'lib/utils'
 import { NativeAsset, TokenInfo, TokenInfoMap, TokenListMap } from 'types/TokenList'
 import { useTokensState } from '.'
-import { setAllowances, setTokensState } from '..'
+import { setAllowances, setTokensState, setSpenders } from '..'
 import useConfig from 'hooks/dex-v2/useConfig'
 import TokenService from 'services/token/token.service'
 import { tokenListService } from 'services/token-list/token-list.service'
@@ -28,12 +28,8 @@ export const useTokens = () => {
   const { networkConfig } = useConfig()
   const { isWalletReady } = useWeb3()
   const { allTokens } = useTokenLists()
-  const { allowances, balances } = state
+  const { allowances, balances, spenders } = state
 
-  /**
-   * STATE
-   */
-  const [spenders, setSpenders] = useState<string[]>([networkConfig.addresses.vault])
   const nativeAsset: NativeAsset = {
     ...networkConfig.nativeAsset,
     chainId: networkConfig.chainId,
@@ -238,7 +234,7 @@ export const useTokens = () => {
   async function injectSpenders(addresses: string[]): Promise<void> {
     addresses = addresses.filter((a) => a).map(getAddress)
 
-    setSpenders(addresses)
+    dispatch(setSpenders([...new Set(spenders.concat(addresses))]))
     // await forChange(onchainDataLoading, false);
   }
 

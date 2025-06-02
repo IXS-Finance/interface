@@ -4,17 +4,13 @@ import { ReactComponent as InfoIcon } from 'assets/images/info.svg'
 
 import DepositedStakedLiquidityRow from './DepositedStakedLiquidityRow'
 import useLiquidityPool from '../hooks/useLiquidityPool'
-import useAllowancesQuery from 'hooks/dex-v2/queries/useAllowancesQuery'
 import { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
-import { setAllowances } from 'state/dexV2/tokens'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import EmptyList from './EmptyList'
 import useGauges from 'hooks/dex-v2/pools/useGauges'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 
 const DepositedStakedLiquidity = () => {
-  const dispatch = useDispatch()
   const { gauges, gaugeFor } = useGauges()
   const {
     lpSupplyByPool,
@@ -35,24 +31,12 @@ const DepositedStakedLiquidity = () => {
     const hasEmissions = gaugeAddress && earnedEmissionsByGauge?.[gaugeAddress] > 0
     return hasStaked || hasLpBalance || hasEarnedTradingFees || hasEmissions
   })
-  const { injectSpenders, injectTokens, refetchAllowances } = useTokens()
-  const lpTokenAddresses = pools?.map((data) => data.address)
+  const { injectSpenders, injectTokens } = useTokens()
   const gaugeAddresses = gauges?.map((gauge) => gauge.address)
-  const { data: allowanceData } = useAllowancesQuery({
-    tokenAddresses: lpTokenAddresses,
-    contractAddresses: gaugeAddresses!,
-    isEnabled: !!(lpTokenAddresses?.length && gaugeAddresses?.length),
-  })
-  useEffect(() => {
-    if (Object.keys(allowanceData).length > 0) {
-      dispatch(setAllowances(allowanceData))
-    }
-  }, [allowanceData])
 
   useEffect(() => {
-    injectTokens(pools?.map((data) => data.address))
-    refetchAllowances()
-  }, [JSON.stringify(pools)])
+    injectTokens(userActivePools?.map((data) => data.address))
+  }, [userActivePools])
 
   useEffect(() => {
     if (!gaugeAddresses) return

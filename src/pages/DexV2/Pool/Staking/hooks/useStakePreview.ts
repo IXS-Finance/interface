@@ -41,7 +41,7 @@ export function useStakePreview(props: UseStakePreviewProps) {
   const [stakeActions, setStakeActions] = useState<TransactionActionStakingInfo[]>([])
 
   // COMPOSABLES (React hooks)
-  const { refetchBalances, tokens } = useTokens()
+  const { refetchBalances, refetchAllowances, tokens } = useTokens()
   const { fNum } = useNumbers()
   const { addTransaction } = useTransactions()
   const { getTokenApprovalActions } = useTokenApprovalActions()
@@ -155,7 +155,7 @@ export function useStakePreview(props: UseStakePreviewProps) {
     setIsActionConfirmed(true)
     setIsActionConfirming(false)
     setConfirmationReceipt(receipt)
-    await Promise.all([refetchBalances(), refetchAllPoolStakingData()])
+    await Promise.all([refetchBalances(), refetchAllPoolStakingData(), refetchAllowances()])
     props.onSuccess()
   }
 
