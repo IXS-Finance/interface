@@ -156,6 +156,8 @@ export default function ProductDetail() {
           amount: formatAmount(Number(formatUnits(tx.amount, product?.investingTokenDecimals || 0)), 6),
           hash: tx.transactionHash,
         }))
+
+        console.log('formattedTransactions', formattedTransactions)
       } else if (activeTab === 'withdraw' && subgraphData.withdraws) {
         formattedTransactions = subgraphData.withdraws.map((tx: any) => ({
           date: parseInt(tx.timestamp, 10),
@@ -311,7 +313,7 @@ export default function ProductDetail() {
             </TabsContainer>
           </Box>
 
-          {activeTab === 'deposit' && (
+          {activeTab === 'deposit' ? (
             <DepositTab
               amount={amount}
               setAmount={setAmount}
@@ -329,9 +331,9 @@ export default function ProductDetail() {
               investingTokenDecimals={product.investingTokenDecimals}
               chainId={chainId}
             />
-          )}
+          ) : null}
 
-          {activeTab === 'withdraw' && (
+          {activeTab === 'withdraw' ? (
             <WithdrawRequestTab
               withdrawAmount={withdrawAmount}
               setWithdrawAmount={setWithdrawAmount}
@@ -346,9 +348,9 @@ export default function ProductDetail() {
               getUsdcEquivalent={getUsdcEquivalent}
               vaultAddress={product.address}
             />
-          )}
+          ) : null}
 
-          {activeTab === 'claim' && (
+          {activeTab === 'claim' ? (
             <ClaimTab
               loading={loading}
               showClaimPreview={showClaimPreview}
@@ -359,7 +361,7 @@ export default function ProductDetail() {
               vaultAddress={product.address}
               investingTokenAddress={product.investingTokenAddress}
             />
-          )}
+          ) : null}
         </FormContainer>
       </div>
 
@@ -405,19 +407,11 @@ export default function ProductDetail() {
                           <SmallCurrencyIcon>
                             <img src={USDCIcon} alt={tx.tokenSymbol} />
                           </SmallCurrencyIcon>
-                          {Number(tx.amount).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                          {tx.amount}
                         </CurrencyDisplay>
                       </Flex>
                     ) : (
-                      <>
-                        {Number(tx.amount).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </>
+                      <>{tx.amount}</>
                     )}
                   </Box>
                   {!isMobile ? (

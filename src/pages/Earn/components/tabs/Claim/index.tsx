@@ -1,6 +1,14 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Trans } from '@lingui/macro'
-import { FormContentContainer, StyledButtonPrimary, Card, Value } from '../SharedStyles'
+import {
+  FormContentContainer,
+  StyledButtonPrimary,
+  Card,
+  Value,
+  ExchangeRateInfo,
+  ExchangeRateValue,
+  ExchangeRateLabel,
+} from '../SharedStyles'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { formatUnits } from 'viem'
 import VaultABI from '../../../abis/Vault.json' // Adjusted path
@@ -8,10 +16,12 @@ import ERC20ABI from 'abis/erc20.json' // Add ERC20 ABI import
 import { formatAmount } from 'utils/formatCurrencyAmount' // Assuming alias or correct path
 import { useMemo } from 'react'
 import styled from 'styled-components'
-import { Flex } from 'rebass'
-import { Label } from '@rebass/forms'
+import { Box, Flex } from 'rebass'
 import { FormSectionTitle } from '../../AmountInput'
 import ClaimPreview from './ClaimPreview'
+import { toast } from 'react-toastify'
+import ErrorContent from '../../ToastContent/Error'
+import { SuccessPopup } from './SuccessPopup'
 
 // Add styled component for info badge
 const InfoBadge = styled.div`
@@ -66,7 +76,6 @@ interface ClaimTabProps {
   setTermsAccepted: (accepted: boolean) => void
   handlePreviewClaim: () => void
   handleBackFromClaimPreview: () => void
-  network?: string
   vaultAddress?: string
   investingTokenAddress?: string
   investingTokenSymbol?: string
@@ -79,33 +88,40 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
   setTermsAccepted,
   handlePreviewClaim,
   handleBackFromClaimPreview,
-  serviceFee,
-  network,
   vaultAddress,
   investingTokenAddress,
   investingTokenSymbol = 'USDC',
 }) => {
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
+
   const { address } = useAccount()
-
-  // Add platform fee hook
   const { data: platformFeeBps } = usePlatformFee(vaultAddress as `0x${string}`)
-
-  // Add service fee hook
   const { data: claimFlatFee } = useServiceFee(vaultAddress as `0x${string}`)
-
-  console.log('claimFlatFee', claimFlatFee)
-  console.log('platformFeeBps', platformFeeBps)
-  console.log('vaultAddress', vaultAddress)
-
-  // Add write contract hook for claiming
-  const { writeContract, data: hash, isPending: isClaimPending } = useWriteContract()
+  const {
+    writeContract,
+    data: claimTxHash,
+    isPending: isSubmittingClaim,
+    error: claimContractWriteError,
+    reset: resetClaimContract,
+  } = useWriteContract()
 
   // Wait for transaction confirmation
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-    hash,
+  const {
+    isLoading: isConfirmingClaimTx,
+    isSuccess: isClaimTxConfirmed,
+    error: claimTxConfirmError,
+  } = useWaitForTransactionReceipt({
+    hash: claimTxHash,
+    query: {
+      enabled: !!claimTxHash,
+    },
   })
 
-  const { data: rawUserAssetBalance, isLoading: isLoadingClaimableBalance } = useReadContract({
+  const {
+    data: rawUserAssetBalance,
+    isLoading: isLoadingClaimableBalance,
+    refetch: refetchClaimableAmount,
+  } = useReadContract({
     abi: VaultABI.abi,
     address: vaultAddress as `0x${string}`,
     functionName: 'userAssetBalances', // Assuming this is the correct function name for claimable amount
@@ -115,7 +131,11 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
     },
   })
 
-  const { data: investingTokenBalance, isLoading: isLoadingInvestingTokenBalance } = useReadContract({
+  const {
+    data: investingTokenBalance,
+    isLoading: isLoadingInvestingTokenBalance,
+    refetch: refetchVaultTokenBalance,
+  } = useReadContract({
     abi: ERC20ABI,
     address: investingTokenAddress as `0x${string}`,
     functionName: 'balanceOf',
@@ -131,9 +151,9 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
     }
     if (rawUserAssetBalance !== undefined && rawUserAssetBalance !== null) {
       const formatted = formatUnits(rawUserAssetBalance as bigint, 6)
-      return formatAmount(parseFloat(formatted), 2)
+      return formatAmount(parseFloat(formatted), 4)
     }
-    return formatAmount(0, 2)
+    return formatAmount(0, 4)
   }, [rawUserAssetBalance, isLoadingClaimableBalance])
 
   // Calculate platform fee amount
@@ -227,20 +247,69 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
   }
 
   // Update loading state to include claim transaction states
-  const isAnyLoading = isLoadingClaimableBalance || isLoadingInvestingTokenBalance || isClaimPending || isConfirming
+  const isAnyLoading =
+    isLoadingClaimableBalance || isLoadingInvestingTokenBalance || isSubmittingClaim || isConfirmingClaimTx
+
+  useEffect(() => {
+    if (isClaimTxConfirmed) {
+      setShowSuccessPopup(true)
+      refetchVaultTokenBalance?.()
+      refetchClaimableAmount?.()
+    }
+  }, [isClaimTxConfirmed])
+
+  useEffect(() => {
+    let message: string | null = null
+    if (claimContractWriteError) {
+      message = claimContractWriteError.message || 'Failed to send claim transaction.'
+      console.error('Claim contract write error:', claimContractWriteError)
+      resetClaimContract()
+    } else if (claimTxConfirmError) {
+      message = claimTxConfirmError.message || 'Claim transaction failed to confirm.'
+      console.error('Claim transaction confirm error:', claimTxConfirmError)
+      resetClaimContract()
+    }
+    if (message) {
+      if (message.includes('User rejected the request')) {
+        toast.error(<ErrorContent title="Error" message="Transaction rejected by user." />, {
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(255, 101, 101, 0.50)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        })
+      } else {
+        toast.error(<ErrorContent title="Error" message={message} />, {
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(255, 101, 101, 0.50)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        })
+      }
+    }
+  }, [claimContractWriteError, claimTxConfirmError, resetClaimContract])
+
+  const handleClosePopup = () => {
+    setShowSuccessPopup(false)
+    handleBackFromClaimPreview()
+  }
 
   return (
     <>
       {!showClaimPreview ? (
         <FormContentContainer>
-          <Card>
-            <Flex flexDirection={['column', 'row']} justifyContent="space-between" alignItems="center">
-              <FormSectionTitle>Claimable Amount</FormSectionTitle>
-              <Value>
-                {displayableFetchedClaimableAmount} {investingTokenSymbol}
-              </Value>
-            </Flex>
-          </Card>
+          <FormSectionTitle>
+            <Trans>Claimable Amount</Trans>
+          </FormSectionTitle>
 
           {/* Show info badge if claiming is not possible */}
           {!isAnyLoading && !isFetchedClaimableAmountZero && !isClaimingPossible && (
@@ -250,7 +319,20 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
             </InfoBadge>
           )}
 
-          <Flex justifyContent="flex-end" alignItems="center" mt={3}>
+          <Flex
+            justifyContent="space-between"
+            alignItems="center"
+            mt="32px"
+            flexDirection={['column', 'row']}
+            width={'100%'}
+          >
+            <Box width={['100%', 'auto']} mb={['16px', '0']}>
+              <ExchangeRateInfo>
+                <ExchangeRateValue>
+                  {displayableFetchedClaimableAmount} {investingTokenSymbol}
+                </ExchangeRateValue>
+              </ExchangeRateInfo>
+            </Box>
             <StyledButtonPrimary
               onClick={handlePreviewClaim}
               disabled={isAnyLoading || isFetchedClaimableAmountZero || !isClaimingPossible || loading}
@@ -262,7 +344,6 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
       ) : (
         <ClaimPreview
           vaultAddress={vaultAddress as `0x${string}`}
-          network={network as string}
           investingTokenSymbol={investingTokenSymbol}
           displayableFetchedClaimableAmount={displayableFetchedClaimableAmount}
           platformFeePercentage={platformFeePercentage}
@@ -275,11 +356,13 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
           handleClaim={handleClaim}
           isClaimingPossible={isClaimingPossible}
           isAnyLoading={isAnyLoading}
-          isClaimPending={isClaimPending}
-          isConfirming={isConfirming}
           loading={loading}
+          isClaimPending={isSubmittingClaim}
+          isConfirming={isConfirmingClaimTx}
         />
       )}
+
+      {showSuccessPopup && <SuccessPopup onClose={handleClosePopup} txHash={claimTxHash} />}
     </>
   )
 }

@@ -2,18 +2,9 @@ import React from 'react'
 import { Trans } from '@lingui/macro'
 import {
   PreviewContainer,
-  PreviewSection,
-  PreviewTitle,
-  AddressBox,
-  SummaryTable,
-  SummaryRow,
-  SummaryLabel,
-  SummaryValue,
-  TermsContainer,
   Checkbox,
   TermsText,
   TermsLink,
-  ButtonsRow,
   BackButton,
   StyledButtonPrimary,
   Card,
@@ -24,6 +15,7 @@ import { formatAmount } from 'utils/formatCurrencyAmount'
 import { Box, Flex } from 'rebass'
 import { shortAddress } from 'utils'
 import styled from 'styled-components'
+import { CopyAddress } from 'components/CopyAddress'
 
 interface DepositPreviewProps {
   vaultAddress?: string
@@ -89,7 +81,9 @@ export const DepositPreview: React.FC<DepositPreviewProps> = ({
       <Card>
         <Flex css={{ gap: '8px', flexDirection: 'column' }}>
           <Label>Request Made To</Label>
-          <Value>{vaultAddress ? shortAddress(vaultAddress) : ''}</Value>
+          <Value>
+            <CopyAddress address={vaultAddress || ''} />
+          </Value>
         </Flex>
       </Card>
 
