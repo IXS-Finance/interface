@@ -1,4 +1,3 @@
-import React from 'react'
 import { Currency, CurrencyAmount, Percent, Token } from '@ixswap1/sdk-core'
 import styled from 'styled-components/macro'
 import { darken } from 'polished'
@@ -12,13 +11,15 @@ import { useCurrencyBalanceV2 } from 'state/wallet/hooks'
 import { TYPE } from 'theme'
 import { AssetLogo } from 'components/CurrencyInputPanel/AssetLogo'
 import { FiatValue } from 'components/CurrencyInputPanel/FiatValue'
-import { Flex } from 'rebass'
+import { Box, Flex } from 'rebass'
 import { Button } from '@mui/material'
 import { IXS_ADDRESS } from 'constants/addresses'
 import { DEFAULT_CHAIN_ID } from 'config'
 import { formatAmount } from 'utils/formatCurrencyAmount'
+import { LockedData } from 'services/balancer/contracts/ve-sugar'
 
 interface CurrencyInputPanelProps {
+  lockDetail?: LockedData
   value: string
   onUserInput: (value: string) => void
   onMax?: () => void
@@ -28,6 +29,7 @@ interface CurrencyInputPanelProps {
 }
 
 export default function CurrencyInputPanel({
+  lockDetail,
   value,
   onUserInput,
   onMax,
@@ -53,6 +55,10 @@ export default function CurrencyInputPanel({
     onUserInput(val)
   }
 
+  const votingPower = lockDetail
+    ? (+value * +lockDetail.votingAmount) / +lockDetail.amount + +lockDetail.votingAmount
+    : 0
+
   return (
     <InputPanel {...rest}>
       <NewContainer>
@@ -64,7 +70,7 @@ export default function CurrencyInputPanel({
             onUserInput={onChangeInput}
             fontSize="28px"
           />
-          <Flex alignItems='center' style={{ gap: 8 }}>
+          <Flex alignItems="center" style={{ gap: 8 }}>
             {selectedCurrencyBalance ? (
               <StyledMaxButton onClick={onMax} variant="text">
                 <Trans>Max</Trans>
@@ -115,6 +121,11 @@ export default function CurrencyInputPanel({
           </RowEnd>
         </FiatRow>
       </NewContainer>
+      <Box mt={4}>
+        <TYPE.body3>
+          New estimated voting power <strong>{formatAmount(votingPower, 4)}</strong> veIXS.
+        </TYPE.body3>
+      </Box>
     </InputPanel>
   )
 }

@@ -163,11 +163,11 @@ const LockDetailContent: React.FC<{ lockDetail?: LockedData }> = ({ lockDetail }
 
         {isIncrease && (
           <LockIncreaseCurrencyInput
+            lockDetail={lockDetail}
             value={userInput}
             currency={currency}
             onUserInput={setUserInput}
             onMax={() => setUserInput(maxInputAmount?.toExact() ?? '')}
-            fiatValue={undefined}
           />
         )}
 
