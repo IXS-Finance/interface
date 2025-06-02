@@ -158,7 +158,8 @@ const CardBody = ({
                 emissionsSymbol="IXS"
                 emissionApr={emissionApr}
                 showClaimEmissionsBtn={
-                  !!gaugeAddress && (!!earnedEmissions || !!earnedTradingFees?.some((fee) => fee > 0))
+                  !!gaugeAddress &&
+                  (!!earnedEmissions || (!!earnedTradingFees && earnedTradingFees.some((fee) => fee > 0)))
                 }
                 handleClaimEmissionsAction={handleClaimEmissions}
               />

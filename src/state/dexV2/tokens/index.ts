@@ -56,7 +56,7 @@ const tokensSlice = createSlice({
       state.tokens = action.payload
     },
     setSpenders(state, action) {
-      state.spenders = [...state.spenders, ...action.payload]
+      state.spenders = action.payload
     },
     setBalanceLoading(state, action) {
       state.balanceLoading = action.payload
