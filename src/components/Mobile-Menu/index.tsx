@@ -22,8 +22,9 @@ export const MobileMenu = (props: any) => {
 
 const IconContainer = styled.div`
   text-align: right;
-  width: 100%;
+  width: fit-content;
   display: none;
+
   @media (max-width: 1400px) {
     display: flex;
     align-items: center;

@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 import React, { useMemo, useEffect, useState } from 'react'
 import { Trans } from '@lingui/macro'
-import { Flex } from 'rebass'
+import { Box, Flex } from 'rebass'
 import { formatUnits } from 'viem'
 import { parseUnits } from 'viem'
 import { toast } from 'react-toastify'
@@ -435,15 +435,21 @@ export const DepositTab: React.FC<DepositTabProps> = ({
             updateIsValid={(valid: boolean) => setIsValid(valid)}
           />
 
-          <Flex justifyContent="space-between" alignItems="center" mt="32px">
-            <div>
+          <Flex
+            justifyContent="space-between"
+            alignItems="center"
+            mt="32px"
+            flexDirection={['column', 'row']}
+            width={'100%'}
+          >
+            <Box width={['100%', 'auto']} mb={['16px', '0']}>
               {exchangeRate ? (
                 <ExchangeRateInfo>
                   <ExchangeRateValue>{exchangeRate}</ExchangeRateValue>
                   <ExchangeRateLabel>Exchange Rate</ExchangeRateLabel>
                 </ExchangeRateInfo>
               ) : null}
-            </div>
+            </Box>
 
             {isCheckingWhitelist ? (
               <StyledButtonPrimary disabled={true}>
