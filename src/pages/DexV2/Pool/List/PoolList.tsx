@@ -18,7 +18,6 @@ import Asset from 'pages/DexV2/common/Asset'
 import usePools from 'hooks/dex-v2/pools/usePools'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
 import { PinnedContentButton } from 'components/Button'
-import { bnum } from 'lib/utils'
 import usePoolDayDatas from 'hooks/dex-v2/pools/usePoolDayDatas'
 import { SubgraphPoolDayData } from 'services/balancer/poolDayDatas/types'
 import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
@@ -53,7 +52,7 @@ interface IBody {
   items: any[]
 }
 const Body = ({ items }: IBody) => {
-  const { poolDayDatasFor } = usePoolDayDatas(items.map((pool) => pool.address))
+  const { poolDayDatasFor } = usePoolDayDatas()
 
   return (
     <BodyContainer>

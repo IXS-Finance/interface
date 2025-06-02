@@ -34,9 +34,9 @@ export default function useGaugesQuery(options: QueryOptions = {}) {
    * QUERY OPTIONS
    */
   const queryOptions = {
-    enabled: true,
     ...options,
     queryKey,
+    staleTime: 60 * 1000, // 1 minute
   }
 
   return useQuery<QueryResponse>({ queryFn, ...queryOptions })

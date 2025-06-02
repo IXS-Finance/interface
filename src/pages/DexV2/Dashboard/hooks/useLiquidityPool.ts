@@ -31,6 +31,7 @@ const useLiquidityPool = () => {
 
   const { pools, isLoading: isPoolsLoading } = usePools({
     poolIds: joinedPoolIds,
+    enabled: joinedPoolIds?.length > 0,
   })
 
   const poolContracts = pools?.flatMap((pool) => [
@@ -126,7 +127,7 @@ const useLiquidityPool = () => {
 
   return {
     pools,
-    isPoolsLoading,
+    isPoolsLoading: isPoolsLoading || joinExits.isLoading,
     lpSupplyByPool,
     userLpBalanceByPool,
     userGaugeBalanceByGauge,
