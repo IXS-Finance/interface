@@ -9,11 +9,12 @@ import { FOUR_YEARS_IN_SECONDS, WEEK } from '../../constants'
 import { formatAmount } from 'utils/formatCurrencyAmount'
 import { useLockDetail } from '../LockDetailProvider'
 import useLockQuery from 'hooks/dex-v2/queries/useLockQuery'
+import { timePeriods } from 'utils/time'
 
 const LockExtendDurationSlider: React.FC = () => {
   const params = useParams<{ id: string }>()
   const lockId = params.id.toLowerCase()
-  const { userInput, duration, setDuration } = useLockDetail()
+  const { duration, setDuration } = useLockDetail()
   const { lockDetail } = useLockQuery(lockId)
 
   const currentTime = Math.floor(Date.now() / 1000)
@@ -30,15 +31,15 @@ const LockExtendDurationSlider: React.FC = () => {
 
   const rangeSelectors = [
     { label: '7 Days', value: WEEK },
-    { label: '1 Year', value: 31536000 },
-    { label: '2 Years', value: 63072000 },
-    { label: '3 Years', value: 94608000 },
-    { label: '4 Years', value: 126230400 },
+    { label: '1 Year', value: timePeriods['1 year'] },
+    { label: '2 Years', value: 2 * timePeriods['1 year'] },
+    { label: '3 Years', value: 3 * timePeriods['1 year'] },
+    { label: '4 Years', value: 4 * timePeriods['1 year'] },
   ]
 
   const weekToShow = Math.round(duration / WEEK)
   const durationLabel = `${weekToShow} ${weekToShow > 1 ? 'weeks' : 'week'}`
-  const votingPower = (+userInput * duration) / FOUR_YEARS_IN_SECONDS
+  const votingPower = (+(lockDetail?.amount || 0) * duration) / FOUR_YEARS_IN_SECONDS
 
   const [minPercent, maxPercent] = useMemo(() => {
     const range = FOUR_YEARS_IN_SECONDS - WEEK
@@ -79,7 +80,7 @@ const LockExtendDurationSlider: React.FC = () => {
 
       <Box mt={4}>
         <TYPE.body3>
-          Locking for <strong>{durationLabel}</strong> for {formatAmount(votingPower, 2)} veIXS voting power.
+          New estimated voting power <strong>{formatAmount(votingPower, 4)}</strong> veIXS.
         </TYPE.body3>
       </Box>
     </Box>
