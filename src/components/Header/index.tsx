@@ -85,8 +85,22 @@ export default function Header() {
             </Title>
 
             <Flex alignItems="center" justifyContent="flex-end" css={{ gap: '8px' }}>
-              <NetworkCard />
-              <Web3Status />
+              {account ? (
+                <>
+                  <NetworkCard />
+                  <Web3Status />
+                </>
+              ) : (
+                <PinnedContentButton
+                  style={{ boxShadow: '0px 16px 16px 0px #6666FF21', minWidth: 200 }}
+                  onClick={openConnectModal}
+                >
+                  <Text className="connect-wallet-button">
+                    <Trans>Connect Wallet</Trans>
+                  </Text>
+                </PinnedContentButton>
+              )}
+
               <MobileMenu />
             </Flex>
           </Flex>

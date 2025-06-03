@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Trans } from '@lingui/macro'
-import {
-  FormContentContainer,
-  StyledButtonPrimary,
-  Card,
-  Value,
-  ExchangeRateInfo,
-  ExchangeRateValue,
-  ExchangeRateLabel,
-} from '../SharedStyles'
+import { FormContentContainer, StyledButtonPrimary, Card, Value, Label } from '../SharedStyles'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { formatUnits } from 'viem'
 import VaultABI from '../../../abis/Vault.json' // Adjusted path
@@ -16,12 +8,13 @@ import ERC20ABI from 'abis/erc20.json' // Add ERC20 ABI import
 import { formatAmount } from 'utils/formatCurrencyAmount' // Assuming alias or correct path
 import { useMemo } from 'react'
 import styled from 'styled-components'
-import { Box, Flex } from 'rebass'
+import { Flex } from 'rebass'
 import { FormSectionTitle } from '../../AmountInput'
 import ClaimPreview from './ClaimPreview'
 import { toast } from 'react-toastify'
 import ErrorContent from '../../ToastContent/Error'
 import { SuccessPopup } from './SuccessPopup'
+import USDCIcon from 'assets/images/usdcNew.svg'
 
 // Add styled component for info badge
 const InfoBadge = styled.div`
@@ -222,9 +215,6 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
       return false
     }
 
-    console.log('investingTokenBalance', investingTokenBalance)
-    console.log('rawUserAssetBalance', rawUserAssetBalance)
-    // Both should be bigint, compare directly
     return (investingTokenBalance as bigint) >= (rawUserAssetBalance as bigint)
   }, [rawUserAssetBalance, investingTokenBalance])
 
@@ -319,20 +309,23 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
             </InfoBadge>
           )}
 
+          <Card>
+            <Flex css={{ gap: '8px', flexDirection: 'column' }}>
+              <Label>Claimable Amount</Label>
+              <Value style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <img src={USDCIcon} alt="USDC" /> <strong>{displayableFetchedClaimableAmount}</strong>{' '}
+                {investingTokenSymbol}
+              </Value>
+            </Flex>
+          </Card>
+
           <Flex
-            justifyContent="space-between"
+            justifyContent="flex-end"
             alignItems="center"
             mt="32px"
             flexDirection={['column', 'row']}
             width={'100%'}
           >
-            <Box width={['100%', 'auto']} mb={['16px', '0']}>
-              <ExchangeRateInfo>
-                <ExchangeRateValue>
-                  {displayableFetchedClaimableAmount} {investingTokenSymbol}
-                </ExchangeRateValue>
-              </ExchangeRateInfo>
-            </Box>
             <StyledButtonPrimary
               onClick={handlePreviewClaim}
               disabled={isAnyLoading || isFetchedClaimableAmountZero || !isClaimingPossible || loading}

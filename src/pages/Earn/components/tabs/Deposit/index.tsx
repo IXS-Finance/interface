@@ -440,6 +440,43 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     }
   }, [depositContractWriteError?.message, depositTxConfirmError?.message])
 
+  useEffect(() => {
+    if (whitelistAttemptError) {
+      let message: string | null = null
+      const toastId = 'whitelist-error-toast'
+      if (whitelistAttemptError.includes('User rejected the request')) {
+        message = 'Transaction rejected by user.'
+        toast.error(<ErrorContent title="Error" message={message} />, {
+          toastId,
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(255, 101, 101, 0.50)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        })
+      } else {
+        message = whitelistAttemptError || 'Failed to send whitelist transaction.'
+        toast.error(<ErrorContent title="Error" message={message} />, {
+          toastId,
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(255, 101, 101, 0.50)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        })
+      }
+      setWhitelistAttemptError(message)
+    }
+  }, [whitelistAttemptError])
+
   return (
     <>
       {showRequireKyc ? <KYCPrompt onClose={() => setShowRequireKyc(false)} /> : null}
@@ -505,22 +542,6 @@ export const DepositTab: React.FC<DepositTabProps> = ({
                     return <Trans>Get Whitelisted</Trans>
                   })()}
                 </StyledButtonPrimary>
-                {whitelistAttemptError &&
-                  !isConfirmingWhitelistTx &&
-                  !isWhitelistContractCallPending &&
-                  !isFetchingSignature && (
-                    <div
-                      style={{
-                        color: 'red',
-                        marginTop: '10px',
-                        fontSize: '0.875em',
-                        textAlign: 'center',
-                        width: '100%',
-                      }}
-                    >
-                      {whitelistAttemptError}
-                    </div>
-                  )}
               </>
             )}
           </Flex>
