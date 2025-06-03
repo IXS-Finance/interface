@@ -13,7 +13,6 @@ import {
 } from '../SharedStyles'
 import { formatAmount } from 'utils/formatCurrencyAmount'
 import { Box, Flex } from 'rebass'
-import { shortAddress } from 'utils'
 import styled from 'styled-components'
 import { CopyAddress } from 'components/CopyAddress'
 
