@@ -94,8 +94,8 @@ export const DepositPreview: React.FC<DepositPreviewProps> = ({
         </Flex>
         <Box css={{ marginBottom: '16px', borderBottom: '1px solid #E8E8FF', paddingTop: '16px' }} />
         <Flex justifyContent="space-between" alignItems="center" css={{ marginTop: '8px' }}>
-          <Value>Estimated Vault Tokens Received</Value>
-          <Value>
+          <Value style={{ flex: 1 }}>Estimated Vault Tokens Received</Value>
+          <Value style={{ flex: 1, textAlign: 'right' }}>
             VT{' '}
             {(() => {
               const numericAmount = parseFloat(amount)
