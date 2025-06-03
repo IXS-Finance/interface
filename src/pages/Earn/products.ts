@@ -56,7 +56,7 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
 const addresses: Record<string, Record<string, string>> = {
   development: {
     'treasury-bill': '0x94F8e70EbA362A68ee71a3e1D6516526BdD92014',
-    'stablecoin-yield': '0xDev0987654321098765432109876543210987654321',
+    'stablecoin-yield': '0xffbcb279d2e248637eab17d4a9ce47f9cd38687b',
   },
   staging: {
     'treasury-bill': '0xStg1234567890123456789012345678901234567890',
