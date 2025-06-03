@@ -16,7 +16,6 @@ import styled from 'styled-components'
 
 interface ClaimPreviewProps {
   vaultAddress: string
-  network: string
   investingTokenSymbol: string
   displayableFetchedClaimableAmount: string
   platformFeePercentage: string
@@ -36,7 +35,6 @@ interface ClaimPreviewProps {
 
 const ClaimPreview: React.FC<ClaimPreviewProps> = ({
   vaultAddress,
-  network,
   investingTokenSymbol,
   displayableFetchedClaimableAmount,
   platformFeePercentage,
@@ -74,19 +72,12 @@ const ClaimPreview: React.FC<ClaimPreviewProps> = ({
         <Flex flex={1}>
           <Card>
             <Flex css={{ gap: '8px', flexDirection: 'column' }}>
-              <Label>Network</Label>
-              <Value>{network}</Value>
+              <Label>Sent From</Label>
+              <Value>{shortAddress(vaultAddress)}</Value>
             </Flex>
           </Card>
         </Flex>
       </Flex>
-
-      <Card>
-        <Flex css={{ gap: '8px', flexDirection: 'column' }}>
-          <Label>Sent From</Label>
-          <Value>{shortAddress(vaultAddress)}</Value>
-        </Flex>
-      </Card>
 
       <Card>
         <Label>Summary</Label>
@@ -133,7 +124,10 @@ const ClaimPreview: React.FC<ClaimPreviewProps> = ({
           css={{ gap: '16px' }}
         >
           <CustomBackButton onClick={handleBackFromClaimPreview}>Back</CustomBackButton>
-          <CustomStyledButtonPrimary onClick={handleClaim} disabled={!termsAccepted || !isClaimingPossible || isAnyLoading}>
+          <CustomStyledButtonPrimary
+            onClick={handleClaim}
+            disabled={!termsAccepted || !isClaimingPossible || isAnyLoading}
+          >
             {isClaimPending ? 'Initiating...' : isConfirming ? 'Confirming...' : loading ? 'Processing...' : 'Claim'}
           </CustomStyledButtonPrimary>
         </Flex>

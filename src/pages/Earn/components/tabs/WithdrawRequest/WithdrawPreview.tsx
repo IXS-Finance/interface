@@ -16,6 +16,7 @@ import {
 import { Box, Flex } from 'rebass'
 import { shortAddress } from 'utils'
 import styled from 'styled-components'
+import { CopyAddress } from 'components/CopyAddress'
 
 interface WithdrawPreviewProps {
   vaultAddress?: string
@@ -85,7 +86,9 @@ export const WithdrawPreview: React.FC<WithdrawPreviewProps> = ({
       <Card>
         <Flex css={{ gap: '8px', flexDirection: 'column' }}>
           <Label>Request Made To</Label>
-          <Value>{vaultAddress ? shortAddress(vaultAddress) : ''}</Value>
+          <Value>
+            <CopyAddress address={vaultAddress || ''} />
+          </Value>
         </Flex>
       </Card>
 

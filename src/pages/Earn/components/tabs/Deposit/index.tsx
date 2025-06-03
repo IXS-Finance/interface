@@ -74,12 +74,15 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   investingTokenDecimals,
   chainId,
 }) => {
-  const { address } = useAccount()
   const [isApproving, setIsApproving] = useState(false)
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
+  const [isFetchingSignature, setIsFetchingSignature] = useState(false)
+  const [whitelistAttemptError, setWhitelistAttemptError] = useState<string | null>(null)
+  const [depositError, setDepositError] = useState<string | null>(null)
   const [isValid, setIsValid] = useState(true)
   const [showRequireKyc, setShowRequireKyc] = useState<boolean>(false)
 
+  const { address } = useAccount()
   const { isChangeRequested, isPending, isDraft, isRejected, isNotSubmitted } = useKyc()
 
   const handlePrimaryAction = () => {
@@ -159,37 +162,8 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   const approveResult = useWaitForTransactionReceipt({
     // wait for tx confirmation
     hash: approveTxHash,
-  })
-
-  useEffect(() => {
-    if (approveResult.isSuccess) {
-      refetchAllowance()
-      setIsApproving(false)
-      toast.success(
-        <SuccessContent
-          title="Successful!"
-          message="Approval successful! Your funds have been approved for deposit."
-        />,
-        {
-          style: {
-            background: '#fff',
-            border: '1px solid rgba(40, 194, 92, 0.5)',
-            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
-            borderRadius: '8px',
-          },
-          icon: false,
-          hideProgressBar: true,
-          autoClose: 3000,
-        }
-      )
-    }
-  }, [approveResult.isSuccess, refetchAllowance])
-
-  useWatchTokenApprovalEvent({
-    address: investingTokenAddress as `0x${string}`,
-    onLogs(log) {
-      setIsApproving(false)
-      refetchAllowance()
+    query: {
+      enabled: !!approveTxHash,
     },
   })
 
@@ -214,11 +188,8 @@ export const DepositTab: React.FC<DepositTabProps> = ({
       enabled: !!vaultAddress && !!address && !isWhitelisted,
     },
   })
-  const userNonce = nonceData as BigNumber | undefined
 
-  const [isFetchingSignature, setIsFetchingSignature] = useState(false)
-  const [whitelistAttemptError, setWhitelistAttemptError] = useState<string | null>(null)
-  const [depositError, setDepositError] = useState<string | null>(null)
+  const userNonce = nonceData as BigNumber | undefined
 
   const {
     data: whitelistTxHash,
@@ -257,78 +228,13 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     },
   })
 
-  useEffect(() => {
-    if (isWhitelistTxConfirmed) {
-      refetchIsWhitelisted()
-      setWhitelistAttemptError(null)
-    }
-  }, [isWhitelistTxConfirmed, refetchIsWhitelisted])
-
-  useEffect(() => {
-    if (whitelistContractWriteError) {
-      setWhitelistAttemptError(whitelistContractWriteError.message || 'Failed to send whitelist transaction.')
-    } else if (whitelistTxConfirmError) {
-      setWhitelistAttemptError(whitelistTxConfirmError.message || 'Whitelist transaction failed to confirm.')
-    }
-  }, [whitelistContractWriteError, whitelistTxConfirmError])
-
-  useEffect(() => {
-    if (isDepositTxConfirmed) {
+  useWatchTokenApprovalEvent({
+    address: investingTokenAddress as `0x${string}`,
+    onLogs(log) {
+      setIsApproving(false)
       refetchAllowance()
-      setDepositError(null)
-      if (refetchBalanceData) {
-        refetchBalanceData()
-      }
-      setAmount('')
-      resetDepositContract() // Reset contract call state
-      setShowSuccessPopup(true) // Show success popup instead of going back immediately
-    }
-  }, [isDepositTxConfirmed, refetchBalanceData, setAmount, resetDepositContract])
-
-  useEffect(() => {
-    let message: string | null = null
-    if (depositContractWriteError) {
-      message =
-        depositContractWriteError.message || depositContractWriteError.message || 'Failed to send deposit transaction.'
-      console.error('Deposit contract write error:', depositContractWriteError)
-      resetDepositContract() // Reset to allow retry
-    } else if (depositTxConfirmError) {
-      message =
-        depositTxConfirmError.message || depositTxConfirmError.message || 'Deposit transaction failed to confirm.'
-      console.error('Deposit transaction confirm error:', depositTxConfirmError)
-      resetDepositContract() // Reset to allow retry if confirmation fails
-    }
-    // Set error if a new message is generated
-    if (message) {
-      if (message.includes('User rejected the request')) {
-        toast.error(<ErrorContent title="Error" message="Transaction rejected by user." />, {
-          style: {
-            background: '#fff',
-            border: '1px solid rgba(255, 101, 101, 0.50)',
-            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
-            borderRadius: '8px',
-          },
-          icon: false,
-          hideProgressBar: true,
-          autoClose: 3000,
-        })
-      } else {
-        toast.error(<ErrorContent title="Error" message={message} />, {
-          style: {
-            background: '#fff',
-            border: '1px solid rgba(255, 101, 101, 0.50)',
-            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
-            borderRadius: '8px',
-          },
-          icon: false,
-          hideProgressBar: true,
-          autoClose: 3000,
-        })
-      }
-      setDepositError(message)
-    }
-    // Note: Clearing of depositError is handled on new attempt or success
-  }, [depositContractWriteError, depositTxConfirmError, resetDepositContract])
+    },
+  })
 
   const handleApproval = async () => {
     try {
@@ -350,7 +256,6 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   }
 
   const handleGetSignatureAndWhitelist = async () => {
-    console.log('handleGetSignatureAndWhitelist', { address, vaultAddress, network, userNonce })
     if (!address || !vaultAddress || !network || userNonce === undefined) {
       const errorMsg = 'Cannot proceed: Missing address, vault, network, or nonce.'
       console.error(errorMsg, { address, vaultAddress, network, userNonce })
@@ -411,12 +316,129 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     }
   }
 
-  const isDepositing = isDepositContractCallPending || isConfirmingDepositTx
-
   const handleClosePopup = () => {
     setShowSuccessPopup(false)
     handleBackFromPreview() // Go back to the form after closing popup
   }
+
+  const isDepositing = isDepositContractCallPending || isConfirmingDepositTx
+
+  useEffect(() => {
+    if (approveResult.isSuccess) {
+      refetchAllowance()
+      setIsApproving(false)
+      toast.success(
+        <SuccessContent
+          title="Successful!"
+          message="Approval successful! Your funds have been approved for deposit."
+        />,
+        {
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(40, 194, 92, 0.5)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        }
+      )
+    }
+  }, [approveResult?.isSuccess])
+
+  useEffect(() => {
+    if (isWhitelistTxConfirmed) {
+      toast.success(
+        <SuccessContent title="Successful!" message="Whitelisting successful! You are now eligible to deposit." />,
+        {
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(40, 194, 92, 0.5)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        }
+      )
+      refetchIsWhitelisted()
+      setWhitelistAttemptError(null)
+    }
+  }, [isWhitelistTxConfirmed])
+
+  useEffect(() => {
+    if (isWhitelistTxConfirmed) {
+      refetchIsWhitelisted()
+      setWhitelistAttemptError(null)
+    }
+  }, [isWhitelistTxConfirmed])
+
+  useEffect(() => {
+    if (whitelistContractWriteError) {
+      setWhitelistAttemptError(whitelistContractWriteError.message || 'Failed to send whitelist transaction.')
+    } else if (whitelistTxConfirmError) {
+      setWhitelistAttemptError(whitelistTxConfirmError.message || 'Whitelist transaction failed to confirm.')
+    }
+  }, [whitelistContractWriteError?.message, whitelistTxConfirmError?.message])
+
+  useEffect(() => {
+    if (isDepositTxConfirmed) {
+      refetchAllowance()
+      setDepositError(null)
+      if (refetchBalanceData) {
+        refetchBalanceData()
+      }
+      setAmount('')
+      resetDepositContract()
+      setShowSuccessPopup(true)
+    }
+  }, [isDepositTxConfirmed])
+
+  useEffect(() => {
+    let message: string | null = null
+    if (depositContractWriteError) {
+      message =
+        depositContractWriteError.message || depositContractWriteError.message || 'Failed to send deposit transaction.'
+      console.error('Deposit contract write error:', depositContractWriteError)
+      resetDepositContract() // Reset to allow retry
+    } else if (depositTxConfirmError) {
+      message =
+        depositTxConfirmError.message || depositTxConfirmError.message || 'Deposit transaction failed to confirm.'
+      console.error('Deposit transaction confirm error:', depositTxConfirmError)
+      resetDepositContract() // Reset to allow retry if confirmation fails
+    }
+    // Set error if a new message is generated
+    if (message) {
+      if (message.includes('User rejected the request')) {
+        toast.error(<ErrorContent title="Error" message="Transaction rejected by user." />, {
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(255, 101, 101, 0.50)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        })
+      } else {
+        toast.error(<ErrorContent title="Error" message={message} />, {
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(255, 101, 101, 0.50)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        })
+      }
+      setDepositError(message)
+    }
+  }, [depositContractWriteError?.message, depositTxConfirmError?.message])
 
   return (
     <>

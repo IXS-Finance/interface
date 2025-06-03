@@ -205,7 +205,7 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
             amount={withdrawAmount.toString()}
             customBalance={formattedVaultTokenBalance}
             balanceLoading={isBalanceLoading}
-            // rules={[isGreaterThanOrEqualTo(100, 'Does not meet minimum amount (100 USDC)')]}
+            rules={[isGreaterThanOrEqualTo(100, 'Does not meet minimum amount (100 USDC)')]}
             updateAmount={(value: any) => setWithdrawAmount(value)}
             updateIsValid={(valid: boolean) => setIsValid(valid)}
           />
