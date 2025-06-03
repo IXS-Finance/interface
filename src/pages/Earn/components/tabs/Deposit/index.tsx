@@ -162,6 +162,9 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   const approveResult = useWaitForTransactionReceipt({
     // wait for tx confirmation
     hash: approveTxHash,
+    query: {
+      enabled: !!approveTxHash,
+    },
   })
 
   const result = useReadContract({
@@ -343,6 +346,27 @@ export const DepositTab: React.FC<DepositTabProps> = ({
       )
     }
   }, [approveResult?.isSuccess])
+
+  useEffect(() => {
+    if (isWhitelistTxConfirmed) {
+      toast.success(
+        <SuccessContent title="Successful!" message="Whitelisting successful! You are now eligible to deposit." />,
+        {
+          style: {
+            background: '#fff',
+            border: '1px solid rgba(40, 194, 92, 0.5)',
+            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+            borderRadius: '8px',
+          },
+          icon: false,
+          hideProgressBar: true,
+          autoClose: 3000,
+        }
+      )
+      refetchIsWhitelisted()
+      setWhitelistAttemptError(null)
+    }
+  }, [isWhitelistTxConfirmed])
 
   useEffect(() => {
     if (isWhitelistTxConfirmed) {
