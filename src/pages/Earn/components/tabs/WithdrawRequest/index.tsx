@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Trans } from '@lingui/macro'
-import { Flex } from 'rebass'
+import { Box, Flex } from 'rebass'
 import { toast } from 'react-toastify'
 import { ethers, BigNumber } from 'ethers'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
@@ -113,11 +113,10 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
     if (isWithdrawTxConfirmed) {
       setWithdrawError(null)
       refetchVaultTokenBalance?.()
-      setWithdrawAmount('')
       resetWithdrawContract()
       setShowSuccessPopup(true)
     }
-  }, [isWithdrawTxConfirmed, refetchVaultTokenBalance, setWithdrawAmount, resetWithdrawContract])
+  }, [isWithdrawTxConfirmed])
 
   useEffect(() => {
     let message: string | null = null
@@ -190,6 +189,7 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
   }
 
   const handleClosePopup = () => {
+    setWithdrawAmount('')
     setShowSuccessPopup(false)
     handleBackFromWithdrawPreview()
   }
@@ -210,15 +210,21 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
             updateIsValid={(valid: boolean) => setIsValid(valid)}
           />
 
-          <Flex justifyContent="space-between" alignItems="center" mt="32px">
-            <div>
-              {exchangeRate ? (
+          <Flex
+            justifyContent="space-between"
+            alignItems="center"
+            mt="32px"
+            flexDirection={['column', 'row']}
+            width={'100%'}
+          >
+            <Box width={['100%', 'auto']} mb={['16px', '0']}>
+              {Number(exchangeRate) ? (
                 <ExchangeRateInfo>
                   <ExchangeRateValue>{exchangeRate}</ExchangeRateValue>
                   <ExchangeRateLabel>Exchange Rate</ExchangeRateLabel>
                 </ExchangeRateInfo>
               ) : null}
-            </div>
+            </Box>
 
             <StyledButtonPrimary
               onClick={handlePreviewWithdraw}

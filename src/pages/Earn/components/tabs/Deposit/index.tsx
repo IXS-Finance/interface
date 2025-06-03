@@ -318,7 +318,8 @@ export const DepositTab: React.FC<DepositTabProps> = ({
 
   const handleClosePopup = () => {
     setShowSuccessPopup(false)
-    handleBackFromPreview() // Go back to the form after closing popup
+    handleBackFromPreview()
+    setAmount('')
   }
 
   const isDepositing = isDepositContractCallPending || isConfirmingDepositTx
@@ -390,7 +391,6 @@ export const DepositTab: React.FC<DepositTabProps> = ({
       if (refetchBalanceData) {
         refetchBalanceData()
       }
-      setAmount('')
       resetDepositContract()
       setShowSuccessPopup(true)
     }
