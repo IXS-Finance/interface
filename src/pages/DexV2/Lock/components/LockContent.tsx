@@ -52,7 +52,13 @@ const LockContent: React.FC = () => {
     new Big(userInput).gt(maxInputAmount.toExact())
 
   const isLockDisabled =
-    !account || locked || locking || !userInput || !maxInputAmount || new Big(userInput).gt(maxInputAmount.toExact())
+    !account ||
+    locked ||
+    locking ||
+    !userInput ||
+    !maxInputAmount ||
+    new Big(userInput).gt(maxInputAmount.toExact()) ||
+    +userInput <= 0
 
   const approveButtonLabel = useMemo(() => {
     if (approvalState === ApprovalState.PENDING) return 'Approval Pending...'
@@ -80,7 +86,6 @@ const LockContent: React.FC = () => {
         currency={currency}
         onUserInput={setUserInput}
         onMax={() => setUserInput(maxInputAmount?.toExact() ?? '')}
-        fiatValue={undefined}
       />
 
       <DurationSlider />
