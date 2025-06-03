@@ -46,6 +46,7 @@ import SignMessageModal from 'components/SignMessageModal'
 import useQuery from 'hooks/useQuery'
 import { setJumpTaskState } from 'state/jumpTask'
 import { CHAINS } from 'components/Web3Provider/constants'
+import Maintenance from './Maintenance'
 
 const chains = CHAINS ? CHAINS.map((chain) => chain.id) : []
 const lbpAdminRoutes = [routes.lbpCreate, routes.lbpEdit, routes.lbpDashboard, routes.adminDetails]
@@ -270,9 +271,10 @@ export default function App() {
               }
             >
               <Switch>
-                {routeFinalConfig.map(routeGenerator).filter((route) => !!route)}
+                <Route component={Maintenance} />
+                {/* {routeFinalConfig.map(routeGenerator).filter((route) => !!route)} */}
 
-                <Route component={() => <Redirect to={defaultPage ? defaultPage : routes.kyc} />} />
+                {/* <Route component={() => <Redirect to={defaultPage ? defaultPage : routes.kyc} />} /> */}
               </Switch>
             </Suspense>
           </ToggleableBody>
