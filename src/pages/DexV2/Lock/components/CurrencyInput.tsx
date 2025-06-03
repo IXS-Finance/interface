@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, Percent, Token } from '@ixswap1/sdk-core'
+import { Currency, Percent } from '@ixswap1/sdk-core'
 import styled from 'styled-components/macro'
 import { darken } from 'polished'
 import { RowFixed, RowEnd } from 'components/Row'
@@ -10,19 +10,19 @@ import { formatCurrencySymbol } from 'utils/formatCurrencySymbol'
 import { useCurrencyBalanceV2 } from 'state/wallet/hooks'
 import { TYPE } from 'theme'
 import { AssetLogo } from 'components/CurrencyInputPanel/AssetLogo'
-import { FiatValue } from 'components/CurrencyInputPanel/FiatValue'
-import { Flex } from 'rebass'
+import { Box, Flex } from 'rebass'
 import { Button } from '@mui/material'
 import { IXS_ADDRESS } from 'constants/addresses'
 import { DEFAULT_CHAIN_ID } from 'config'
 import { formatAmount } from 'utils/formatCurrencyAmount'
+import useInputValidation from 'pages/DexV2/common/forms/useInputValidation'
+import { isLessThanOrEqualTo, isPositive } from 'lib/utils/validations'
 
 interface CurrencyInputPanelProps {
   value: string
   onUserInput: (value: string) => void
   onMax?: () => void
   currency?: (Currency & { tokenInfo?: { decimals?: number } }) | null
-  fiatValue?: CurrencyAmount<Token> | null
   priceImpact?: Percent
 }
 
@@ -31,7 +31,6 @@ export default function CurrencyInputPanel({
   onUserInput,
   onMax,
   currency,
-  fiatValue,
   priceImpact,
   ...rest
 }: CurrencyInputPanelProps) {
@@ -42,7 +41,7 @@ export default function CurrencyInputPanel({
     currency: IXS_ADDRESS[chainId ?? DEFAULT_CHAIN_ID],
   })
   const selectedCurrencyBalance = currencyBalance?.formatted
-  
+
   const theme = useTheme()
   const decimals = currency?.tokenInfo?.decimals || 18
   const onChangeInput = (val: string) => {
@@ -52,9 +51,17 @@ export default function CurrencyInputPanel({
     onUserInput(val)
   }
 
+  // Input validation
+  const inputRules = [isPositive(), isLessThanOrEqualTo(selectedCurrencyBalance || '0', 'Exceeds wallet balance')]
+  const { errors } = useInputValidation({
+    rules: inputRules,
+    validateOn: 'input',
+    modelValue: value,
+  })
+
   return (
     <InputPanel {...rest}>
-      <NewContainer>
+      <NewContainer isError={!!errors.length}>
         <InputRow>
           <NumericalInput
             className="token-amount-input"
@@ -62,7 +69,7 @@ export default function CurrencyInputPanel({
             value={value}
             onUserInput={onChangeInput}
           />
-          <Flex alignItems='center' style={{ gap: 8 }}>
+          <Flex alignItems="center" style={{ gap: 8 }}>
             {selectedCurrencyBalance ? (
               <StyledMaxButton onClick={onMax} variant="text">
                 <Trans>Max</Trans>
@@ -86,8 +93,16 @@ export default function CurrencyInputPanel({
           </Flex>
         </InputRow>
         <FiatRow>
-          <FiatValue fiatValue={fiatValue} priceImpact={priceImpact} />
-          <RowEnd>
+          <Box
+            sx={{
+              fontSize: '12px',
+              color: '#FF8080',
+              mt: 2,
+            }}
+          >
+            {errors[0]}
+          </Box>
+          <RowEnd width="unset">
             {account ? (
               <BalanceWrap style={{ marginTop: '10px' }}>
                 <TYPE.body
@@ -125,21 +140,17 @@ const InputPanel = styled.div`
   width: initial;
 `
 
-const NewContainer = styled.div`
+const NewContainer = styled.div<{ isError: boolean }>`
   border-radius: 8px;
-  border: solid 1px #e6e6ff;
+  border: 1px solid ${({ isError }) => (isError ? 'rgba(255, 128, 128, 0.50)' : '#e6e6ff')};
   background-color: ${({ theme }) => theme.config.background?.main || theme.bg1};
-  width: initial;
+  padding: 14px 1rem;
 `
 
 const InputRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
   justify-content: space-between;
   align-items: center;
-  padding: 14px 2rem 0 2rem;
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-      padding: 10px 10px 0 1rem;
-  `};
 `
 
 const FiatRow = styled.div`
@@ -148,10 +159,8 @@ const FiatRow = styled.div`
   color: ${({ theme }) => theme.text1};
   font-size: 0.75rem;
   line-height: 1rem;
-  padding: 0 2rem 9px 2.5rem;
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-      padding: 0px 1rem 10px;
-      flex-wrap: wrap;
+    flex-wrap: wrap;
   `};
   span:hover {
     cursor: pointer;
