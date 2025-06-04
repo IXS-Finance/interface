@@ -330,6 +330,7 @@ export default function ProductDetail() {
               exchangeRate={openTradeExchangeRate}
               investingTokenDecimals={product.investingTokenDecimals}
               chainId={chainId}
+              type={product.type}
             />
           ) : null}
 

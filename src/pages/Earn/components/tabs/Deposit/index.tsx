@@ -56,6 +56,7 @@ interface DepositTabProps {
   exchangeRate?: string
   investingTokenDecimals?: number
   chainId?: number
+  type: 'EARN_V2_TREASURY' | 'EARN_V2_HYCB'
 }
 
 export const DepositTab: React.FC<DepositTabProps> = ({
@@ -73,6 +74,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   exchangeRate,
   investingTokenDecimals,
   chainId,
+  type
 }) => {
   const [isApproving, setIsApproving] = useState(false)
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
@@ -267,9 +269,17 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     setWhitelistAttemptError(null)
 
     try {
-      const apiUrl = earn.getEIP712Signature(network)
+      const mappingNetwork = {
+        ethereum: 'ethereum',
+        avalanche: 'avax',
+      }
+      const mappedNetwork = mappingNetwork[network as keyof typeof mappingNetwork]
+      if (!mappedNetwork) {
+        throw new Error(`Unsupported network: ${network}`)
+      }
+      const apiUrl = earn.getEIP712Signature(mappedNetwork)
       const signatureResponse = await apiService.post<EarnV2SignatureData>(apiUrl, {
-        product: 'EARN_V2_TREASURY',
+        product: type,
       })
 
       const { v, r, s } = signatureResponse.data
