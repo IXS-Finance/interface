@@ -2,6 +2,7 @@
 export interface EarnProduct {
   id: string
   name: string
+  type: 'EARN_V2_TREASURY' | 'EARN_V2_HYCB' // Add more types as needed
   apy: number
   description: string
   iconUrl: string | null
@@ -23,6 +24,7 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
   {
     id: 'treasury-bill',
     name: 'Flexible TERM USDC Vault',
+    type: 'EARN_V2_TREASURY',
     apy: 3.9,
     tvl: 5000000,
     description: 'US Treasuries, USD Money Market Funds',
@@ -38,6 +40,7 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
   {
     id: 'stablecoin-yield',
     name: 'High Yield Corporate Bond',
+    type: 'EARN_V2_HYCB',
     apy: 7,
     tvl: 2800000,
     description: 'BlackRock High Yield Corporate Bond ETF',
