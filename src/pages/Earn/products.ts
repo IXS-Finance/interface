@@ -72,15 +72,22 @@ const addresses: Record<string, Record<string, string>> = {
 }
 
 // Environment-specific investing token addresses organized by token symbol
-const investingTokenAddresses: Record<string, Record<string, string>> = {
+const investingTokenAddresses: Record<string, Record<string, Record<string, string>>> = {
   development: {
-    USDC: '0xfd4f11a2aae86165050688c85ec9ed6210c427a9',
+    USDC: {
+      ethereum: '0xfd4f11a2aae86165050688c85ec9ed6210c427a9',
+      avalanche: '0xBc0Aa760964BD838f462610fC996b24Ff09ca0B9',
+    },
   },
   staging: {
-    USDC: '0xStgUSDC12345678901234567890123456789012345',
+    USDC: {
+      ethereum: '0xStgUSDC12345678901234567890123490123456789012345',
+    },
   },
   production: {
-    USDC: '0xProdUSDC12345678901234567890123456789012345',
+    USDC: {
+      ethereum: '0xProdUSDC12345678901234567890123456789012345',
+    },
   },
 }
 
@@ -108,7 +115,7 @@ const products: EarnProduct[] = baseProducts.map((product) => ({
   ...product,
   address: addresses[currentEnv][product.id] || '0x0000000000000000000000000000000000000000',
   investingTokenAddress:
-    investingTokenAddresses[currentEnv][product.investingTokenSymbol || ''] ||
+    investingTokenAddresses[currentEnv][product.investingTokenSymbol || ''][product.network || ''] ||
     '0x0000000000000000000000000000000000000000',
   opentradeVaultAddress:
     opentradeVaultAddresses[currentEnv][product.id] || '0x0000000000000000000000000000000000000000',
