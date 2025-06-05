@@ -15,6 +15,7 @@ interface StakeModalProps {
   action: StakeAction
   onClose: () => void
   onSuccess: () => void
+  emissionApr: string
 }
 
 const StakePreviewModal: React.FC<StakeModalProps> = ({
@@ -27,6 +28,7 @@ const StakePreviewModal: React.FC<StakeModalProps> = ({
   onSuccess,
   stakedBalance,
   unstakeBalance,
+  emissionApr,
 }) => {
   const lpToken = {
     address: pool.address,
@@ -51,6 +53,7 @@ const StakePreviewModal: React.FC<StakeModalProps> = ({
         <StakePreview
           currentShares={currentShares}
           pool={pool}
+          emissionApr={emissionApr}
           lpToken={lpToken}
           gaugeAddress={gaugeAddress}
           action={action}

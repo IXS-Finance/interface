@@ -186,6 +186,7 @@ const CardBody = ({
         <StakePreviewModal
           isVisible
           pool={data}
+          emissionApr={emissionApr}
           gaugeAddress={gaugeAddress}
           currentShares={formatUnits(userLpBalance ?? BigInt(0), LP_DECIMALS)}
           stakedBalance={userGaugeBalance ?? BigInt(0)}
