@@ -21,6 +21,7 @@ import { LP_DECIMALS } from './constants'
 import usePoolDayDatas from 'hooks/dex-v2/pools/usePoolDayDatas'
 import { getPoolAprValue } from 'lib/utils/poolApr'
 import useGauges from 'hooks/dex-v2/pools/useGauges'
+import useEmissionApr from 'hooks/dex-v2/useEmissionApr'
 
 type Props = {
   pool: Pool
@@ -88,6 +89,7 @@ const StakingCard: React.FC<Props> = ({ pool }) => {
     refetchAllowances()
   }, [gaugeAddress])
 
+  const emissionAprValue = useEmissionApr(pool)
   const poolApr = getPoolAprValue(pool, poolDayDatasFor(pool.address))
 
   if (isLoading) {
@@ -177,6 +179,7 @@ const StakingCard: React.FC<Props> = ({ pool }) => {
         <StakePreviewModal
           isVisible={isStakePreviewVisible}
           pool={pool}
+          emissionApr={emissionAprValue}
           gaugeAddress={gaugeAddress}
           currentShares={balanceFor(getAddress(pool.address))}
           stakedBalance={parseUnits(stakedBalance, LP_DECIMALS)}
