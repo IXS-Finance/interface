@@ -14,6 +14,7 @@ import { bnum } from 'lib/utils'
 import { LP_DECIMALS } from './constants'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
+import { fNum as balancerNumFormater } from 'lib/balancer/utils/numbers'
 
 const FIXED_OPTIONS = ['0.25', '0.5', '0.75', '1']
 
@@ -29,6 +30,7 @@ type Props = {
   onSuccess: () => void
   unstakeBalance: bigint
   stakedBalance: bigint
+  emissionApr: string
 }
 
 const StakePreview: React.FC<Props> = ({
@@ -41,6 +43,7 @@ const StakePreview: React.FC<Props> = ({
   onSuccess,
   stakedBalance,
   unstakeBalance,
+  emissionApr,
 }) => {
   const { fNum } = useNumbers()
   const { isMismatchedNetwork } = useWeb3()
@@ -158,7 +161,7 @@ const StakePreview: React.FC<Props> = ({
               }}
             >
               <Box color="#B8B8D2">APR</Box>
-              <Box>34.5%</Box>
+              <Box>{balancerNumFormater('apr', emissionApr)}</Box>
             </Flex>
             <Flex
               flexDirection="column"
