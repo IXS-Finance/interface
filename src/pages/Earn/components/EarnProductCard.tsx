@@ -99,6 +99,7 @@ export function EarnProductCard({ product, onClick }: EarnProductCardProps) {
               lineHeight: 'normal',
               letterSpacing: ['-0.24px', '-0.33px', '-0.42px'],
               marginBottom: ['16px', '20px', '24px'],
+              width: ['60%', '100%', '100%'],
             }}
           >
             {product.description}
@@ -115,7 +116,6 @@ const CardContainer = styled.div<{ cornerImageUrl: string }>`
   background: #fff;
   box-shadow: 0px 30px 48px 0px rgba(63, 63, 132, 0.05);
   transition: transform 0.2s ease;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   height: 100%;
