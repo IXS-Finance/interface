@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 import { Trans } from '@lingui/macro'
@@ -180,6 +180,10 @@ export default function ProductDetail() {
       setTransactions([])
     }
   }, [subgraphData, activeTab, product?.investingTokenSymbol, product?.investingTokenDecimals, account, chainId])
+
+  useEffect(() => {
+    setTransactions([]) // Reset transactions when account or chainId changes
+  }, [account, chainId])
 
   // Handle case when product is not found
   if (!product) {
