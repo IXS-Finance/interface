@@ -335,6 +335,7 @@ export default function ProductDetail() {
               investingTokenDecimals={product.investingTokenDecimals}
               chainId={chainId}
               type={product.type}
+              minimumDeposit={product.minimumDeposit}
             />
           ) : null}
 
@@ -352,6 +353,7 @@ export default function ProductDetail() {
               exchangeRate={openTradeExchangeRate || '0'}
               getUsdcEquivalent={getUsdcEquivalent}
               vaultAddress={product.address}
+              minimumDeposit={product.minimumDeposit}
             />
           ) : null}
 
