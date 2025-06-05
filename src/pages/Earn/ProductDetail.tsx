@@ -266,7 +266,7 @@ export default function ProductDetail() {
               <div>
                 <FlexibleTermText>{product.description}</FlexibleTermText>
                 <div>
-                  <LearnMoreLink href="#">Learn more</LearnMoreLink>
+                  <LearnMoreLink>Learn more</LearnMoreLink>
                 </div>
               </div>
             </TokenInfoRow>
@@ -543,11 +543,16 @@ const TokenIconCircle = styled.div`
   }
 `
 
-const LearnMoreLink = styled.a`
-  color: #6c5dd3;
-  font-size: 16px;
+const LearnMoreLink = styled.div`
+  color: #66f;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
   font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.42px;
   cursor: pointer;
+  margin-top: 4px;
   text-decoration: none;
 
   &:hover {
