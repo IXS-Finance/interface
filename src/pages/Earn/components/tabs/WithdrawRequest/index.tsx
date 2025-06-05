@@ -33,6 +33,7 @@ interface WithdrawRequestTabProps {
   getUsdcEquivalent: (vaultAmount: string) => string
   network?: string
   vaultAddress?: string
+  minimumDeposit: number
 }
 
 const VAULT_TOKEN_DECIMALS = 6 // Assumption: Vault tokens have 6 decimals
@@ -50,6 +51,7 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
   getUsdcEquivalent,
   network,
   vaultAddress,
+  minimumDeposit,
 }) => {
   const { address } = useAccount()
   const [withdrawError, setWithdrawError] = useState<string | null>(null)
@@ -205,7 +207,7 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
             amount={withdrawAmount.toString()}
             customBalance={formattedVaultTokenBalance}
             balanceLoading={isBalanceLoading}
-            rules={[isGreaterThanOrEqualTo(100, 'Does not meet minimum amount (100 USDC)')]}
+            rules={[isGreaterThanOrEqualTo(minimumDeposit, `Does not meet minimum amount (${minimumDeposit} USDC)`)]}
             updateAmount={(value: any) => setWithdrawAmount(value)}
             updateIsValid={(valid: boolean) => setIsValid(valid)}
           />

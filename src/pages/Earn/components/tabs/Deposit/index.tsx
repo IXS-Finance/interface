@@ -57,6 +57,7 @@ interface DepositTabProps {
   investingTokenDecimals?: number
   chainId?: number
   type: 'EARN_V2_TREASURY' | 'EARN_V2_HYCB'
+  minimumDeposit: number
 }
 
 export const DepositTab: React.FC<DepositTabProps> = ({
@@ -75,6 +76,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   investingTokenDecimals,
   chainId,
   type,
+  minimumDeposit
 }) => {
   const [isApproving, setIsApproving] = useState(false)
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
@@ -489,7 +491,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
             label="Deposit Amount"
             name="depositAmount"
             amount={amount.toString()}
-            rules={[isGreaterThanOrEqualTo(100, 'Does not meet minimum amount (100 USDC)')]}
+            rules={[isGreaterThanOrEqualTo(minimumDeposit, `Does not meet minimum amount (${minimumDeposit} USDC)`)]}
             customBalance={balanceRaw.toString()}
             balanceLoading={isBalanceLoading}
             updateAmount={(value: any) => setAmount(value)}

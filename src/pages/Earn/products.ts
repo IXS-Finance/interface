@@ -7,6 +7,8 @@ export interface EarnProduct {
   description: string
   iconUrl: string | null
   tvl?: number
+  minimumDeposit: number // minimum deposit amount in the investing token
+  maximumDeposit?: number // maximum deposit amount in the investing token
   underlyingAsset?: string
   network?: string // blockchain network: 'ethereum', 'polygon', etc.
   address?: string // contract address of the vault
@@ -27,6 +29,8 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
     type: 'EARN_V2_TREASURY',
     apy: 3.9,
     tvl: 5000000,
+    minimumDeposit: 100,
+    maximumDeposit: 100,
     description: 'US Treasuries, USD Money Market Funds',
     iconUrl: '/images/earn/icon01.svg',
     underlyingAsset: 'U.S. Treasury Bill',
@@ -43,6 +47,8 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
     type: 'EARN_V2_HYCB',
     apy: 7,
     tvl: 2800000,
+    minimumDeposit: 1000,
+    maximumDeposit: 1000,
     description: 'BlackRock High Yield Corporate Bond ETF',
     iconUrl: '/images/earn/icon02.svg',
     underlyingAsset: 'BlackRock High Yield Corporate Bond ETF',
