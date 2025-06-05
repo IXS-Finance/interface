@@ -26,7 +26,7 @@ import SuccessContent from '../../ToastContent/Success'
 import AmountInput from '../../AmountInput'
 import { isGreaterThanOrEqualTo } from '../../AmountInput/validations'
 import { KYCPrompt } from 'components/Launchpad/KYCPrompt'
-import { useKyc } from 'state/user/hooks'
+import { me, useKyc } from 'state/user/hooks'
 import { DepositPreview } from './DepositPreview'
 
 const useWatchTokenApprovalEvent = createUseWatchContractEvent({
@@ -74,7 +74,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   exchangeRate,
   investingTokenDecimals,
   chainId,
-  type
+  type,
 }) => {
   const [isApproving, setIsApproving] = useState(false)
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
@@ -453,36 +453,28 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   useEffect(() => {
     if (whitelistAttemptError) {
       let message: string | null = null
+
       const toastId = 'whitelist-error-toast'
       if (whitelistAttemptError.includes('User rejected the request')) {
         message = 'Transaction rejected by user.'
-        toast.error(<ErrorContent title="Error" message={message} />, {
-          toastId,
-          style: {
-            background: '#fff',
-            border: '1px solid rgba(255, 101, 101, 0.50)',
-            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
-            borderRadius: '8px',
-          },
-          icon: false,
-          hideProgressBar: true,
-          autoClose: 3000,
-        })
+      } else if (whitelistAttemptError.includes('Invalid signature')) {
+        message = 'Invalid signature. Please try again.'
       } else {
         message = whitelistAttemptError || 'Failed to send whitelist transaction.'
-        toast.error(<ErrorContent title="Error" message={message} />, {
-          toastId,
-          style: {
-            background: '#fff',
-            border: '1px solid rgba(255, 101, 101, 0.50)',
-            boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
-            borderRadius: '8px',
-          },
-          icon: false,
-          hideProgressBar: true,
-          autoClose: 3000,
-        })
       }
+
+      toast.error(<ErrorContent title="Error" message={message} />, {
+        toastId,
+        style: {
+          background: '#fff',
+          border: '1px solid rgba(255, 101, 101, 0.50)',
+          boxShadow: '0px 24px 32px 0px rgba(41, 41, 63, 0.08)',
+          borderRadius: '8px',
+        },
+        icon: false,
+        hideProgressBar: true,
+        autoClose: 3000,
+      })
       setWhitelistAttemptError(message)
     }
   }, [whitelistAttemptError])
