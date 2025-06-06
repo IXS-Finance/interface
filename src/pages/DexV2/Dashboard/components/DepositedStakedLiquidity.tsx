@@ -9,6 +9,7 @@ import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
 import EmptyList from './EmptyList'
 import useGauges from 'hooks/dex-v2/pools/useGauges'
 import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
+import { MIN_POOL_ACTIVITY_THRESHOLD } from './constants'
 
 const DepositedStakedLiquidity = () => {
   const { gauges, gaugeFor } = useGauges()
@@ -24,11 +25,12 @@ const DepositedStakedLiquidity = () => {
   } = useLiquidityPool()
   const userActivePools = pools?.filter((pool) => {
     const gaugeAddress = gaugeFor(pool.address)?.address
-    const hasStaked = gaugeAddress && userGaugeBalanceByGauge?.[gaugeAddress] > 0
-    const hasLpBalance = userLpBalanceByPool?.[pool.address] > 0
+    const hasStaked = gaugeAddress && userGaugeBalanceByGauge?.[gaugeAddress] > MIN_POOL_ACTIVITY_THRESHOLD
+    const hasLpBalance = userLpBalanceByPool?.[pool.address] > MIN_POOL_ACTIVITY_THRESHOLD
     const hasEarnedTradingFees =
-      gaugeAddress && earnedTradingFeesByGauge?.[gaugeAddress]?.some?.((tradingFee: bigint) => tradingFee > 0)
-    const hasEmissions = gaugeAddress && earnedEmissionsByGauge?.[gaugeAddress] > 0
+      gaugeAddress &&
+      earnedTradingFeesByGauge?.[gaugeAddress]?.some?.((tradingFee: bigint) => tradingFee > MIN_POOL_ACTIVITY_THRESHOLD)
+    const hasEmissions = gaugeAddress && earnedEmissionsByGauge?.[gaugeAddress] > MIN_POOL_ACTIVITY_THRESHOLD
     return hasStaked || hasLpBalance || hasEarnedTradingFees || hasEmissions
   })
   const { injectSpenders, injectTokens } = useTokens()

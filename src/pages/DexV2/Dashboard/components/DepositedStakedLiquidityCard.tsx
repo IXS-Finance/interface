@@ -21,6 +21,7 @@ import { Line } from 'components/Line'
 import { fNum } from 'lib/balancer/utils/numbers'
 import { Pool, PoolToken } from 'services/pool/types'
 import { bnum } from 'lib/utils'
+import { MIN_POOL_ACTIVITY_THRESHOLD } from './constants'
 
 const MAX_FRACTION_DIGITS = 5
 
@@ -159,7 +160,8 @@ const CardBody = ({
                 emissionApr={emissionApr}
                 showClaimEmissionsBtn={
                   !!gaugeAddress &&
-                  (!!earnedEmissions || (!!earnedTradingFees && earnedTradingFees.some((fee) => fee > 0)))
+                  (!!earnedEmissions ||
+                    (!!earnedTradingFees && earnedTradingFees.some((fee) => fee > MIN_POOL_ACTIVITY_THRESHOLD)))
                 }
                 handleClaimEmissionsAction={handleClaimEmissions}
               />
