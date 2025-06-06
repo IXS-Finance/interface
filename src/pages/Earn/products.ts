@@ -64,7 +64,7 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
 // Environment-specific addresses
 const addresses: Record<string, Record<string, string>> = {
   development: {
-    'treasury-bill': '0x94F8e70EbA362A68ee71a3e1D6516526BdD92014',
+    'treasury-bill': '0x0b8d47C634F60E18b2a58CcBDE55D9140f651E66',
     'stablecoin-yield': '0x5E25F811828D063E436A3923e00C7F9aDAdE39BF',
   },
   staging: {
@@ -100,8 +100,8 @@ const investingTokenAddresses: Record<string, Record<string, Record<string, stri
 // Environment-specific opentrade vault addresses
 const opentradeVaultAddresses: Record<string, Record<string, string>> = {
   development: {
-    'treasury-bill': '0xb76Ce5dDfF947eA5f0fE7B587bF53925d09266bd',
-    'stablecoin-yield': '0xDevOTVSY00000000000000000000000000000000000',
+    'treasury-bill': '0xaE3cfBe878FB66070030B7cb29cfe0Deeac624DD',
+    'stablecoin-yield': '0xc982983B42178448C72B0fa1E7af8CbA5f79bBE3',
   },
   staging: {
     'treasury-bill': '0xStgOTVTB00000000000000000000000000000000000',
