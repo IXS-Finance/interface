@@ -101,6 +101,9 @@ const QUERY_KEYS = {
         },
       ],
     },
+    JoinExits: {
+      Static: (account: string) => ['pools', 'joinExits', 'static', { account }],
+    },
     Gauges: (poolAddresses: string[] | undefined) => ['pools', 'gauges', { poolAddresses }],
   },
   Pool: {

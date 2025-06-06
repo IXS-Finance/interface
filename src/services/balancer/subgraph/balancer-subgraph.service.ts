@@ -9,6 +9,7 @@ import PoolSwaps from './entities/poolSwaps'
 import TradePairSnapshots from './entities/swapPairs'
 import { PoolDayDatasEntity } from '../poolDayDatas/entities/gauges/poolDayDatas.entity'
 import { GaugesEntity } from '../gauges/entities/gauges/gauges.entity'
+import { JoinExitsEntity } from '../pools/joinExits/joinExits.entity'
 
 export default class BalancerSubgraphService {
   pools: Pools
@@ -19,6 +20,7 @@ export default class BalancerSubgraphService {
   tradePairSnapshots: TradePairSnapshots
   poolDayDatas: PoolDayDatasEntity
   gauges: GaugesEntity
+  joinExits: JoinExitsEntity
 
   constructor(readonly client = balancerSubgraphClient, readonly rpcProviderService = _rpcProviderService) {
     // Init entities
@@ -30,6 +32,7 @@ export default class BalancerSubgraphService {
     this.tradePairSnapshots = new TradePairSnapshots(this)
     this.poolDayDatas = new PoolDayDatasEntity(this)
     this.gauges = new GaugesEntity(this)
+    this.joinExits = new JoinExitsEntity(this)
   }
 }
 
