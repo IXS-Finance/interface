@@ -20,6 +20,7 @@ export const USDC: { [chainId: number]: Token } = {
     'USD//C'
   ),
   153: new Token(153, '0x5c5f3E64bd3F95Df54a6601369BD3A08bfD28a2f', 6, 'USDC', 'USDC'),
+  151: new Token(151, '0x8201c02d4AB2214471E8C3AD6475C8b0CD9F2D06', 6, 'USDC', 'USDC'),
 }
 
 // Mirror Protocol compat.
@@ -35,6 +36,7 @@ export const IXS: { [chainId: number]: Token } = {
   [84532]: new Token(84532, IXS_ADDRESS[84532], 18, 'IXS', 'IXS'),
   [8453]: new Token(8453, IXS_ADDRESS[8453], 18, 'IXS', 'IXS'),
   153: new Token(153, IXS_ADDRESS[153], 18, 'IXS', 'IXS'),
+  151: new Token(151, IXS_ADDRESS[151], 18, 'IXS', 'IXS'),
 }
 
 export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } = {
@@ -60,7 +62,20 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
     'WMATIC',
     'Wrapped MATIC'
   ),
-  [SupportedChainId.REDBELLY_TESNET]: new Token(SupportedChainId.REDBELLY_TESNET, '0xC8fce9E9F0a999Def5cbc041AcC64750C3F92Cd8', 18, 'wRBNT', 'Wrapped RBNT'),
+  [SupportedChainId.REDBELLY_TESNET]: new Token(
+    SupportedChainId.REDBELLY_TESNET,
+    '0xC8fce9E9F0a999Def5cbc041AcC64750C3F92Cd8',
+    18,
+    'wRBNT',
+    'Wrapped RBNT'
+  ),
+  [SupportedChainId.REDBELLY]: new Token(
+    SupportedChainId.REDBELLY,
+    '0x6ed1F491e2d31536D6561f6bdB2AdC8F092a6076',
+    18,
+    'wRBNT',
+    'Wrapped RBNT'
+  ),
 }
 
 function isMatic(chainId: number) {
@@ -147,6 +162,7 @@ export const TOKEN_SHORTHANDS: { [shorthand: string]: Record<any, any> } = {
     [SupportedChainId.BASE_SEPOLIA]: USDC[84532],
     [SupportedChainId.BASE]: USDC[8453],
     [SupportedChainId.REDBELLY_TESNET]: USDC[153],
+    [SupportedChainId.REDBELLY]: USDC[151],
     // [SupportedChainId.MUMBAI]: '0xe11a86849d99f524cac3e7a0ec1241828e332c62',
   },
   IXS: {
@@ -158,6 +174,7 @@ export const TOKEN_SHORTHANDS: { [shorthand: string]: Record<any, any> } = {
     [SupportedChainId.BASE_SEPOLIA]: IXS[84532],
     [SupportedChainId.BASE]: IXS[8453],
     [SupportedChainId.REDBELLY_TESNET]: IXS[153],
+    [SupportedChainId.REDBELLY]: IXS[151],
   },
 }
 

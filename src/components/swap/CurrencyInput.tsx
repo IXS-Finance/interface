@@ -152,6 +152,7 @@ export const CurrencyInput = ({ parsedAmounts, maxInputAmount, showWrap, currenc
           onCurrencySelect={handleOutputSelect}
           otherCurrency={currencies[Field.INPUT]}
           showCommonBases={true}
+          title="Select a token to swap"
           id="swap-currency-output"
         />
       </div>

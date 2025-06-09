@@ -7,6 +7,7 @@ import {
   kairos,
   kaia,
   redbellyTestnet,
+  redbellyMainnet,
   mainnet,
   sepolia,
   avalanche,
@@ -46,7 +47,7 @@ const getAlchemyUrlFor = (network: string) =>
 
 export const CHAINS: [Chain, ...Chain[]] = isTestnet
   ? [sepolia, baseSepolia, polygonAmoy, ozeanTestnet, kairos, redbellyTestnet, avalancheFuji]
-  : [mainnet, base, polygon, kaia, avalanche]
+  : [mainnet, base, polygon, kaia, redbellyMainnet, avalanche]
 
 export const customChains = {
   ozeanTestnet,
