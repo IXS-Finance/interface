@@ -46,8 +46,8 @@ const getAlchemyUrlFor = (network: string) =>
   process.env.REACT_APP_ALCHEMY_KEY ? `https://${network}.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_KEY}` : ''
 
 export const CHAINS: [Chain, ...Chain[]] = isTestnet
-  ? [sepolia, baseSepolia, polygonAmoy, ozeanTestnet, kairos, redbellyMainnet, avalancheFuji]
-  : [mainnet, base, polygon, kaia, avalanche]
+  ? [sepolia, baseSepolia, polygonAmoy, ozeanTestnet, kairos, redbellyTestnet, avalancheFuji]
+  : [mainnet, base, polygon, kaia, redbellyMainnet, avalanche]
 
 export const customChains = {
   ozeanTestnet,
