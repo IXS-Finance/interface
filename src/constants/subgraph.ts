@@ -5,4 +5,7 @@ export const SUBGRAPH_URLS: Record<string, Record<number, string>> = {
     [84532]: 'https://subgraph.satsuma-prod.com/788670ba78ee/ixswap/ixs-lbp-base-sepolia/api',
     [8453]: 'https://subgraph.satsuma-prod.com/788670ba78ee/ixswap/lbp-base-mainnet/api',
   },
+  EARN_V2_TREASURY: {
+    [11155111]: 'https://subgraph.satsuma-prod.com/788670ba78ee/ixswap/ixs-earn-sepolia-treasury/api',
+  },
 }
