@@ -273,7 +273,8 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
           autoClose: 3000,
         })
       } else {
-        toast.error(<ErrorContent title="Error" message={message} />, {
+        console.error('Claim error:', message)
+        toast.error(<ErrorContent title="Error" message="An error occurred while confirming the transaction"  />, {
           style: {
             background: '#fff',
             border: '1px solid rgba(255, 101, 101, 0.50)',
