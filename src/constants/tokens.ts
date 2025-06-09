@@ -20,7 +20,7 @@ export const USDC: { [chainId: number]: Token } = {
     'USD//C'
   ),
   153: new Token(153, '0x5c5f3E64bd3F95Df54a6601369BD3A08bfD28a2f', 6, 'USDC', 'USDC'),
-  151: new Token(151, '0x831c4F8688C3837520261c366F5B2a19cdFC7Aa6', 6, 'USDC', 'USDC'),
+  151: new Token(151, '0x8201c02d4AB2214471E8C3AD6475C8b0CD9F2D06', 6, 'USDC', 'USDC'),
 }
 
 // Mirror Protocol compat.
