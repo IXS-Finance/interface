@@ -188,13 +188,13 @@ export const Menu = ({ close, isAdminMenu }: Props) => {
             </>
           )}
 
-          <>
+          {/* <>
             <MenuListItem id={`earn-nav-link`} to={routes.earn} onClick={close}>
               <Trans>Earn</Trans> <NewBadge>New</NewBadge>
             </MenuListItem>
 
             <Line />
-          </>
+          </> */}
 
           {/* {chainId && chains.includes(chainId) && isWhitelisted && (
             <ExternalListItem
