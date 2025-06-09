@@ -1,4 +1,18 @@
-import { baseSepolia, base, polygon, polygonAmoy, Chain, kairos, kaia, redbellyTestnet, redbellyMainnet } from 'wagmi/chains'
+import {
+  baseSepolia,
+  base,
+  polygon,
+  polygonAmoy,
+  Chain,
+  kairos,
+  kaia,
+  redbellyTestnet,
+  redbellyMainnet,
+  mainnet,
+  sepolia,
+  avalanche,
+  avalancheFuji,
+} from 'wagmi/chains'
 import { fallback, http } from 'wagmi'
 import { Transport } from 'viem'
 
@@ -32,8 +46,8 @@ const getAlchemyUrlFor = (network: string) =>
   process.env.REACT_APP_ALCHEMY_KEY ? `https://${network}.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_KEY}` : ''
 
 export const CHAINS: [Chain, ...Chain[]] = isTestnet
-  ? [baseSepolia, polygonAmoy, ozeanTestnet, kairos, redbellyTestnet]
-  : [base, polygon, kaia]
+  ? [sepolia, baseSepolia, polygonAmoy, ozeanTestnet, kairos, redbellyTestnet, avalancheFuji]
+  : [mainnet, base, polygon, kaia, redbellyMainnet, avalanche]
 
 export const customChains = {
   ozeanTestnet,
@@ -49,6 +63,10 @@ export const PUBLIC_NODES = {
   [ChainId.Kaia]: ['https://public-en.node.kaia.io'],
   [ChainId.RedBellyTestnet]: ['https://governors.testnet.redbelly.network'],
   [ChainId.RedBelly]: ['https://governors.mainnet.redbelly.network'],
+  [ChainId.Avalanche]: ['https://api.avax.network/ext/bc/C/rpc'],
+  [ChainId.AvalancheFuji]: ['https://api.avax-test.network/ext/bc/C/rpc'],
+  [ChainId.Mainnet]: [getAlchemyUrlFor('eth-mainnet'), 'https://cloudflare-eth.com'],
+  [ChainId.Sepolia]: [getAlchemyUrlFor('eth-sepolia'), 'https://sepolia.drpc.org'],
 } as any
 
 export const transports = CHAINS.reduce((ts, chain) => {

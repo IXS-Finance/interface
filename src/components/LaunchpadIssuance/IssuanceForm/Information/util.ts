@@ -8,7 +8,6 @@ import {
   OfferTokenStandart,
   OfferDistributionFrequency,
   OfferInvestmentStructure,
-  Offer,
 } from 'state/launchpad/types'
 import { SMART_CONTRACT_STRATEGIES } from 'components/LaunchpadIssuance/types'
 
@@ -136,6 +135,7 @@ export const networkOptions = [
   { label: 'Base', value: OfferNetwork.base },
   { label: 'Ozean', value: OfferNetwork.ozean },
   { label: 'Kaia', value: OfferNetwork.kaia },
+  { label: 'RedBelly', value: OfferNetwork.redBelly },
   // { label: 'Kovan', value: OfferNetwork.kovan },
 ]
 

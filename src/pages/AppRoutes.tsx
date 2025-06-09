@@ -5,6 +5,8 @@ import { routes } from 'utils/routes'
 
 import Faucet from 'pages/Faucet'
 import PoolFinder from 'pages/PoolFinder'
+import ProductDetail from 'pages/Earn/ProductDetail'
+import Earn from 'pages/Earn'
 
 import { StakingTab } from 'pages/Farming/StakingTab'
 import { VestingTab } from 'pages/Farming/VestingTab'
@@ -95,6 +97,10 @@ export const routeConfigs: RouteMapEntry[] = [
     component: CreateNFT,
     conditions: { isWhitelisted: true },
   },
+
+  /* Earn routes */
+  { path: routes.earn, component: Earn },
+  { path: routes.earnProduct(), component: ProductDetail },
 
   /* LBP routes */
   { path: routes.lbpEdit, component: LBPForm },

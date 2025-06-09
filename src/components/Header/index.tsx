@@ -73,41 +73,37 @@ export default function Header() {
       {isMobile ? (
         <HeaderWrapper>
           {!cookies.annoucementsSeen && <Announcement />}
-          <HeaderFrame>
-            <HeaderRow>
-              <Title to={routes.defaultRoute}>
-                {logoUrl ? (
-                  <img src={logoUrl} alt="logo" width="auto" height="47px" />
-                ) : (
-                  <IXSIcon>
-                    <NewLogo width="130px" height="47px" />
-                  </IXSIcon>
-                )}
-              </Title>
-            </HeaderRow>
-            <HeaderControls />
-            <MobileMenu />
-            {account && kyc?.status === 'approved' ? (
-              <HeaderRowNew>
-                <HeaderElement>
+          <Flex justifyContent={'space-between'} alignItems="center" width={'100%'} css={{ padding: '1rem' }}>
+            <Title to={routes.defaultRoute}>
+              {logoUrl ? (
+                <img src={logoUrl} alt="logo" width="auto" height="47px" />
+              ) : (
+                <IXSIcon>
+                  <NewLogo style={{ width: '100%', height: 'auto' }} />
+                </IXSIcon>
+              )}
+            </Title>
+
+            <Flex alignItems="center" justifyContent="flex-end" css={{ gap: '8px' }}>
+              {account ? (
+                <>
                   <NetworkCard />
-                </HeaderElement>
-                <HeaderElement>
                   <Web3Status />
-                </HeaderElement>
-              </HeaderRowNew>
-            ) : null}
-          </HeaderFrame>
-          {account && kyc?.status !== 'approved' ? (
-            <Flex justifyContent="space-between" bg="#fff">
-              <HeaderElement style={{ padding: '0 18px' }}>
-                <NetworkCard />
-              </HeaderElement>
-              <HeaderElement style={{ background: 'white', padding: '18px 20px' }}>
-                <Web3Status />
-              </HeaderElement>
+                </>
+              ) : (
+                <PinnedContentButton
+                  style={{ boxShadow: '0px 16px 16px 0px #6666FF21', minWidth: 'fit-content' }}
+                  onClick={openConnectModal}
+                >
+                  <Text className="connect-wallet-button">
+                    <Trans>Connect</Trans>
+                  </Text>
+                </PinnedContentButton>
+              )}
+
+              <MobileMenu />
             </Flex>
-          ) : null}
+          </Flex>
         </HeaderWrapper>
       ) : (
         <HeaderWrapper>
@@ -283,7 +279,9 @@ const Title = styled(Link)`
   `};
 `
 
-const IXSIcon = styled.div``
+const IXSIcon = styled.div`
+  width: 83px;
+`
 
 export const StyledMenuButton = styled.button`
   position: relative;
@@ -320,12 +318,14 @@ const HeaderWrapper = styled.div`
   flex-direction: column;
   width: 100%;
   align-items: space-between;
-  position: fixed;
+  position: sticky;
   top: 0;
   z-index: 2;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
   position: relative;
+  background: #fff;
+  border-bottom: 1px solid rgba(102, 102, 255, 0.10);
   `};
 
   ${({ theme }) =>
