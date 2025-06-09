@@ -2563,10 +2563,10 @@
     tiny-invariant "^1.1.0"
     toformat "^2.0.0"
 
-"@ixswap1/sdk-core@^1.3.8":
-  version "1.3.8"
-  resolved "https://registry.yarnpkg.com/@ixswap1/sdk-core/-/sdk-core-1.3.8.tgz#1c1a21dc69b2013901cf84c0b7722438cbe6367d"
-  integrity sha512-Uk2ptxq6HPlXC7eT3k4QVHLdV65F1RguyTMKojwy4VGfbakQ6lo++xJBGGSkWdL5VjFJECL49kITN3xNm9xxVg==
+"@ixswap1/sdk-core@^1.3.9":
+  version "1.3.9"
+  resolved "https://registry.yarnpkg.com/@ixswap1/sdk-core/-/sdk-core-1.3.9.tgz#f21046128643ea8a91b640b6aeed109198e7cce3"
+  integrity sha512-wP4Tp+Sc6EqZUyHKCSJn3hVEiS+zTcJyobQ5RyA6FuDZV5aiyt8iTgrTxRIBQgirHKrB6v7RaqWojQVmGr4aYw==
   dependencies:
     "@ethersproject/address" "^5.0.2"
     big.js "^5.2.2"
