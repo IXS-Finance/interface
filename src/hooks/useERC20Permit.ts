@@ -72,6 +72,10 @@ const PERMITTABLE_TOKENS: {
     [IXS[153].address]: { type: PermitType.AMOUNT, name: 'Ixs Token' },
     [USDC[153].address]: { type: PermitType.AMOUNT, name: 'USD Coin', version: '2' },
   },
+  [151]: {
+    [IXS[151].address]: { type: PermitType.AMOUNT, name: 'Ixs Token' },
+    [USDC[151].address]: { type: PermitType.AMOUNT, name: 'USD Coin', version: '2' },
+  },
 }
 
 export enum UseERC20PermitState {
@@ -206,31 +210,31 @@ export function useERC20Permit(
 
         const message = allowed
           ? {
-            holder: account,
-            spender,
-            allowed,
-            nonce: nonceNumber,
-            expiry: signatureDeadline,
-          }
+              holder: account,
+              spender,
+              allowed,
+              nonce: nonceNumber,
+              expiry: signatureDeadline,
+            }
           : {
-            owner: account,
-            spender,
-            value,
-            nonce: nonceNumber,
-            deadline: signatureDeadline,
-          }
+              owner: account,
+              spender,
+              value,
+              nonce: nonceNumber,
+              deadline: signatureDeadline,
+            }
         const domain = permitInfo.version
           ? {
-            name: permitInfo.name,
-            version: permitInfo.version,
-            verifyingContract: tokenAddress,
-            chainId,
-          }
+              name: permitInfo.name,
+              version: permitInfo.version,
+              verifyingContract: tokenAddress,
+              chainId,
+            }
           : {
-            name: permitInfo.name,
-            verifyingContract: tokenAddress,
-            chainId,
-          }
+              name: permitInfo.name,
+              verifyingContract: tokenAddress,
+              chainId,
+            }
         const data = JSON.stringify({
           types: {
             EIP712Domain: permitInfo.version ? EIP712_DOMAIN_TYPE : EIP712_DOMAIN_TYPE_NO_VERSION,

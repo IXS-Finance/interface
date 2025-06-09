@@ -190,6 +190,10 @@ export const whitelist = {
   delete: (offerId: string, walletAddress: string) => `/offers/${offerId}/token-whitelists/${walletAddress}`,
 }
 
+export const earn = {
+  getEIP712Signature: (network: string) => `/eip712/earn-v2/${network}`,
+}
+
 const getQueryParam = ({
   param,
   value,

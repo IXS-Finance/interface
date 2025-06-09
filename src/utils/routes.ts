@@ -25,6 +25,8 @@ export const routes = {
   securityToken: (id?: number) => `/security-token/${id || ':currencyId'}`,
   staking: '/staking',
   vesting: '/vesting',
+  earn: '/earn',
+  earnProduct: (id?: string) => `/earn/${id || ':id'}`,
   nftList: '/nft',
   nftCreate: '/nft-create',
   nftCollections: '/nft/collections',
