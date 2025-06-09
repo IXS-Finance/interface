@@ -22,7 +22,7 @@ const CountriesBlockAlert: React.FC = () => {
     <Container>
       <Flex flexDirection={['column', 'row']} alignItems={'center'} style={{ gap: 8 }} >
         <AlertIcon />
-        <div>Our service is currently unavailable to citizens of the United States or North Korea.</div>
+        <div>Our service is currently unavailable to citizens of the United States, North Korea, Myanmar (formerly Burma), Iran.</div>
       </Flex>
 
       <Flex alignItems="center">
