@@ -26,7 +26,7 @@ import SuccessContent from '../../ToastContent/Success'
 import AmountInput from '../../AmountInput'
 import { isGreaterThanOrEqualTo } from '../../AmountInput/validations'
 import { KYCPrompt } from 'components/Launchpad/KYCPrompt'
-import { me, useKyc } from 'state/user/hooks'
+import { useKyc } from 'state/user/hooks'
 import { DepositPreview } from './DepositPreview'
 
 const useWatchTokenApprovalEvent = createUseWatchContractEvent({
@@ -76,7 +76,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   investingTokenDecimals,
   chainId,
   type,
-  minimumDeposit
+  minimumDeposit,
 }) => {
   const [isApproving, setIsApproving] = useState(false)
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
@@ -568,6 +568,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
           isDepositing={isDepositing}
           depositError={!!depositError}
           amountRaw={amountRaw.toString()}
+          type={type}
         />
       )}
 
