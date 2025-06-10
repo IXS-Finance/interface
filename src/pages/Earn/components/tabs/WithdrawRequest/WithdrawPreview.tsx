@@ -119,7 +119,7 @@ export const WithdrawPreview: React.FC<WithdrawPreviewProps> = ({
 
         <Flex
           flexDirection="row"
-          justifyContent="space-between"
+          justifyContent="flex-end"
           alignItems="center"
           width={['100%', '50%']}
           css={{ gap: '16px' }}
