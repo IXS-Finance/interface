@@ -118,7 +118,7 @@ const ClaimPreview: React.FC<ClaimPreviewProps> = ({
 
         <Flex
           flexDirection="row"
-          justifyContent="space-between"
+          justifyContent="flex-end"
           alignItems="center"
           width={['100%', '50%']}
           css={{ gap: '16px' }}
