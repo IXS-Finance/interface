@@ -42,7 +42,7 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
     bgFullUrl: '/images/earn/image01.svg',
   },
   {
-    id: 'stablecoin-yield',
+    id: 'hycb',
     name: 'High Yield Corporate Bond',
     type: 'EARN_V2_HYCB',
     apy: 7,
@@ -64,16 +64,16 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
 // Environment-specific addresses
 const addresses: Record<string, Record<string, string>> = {
   development: {
-    'treasury-bill': '0x0b8d47C634F60E18b2a58CcBDE55D9140f651E66',
-    'stablecoin-yield': '0x5E25F811828D063E436A3923e00C7F9aDAdE39BF',
+    'treasury-bill': '0xDDdc40135eF85848d977B9f9317cF3EE02E5C226',
+    hycb: '0x5E25F811828D063E436A3923e00C7F9aDAdE39BF',
   },
   staging: {
     'treasury-bill': '0xStg1234567890123456789012345678901234567890',
-    'stablecoin-yield': '0xStg0987654321098765432109876543210987654321',
+    hycb: '0xStg0987654321098765432109876543210987654321',
   },
   production: {
     'treasury-bill': '0xProd1234567890123456789012345678901234567890',
-    'stablecoin-yield': '0xProd0987654321098765432109876543210987654321',
+    hycb: '0xProd0987654321098765432109876543210987654321',
   },
 }
 
@@ -101,15 +101,15 @@ const investingTokenAddresses: Record<string, Record<string, Record<string, stri
 const opentradeVaultAddresses: Record<string, Record<string, string>> = {
   development: {
     'treasury-bill': '0xaE3cfBe878FB66070030B7cb29cfe0Deeac624DD',
-    'stablecoin-yield': '0xc982983B42178448C72B0fa1E7af8CbA5f79bBE3',
+    hycb: '0xc982983B42178448C72B0fa1E7af8CbA5f79bBE3',
   },
   staging: {
     'treasury-bill': '0xStgOTVTB00000000000000000000000000000000000',
-    'stablecoin-yield': '0xStgOTVSY00000000000000000000000000000000000',
+    hycb: '0xStgOTVSY00000000000000000000000000000000000',
   },
   production: {
     'treasury-bill': '0xProdOTVTB0000000000000000000000000000000000',
-    'stablecoin-yield': '0xProdOTVSY0000000000000000000000000000000000',
+    hycb: '0xProdOTVSY0000000000000000000000000000000000',
   },
 }
 
