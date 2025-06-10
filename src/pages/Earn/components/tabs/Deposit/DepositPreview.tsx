@@ -117,9 +117,19 @@ export const DepositPreview: React.FC<DepositPreviewProps> = ({
       >
         <Flex alignItems="center">
           <Checkbox type="checkbox" checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
-          <TermsText>
-            I agree to the <TermsLink>IXS Earn Terms and Conditions</TermsLink>.
-          </TermsText>
+          {network === 'avalanche' ? (
+            <TermsText>
+              I confirm that I have read, understood, and agree to be bound by the{' '}
+              <TermsLink href="/IXS_HYCB_Rules.pdf" target="_blank" rel="noopener noreferrer">
+                High Yield Corporate Bond (HYCB) Earn Product Rules
+              </TermsLink>
+              .
+            </TermsText>
+          ) : (
+            <TermsText>
+              I agree to the <TermsLink>IXS Earn Terms and Conditions</TermsLink>.
+            </TermsText>
+          )}
         </Flex>
 
         <Flex
