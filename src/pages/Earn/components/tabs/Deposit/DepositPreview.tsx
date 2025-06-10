@@ -32,6 +32,7 @@ interface DepositPreviewProps {
   isDepositing: boolean
   depositError: boolean
   amountRaw?: string
+  type?: 'EARN_V2_TREASURY' | 'EARN_V2_HYCB'
 }
 
 export const DepositPreview: React.FC<DepositPreviewProps> = ({
@@ -50,6 +51,7 @@ export const DepositPreview: React.FC<DepositPreviewProps> = ({
   isDepositing,
   depositError,
   amountRaw,
+  type,
 }) => {
   return (
     <PreviewContainer>
@@ -117,7 +119,7 @@ export const DepositPreview: React.FC<DepositPreviewProps> = ({
       >
         <Flex alignItems="center">
           <Checkbox type="checkbox" checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
-          {network === 'avalanche' ? (
+          {type === 'EARN_V2_HYCB' ? (
             <TermsText>
               I confirm that I have read, understood, and agree to be bound by the{' '}
               <TermsLink href="/IXS_HYCB_Rules.pdf" target="_blank" rel="noopener noreferrer">
