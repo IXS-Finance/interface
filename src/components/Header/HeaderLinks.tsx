@@ -177,14 +177,14 @@ export const HeaderLinks = () => {
         </StyledNavLink>
       ),
     },
-    // {
-    //   condition: true,
-    //   component: (
-    //     <StyledNavLink key="earn" id="earn-nav-link" to={routes.earn} data-testid="earn-nav-link">
-    //       <Trans>Earn</Trans> <NewBadge>New</NewBadge>
-    //     </StyledNavLink>
-    //   ),
-    // },
+    {
+      condition: true,
+      component: (
+        <StyledNavLink key="earn" id="earn-nav-link" to={routes.earn} data-testid="earn-nav-link">
+          <Trans>Earn</Trans> <NewBadge>New</NewBadge>
+        </StyledNavLink>
+      ),
+    },
   ]
 
   return (
