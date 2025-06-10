@@ -109,7 +109,7 @@ const ClaimPreview: React.FC<ClaimPreviewProps> = ({
         alignItems={['flex-start', 'center']}
         css={{ gap: '16px' }}
       >
-        <Flex alignItems="center">
+        <Flex alignItems="center" width={['100%', '50%']}>
           <Checkbox type="checkbox" checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
           <TermsText>
             I agree to the <TermsLink>IXS Earn Terms and Conditions</TermsLink>.
@@ -120,7 +120,7 @@ const ClaimPreview: React.FC<ClaimPreviewProps> = ({
           flexDirection="row"
           justifyContent="space-between"
           alignItems="center"
-          width={['100%', 'auto']}
+          width={['100%', '50%']}
           css={{ gap: '16px' }}
         >
           <CustomBackButton onClick={handleBackFromClaimPreview}>Back</CustomBackButton>
