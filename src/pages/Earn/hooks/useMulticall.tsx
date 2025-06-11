@@ -8,9 +8,9 @@ const getMulticallData = async (calls: any[]) => {
   return results
 }
 
-export const useMulticall = (calls: any[], options?: any) => {
+export const useMulticall = (chainId: any, calls: any[], options?: any) => {
   return useQuery({
-    queryKey: ['multicall', calls],
+    queryKey: ['multicall', calls, chainId],
     queryFn: () => getMulticallData(calls),
     ...options,
   })

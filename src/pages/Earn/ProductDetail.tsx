@@ -25,6 +25,7 @@ import USDCIcon from '../../assets/images/usdcNew.svg'
 import { Box, Flex } from 'rebass'
 import { isMobile } from 'react-device-detect'
 import { useMulticall } from './hooks/useMulticall'
+import LoadingBlock from './components/LoadingBlock'
 interface Transaction {
   date: number
   type: string
@@ -58,7 +59,8 @@ export default function ProductDetail() {
     abi: OpenTradeABI,
   } as const
 
-  const { data } = useMulticall(
+  const { data, isLoading: isLoadingGetRate } = useMulticall(
+    chainId,
     [
       {
         ...openTradeContract,
@@ -70,7 +72,7 @@ export default function ProductDetail() {
       },
     ],
     {
-      enabled: !!(product?.opentradeVaultAddress && chainId),
+      enabled: true,
     }
   )
 
@@ -279,7 +281,9 @@ export default function ProductDetail() {
               <div>
                 <FlexibleTermText>{product.description}</FlexibleTermText>
                 <div>
-                  <LearnMoreLink>Learn more</LearnMoreLink>
+                  <LearnMoreLink href={product.learnMoreUrl} target="_blank" rel="noopener noreferrer">
+                    Learn more
+                  </LearnMoreLink>
                 </div>
               </div>
             </TokenInfoRow>
@@ -305,7 +309,12 @@ export default function ProductDetail() {
 
           <InfoCard>
             <InfoCardLabel>Annual Percentage Rate</InfoCardLabel>
-            <ApyBigText>{indicativeInterestRatePercentage}%</ApyBigText>
+
+            {isLoadingGetRate ? (
+              <LoadingBlock className="rate-number" />
+            ) : (
+              <ApyBigText>{indicativeInterestRatePercentage}%</ApyBigText>
+            )}
           </InfoCard>
         </InfoCardsSection>
 
@@ -552,7 +561,7 @@ const TokenIconCircle = styled.div`
   }
 `
 
-const LearnMoreLink = styled.div`
+const LearnMoreLink = styled.a`
   color: #66f;
   font-family: Inter;
   font-size: 14px;
@@ -611,6 +620,11 @@ const InfoCard = styled.div`
 
   @media (min-width: 768px) {
     padding: 40px;
+  }
+
+  .rate-number {
+    width: 187px;
+    height: 60px;
   }
 `
 
