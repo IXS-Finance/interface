@@ -370,6 +370,7 @@ export default function ProductDetail() {
               getUsdcEquivalent={getUsdcEquivalent}
               vaultAddress={product.address}
               minimumDeposit={product.minimumDeposit}
+              type={product.type}
             />
           ) : null}
 
@@ -383,6 +384,7 @@ export default function ProductDetail() {
               handleBackFromClaimPreview={handleBackFromClaimPreview}
               vaultAddress={product.address}
               investingTokenAddress={product.investingTokenAddress}
+              type={product.type}
             />
           ) : null}
         </FormContainer>

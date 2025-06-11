@@ -31,6 +31,7 @@ interface WithdrawPreviewProps {
   withdrawError: boolean
   withdrawAmountInSmallestUnit: BigNumber
   getUsdcEquivalent: (amount: string) => string
+  type?: 'EARN_V2_TREASURY' | 'EARN_V2_HYCB'
 }
 
 const VAULT_TOKEN_DECIMALS = 3
@@ -49,6 +50,7 @@ export const WithdrawPreview: React.FC<WithdrawPreviewProps> = ({
   withdrawError,
   withdrawAmountInSmallestUnit,
   getUsdcEquivalent,
+  type,
 }) => {
   return (
     <PreviewContainer>
@@ -112,9 +114,19 @@ export const WithdrawPreview: React.FC<WithdrawPreviewProps> = ({
       >
         <Flex alignItems="center" width={['100%', '50%']}>
           <Checkbox type="checkbox" checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
-          <TermsText>
-            I agree to the <TermsLink>IXS Earn Terms and Conditions</TermsLink>.
-          </TermsText>
+          {type === 'EARN_V2_HYCB' ? (
+            <TermsText>
+              I confirm that I have read, understood, and agree to be bound by the{' '}
+              <TermsLink href="/IXS_HYCB_Rules.pdf" target="_blank" rel="noopener noreferrer">
+                High Yield Corporate Bond (HYCB) Earn Product Rules
+              </TermsLink>
+              .
+            </TermsText>
+          ) : (
+            <TermsText>
+              I agree to the <TermsLink>IXS Earn Terms and Conditions</TermsLink>.
+            </TermsText>
+          )}
         </Flex>
 
         <Flex

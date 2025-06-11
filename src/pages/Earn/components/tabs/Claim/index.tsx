@@ -72,6 +72,7 @@ interface ClaimTabProps {
   vaultAddress?: string
   investingTokenAddress?: string
   investingTokenSymbol?: string
+  type: 'EARN_V2_TREASURY' | 'EARN_V2_HYCB'
 }
 
 export const ClaimTab: React.FC<ClaimTabProps> = ({
@@ -84,6 +85,7 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
   vaultAddress,
   investingTokenAddress,
   investingTokenSymbol = 'USDC',
+  type,
 }) => {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
 
@@ -274,7 +276,7 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
         })
       } else {
         console.error('Claim error:', message)
-        toast.error(<ErrorContent title="Error" message="An error occurred while confirming the transaction"  />, {
+        toast.error(<ErrorContent title="Error" message="An error occurred while confirming the transaction" />, {
           style: {
             background: '#fff',
             border: '1px solid rgba(255, 101, 101, 0.50)',
@@ -353,6 +355,7 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
           loading={loading}
           isClaimPending={isSubmittingClaim}
           isConfirming={isConfirmingClaimTx}
+          type={type}
         />
       )}
 
