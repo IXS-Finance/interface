@@ -4,33 +4,15 @@ import styled from 'styled-components'
 
 import { ReactComponent as AlertIcon } from 'assets/images/icons/alert.svg'
 
-const countries = {
-  us: {
-    name: 'United States',
-    flag: '🇺🇸',
-  },
-  kp: {
-    name: 'North Korea',
-    flag: '🇰🇵',
-  },
-}
-
 const CountriesBlockAlert: React.FC = () => {
-  const flags = Object.values(countries).map((country) => country.flag)
-
   return (
     <Container>
-      <Flex flexDirection={['column', 'row']} alignItems={'center'} style={{ gap: 8 }} >
+      <Flex flexDirection={['column', 'row']} alignItems={'center'} style={{ gap: 8 }}>
         <AlertIcon />
-        <div>Our service is currently unavailable to citizens of the United States, North Korea, Myanmar (formerly Burma), Iran.</div>
-      </Flex>
-
-      <Flex alignItems="center">
-        {flags.map((flag, index) => (
-          <span key={index} style={{ fontSize: 28 }}>
-            {flag}
-          </span>
-        ))}
+        <div>
+          Our service is currently unavailable to citizens of the United States, North Korea, Myanmar (formerly Burma),
+          Iran.
+        </div>
       </Flex>
     </Container>
   )
