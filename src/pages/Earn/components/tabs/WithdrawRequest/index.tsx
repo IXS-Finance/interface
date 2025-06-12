@@ -35,6 +35,7 @@ interface WithdrawRequestTabProps {
   vaultAddress?: string
   minimumDeposit: number
   type: 'EARN_V2_TREASURY' | 'EARN_V2_HYCB'
+  chainId: number
 }
 
 const VAULT_TOKEN_DECIMALS = 6 // Assumption: Vault tokens have 6 decimals
@@ -54,6 +55,7 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
   vaultAddress,
   minimumDeposit,
   type,
+  chainId,
 }) => {
   const { address } = useAccount()
   const [withdrawError, setWithdrawError] = useState<string | null>(null)
@@ -260,7 +262,7 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
         />
       )}
 
-      {showSuccessPopup && <SuccessPopup onClose={handleClosePopup} txHash={withdrawTxHash} />}
+      {showSuccessPopup && <SuccessPopup onClose={handleClosePopup} txHash={withdrawTxHash} chainId={chainId} />}
     </>
   )
 }
