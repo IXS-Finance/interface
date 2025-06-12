@@ -153,7 +153,7 @@ export default function ProductDetail() {
   }
 
   const subgraphData = useSubgraphQuery({
-    feature: 'EARN_V2_TREASURY',
+    feature: product.type,
     chainId: chainId,
     query: query,
     autoPolling: true,
