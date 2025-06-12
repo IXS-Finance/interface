@@ -41,7 +41,8 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
     chainId: 11155111,
     bgUrl: '/images/earn/bg-tby.svg',
     bgFullUrl: '/images/earn/image01.svg',
-    learnMoreUrl: 'https://docs.opentrade.io/stablecoin-yield/stablecoin-yield-vaults/money-market-fund-vaults/franklin-templeton-benji-mmf-vault',
+    learnMoreUrl:
+      'https://docs.opentrade.io/stablecoin-yield/stablecoin-yield-vaults/money-market-fund-vaults/franklin-templeton-benji-mmf-vault',
   },
   {
     id: 'hycb',
@@ -49,8 +50,8 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
     type: 'EARN_V2_HYCB',
     apy: 7,
     tvl: 2800000,
-    minimumDeposit: 1000,
-    maximumDeposit: 1000,
+    minimumDeposit: 1,
+    maximumDeposit: 1,
     description: 'BlackRock High Yield Corporate Bond ETF',
     iconUrl: '/images/earn/icon02.svg',
     underlyingAsset: 'BlackRock High Yield Corporate Bond ETF',
