@@ -73,6 +73,7 @@ interface ClaimTabProps {
   investingTokenAddress?: string
   investingTokenSymbol?: string
   type: 'EARN_V2_TREASURY' | 'EARN_V2_HYCB'
+  chainId: number
 }
 
 export const ClaimTab: React.FC<ClaimTabProps> = ({
@@ -86,6 +87,7 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
   investingTokenAddress,
   investingTokenSymbol = 'USDC',
   type,
+  chainId,
 }) => {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
 
@@ -359,7 +361,7 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
         />
       )}
 
-      {showSuccessPopup && <SuccessPopup onClose={handleClosePopup} txHash={claimTxHash} />}
+      {showSuccessPopup && <SuccessPopup onClose={handleClosePopup} txHash={claimTxHash} chainId={chainId} />}
     </>
   )
 }
