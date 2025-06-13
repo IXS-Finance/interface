@@ -55,6 +55,7 @@ export const SwapButtons = ({
     wrapType,
     execute: onWrap,
     inputError: wrapInputError,
+    isWrapping,
   } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
   const { approvalState, handleApprove, signatureState } = useSwapApproval()
 
@@ -180,7 +181,7 @@ export const SwapButtons = ({
           )}
 
           {showWrapButton && (
-            <PinnedContentButton disabled={Boolean(wrapInputError)} onClick={onWrap} data-testid="wrap">
+            <PinnedContentButton disabled={Boolean(wrapInputError) || isWrapping} onClick={onWrap} data-testid="wrap">
               <Trans>{wrapInputError ?? WrapText[wrapType] ?? null}</Trans>
             </PinnedContentButton>
           )}
