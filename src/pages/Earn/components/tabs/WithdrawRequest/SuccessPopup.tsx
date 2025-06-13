@@ -72,16 +72,17 @@ const Message = styled.p`
 `
 
 const ViewButton = styled.button`
-  background: #1976d2;
-  color: white;
-  border: none;
+  border: 1px solid #e6e6ff;
+  background: #fff;
+  color: #66f;
   padding: 0.75rem 2rem;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
+  background-color: #fff;
 
   &:hover {
-    background: #1565c0;
+    background-color: #e3f2fd;
   }
 `
 
@@ -94,7 +95,9 @@ interface SuccessPopupProps {
 export const SuccessPopup: React.FC<SuccessPopupProps> = ({ onClose, txHash, chainId }) => {
   const handleViewOnBlockchain = () => {
     if (txHash) {
-      return getExplorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)
+      const linkUrl = getExplorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)
+
+      window.open(linkUrl, '_blank')
     }
   }
 
@@ -119,7 +122,7 @@ export const SuccessPopup: React.FC<SuccessPopupProps> = ({ onClose, txHash, cha
 
         {txHash && (
           <ViewButton onClick={handleViewOnBlockchain}>
-            <Trans>View on Blockchain</Trans>
+            <Trans>View on Explorer</Trans>
           </ViewButton>
         )}
       </PopupContent>

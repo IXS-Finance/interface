@@ -94,7 +94,9 @@ interface SuccessPopupProps {
 export const SuccessPopup: React.FC<SuccessPopupProps> = ({ onClose, txHash, chainId }) => {
   const handleViewOnBlockchain = () => {
     if (txHash) {
-      return getExplorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)
+      const linkUrl = getExplorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)
+
+      window.open(linkUrl, '_blank')
     }
   }
 
@@ -115,7 +117,7 @@ export const SuccessPopup: React.FC<SuccessPopupProps> = ({ onClose, txHash, cha
         </Message>
         {txHash && (
           <ViewButton onClick={handleViewOnBlockchain}>
-            <Trans>View on Blockchain</Trans>
+            <Trans>View on Explorer</Trans>
           </ViewButton>
         )}
       </PopupContent>
