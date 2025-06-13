@@ -332,6 +332,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     setShowSuccessPopup(false)
     handleBackFromPreview()
     setAmount('')
+    resetDepositContract()
   }
 
   const isDepositing = isDepositContractCallPending || isConfirmingDepositTx
@@ -403,8 +404,8 @@ export const DepositTab: React.FC<DepositTabProps> = ({
       if (refetchBalanceData) {
         refetchBalanceData()
       }
-      resetDepositContract()
       setShowSuccessPopup(true)
+      handleBackFromPreview()
     }
   }, [isDepositTxConfirmed])
 

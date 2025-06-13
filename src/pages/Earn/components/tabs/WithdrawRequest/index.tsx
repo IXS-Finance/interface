@@ -119,8 +119,8 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
     if (isWithdrawTxConfirmed) {
       setWithdrawError(null)
       refetchVaultTokenBalance?.()
-      resetWithdrawContract()
       setShowSuccessPopup(true)
+      handleBackFromWithdrawPreview()
     }
   }, [isWithdrawTxConfirmed])
 
@@ -199,6 +199,7 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
     setWithdrawAmount('')
     setShowSuccessPopup(false)
     handleBackFromWithdrawPreview()
+    resetWithdrawContract()
   }
 
   return (
