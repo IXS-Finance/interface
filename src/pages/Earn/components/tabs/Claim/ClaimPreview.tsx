@@ -13,6 +13,7 @@ import {
 import { Box, Flex } from 'rebass'
 import { shortAddress } from 'utils'
 import styled from 'styled-components'
+import { CopyAddress } from 'components/CopyAddress'
 
 interface ClaimPreviewProps {
   vaultAddress: string
@@ -75,7 +76,9 @@ const ClaimPreview: React.FC<ClaimPreviewProps> = ({
           <Card>
             <Flex css={{ gap: '8px', flexDirection: 'column' }}>
               <Label>Sent From</Label>
-              <Value>{shortAddress(vaultAddress)}</Value>
+              <Value>
+                <CopyAddress address={vaultAddress || ''} />
+              </Value>
             </Flex>
           </Card>
         </Flex>
