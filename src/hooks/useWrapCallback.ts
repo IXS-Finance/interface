@@ -1,5 +1,5 @@
 import { Currency, WETH9 } from '@ixswap1/sdk-core'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { tryParseAmount } from '../state/swap/helpers'
 import { useTransactionAdder } from '../state/transactions/hooks'
 import { useCurrencyBalance } from '../state/wallet/hooks'
@@ -23,13 +23,14 @@ export default function useWrapCallback(
   inputCurrency: Currency | undefined,
   outputCurrency: Currency | undefined,
   typedValue: string | undefined
-): { wrapType: WrapType; execute?: undefined | (() => Promise<void>); inputError?: string } {
+): { wrapType: WrapType; isWrapping?: boolean; execute?: undefined | (() => Promise<void>); inputError?: string } {
   const { chainId, account } = useActiveWeb3React()
   const wethContract = useWETHContract()
   const balance = useCurrencyBalance(account ?? undefined, inputCurrency)
   // we can always parse the amount typed as the input currency, since wrapping is 1:1
   const inputAmount = useMemo(() => tryParseAmount(typedValue, inputCurrency), [inputCurrency, typedValue])
   const addTransaction = useTransactionAdder()
+  const [isWrapping, setIsWrapping] = useState(false)
 
   return useMemo(() => {
     if (!wethContract || !chainId || !inputCurrency || !outputCurrency) return NOT_APPLICABLE
@@ -44,16 +45,21 @@ export default function useWrapCallback(
     if (inputCurrency.isNative && weth.equals(outputCurrency)) {
       return {
         wrapType: WrapType.WRAP,
+        isWrapping,
         execute:
           sufficientBalance && inputAmount
             ? async () => {
                 try {
+                  setIsWrapping(true)
                   const txReceipt = await wethContract.deposit({ value: `0x${inputAmount.quotient.toString(16)}` })
                   addTransaction(txReceipt, {
                     summary: `Wrap ${inputAmount.toSignificant(6)} ${inputSymbol} to ${outputSymbol}`,
                   })
+                  await txReceipt.wait()
                 } catch (error) {
                   console.error('Could not deposit', error)
+                } finally {
+                  setIsWrapping(false)
                 }
               }
             : undefined,
@@ -66,16 +72,21 @@ export default function useWrapCallback(
     } else if (weth.equals(inputCurrency) && outputCurrency.isNative) {
       return {
         wrapType: WrapType.UNWRAP,
+        isWrapping,
         execute:
           sufficientBalance && inputAmount
             ? async () => {
                 try {
+                  setIsWrapping(true)
                   const txReceipt = await wethContract.withdraw(`0x${inputAmount.quotient.toString(16)}`)
                   addTransaction(txReceipt, {
                     summary: `Unwrap ${inputAmount.toSignificant(6)} ${inputSymbol} to ${outputSymbol}`,
                   })
+                  await txReceipt.wait()
                 } catch (error) {
                   console.error('Could not withdraw', error)
+                } finally {
+                  setIsWrapping(false)
                 }
               }
             : undefined,

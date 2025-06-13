@@ -21,10 +21,11 @@ import { CenteredFixed } from 'components/LaunchpadMisc/styled'
 import { NetworkNotAvailable } from 'components/Launchpad/NetworkNotAvailable'
 
 import OpenTradeABI from './abis/OpenTrade.json'
-import TreasuryImg from './images/Treasury.png'
 import USDCIcon from '../../assets/images/usdcNew.svg'
 import { Box, Flex } from 'rebass'
 import { isMobile } from 'react-device-detect'
+import { useMulticall } from './hooks/useMulticall'
+import LoadingBlock from './components/LoadingBlock'
 interface Transaction {
   date: number
   type: string
@@ -53,33 +54,47 @@ export default function ProductDetail() {
   const network = product.network ?? ''
   const { isWrongChain, expectChain } = checkWrongChain(chainId, network)
 
-  const {
-    data: rawRate, // This will be the raw data from the contract (likely a BigInt)
-    error: fetchRateError, // Error object if the hook fails
-  } = useReadContract({
-    abi: OpenTradeABI,
+  const openTradeContract = {
     address: product?.opentradeVaultAddress as `0x${string}` | undefined,
-    functionName: 'exchangeRate',
-    chainId: chainId,
-    query: {
-      // Only enable the query if the address and chainId are available
-      enabled: !!(product?.opentradeVaultAddress && chainId),
-    },
-  })
+    abi: OpenTradeABI,
+  } as const
+
+  const { data, isLoading: isLoadingGetRate } = useMulticall(
+    chainId,
+    [
+      {
+        ...openTradeContract,
+        functionName: 'exchangeRate',
+      },
+      {
+        ...openTradeContract,
+        functionName: 'getPoolDynamicOverviewState',
+      },
+    ],
+    {
+      enabled: true,
+    }
+  )
+
+  const [exchangeRate, poolDynamicOverviewState]: any = data || []
+  const exchangeRateResult = exchangeRate?.result
+  const poolDynamicOverviewStateResult = poolDynamicOverviewState?.result
+  const indicativeInterestRate = (poolDynamicOverviewStateResult?.indicativeInterestRate || 0).toString()
+  const indicativeInterestRatePercentage = (parseFloat(indicativeInterestRate) / 100).toFixed(2)
 
   // Derived state for the formatted exchange rate
   const openTradeExchangeRate = React.useMemo<string | undefined>(() => {
-    if (rawRate) {
+    if (exchangeRateResult) {
       try {
         // Assuming rawRate is BigInt and the exchange rate has 18 decimals
-        return formatAmount(Number(formatUnits(rawRate as bigint, 18) || 0), 4)
+        return formatAmount(Number(formatUnits(exchangeRateResult as bigint, 18) || 0), 4)
       } catch (e) {
         console.error('Error formatting exchange rate:', e)
         return // Handle potential formatting errors
       }
     }
     return
-  }, [rawRate])
+  }, [exchangeRateResult])
 
   // Subgraph Queries
   const userAddress = account?.toLowerCase()
@@ -138,7 +153,7 @@ export default function ProductDetail() {
   }
 
   const subgraphData = useSubgraphQuery({
-    feature: 'EARN_V2_TREASURY',
+    feature: product.type,
     chainId: chainId,
     query: query,
     autoPolling: true,
@@ -266,7 +281,9 @@ export default function ProductDetail() {
               <div>
                 <FlexibleTermText>{product.description}</FlexibleTermText>
                 <div>
-                  <LearnMoreLink>Learn more</LearnMoreLink>
+                  <LearnMoreLink href={product.learnMoreUrl} target="_blank" rel="noopener noreferrer">
+                    Learn more
+                  </LearnMoreLink>
                 </div>
               </div>
             </TokenInfoRow>
@@ -292,13 +309,12 @@ export default function ProductDetail() {
 
           <InfoCard>
             <InfoCardLabel>Annual Percentage Rate</InfoCardLabel>
-            <ApyBigText>
-              {product.apy.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-              %
-            </ApyBigText>
+
+            {isLoadingGetRate ? (
+              <LoadingBlock className="rate-number" />
+            ) : (
+              <ApyBigText>{indicativeInterestRatePercentage}%</ApyBigText>
+            )}
           </InfoCard>
         </InfoCardsSection>
 
@@ -354,6 +370,8 @@ export default function ProductDetail() {
               getUsdcEquivalent={getUsdcEquivalent}
               vaultAddress={product.address}
               minimumDeposit={product.minimumDeposit}
+              chainId={chainId}
+              type={product.type}
             />
           ) : null}
 
@@ -367,6 +385,8 @@ export default function ProductDetail() {
               handleBackFromClaimPreview={handleBackFromClaimPreview}
               vaultAddress={product.address}
               investingTokenAddress={product.investingTokenAddress}
+              chainId={chainId}
+              type={product.type}
             />
           ) : null}
         </FormContainer>
@@ -545,7 +565,7 @@ const TokenIconCircle = styled.div`
   }
 `
 
-const LearnMoreLink = styled.div`
+const LearnMoreLink = styled.a`
   color: #66f;
   font-family: Inter;
   font-size: 14px;
@@ -604,6 +624,11 @@ const InfoCard = styled.div`
 
   @media (min-width: 768px) {
     padding: 40px;
+  }
+
+  .rate-number {
+    width: 187px;
+    height: 60px;
   }
 `
 

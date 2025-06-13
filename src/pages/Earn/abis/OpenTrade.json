@@ -1,2010 +1,1886 @@
 [
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "AccuralCalledTooEarly",
-      "type": "error"
+        "name": "CrossChainError",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "ExceedsMaxDeposit",
-      "type": "error"
+        "name": "DebitGreaterThanAssets",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [],
-      "name": "ExcessFeePayment",
-      "type": "error"
+        "name": "ExchangeRateInvalid",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "ExcessWithdraw",
-      "type": "error"
+        "name": "InvalidAccess",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [],
-      "name": "InvalidAccess",
-      "type": "error"
+        "name": "InvalidLoan",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [],
-      "name": "InvalidLoan",
-      "type": "error"
+        "name": "InvalidRedemptions",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [],
-      "name": "InvalidPoolSetting",
-      "type": "error"
+        "name": "MintingToPool",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [],
-      "name": "InvalidRepayment",
-      "type": "error"
+        "name": "NoAdjustmentsToZeroBalance",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [],
-      "name": "NotBorrowerManager",
-      "type": "error"
+        "name": "NotBorrowerManager",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [],
-      "name": "NotLender",
-      "type": "error"
+        "name": "NotLender",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [],
-      "name": "NotPoolAdmin",
-      "type": "error"
+        "name": "NotPoolAdmin",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [],
-      "name": "NotPoolController",
-      "type": "error"
+        "name": "NotPoolController",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [],
-      "name": "NotWithdrawController",
-      "type": "error"
+        "name": "PoolInvalidState",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [],
-      "name": "PoolInvalidState",
-      "type": "error"
+        "name": "PoolNotActive",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [],
-      "name": "PoolNotActive",
-      "type": "error"
+        "name": "PoolPaused",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [],
-      "name": "PoolPaused",
-      "type": "error"
+        "name": "RedeemExceedsBalance",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [],
-      "name": "TransferDisabled",
-      "type": "error"
+        "name": "RedemptionDoesNotCoverDeposits",
+        "type": "error",
+        "inputs": []
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "ZeroDeposit",
-      "type": "error"
+        "name": "RedemptionNotFound",
+        "type": "error",
+        "inputs": []
     },
     {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "spender",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "value",
-          "type": "uint256"
-        }
-      ],
-      "name": "Approval",
-      "type": "event"
+        "name": "TransferDisabled",
+        "type": "error",
+        "inputs": []
     },
     {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        }
-      ],
-      "name": "Deposit",
-      "type": "event"
+        "name": "ZeroAmount",
+        "type": "error",
+        "inputs": []
     },
     {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "uint8",
-          "name": "version",
-          "type": "uint8"
-        }
-      ],
-      "name": "Initialized",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [],
-      "name": "PoolCreated",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "lender",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "transferInDayTimestamp",
-          "type": "uint256"
-        }
-      ],
-      "name": "PoolDeposit",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "lender",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        }
-      ],
-      "name": "Redeem",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "lender",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        }
-      ],
-      "name": "RedeemReleased",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "lender",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        }
-      ],
-      "name": "RedeemRequested",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "lender",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "eventId",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        }
-      ],
-      "name": "RepayLoanToLender",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "lender",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "eventId",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        }
-      ],
-      "name": "RepayToPoolProcessed",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "from",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "value",
-          "type": "uint256"
-        }
-      ],
-      "name": "Transfer",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "receiver",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        }
-      ],
-      "name": "Withdraw",
-      "type": "event"
-    },
-    {
-      "inputs": [],
-      "name": "accountings",
-      "outputs": [
-        {
-          "components": [
+        "name": "AccountCredit",
+        "type": "event",
+        "inputs": [
             {
-              "internalType": "uint256",
-              "name": "interestRate",
-              "type": "uint256"
+                "name": "lender",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "dailyInterestRate",
-              "type": "uint256"
+                "name": "amount",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             },
             {
-              "internalType": "uint256",
-              "name": "totalPrincipalEarningInterest",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "totalInterestAccrued",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "totalAssetsDeposited",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "totalAssetsWithdrawn",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "exchangeRate",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "lastDayAccrued",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "totalFees",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "feesOutstanding",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "interstRateSetTime",
-              "type": "uint256"
+                "name": "shares",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             }
-          ],
-          "internalType": "struct IPoolAccountingsFlex",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
+        ],
+        "anonymous": false
     },
     {
-      "inputs": [],
-      "name": "activatedAt",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "admin",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "spender",
-          "type": "address"
-        }
-      ],
-      "name": "allowance",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "annualAPR",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "estimatedDailyRate",
-          "type": "uint256"
-        }
-      ],
-      "name": "annualAPRToDailyRate",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "_dailyInterestRate",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "principal",
-          "type": "uint256"
-        }
-      ],
-      "name": "applyDailyRate",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "spender",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "approve",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "balanceOf",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "borrowerManagerAddr",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "borrowerVaultAddr",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "borrowerWalletAddr",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "businessDayRegistry",
-      "outputs": [
-        {
-          "internalType": "contract IBusinessDayRegistry",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "closeOfDepositTime",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "closeOfWithdrawTime",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        }
-      ],
-      "name": "convertToAssets",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        }
-      ],
-      "name": "convertToShares",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "dailyInterestAccural",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "decimals",
-      "outputs": [
-        {
-          "internalType": "uint8",
-          "name": "",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "spender",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "subtractedValue",
-          "type": "uint256"
-        }
-      ],
-      "name": "decreaseAllowance",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "lender",
-          "type": "address"
-        }
-      ],
-      "name": "deposit",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "transferInDayTimestamp",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "exchangeRate",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "_exchangeRate",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "paidAmount",
-          "type": "uint256"
-        }
-      ],
-      "name": "feesPaidDown",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "accountAddr",
-          "type": "address"
-        }
-      ],
-      "name": "getPoolAccountState",
-      "outputs": [
-        {
-          "components": [
+        "name": "AccountDebit",
+        "type": "event",
+        "inputs": [
             {
-              "internalType": "address",
-              "name": "poolAddr",
-              "type": "address"
+                "name": "lender",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
             },
             {
-              "internalType": "address",
-              "name": "accountAddr",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "tokenBalance",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "maxWithdrawRequest",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "maxRedeemRequest",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "requestedSharesOf",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "requestedAssetsOf",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "principalEarningInterest",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "interestAccrued",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "assetsDeposited",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "assetsWithdrawn",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "sharesTransitioningIn",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "assetsTransitioningIn",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "assetsDueForWithdraws",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "sharesDueForWithdraws",
-              "type": "uint256"
+                "name": "amount",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             }
-          ],
-          "internalType": "struct IPoolAccountStateFlex",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
+        ],
+        "anonymous": false
     },
     {
-      "inputs": [],
-      "name": "getPoolConfiguration",
-      "outputs": [
-        {
-          "components": [
+        "name": "Approval",
+        "type": "event",
+        "inputs": [
             {
-              "internalType": "address",
-              "name": "poolAddr",
-              "type": "address"
+                "name": "owner",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "dailyOriginationFeeRate",
-              "type": "uint256"
+                "name": "spender",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "originationFee",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "closeOfDepositTime",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "closeOfWithdrawTime",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "transferInDays",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "transferOutDays",
-              "type": "uint256"
-            },
-            {
-              "internalType": "address",
-              "name": "liquidityAssetAddr",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "poolAdminAddr",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "poolControllerAddr",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "withdrawControllerAddr",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "borrowerVaultAddr",
-              "type": "address"
-            },
-            {
-              "internalType": "string",
-              "name": "name",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "symbol",
-              "type": "string"
-            },
-            {
-              "internalType": "address",
-              "name": "borrowerManagerAddr",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "borrowerWalletAddr",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "maxCapacity",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint64[]",
-              "name": "nonBusinessDays",
-              "type": "uint64[]"
-            },
-            {
-              "internalType": "address",
-              "name": "businessDayRegistryAddr",
-              "type": "address"
+                "name": "value",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             }
-          ],
-          "internalType": "struct IPoolConfigurationStateFlex",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
+        ],
+        "anonymous": false
     },
     {
-      "inputs": [],
-      "name": "getPoolOverview",
-      "outputs": [
-        {
-          "components": [
+        "name": "Deposit",
+        "type": "event",
+        "inputs": [
             {
-              "internalType": "address",
-              "name": "poolAddr",
-              "type": "address"
+                "name": "sender",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "interestRate",
-              "type": "uint256"
+                "name": "owner",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "dailyInterestRate",
-              "type": "uint256"
+                "name": "assets",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             },
             {
-              "internalType": "uint256",
-              "name": "totalPrincipalEarningInterest",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "totalInterestAccrued",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "totalAssetsDeposited",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "totalAssetsWithdrawn",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "exchangeRate",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "totalSupply",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "totalRequestedShares",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "totalRequestedAssets",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "totalAssetsTransitioningIn",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "totalSharesTransitioningIn",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "totalAssetsDueForWithdraws",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "totalFees",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "feesOutstanding",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint64[]",
-              "name": "nonBusinessDays",
-              "type": "uint64[]"
-            },
-            {
-              "internalType": "uint8",
-              "name": "state",
-              "type": "uint8"
-            },
-            {
-              "internalType": "uint256",
-              "name": "lastDayAccrued",
-              "type": "uint256"
+                "name": "shares",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             }
-          ],
-          "internalType": "struct IPoolOverviewStateFlex",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
+        ],
+        "anonymous": false
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "spender",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "addedValue",
-          "type": "uint256"
-        }
-      ],
-      "name": "increaseAllowance",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "components": [
+        "name": "ExchangeRateSet",
+        "type": "event",
+        "inputs": [
             {
-              "internalType": "address",
-              "name": "liquidityAsset",
-              "type": "address"
+                "name": "_exchangeRate",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             },
             {
-              "internalType": "address",
-              "name": "poolAdmin",
-              "type": "address"
+                "name": "interestRate",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             },
             {
-              "internalType": "address",
-              "name": "serviceConfiguration",
-              "type": "address"
+                "name": "typeDependantChangeParam",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             },
             {
-              "internalType": "address",
-              "name": "withdrawDepositControllerFactoryFlex",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "poolControllerFactoryFlex",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "vaultFactory",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "poolAccessControlFactory",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "businessDayRegistryFactory",
-              "type": "address"
+                "name": "exchangeRateMaturityDay",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             }
-          ],
-          "internalType": "struct PoolAddressListFlex",
-          "name": "poolAddressListFlex",
-          "type": "tuple"
-        },
-        {
-          "components": [
+        ],
+        "anonymous": false
+    },
+    {
+        "name": "Initialized",
+        "type": "event",
+        "inputs": [
             {
-              "internalType": "uint256",
-              "name": "maxCapacity",
-              "type": "uint256"
-            },
-            {
-              "internalType": "address",
-              "name": "borrowerManagerAddr",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "borrowerWalletAddr",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "closeOfDepositTime",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "closeOfWithdrawTime",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "originationFee",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "dailyOriginationFeeRate",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "transferInDays",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "transferOutDays",
-              "type": "uint256"
+                "name": "version",
+                "type": "uint8",
+                "indexed": false,
+                "internalType": "uint8"
             }
-          ],
-          "internalType": "struct IPoolConfigurableSettingsFlex",
-          "name": "poolSettings",
-          "type": "tuple"
-        },
-        {
-          "internalType": "string",
-          "name": "tokenName",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "tokenSymbol",
-          "type": "string"
-        }
-      ],
-      "name": "initialize",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+        ],
+        "anonymous": false
     },
     {
-      "inputs": [],
-      "name": "interestRate",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
+        "name": "PoolCreated",
+        "type": "event",
+        "inputs": [],
+        "anonymous": false
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "receiver",
-          "type": "address"
-        }
-      ],
-      "name": "isPermittedLender",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "liquidityAssetAddr",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "liquidityPoolAssets",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        }
-      ],
-      "name": "maxDeposit",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        }
-      ],
-      "name": "maxRedeemRequest",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "maxShares",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        }
-      ],
-      "name": "maxWithdrawRequest",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "maxAssets",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "name",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "nonBusinessDays",
-      "outputs": [
-        {
-          "internalType": "uint64[]",
-          "name": "",
-          "type": "uint64[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "onActivated",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "poolAccessControl",
-      "outputs": [
-        {
-          "internalType": "contract IPoolAccessControl",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "poolController",
-      "outputs": [
-        {
-          "internalType": "contract IPoolControllerFlex",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "poolType",
-      "outputs": [
-        {
-          "internalType": "enum IPoolType",
-          "name": "",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        }
-      ],
-      "name": "previewRedeemRequest",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        }
-      ],
-      "name": "previewWithdrawRequest",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "eventId",
-          "type": "uint256"
-        }
-      ],
-      "name": "releaseWithdrawal",
-      "outputs": [
-        {
-          "components": [
+        "name": "PoolDeposit",
+        "type": "event",
+        "inputs": [
             {
-              "internalType": "uint256",
-              "name": "requestedShares",
-              "type": "uint256"
+                "name": "lender",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "requestedAssets",
-              "type": "uint256"
+                "name": "assets",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             },
             {
-              "internalType": "uint256",
-              "name": "transferOutDayTimestamp",
-              "type": "uint256"
+                "name": "shares",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             },
             {
-              "internalType": "uint256",
-              "name": "requestTimestamp",
-              "type": "uint256"
+                "name": "depositType",
+                "type": "uint8",
+                "indexed": false,
+                "internalType": "enum IPoolDynamicDepositType"
             },
             {
-              "internalType": "address",
-              "name": "lender",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "eventId",
-              "type": "uint256"
+                "name": "transferTxHash",
+                "type": "bytes32",
+                "indexed": false,
+                "internalType": "bytes32"
             }
-          ],
-          "internalType": "struct IPoolLenderWithdrawEvent",
-          "name": "ev",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
+        ],
+        "anonymous": false
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "eventId",
-          "type": "uint256"
-        }
-      ],
-      "name": "repayLoans",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        }
-      ],
-      "name": "requestRedeem",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "serviceConfiguration",
-      "outputs": [
-        {
-          "internalType": "contract IServiceConfigurationV3",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_interestRate",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_estimatedDailyRate",
-          "type": "uint256"
-        }
-      ],
-      "name": "setDailyInterestRate",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "settings",
-      "outputs": [
-        {
-          "components": [
+        "name": "RedeemAccepted",
+        "type": "event",
+        "inputs": [
             {
-              "internalType": "uint256",
-              "name": "maxCapacity",
-              "type": "uint256"
+                "name": "lender",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
             },
             {
-              "internalType": "address",
-              "name": "borrowerManagerAddr",
-              "type": "address"
+                "name": "assets",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             },
             {
-              "internalType": "address",
-              "name": "borrowerWalletAddr",
-              "type": "address"
+                "name": "shares",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             },
             {
-              "internalType": "uint256",
-              "name": "closeOfDepositTime",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "closeOfWithdrawTime",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "originationFee",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "dailyOriginationFeeRate",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "transferInDays",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "transferOutDays",
-              "type": "uint256"
+                "name": "uuid",
+                "type": "bytes32",
+                "indexed": false,
+                "internalType": "bytes32"
             }
-          ],
-          "internalType": "struct IPoolConfigurableSettingsFlex",
-          "name": "poolSettings",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
+        ],
+        "anonymous": false
     },
     {
-      "inputs": [],
-      "name": "state",
-      "outputs": [
-        {
-          "internalType": "enum IPoolLifeCycleStateFlex",
-          "name": "",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "symbol",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "lender",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "catchupShares",
-          "type": "uint256"
-        }
-      ],
-      "name": "topOffSharesDueToExchangeRateDecrease",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "totalAssets",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "totalAssetsDueForWithdraws",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "totalAvailableAssets",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "assets",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "totalAvailableSupply",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "shares",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "totalSupply",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "transfer",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "from",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "transferFrom",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "transferInDays",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "transferOutDays",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint64[]",
-          "name": "_timestamps",
-          "type": "uint64[]"
-        }
-      ],
-      "name": "updateNonBusinessDays",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "version",
-      "outputs": [
-        {
-          "internalType": "uint16",
-          "name": "",
-          "type": "uint16"
-        }
-      ],
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "withdrawDepositController",
-      "outputs": [
-        {
-          "internalType": "contract IWithdrawDepositControllerFlex",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "withdrawEvents",
-      "outputs": [
-        {
-          "components": [
+        "name": "RedeemDestinationChanged",
+        "type": "event",
+        "inputs": [
             {
-              "internalType": "uint256",
-              "name": "requestedShares",
-              "type": "uint256"
+                "name": "lender",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "requestedAssets",
-              "type": "uint256"
+                "name": "assets",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             },
             {
-              "internalType": "uint256",
-              "name": "transferOutDayTimestamp",
-              "type": "uint256"
+                "name": "shares",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
             },
             {
-              "internalType": "uint256",
-              "name": "requestTimestamp",
-              "type": "uint256"
+                "name": "uuid",
+                "type": "bytes32",
+                "indexed": false,
+                "internalType": "bytes32"
             },
             {
-              "internalType": "address",
-              "name": "lender",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "eventId",
-              "type": "uint256"
+                "name": "fundsDestination",
+                "type": "address",
+                "indexed": false,
+                "internalType": "address"
             }
-          ],
-          "internalType": "struct IPoolLenderWithdrawEvent[]",
-          "name": "",
-          "type": "tuple[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
+        ],
+        "anonymous": false
+    },
+    {
+        "name": "RedeemRepay",
+        "type": "event",
+        "inputs": [
+            {
+                "name": "lender",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "shares",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            },
+            {
+                "name": "assets",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            },
+            {
+                "name": "fees",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            },
+            {
+                "name": "uuid",
+                "type": "bytes32",
+                "indexed": false,
+                "internalType": "bytes32"
+            },
+            {
+                "name": "expectedAssets",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            },
+            {
+                "name": "fundsDestination",
+                "type": "address",
+                "indexed": false,
+                "internalType": "address"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "name": "RedeemRequested",
+        "type": "event",
+        "inputs": [
+            {
+                "name": "lender",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "assets",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            },
+            {
+                "name": "shares",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            },
+            {
+                "name": "uuid",
+                "type": "bytes32",
+                "indexed": false,
+                "internalType": "bytes32"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "name": "Transfer",
+        "type": "event",
+        "inputs": [
+            {
+                "name": "from",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "to",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "value",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "name": "TransferAssets",
+        "type": "event",
+        "inputs": [
+            {
+                "name": "fundsDestination",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "name": "Withdraw",
+        "type": "event",
+        "inputs": [
+            {
+                "name": "sender",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "receiver",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "owner",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "assets",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            },
+            {
+                "name": "shares",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "name": "acceptRedemption",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "lender",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "uuid",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "accountings",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "tuple",
+                "components": [
+                    {
+                        "name": "totalAssetsDeposited",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "totalAssetsWithdrawn",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRate",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRateSetDay",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRateChangeRate",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRateCompoundingRate",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRateAtMaturity",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRateMaturityDay",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "interestRate",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "indicativeInterestRate",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "collateralRate",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    }
+                ],
+                "internalType": "struct IPoolAccountingsDynamic"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "addAdjustmentAmount",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "lender",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "debit",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "credit",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "admin",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "allowance",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "spender",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "approve",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "spender",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "asset",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "assetBalanceOf",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "lender",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "balanceOf",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "borrowerManagerAddr",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "borrowerWalletAddr",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "changeRedemptionDestination",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "lender",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "uuid",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            },
+            {
+                "name": "fundsDestination",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "convertToAssets",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "shares",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "assets",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "convertToShares",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "assets",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "shares",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "decimals",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint8",
+                "internalType": "uint8"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "decreaseAllowance",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "spender",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "subtractedValue",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "deposit",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "assets",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "lender",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "shares",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "depositFromTransfer",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "assets",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "lender",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "transferTxHash",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "shares",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "depositOffChain",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "assets",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "lender",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "shares",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "exchangeRate",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "_exchangeRate",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "getActiveWithdraws",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "tuple[]",
+                "components": [
+                    {
+                        "name": "uuid",
+                        "type": "bytes32",
+                        "internalType": "bytes32"
+                    },
+                    {
+                        "name": "lender",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "assets",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "shares",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "stage",
+                        "type": "uint8",
+                        "internalType": "enum IPoolDynamicWithdrawStage"
+                    },
+                    {
+                        "name": "fundsDestination",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "transferRedeem",
+                        "type": "bool",
+                        "internalType": "bool"
+                    }
+                ],
+                "internalType": "struct IPoolWithdrawDynamic[]"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "getPoolDynamicAccountState",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "lender",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "_poolAccountState",
+                "type": "tuple",
+                "components": [
+                    {
+                        "name": "poolAddr",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "accountAddr",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "liquidityAssetAddr",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "tokenBalance",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "assetBalance",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "maxWithdrawRequest",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "maxRedeemRequest",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "requestedSharesOf",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "requestedAssetsOf",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "acceptedShares",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "acceptedAssets",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "assetsDeposited",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "assetsWithdrawn",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    }
+                ],
+                "internalType": "struct IPoolAccountStateDynamic"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "getPoolDynamicConfigurationState",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "_poolConfigutationState",
+                "type": "tuple",
+                "components": [
+                    {
+                        "name": "poolAddr",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "internalType": "string"
+                    },
+                    {
+                        "name": "symbol",
+                        "type": "string",
+                        "internalType": "string"
+                    },
+                    {
+                        "name": "poolAccessControl",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "poolControllerDynamic",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "activatedAt",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "serviceConfiguration",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "liquidityAssetAddr",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "poolAdmin",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "borrowerManager",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "borrowerWalletAddr",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "feeCollectorAddress",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "closeOfDepositTime",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "closeOfWithdrawTime",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "transferOutDays",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRateType",
+                        "type": "uint8",
+                        "internalType": "enum IPoolDynamicExchangeRateType"
+                    }
+                ],
+                "internalType": "struct IPoolConfigurationStateDynamic"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "getPoolDynamicOverviewState",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "_poolOverviewState",
+                "type": "tuple",
+                "components": [
+                    {
+                        "name": "poolAddr",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "state",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "totalAssetsDeposited",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "totalAssetsWithdrawn",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "totalAssets",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "totalShares",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRate",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRateAtSetDay",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRateSetDay",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRateChangeRate",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRateCompoundingRate",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRateAtMaturity",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRateMaturityDay",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "interestRate",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "indicativeInterestRate",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "collateralRate",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "activeWithdraws",
+                        "type": "tuple[]",
+                        "components": [
+                            {
+                                "name": "uuid",
+                                "type": "bytes32",
+                                "internalType": "bytes32"
+                            },
+                            {
+                                "name": "lender",
+                                "type": "address",
+                                "internalType": "address"
+                            },
+                            {
+                                "name": "assets",
+                                "type": "uint256",
+                                "internalType": "uint256"
+                            },
+                            {
+                                "name": "shares",
+                                "type": "uint256",
+                                "internalType": "uint256"
+                            },
+                            {
+                                "name": "stage",
+                                "type": "uint8",
+                                "internalType": "enum IPoolDynamicWithdrawStage"
+                            },
+                            {
+                                "name": "fundsDestination",
+                                "type": "address",
+                                "internalType": "address"
+                            },
+                            {
+                                "name": "transferRedeem",
+                                "type": "bool",
+                                "internalType": "bool"
+                            }
+                        ],
+                        "internalType": "struct IPoolWithdrawDynamic[]"
+                    }
+                ],
+                "internalType": "struct IPoolOverviewStateDynamic"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "increaseAllowance",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "spender",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "addedValue",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "initialize",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "poolAddressList",
+                "type": "tuple",
+                "components": [
+                    {
+                        "name": "liquidityAsset",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "poolAdmin",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "serviceConfiguration",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "poolControllerFactoryDynamic",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "poolAccessControlFactory",
+                        "type": "address",
+                        "internalType": "address"
+                    }
+                ],
+                "internalType": "struct PoolAddressListDynamic"
+            },
+            {
+                "name": "poolSettings",
+                "type": "tuple",
+                "components": [
+                    {
+                        "name": "borrowerManager",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "borrowerWalletAddr",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "feeCollectorAddress",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "closeOfDepositTime",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "closeOfWithdrawTime",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "transferOutDays",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRateType",
+                        "type": "uint8",
+                        "internalType": "enum IPoolDynamicExchangeRateType"
+                    }
+                ],
+                "internalType": "struct IPoolConfigurableSettingsDynamic"
+            },
+            {
+                "name": "tokenName",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "tokenSymbol",
+                "type": "string",
+                "internalType": "string"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "isPermittedLender",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "receiver",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "liquidityAssetAddr",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "maxRedeemRequest",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "maxShares",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "maxWithdrawRequest",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "maxAssets",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "name",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "string",
+                "internalType": "string"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "poolAccessControl",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "contract IPoolAccessControl"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "poolControllerDynamic",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "contract IPoolControllerDynamic"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "poolType",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint8",
+                "internalType": "enum IPoolType"
+            }
+        ],
+        "stateMutability": "pure"
+    },
+    {
+        "name": "previewRedeemRequest",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "shares",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "assets",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "previewWithdrawRequest",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "assets",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "shares",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "repayRedemption",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "lender",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "repayment",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "fees",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "uuid",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "requestRedeem",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "shares",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "assets",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "serviceConfiguration",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "contract IServiceConfigurationV5"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "setExchangeRate",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "_exchangeRate",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "_typeDependantChangeParam",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "_exchangeRateMaturityDay",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "_interestRate",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "setIndicativeAndCollateralRates",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "_indicativeInterestRate",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "_collateralRate",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "settings",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "poolSettings",
+                "type": "tuple",
+                "components": [
+                    {
+                        "name": "borrowerManager",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "borrowerWalletAddr",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "feeCollectorAddress",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "closeOfDepositTime",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "closeOfWithdrawTime",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "transferOutDays",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "exchangeRateType",
+                        "type": "uint8",
+                        "internalType": "enum IPoolDynamicExchangeRateType"
+                    }
+                ],
+                "internalType": "struct IPoolConfigurableSettingsDynamic"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "state",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint8",
+                "internalType": "enum IPoolLifeCycleStateDynamic"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "symbol",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "string",
+                "internalType": "string"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "totalAssets",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "totalAvailableAssets",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "assets",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "totalSupply",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "transfer",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "to",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "transferFrom",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "from",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "to",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "name": "transferToBorrowerWallet",
+        "type": "function",
+        "inputs": [
+            {
+                "name": "assets",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
     }
-  ]
+]

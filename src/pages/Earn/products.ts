@@ -1,3 +1,5 @@
+const currentEnv = process.env.REACT_APP_ENV || 'development'
+
 // Define product interface
 export interface EarnProduct {
   id: string
@@ -19,61 +21,65 @@ export interface EarnProduct {
   chainId: number
   bgUrl: string // background image URL for the product
   bgFullUrl: string // full background image URL for the product
+  learnMoreUrl?: string // optional URL for more information about the product
 }
 
 // Base product data without environment-specific values
 const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'opentradeVaultAddress'>[] = [
+  // {
+  //   id: 'treasury-bill',
+  //   name: 'Flexible TERM USDC Vault',
+  //   type: 'EARN_V2_TREASURY',
+  //   apy: 3.9,
+  //   tvl: 5000000,
+  //   minimumDeposit: 100,
+  //   maximumDeposit: 100,
+  //   description: 'US Treasuries, USD Money Market Funds',
+  //   iconUrl: '/images/earn/icon01.svg',
+  //   underlyingAsset: 'U.S. Treasury Bill',
+  //   network: 'ethereum',
+  //   investingTokenSymbol: 'USDC',
+  //   investingTokenDecimals: 6,
+  //   chainId: currentEnv === 'development' ? 11155111 : 1,
+  //   bgUrl: '/images/earn/bg-tby.svg',
+  //   bgFullUrl: '/images/earn/image01.svg',
+  //   learnMoreUrl:
+  //     'https://docs.opentrade.io/stablecoin-yield/stablecoin-yield-vaults/money-market-fund-vaults/franklin-templeton-benji-mmf-vault',
+  // },
   {
-    id: 'treasury-bill',
-    name: 'Flexible TERM USDC Vault',
-    type: 'EARN_V2_TREASURY',
-    apy: 3.9,
-    tvl: 5000000,
-    minimumDeposit: 100,
-    maximumDeposit: 100,
-    description: 'US Treasuries, USD Money Market Funds',
-    iconUrl: '/images/earn/icon01.svg',
-    underlyingAsset: 'U.S. Treasury Bill',
-    network: 'ethereum',
-    investingTokenSymbol: 'USDC',
-    investingTokenDecimals: 6,
-    chainId: 11155111,
-    bgUrl: '/images/earn/bg-tby.svg',
-    bgFullUrl: '/images/earn/image01.svg',
-  },
-  {
-    id: 'stablecoin-yield',
+    id: 'hycb',
     name: 'High Yield Corporate Bond',
     type: 'EARN_V2_HYCB',
     apy: 7,
     tvl: 2800000,
-    minimumDeposit: 1000,
-    maximumDeposit: 1000,
+    minimumDeposit: 1,
+    maximumDeposit: 1,
     description: 'BlackRock High Yield Corporate Bond ETF',
     iconUrl: '/images/earn/icon02.svg',
     underlyingAsset: 'BlackRock High Yield Corporate Bond ETF',
     network: 'avalanche',
     investingTokenSymbol: 'USDC',
     investingTokenDecimals: 6,
-    chainId: 43113,
+    chainId: currentEnv === 'development' ? 43113 : 43114,
     bgUrl: '/images/earn/bg-hycb.svg',
     bgFullUrl: '/images/earn/image02.svg',
+    learnMoreUrl: 'https://docs.opentrade.io/stablecoin-yield/stablecoin-yield-vaults/high-yield-corporate-bond-vault',
   },
 ]
 
 // Environment-specific addresses
 const addresses: Record<string, Record<string, string>> = {
   development: {
-    'treasury-bill': '0x0b8d47C634F60E18b2a58CcBDE55D9140f651E66',
-    'stablecoin-yield': '0x5E25F811828D063E436A3923e00C7F9aDAdE39BF',
+    'treasury-bill': '0xDDdc40135eF85848d977B9f9317cF3EE02E5C226',
+    hycb: '0x5E25F811828D063E436A3923e00C7F9aDAdE39BF',
   },
   staging: {
     'treasury-bill': '0xStg1234567890123456789012345678901234567890',
-    'stablecoin-yield': '0xStg0987654321098765432109876543210987654321',
+    hycb: '0xStg0987654321098765432109876543210987654321',
   },
   production: {
     'treasury-bill': '0xProd1234567890123456789012345678901234567890',
-    'stablecoin-yield': '0xProd0987654321098765432109876543210987654321',
+    hycb: '0x9815985a4fa45D817564D7FdEA0356e65AbB8e52',
   },
 }
 
@@ -88,11 +94,13 @@ const investingTokenAddresses: Record<string, Record<string, Record<string, stri
   staging: {
     USDC: {
       ethereum: '0xStgUSDC12345678901234567890123490123456789012345',
+      avalanche: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
     },
   },
   production: {
     USDC: {
       ethereum: '0xProdUSDC12345678901234567890123456789012345',
+      avalanche: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
     },
   },
 }
@@ -101,20 +109,17 @@ const investingTokenAddresses: Record<string, Record<string, Record<string, stri
 const opentradeVaultAddresses: Record<string, Record<string, string>> = {
   development: {
     'treasury-bill': '0xaE3cfBe878FB66070030B7cb29cfe0Deeac624DD',
-    'stablecoin-yield': '0xc982983B42178448C72B0fa1E7af8CbA5f79bBE3',
+    hycb: '0xc982983B42178448C72B0fa1E7af8CbA5f79bBE3',
   },
   staging: {
     'treasury-bill': '0xStgOTVTB00000000000000000000000000000000000',
-    'stablecoin-yield': '0xStgOTVSY00000000000000000000000000000000000',
+    hycb: '0x1D7E71d0CB499C31349DF3E9205A4b16bcCF2536',
   },
   production: {
     'treasury-bill': '0xProdOTVTB0000000000000000000000000000000000',
-    'stablecoin-yield': '0xProdOTVSY0000000000000000000000000000000000',
+    hycb: '0x1D7E71d0CB499C31349DF3E9205A4b16bcCF2536',
   },
 }
-
-// Get current environment
-const currentEnv = process.env.REACT_APP_ENV || 'development'
 
 // Combine base product data with environment-specific addresses
 const products: EarnProduct[] = baseProducts.map((product) => ({

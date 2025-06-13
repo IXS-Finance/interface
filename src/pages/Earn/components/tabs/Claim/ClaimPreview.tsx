@@ -13,6 +13,7 @@ import {
 import { Box, Flex } from 'rebass'
 import { shortAddress } from 'utils'
 import styled from 'styled-components'
+import { CopyAddress } from 'components/CopyAddress'
 
 interface ClaimPreviewProps {
   vaultAddress: string
@@ -31,6 +32,7 @@ interface ClaimPreviewProps {
   isClaimPending: boolean
   isConfirming: boolean
   loading: boolean
+  type: 'EARN_V2_TREASURY' | 'EARN_V2_HYCB'
 }
 
 const ClaimPreview: React.FC<ClaimPreviewProps> = ({
@@ -50,6 +52,7 @@ const ClaimPreview: React.FC<ClaimPreviewProps> = ({
   isClaimPending,
   isConfirming,
   loading,
+  type,
 }) => {
   return (
     <PreviewContainer>
@@ -73,7 +76,9 @@ const ClaimPreview: React.FC<ClaimPreviewProps> = ({
           <Card>
             <Flex css={{ gap: '8px', flexDirection: 'column' }}>
               <Label>Sent From</Label>
-              <Value>{shortAddress(vaultAddress)}</Value>
+              <Value>
+                <CopyAddress address={vaultAddress || ''} />
+              </Value>
             </Flex>
           </Card>
         </Flex>
@@ -109,18 +114,28 @@ const ClaimPreview: React.FC<ClaimPreviewProps> = ({
         alignItems={['flex-start', 'center']}
         css={{ gap: '16px' }}
       >
-        <Flex alignItems="center">
+        <Flex alignItems="center" width={['100%', '50%']}>
           <Checkbox type="checkbox" checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} />
-          <TermsText>
-            I agree to the <TermsLink>IXS Earn Terms and Conditions</TermsLink>.
-          </TermsText>
+          {type === 'EARN_V2_HYCB' ? (
+            <TermsText>
+              I confirm that I have read, understood, and agree to be bound by the{' '}
+              <TermsLink href="/IXS_HYCB_Rules.pdf" target="_blank" rel="noopener noreferrer">
+                High Yield Corporate Bond (HYCB) Earn Product Rules
+              </TermsLink>
+              .
+            </TermsText>
+          ) : (
+            <TermsText>
+              I agree to the <TermsLink>IXS Earn Terms and Conditions</TermsLink>.
+            </TermsText>
+          )}
         </Flex>
 
         <Flex
           flexDirection="row"
-          justifyContent="space-between"
+          justifyContent="flex-end"
           alignItems="center"
-          width={['100%', 'auto']}
+          width={['100%', '50%']}
           css={{ gap: '16px' }}
         >
           <CustomBackButton onClick={handleBackFromClaimPreview}>Back</CustomBackButton>

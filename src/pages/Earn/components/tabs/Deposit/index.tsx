@@ -26,7 +26,7 @@ import SuccessContent from '../../ToastContent/Success'
 import AmountInput from '../../AmountInput'
 import { isGreaterThanOrEqualTo } from '../../AmountInput/validations'
 import { KYCPrompt } from 'components/Launchpad/KYCPrompt'
-import { me, useKyc } from 'state/user/hooks'
+import { useKyc } from 'state/user/hooks'
 import { DepositPreview } from './DepositPreview'
 
 const useWatchTokenApprovalEvent = createUseWatchContractEvent({
@@ -76,7 +76,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
   investingTokenDecimals,
   chainId,
   type,
-  minimumDeposit
+  minimumDeposit,
 }) => {
   const [isApproving, setIsApproving] = useState(false)
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
@@ -332,6 +332,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
     setShowSuccessPopup(false)
     handleBackFromPreview()
     setAmount('')
+    resetDepositContract()
   }
 
   const isDepositing = isDepositContractCallPending || isConfirmingDepositTx
@@ -403,8 +404,8 @@ export const DepositTab: React.FC<DepositTabProps> = ({
       if (refetchBalanceData) {
         refetchBalanceData()
       }
-      resetDepositContract()
       setShowSuccessPopup(true)
+      handleBackFromPreview()
     }
   }, [isDepositTxConfirmed])
 
@@ -436,7 +437,8 @@ export const DepositTab: React.FC<DepositTabProps> = ({
           autoClose: 3000,
         })
       } else {
-        toast.error(<ErrorContent title="Error" message={message} />, {
+        console.error('Deposit error:', message)
+        toast.error(<ErrorContent title="Error" message="An error occurred while confirming the transaction" />, {
           style: {
             background: '#fff',
             border: '1px solid rgba(255, 101, 101, 0.50)',
@@ -567,6 +569,7 @@ export const DepositTab: React.FC<DepositTabProps> = ({
           isDepositing={isDepositing}
           depositError={!!depositError}
           amountRaw={amountRaw.toString()}
+          type={type}
         />
       )}
 
