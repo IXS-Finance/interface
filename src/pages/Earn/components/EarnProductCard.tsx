@@ -1,32 +1,86 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { getPublicClient, readContract } from '@wagmi/core'
 import styled from 'styled-components/macro'
 import { EarnProduct } from '../products'
 import { Box, Flex } from 'rebass'
+import { wagmiConfig } from 'components/Web3Provider'
+import OpenTradeABI from '../abis/OpenTrade.json'
+import LoadingBlock from './LoadingBlock'
 
 interface EarnProductCardProps {
   product: EarnProduct
   onClick: () => void
 }
 
+async function getPoolDynamicOverviewStateForClient(client: any, contract: any, chainId: any) {
+  if (!contract.address) return null
+  return await readContract(wagmiConfig, {
+    ...contract,
+    functionName: 'getPoolDynamicOverviewState',
+    chainId,
+    client,
+  })
+}
+
 export function EarnProductCard({ product, onClick }: EarnProductCardProps) {
+  const [indicativeInterestRatePercentage, setIndicativeInterestRatePercentage] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  const openTradeContract = {
+    address: product?.opentradeVaultAddress as `0x${string}` | undefined,
+    abi: OpenTradeABI,
+  } as const
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!openTradeContract.address) return
+      try {
+        setLoading(true)
+        const avalancheClient = getPublicClient(wagmiConfig, {
+          chainId: product.chainId,
+        })
+        const poolDynamicOverviewStateResult: any = await getPoolDynamicOverviewStateForClient(
+          avalancheClient,
+          openTradeContract,
+          product.chainId
+        )
+        const indicativeInterestRate = (poolDynamicOverviewStateResult?.indicativeInterestRate || 0).toString()
+        const finalRate = (parseFloat(indicativeInterestRate) / 100).toFixed(2)
+
+        setIndicativeInterestRatePercentage(finalRate)
+        setLoading(false)
+      } catch (error) {
+        console.error('Error fetching pool dynamic overview state:', error)
+        setIndicativeInterestRatePercentage('N/A')
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [openTradeContract.address])
+
   return (
     <CardContainer cornerImageUrl={product.bgUrl}>
       <Flex flexDirection="column" height="100%" justifyContent="space-between">
         <Flex justifyContent="space-between">
           <div>
-            <Box
-              sx={{
-                color: '#66F',
-                fontFamily: 'Inter',
-                fontSize: ['28px', '36px', '48px'],
-                fontStyle: 'normal',
-                fontWeight: 700,
-                lineHeight: 'normal',
-                letterSpacing: ['-1.1px', '-1.5px', '-1.92px'],
-              }}
-            >
-              {product.apy.toFixed(2)}%
-            </Box>
+            {loading ? (
+              <LoadingBlock className="rate-number" />
+            ) : (
+              <Box
+                sx={{
+                  color: '#66F',
+                  fontFamily: 'Inter',
+                  fontSize: ['28px', '36px', '48px'],
+                  fontStyle: 'normal',
+                  fontWeight: 700,
+                  lineHeight: 'normal',
+                  letterSpacing: ['-1.1px', '-1.5px', '-1.92px'],
+                }}
+              >
+                {indicativeInterestRatePercentage}%
+              </Box>
+            )}
+
             <Box
               sx={{
                 color: '#8F8FB2',
@@ -138,6 +192,11 @@ const CardContainer = styled.div<{ cornerImageUrl: string }>`
 
   &:hover {
     transform: translateY(-4px);
+  }
+
+  .rate-number {
+    width: 154px;
+    height: 59px;
   }
 `
 
