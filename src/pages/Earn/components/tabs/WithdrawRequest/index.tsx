@@ -34,6 +34,8 @@ interface WithdrawRequestTabProps {
   network?: string
   vaultAddress?: string
   minimumDeposit: number
+  type: 'EARN_V2_TREASURY' | 'EARN_V2_HYCB'
+  chainId: number
 }
 
 const VAULT_TOKEN_DECIMALS = 6 // Assumption: Vault tokens have 6 decimals
@@ -52,6 +54,8 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
   network,
   vaultAddress,
   minimumDeposit,
+  type,
+  chainId,
 }) => {
   const { address } = useAccount()
   const [withdrawError, setWithdrawError] = useState<string | null>(null)
@@ -115,8 +119,8 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
     if (isWithdrawTxConfirmed) {
       setWithdrawError(null)
       refetchVaultTokenBalance?.()
-      resetWithdrawContract()
       setShowSuccessPopup(true)
+      handleBackFromWithdrawPreview()
     }
   }, [isWithdrawTxConfirmed])
 
@@ -145,7 +149,8 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
           autoClose: 3000,
         })
       } else {
-        toast.error(<ErrorContent title="Error" message={message} />, {
+        console.error('Withdraw error:', message)
+        toast.error(<ErrorContent title="Error" message="An error occurred while confirming the transaction" />, {
           style: {
             background: '#fff',
             border: '1px solid rgba(255, 101, 101, 0.50)',
@@ -194,6 +199,7 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
     setWithdrawAmount('')
     setShowSuccessPopup(false)
     handleBackFromWithdrawPreview()
+    resetWithdrawContract()
   }
 
   return (
@@ -253,10 +259,11 @@ export const WithdrawRequestTab: React.FC<WithdrawRequestTabProps> = ({
           withdrawError={!!withdrawError}
           withdrawAmountInSmallestUnit={withdrawAmountInSmallestUnit}
           getUsdcEquivalent={getUsdcEquivalent}
+          type={type}
         />
       )}
 
-      {showSuccessPopup && <SuccessPopup onClose={handleClosePopup} txHash={withdrawTxHash} />}
+      {showSuccessPopup && <SuccessPopup onClose={handleClosePopup} txHash={withdrawTxHash} chainId={chainId} />}
     </>
   )
 }

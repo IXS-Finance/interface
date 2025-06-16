@@ -132,7 +132,7 @@ export const TermsText = styled.div`
   }
 `
 
-export const TermsLink = styled.span`
+export const TermsLink = styled.a`
   color: #6c5dd3;
   cursor: pointer;
 
