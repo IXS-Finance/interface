@@ -12,7 +12,7 @@ interface EarnProductCardProps {
   onClick: () => void
 }
 
-async function getPoolDynamicOverviewStateForClient(client: any, contract: any, chainId: any) {
+async function getPoolDynamicOverviewStateForClient(client: any, contract: any, chainId: number) {
   if (!contract.address) return null
   return await readContract(wagmiConfig, {
     ...contract,
@@ -36,11 +36,11 @@ export function EarnProductCard({ product, onClick }: EarnProductCardProps) {
       if (!openTradeContract.address) return
       try {
         setLoading(true)
-        const avalancheClient = getPublicClient(wagmiConfig, {
+        const client = getPublicClient(wagmiConfig, {
           chainId: product.chainId,
         })
         const poolDynamicOverviewStateResult: any = await getPoolDynamicOverviewStateForClient(
-          avalancheClient,
+          client,
           openTradeContract,
           product.chainId
         )
