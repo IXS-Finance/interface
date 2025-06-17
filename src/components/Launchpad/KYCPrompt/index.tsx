@@ -21,7 +21,6 @@ import {
 } from './styled'
 import { useKyc } from 'state/user/hooks'
 import { text9 } from 'components/LaunchpadMisc/typography'
-import { useWhitelabelState } from 'state/whitelabel/hooks'
 import { routes } from 'utils/routes'
 
 interface Props {
@@ -35,7 +34,6 @@ export const KYCPrompt: React.FC<Props> = (props) => {
   const { kyc } = useKYCState()
   const { isApproved, isRejected, isAccredited, isPending, isInProgress, isChangeRequested, isNotSubmitted, isDraft } =
     useKyc()
-  const { config } = useWhitelabelState()
 
   const [isOpen, setIsOpen] = React.useState(true)
   const [contactFormOpen, setContactForm] = React.useState(false)
@@ -71,7 +69,7 @@ export const KYCPrompt: React.FC<Props> = (props) => {
                     <KYCPromptIcon />
                   </KYCPromptIconContainer>
 
-                  <KYCPromptTitle>Verify your account to use the {config?.name} Launchpad</KYCPromptTitle>
+                  <KYCPromptTitle>Verify your account to continue</KYCPromptTitle>
 
                   <VerifyButton to={routes.kyc}>Verify Account</VerifyButton>
                 </>
@@ -94,7 +92,7 @@ export const KYCPrompt: React.FC<Props> = (props) => {
                     <Loading />
                   </KYCLoadingIconContainer>
 
-                  <KYCPromptTitle>Verify your account to use the {config?.name} Launchpad</KYCPromptTitle>
+                  <KYCPromptTitle>Verify your account to continue</KYCPromptTitle>
 
                   <VerifyButton to={routes.kyc}>Verify Account</VerifyButton>
                 </>
@@ -133,8 +131,7 @@ export const KYCPrompt: React.FC<Props> = (props) => {
                   </KYCPromptIconContainer>
 
                   <KYCPromptTitle>
-                    Account verification was unsuccessful. Therefore, you are not able to use the {config?.name}{' '}
-                    Launchpad. Please try again or contact us for more information.
+                    Account verification was unsuccessful. Please try again or contact us for more information.
                   </KYCPromptTitle>
 
                   <VerifyButton to={routes.kyc}>Try Again</VerifyButton>

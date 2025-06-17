@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { ReactComponent as Logo } from 'assets/images/logo/logo-dark.svg'
-import { ReactComponent as NewLogo } from 'assets/images/logo/logo-full-dark.svg'
+import NewLogo from 'assets/images/logo/logo-full-dark.svg'
 import { routes } from 'utils/routes'
 import { Link } from 'react-router-dom'
 import { useKyc, useRole } from 'state/user/hooks'
@@ -36,7 +36,7 @@ export const Header = () => {
             </TitleSection>
           ) : (
             <TitleSection to="/launchpad">
-              <NewLogo width="130px" height="47px" />
+              <img src={NewLogo} alt="logo" style={{ width: '100%', height: 'auto' }} />
             </TitleSection>
           )}
           <HeaderLinks>
