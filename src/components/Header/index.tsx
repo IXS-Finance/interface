@@ -21,7 +21,7 @@ import { IXSBalance } from './IXSBalance'
 import { NetworkCard } from './NetworkCard'
 import { useWhitelabelState } from 'state/whitelabel/hooks'
 import { useRole } from 'state/user/hooks'
-import { ReactComponent as NewLogo } from 'assets/images/logo/logo-full-dark.svg'
+import NewLogo from 'assets/images/logo/logo-full-dark.svg'
 import BuyModal from 'components/LaunchpadOffer/InvestDialog/BuyModal'
 import { PinnedContentButton } from 'components/Button'
 import AdministrationMenu from './AdministrationMenu'
@@ -79,7 +79,7 @@ export default function Header() {
                 <img src={logoUrl} alt="logo" width="auto" height="47px" />
               ) : (
                 <IXSIcon>
-                  <NewLogo style={{ width: '100%', height: 'auto' }} />
+                  <img src={NewLogo} alt="logo" style={{ width: '100%', height: 'auto' }} />
                 </IXSIcon>
               )}
             </Title>
@@ -118,7 +118,7 @@ export default function Header() {
                     </div>
                   ) : (
                     <IXSIcon>
-                      <NewLogo width="130px" height="47px" />
+                      <img src={NewLogo} alt="logo" style={{ width: '100%', height: 'auto' }} />
                     </IXSIcon>
                   )}
                 </Title>

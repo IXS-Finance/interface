@@ -214,7 +214,6 @@ const HeaderLinksWrapDesktop = styled(Row)<{ links: number }>`
   gap: 30px;
   margin-left: 35px;
   padding-left: 35px;
-  border-left: solid 2px #e6e6ff;
   @media (max-width: 1600px) {
     gap: 15px;
   }
