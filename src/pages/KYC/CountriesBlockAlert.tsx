@@ -11,7 +11,7 @@ const CountriesBlockAlert: React.FC = () => {
         <AlertIcon />
         <div>
           Our service is currently unavailable to citizens of the United States, North Korea, Myanmar (formerly Burma),
-          Iran, Singapore.
+          Iran, and Singapore.
         </div>
       </Flex>
     </Container>
