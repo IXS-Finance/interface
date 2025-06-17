@@ -50,7 +50,7 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
     id: 'hycb',
     name: 'High Yield Corporate Bond',
     type: 'EARN_V2_HYCB',
-    apy: 7,
+    apy: 6.45,
     tvl: 2800000,
     minimumDeposit: 1,
     maximumDeposit: 1,
