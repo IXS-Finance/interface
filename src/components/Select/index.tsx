@@ -287,7 +287,7 @@ const StyledReactSelect = styled(ReactSelect)<{ error: string; borderRadius: str
     color: #8f8fb2;
     cursor: pointer;
     font-size: 13px;
-    height: 60px;
+    min-height: 60px;
     border-radius: 8px;
     border: 1px solid #e6e6ff !important;
     // border-radius: ${({ borderRadius }) => borderRadius};
@@ -299,9 +299,7 @@ const StyledReactSelect = styled(ReactSelect)<{ error: string; borderRadius: str
       css`
         border: 1px solid;
         border-color: #ff6161 !important;
-      `}import { stake } from '../../state/stake/actions'
-import { style } from 'styled-system'
-
+      `}
   }
   *[class*='indicatorSeparator'] {
     display: none;

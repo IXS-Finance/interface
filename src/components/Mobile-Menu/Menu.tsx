@@ -113,7 +113,7 @@ export const Menu = ({ close, isAdminMenu }: Props) => {
 
           <>
             <MenuListItem id={`admin-users-nav-link`} to="/admin/users-list" onClick={close}>
-              <Trans>User’s</Trans>
+              <Trans>Users</Trans>
             </MenuListItem>
             <Line />
           </>

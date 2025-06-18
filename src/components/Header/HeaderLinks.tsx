@@ -203,7 +203,7 @@ export const AdminHeaderLinks = () => {
       {isAdmin && <StyledNavLink to="/admin/kyc">KYC</StyledNavLink>}
       {isAdmin && <StyledNavLink to="/admin/transactions">Broker Dealer Transactions</StyledNavLink>}
       {isAdmin && <StyledNavLink to="/admin/security-catalog">Security Catalog</StyledNavLink>}
-      {isAdmin && <StyledNavLink to="/admin/users-list">User’s</StyledNavLink>}
+      {isAdmin && <StyledNavLink to="/admin/users-list">Users</StyledNavLink>}
     </HeaderLinksWrap>
   )
 }
