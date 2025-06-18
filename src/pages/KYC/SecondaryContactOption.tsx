@@ -204,19 +204,23 @@ const SecondaryContactOption: React.FC<Props> = ({
             setErrorMessage={setErrorMessage}
           />
 
-          {emailType !== EmailType.SOCIAL_ACCOUNT && (
-            <TimerContainer>
-              {timer > 0 ? (
-                <TimerText>{`Get new code (${timer} seconds)`}</TimerText>
-              ) : (
-                <span style={{ cursor: 'pointer' }} onClick={handleGetNewCodeClick}>
-                  {buttonText === KYCV2RequestButtonText.VERIFY_CODE ? <NewCodeText>Get New Code</NewCodeText> : ''}
-                </span>
+          {hasCodeError ? (
+            <ErrorText>{errorMessage}</ErrorText>
+          ) : (
+            <>
+              {emailType !== EmailType.SOCIAL_ACCOUNT && (
+                <TimerContainer>
+                  {timer > 0 ? (
+                    <TimerText>{`Get new code (${timer} seconds)`}</TimerText>
+                  ) : (
+                    <span style={{ cursor: 'pointer' }} onClick={handleGetNewCodeClick}>
+                      {buttonText === KYCV2RequestButtonText.VERIFY_CODE ? <NewCodeText>Get New Code</NewCodeText> : ''}
+                    </span>
+                  )}
+                </TimerContainer>
               )}
-            </TimerContainer>
+            </>
           )}
-
-          {hasCodeError && <ErrorText>{errorMessage}</ErrorText>}
         </ModalContent>
       </ContentContainer>
     </EmailVerificationContainer>
