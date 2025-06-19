@@ -7,6 +7,7 @@ import ArgentWalletContractABI from '../abis/argent-wallet-contract.json'
 export function useArgentWalletContract(): ArgentWalletContract | null {
   const { account } = useActiveWeb3React()
   const isArgentWallet = useIsArgentWallet()
+  // @ts-ignore
   return useContract(
     isArgentWallet ? account ?? undefined : undefined,
     ArgentWalletContractABI,

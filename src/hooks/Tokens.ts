@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useMemo } from 'react'
 import { parseBytes32String } from '@ethersproject/strings'
 import { Currency, Token } from '@ixswap1/sdk-core'
