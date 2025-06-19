@@ -21,14 +21,6 @@ export type PoolType = {
   tokens: TokenType[]
 }
 
-export type JoinExitsType = {
-  user: {
-    id: string
-  }
-  type: string
-  pool: PoolType
-}
-
 interface LpVotes {
   lp: string
   weight: BigNumber
@@ -88,21 +80,6 @@ export const GET_LIQUIDITY_POSITIONS = `
           managedBalance
           cashBalance
         }
-      }
-    }
-  }
-`
-
-export const GET_JOIN_EXITS = `
-  query GetDexV2DashboardJoinExits($account: ID!) {
-    joinExits(where: { user: $account, type: Join }) {
-      user {
-        id
-      }
-      type
-      pool {
-        id
-        address
       }
     }
   }
