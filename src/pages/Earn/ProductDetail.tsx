@@ -3,10 +3,10 @@ import { useParams, useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 import { Trans } from '@lingui/macro'
 import { format } from 'date-fns'
-import { useReadContract } from 'wagmi'
 import { formatUnits } from 'viem'
 import Portal from '@reach/portal'
 import { Copy, ExternalLink, Link } from 'react-feather'
+import _get from 'lodash/get'
 
 import { useActiveWeb3React } from 'hooks/web3'
 import { EarnProduct, products } from './products'
@@ -34,7 +34,7 @@ interface Transaction {
   hash: string
 }
 
-const POLLING_INTERVAL: number = 5000
+const POLLING_INTERVAL: number = 10000
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>()
@@ -51,6 +51,7 @@ export default function ProductDetail() {
   const [termsAccepted, setTermsAccepted] = useState(false)
   const product = products.find((p) => p.id === id) as EarnProduct
 
+  console.log('Product Detail Page', { product, id, chainId })
   const network = product.network ?? ''
   const { isWrongChain, expectChain } = checkWrongChain(chainId, network)
 
@@ -98,11 +99,12 @@ export default function ProductDetail() {
 
   // Subgraph Queries
   const userAddress = account?.toLowerCase()
+  const fromContract = _get(product, 'address', '').toLowerCase()
 
   const DEPOSITS_QUERY = `
     query {
       deposits(
-        where: { user: "${userAddress}" }
+        where: { user: "${userAddress}", fromContract: "${fromContract}" }
         orderBy: timestamp
         orderDirection: desc
       ) {
@@ -116,7 +118,7 @@ export default function ProductDetail() {
   const WITHDRAWS_QUERY = `
     query {
       withdraws(
-        where: { user: "${userAddress}" }
+        where: { user: "${userAddress}", fromContract: "${fromContract}" }
         orderBy: timestamp
         orderDirection: desc
       ) {
@@ -130,7 +132,7 @@ export default function ProductDetail() {
   const CLAIMS_QUERY = `
     query {
       claims(
-        where: { user: "${userAddress}" }
+        where: { user: "${userAddress}", fromContract: "${fromContract}" }
         orderBy: timestamp
         orderDirection: desc
       ) {
@@ -153,7 +155,7 @@ export default function ProductDetail() {
   }
 
   const subgraphData = useSubgraphQuery({
-    feature: product.type,
+    feature: product.subgraphFeatureType,
     chainId: chainId,
     query: query,
     autoPolling: true,
