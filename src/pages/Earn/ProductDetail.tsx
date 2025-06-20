@@ -51,7 +51,6 @@ export default function ProductDetail() {
   const [termsAccepted, setTermsAccepted] = useState(false)
   const product = products.find((p) => p.id === id) as EarnProduct
 
-  console.log('Product Detail Page', { product, id, chainId })
   const network = product.network ?? ''
   const { isWrongChain, expectChain } = checkWrongChain(chainId, network)
 
