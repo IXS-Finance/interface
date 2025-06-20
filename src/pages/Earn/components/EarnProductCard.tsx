@@ -154,6 +154,7 @@ export function EarnProductCard({ product, onClick }: EarnProductCardProps) {
               letterSpacing: ['-0.24px', '-0.33px', '-0.42px'],
               marginBottom: ['16px', '20px', '24px'],
               width: ['60%', '100%', '100%'],
+              whiteSpace: 'pre-line',
             }}
           >
             {product.description}
