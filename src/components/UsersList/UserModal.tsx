@@ -31,6 +31,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { useWhitelabelState } from 'state/whitelabel/hooks'
 import apiService from 'services/apiService'
 import { whitelabel } from 'services/apiUrls'
+import { Box } from 'rebass'
 
 interface Props {
   item: User | null
@@ -217,8 +218,6 @@ export const UserModal: FC<Props> = ({ item, close, filters }) => {
     getAllTenants()
   }, [])
 
-
-
   return (
     <>
       <RedesignedWideModal isOpen onDismiss={close}>
@@ -230,7 +229,17 @@ export const UserModal: FC<Props> = ({ item, close, filters }) => {
         )}
 
         {showSummary && (
-          <UpdateSummary item={{ ethAddress, role, isWhitelisted, username, managerOf, tenant: tenants.find((item: any) => item?.id === tenantId) }} close={closeSummary} />
+          <UpdateSummary
+            item={{
+              ethAddress,
+              role,
+              isWhitelisted,
+              username,
+              managerOf,
+              tenant: tenants.find((item: any) => item?.id === tenantId),
+            }}
+            close={closeSummary}
+          />
         )}
 
         <ModalBlurWrapper>
@@ -304,20 +313,23 @@ export const UserModal: FC<Props> = ({ item, close, filters }) => {
               ) : null}
 
               {(role === ROLES.TOKEN_MANAGER || role === ROLES.ADMIN) && (
-                <Select
-                  style={{ background: '#F7F7FA' }}
-                  withScroll
-                  isMulti
-                  error={touched.managerOf && errors.managerOf}
-                  label={`RWAs:`}
-                  isClearable={false}
-                  selectedItem={managerOf}
-                  items={Object.values(tokensOptions)}
-                  onSelect={handleSelectedTokens}
-                  placeholder="Choose RWAs"
-                  isTokenLogoVisible
-                />
+                <Box maxWidth={'470px'}>
+                  <Select
+                    style={{ background: '#F7F7FA' }}
+                    withScroll
+                    isMulti
+                    error={touched.managerOf && errors.managerOf}
+                    label={`RWAs:`}
+                    isClearable={false}
+                    selectedItem={managerOf}
+                    items={Object.values(tokensOptions)}
+                    onSelect={handleSelectedTokens}
+                    placeholder="Choose RWAs"
+                    isTokenLogoVisible
+                  />
+                </Box>
               )}
+
               <div style={{ display: 'flex' }}>
                 <Checkbox
                   checked={isWhitelisted}
@@ -338,13 +350,14 @@ export const UserModal: FC<Props> = ({ item, close, filters }) => {
                 </MouseoverTooltip>
               </div>
 
-              {item && role === ROLES.TOKEN_MANAGER || role === ROLES.ADMIN && (
-                <TokensBlock
-                  initialItems={initialValues?.managerOf || []}
-                  currentItems={managerOf || []}
-                  onRemove={handleSelectedTokens}
-                />
-              )}
+              {(item && role === ROLES.TOKEN_MANAGER) ||
+                (role === ROLES.ADMIN && (
+                  <TokensBlock
+                    initialItems={initialValues?.managerOf || []}
+                    currentItems={managerOf || []}
+                    onRemove={handleSelectedTokens}
+                  />
+                ))}
               <>
                 <PinnedContentButton type="submit">
                   <Trans>{item ? 'Update' : 'Add User'}</Trans>
