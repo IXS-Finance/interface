@@ -103,9 +103,9 @@ export const DepositPreview: React.FC<DepositPreviewProps> = ({
               const numericAmount = parseFloat(amount)
               const numericExchangeRate = exchangeRate ? parseFloat(exchangeRate) : 0
               if (!isNaN(numericAmount) && numericExchangeRate > 0) {
-                return formatAmount(numericAmount / numericExchangeRate, 3)
+                return formatAmount(numericAmount / numericExchangeRate, 6)
               }
-              return formatAmount(0, 3)
+              return formatAmount(0, 6)
             })()}
           </Value>
         </Flex>
