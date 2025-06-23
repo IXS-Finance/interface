@@ -244,7 +244,7 @@ export default function IndividualKycFormV2() {
       // Set initial values for personal information section
       setInitialValues(getInitialValues())
     }
-  }, [isPersonalVerified, kyc?.individual?.isEmailVerified, kyc?.individual?.secondaryContactDetails])
+  }, [isPersonalVerified, JSON.stringify(kyc)])
 
   const validateValue = async (key: string, value: any) => {
     if (form.current.values[key] === value) {
