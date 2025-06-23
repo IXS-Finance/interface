@@ -252,7 +252,10 @@ export default function ProductDetail() {
   const getUsdcEquivalent = (vaultAmount: string) => {
     const currentExchangeRate = openTradeExchangeRate || '0' // Use fetched rate, fallback to '0'
     if (!vaultAmount || isNaN(parseFloat(vaultAmount)) || isNaN(parseFloat(currentExchangeRate))) return '0'
-    return (parseFloat(vaultAmount) * parseFloat(currentExchangeRate)).toFixed(6)
+    return (parseFloat(vaultAmount) * parseFloat(currentExchangeRate)).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 6,
+    })
   }
 
   return (
