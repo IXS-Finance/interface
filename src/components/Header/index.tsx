@@ -323,7 +323,7 @@ const HeaderWrapper = styled.div`
   z-index: 2;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-  position: relative;
+  position: sticky;
   background: #fff;
   border-bottom: 1px solid rgba(102, 102, 255, 0.10);
   `};
