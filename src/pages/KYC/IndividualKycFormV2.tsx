@@ -14,7 +14,8 @@ import { ReactComponent as TelegramIcon } from 'assets/images/telegramNewIcon.sv
 import { ReactComponent as AddressIcon } from 'assets/images/addressIcon.svg'
 import { StyledBodyWrapper } from 'pages/SecurityTokens'
 import Row, { RowCenter, RowStart } from 'components/Row'
-import { useKYCState, useVerifyIdentity, useGetMyKyc } from 'state/kyc/hooks'
+import { useKYCState, useVerifyIdentity, useGetMyKycQuery } from 'state/kyc/hooks'
+import { useQueryClient } from '@tanstack/react-query'
 import { useActiveWeb3React } from 'hooks/web3'
 import { useAuthState } from 'state/auth/hooks'
 import { Loadable } from 'components/LoaderHover'
@@ -154,7 +155,8 @@ export default function IndividualKycFormV2() {
   const [loading, setLoading] = useState(false)
   const [isCheckboxChecked, setIsCheckboxChecked] = useState(false)
   const [initialValues, setInitialValues] = useState(individualFormV2InitialValues)
-  const getMyKyc = useGetMyKyc()
+  const queryClient = useQueryClient()
+  const { data: kycQueryData } = useGetMyKycQuery(account)
   const query = useQuery()
 
   const getInitialValues = () => {
@@ -221,7 +223,7 @@ export default function IndividualKycFormV2() {
   ])
 
   const fetchKYCData = async () => {
-    await getMyKyc()
+    await queryClient.invalidateQueries({ queryKey: ['myKyc', account] })
   }
 
   useEffect(() => {
