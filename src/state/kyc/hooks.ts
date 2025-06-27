@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 import apiService from 'services/apiService'
 import { kyc } from 'services/apiUrls'
@@ -501,14 +502,15 @@ export const updateCorporateKYC = async (kycId: number, newKYC: any, draft = fal
 
 export function useCreateIndividualKYC() {
   const dispatch = useDispatch<AppDispatch>()
-  const getMyKyc = useGetMyKyc()
+  const queryClient = useQueryClient()
   const callback = useCallback(
-    async (newKYC: any, draft = false) => {
+    async (newKYC: any, draft = false, account?: string) => {
       try {
         dispatch(createKYC.pending())
         const data = await createIndividualKYC(newKYC, draft)
         dispatch(createKYC.fulfilled(data))
-        await getMyKyc()
+        // Invalidate and refetch KYC data for the current account
+        await queryClient.invalidateQueries({ queryKey: ['myKyc', account] })
         return data
       } catch (error: any) {
         if (error.message === LONG_WAIT_RESPONSE) {
@@ -521,21 +523,22 @@ export function useCreateIndividualKYC() {
         return BROKER_DEALERS_STATUS.FAILED
       }
     },
-    [dispatch, getMyKyc]
+    [dispatch, queryClient]
   )
   return callback
 }
 
 export function useCreateCorporateKYC() {
   const dispatch = useDispatch<AppDispatch>()
-  const getMyKyc = useGetMyKyc()
+  const queryClient = useQueryClient()
   const callback = useCallback(
-    async (newKYC: any, draft = false) => {
+    async (newKYC: any, draft = false, account?: string) => {
       try {
         dispatch(createKYC.pending())
         const data = await createCorporateKYC(newKYC, draft)
         dispatch(createKYC.fulfilled(data))
-        await getMyKyc()
+        // Invalidate and refetch KYC data for the current account
+        await queryClient.invalidateQueries({ queryKey: ['myKyc', account] })
         return data
       } catch (error: any) {
         if (error.message === LONG_WAIT_RESPONSE) {
@@ -548,7 +551,7 @@ export function useCreateCorporateKYC() {
         return BROKER_DEALERS_STATUS.FAILED
       }
     },
-    [dispatch, getMyKyc]
+    [dispatch, queryClient]
   )
   return callback
 }
@@ -582,44 +585,46 @@ export function useCreateCorporateKYC() {
 
 export function useUpdateIndividualKYC() {
   const dispatch = useDispatch<AppDispatch>()
-  const getMyKyc = useGetMyKyc()
+  const queryClient = useQueryClient()
 
   const callback = useCallback(
-    async (kycId: number, newKYC: any, draft = false) => {
+    async (kycId: number, newKYC: any, draft = false, account?: string) => {
       try {
         dispatch(updateKYC.pending())
         const data = await updateIndividualKYC(kycId, newKYC, draft)
         dispatch(updateKYC.fulfilled(data))
-        await getMyKyc()
+        // Invalidate and refetch KYC data for the current account
+        await queryClient.invalidateQueries({ queryKey: ['myKyc', account] })
         return data
       } catch (error: any) {
         dispatch(updateKYC.rejected({ errorMessage: 'Could not update individual kyc' }))
         return BROKER_DEALERS_STATUS.FAILED
       }
     },
-    [dispatch, getMyKyc]
+    [dispatch, queryClient]
   )
   return callback
 }
 
 export function useUpdateCorporateKYC() {
   const dispatch = useDispatch<AppDispatch>()
-  const getMyKyc = useGetMyKyc()
+  const queryClient = useQueryClient()
 
   const callback = useCallback(
-    async (kycId: number, newKYC: any, draft = false) => {
+    async (kycId: number, newKYC: any, draft = false, account?: string) => {
       try {
         dispatch(updateKYC.pending())
         const data = await updateCorporateKYC(kycId, newKYC, draft)
         dispatch(updateKYC.fulfilled(data))
-        await getMyKyc()
+        // Invalidate and refetch KYC data for the current account
+        await queryClient.invalidateQueries({ queryKey: ['myKyc', account] })
         return data
       } catch (error: any) {
         dispatch(updateKYC.rejected({ errorMessage: 'Could not update individual kyc' }))
         return BROKER_DEALERS_STATUS.FAILED
       }
     },
-    [dispatch, getMyKyc]
+    [dispatch, queryClient]
   )
   return callback
 }
@@ -659,6 +664,31 @@ export function useGetMyKyc() {
     }
   }, [dispatch])
   return callback
+}
+
+export function useGetMyKycQuery(account?: string) {
+  const dispatch = useDispatch<AppDispatch>()
+
+  return useQuery({
+    queryKey: ['myKyc', account],
+    queryFn: async () => {
+      try {
+        dispatch(fetchGetMyKyc.pending())
+        const data = await getMyKyc()
+        dispatch(fetchGetMyKyc.fulfilled(data))
+        return data
+      } catch (error: any) {
+        dispatch(fetchGetMyKyc.rejected({ errorMessage: 'Could not get kyc' }))
+        throw error
+      }
+    },
+    enabled: !!account, // Only run query when account exists
+    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchIntervalInBackground: true, // Continue refetching even when window is not focused
+    staleTime: 0, // Data is considered stale immediately
+    retry: 3, // Retry failed requests 3 times
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+  })
 }
 
 export const exportCSVApi = async (filters: KycFilter) => {
