@@ -36,6 +36,7 @@ import LAUNCHPAD_INVESTMENT_ABI from 'abis/launchpad-investment.json'
 import LBP_ABI from 'abis/LiquiidtyBoostrapPool.json'
 import LBP_FACTORY_ABI from 'abis/LiquidityBoostrapPoolFactory.json'
 import PAYOUT_AIRDROP_ABI from 'abis/payout-airdrop.json'
+import VOTING_ESCROW_ABI from 'abis/voting-escrow.json'
 import {
   ARGENT_WALLET_DETECTOR_ADDRESS,
   ENS_REGISTRAR_ADDRESSES,
@@ -55,6 +56,7 @@ import { getContract } from 'utils'
 
 import { ArgentWalletDetector, EnsPublicResolver, EnsRegistrar, Erc20, Multicall2, Weth } from '../abis/types'
 import { useWeb3React } from 'hooks/useWeb3React'
+import { configService } from 'services/config/config.service'
 
 // returns null on errors
 export function useContract<T extends Contract = Contract>(
@@ -109,6 +111,7 @@ export function getTokenContract(tokenAddress: string, library: Web3Provider) {
 }
 
 export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: boolean) {
+  // @ts-ignore
   return useContract<Erc20>(tokenAddress, ERC20_ABI, withSignerIfPossible)
 }
 
@@ -144,18 +147,22 @@ export function useIXSGovTokenContract() {
 
 export function useWETHContract(withSignerIfPossible?: boolean) {
   const { chainId } = useWeb3React()
+  // @ts-ignore
   return useContract<Weth>(chainId ? WETH9[chainId]?.address : undefined, WETH_ABI, withSignerIfPossible)
 }
 
 export function useArgentWalletDetectorContract() {
+  // @ts-ignore
   return useContract<ArgentWalletDetector>(ARGENT_WALLET_DETECTOR_ADDRESS, ARGENT_WALLET_DETECTOR_ABI, false)
 }
 
 export function useENSRegistrarContract(withSignerIfPossible?: boolean) {
+  // @ts-ignore
   return useContract<EnsRegistrar>(ENS_REGISTRAR_ADDRESSES, ENS_ABI, withSignerIfPossible)
 }
 
 export function useENSResolverContract(address: string | undefined, withSignerIfPossible?: boolean) {
+  // @ts-ignore
   return useContract<EnsPublicResolver>(address, ENS_PUBLIC_RESOLVER_ABI, withSignerIfPossible)
 }
 
@@ -178,6 +185,7 @@ export function useLiquidityRouterContract(): Contract | null {
   return useContract(LIQUIDITY_ROUTER_ADDRESS, IIxsV2LiquidityRouterABI, true)
 }
 export function useMulticall2Contract() {
+  // @ts-ignore
   return useContract<Multicall2>(MULTICALL2_ADDRESSES, MULTICALL_ABI, false) as Multicall2
 }
 export function useBurnWSecContract(address: string | undefined) {
@@ -211,4 +219,8 @@ export function useLBPContract(contractAddress: string) {
 
 export function useLBPFactory(contractAddress: string) {
   return useContract(contractAddress, LBP_FACTORY_ABI, true)
+}
+
+export function useVotingEscrowContract() {
+  return useContract(configService.network.addresses.votingEscrow, VOTING_ESCROW_ABI, true)
 }

@@ -19,12 +19,14 @@ export default function useENSAddress(ensName?: string | null): { loading: boole
     }
   }, [debouncedName])
   const registrarContract = useENSRegistrarContract(false)
+   // @ts-ignore
   const resolverAddress = useSingleCallResult(registrarContract, 'resolver', ensNodeArgument)
   const resolverAddressResult = resolverAddress.result?.[0]
   const resolverContract = useENSResolverContract(
     resolverAddressResult && !isZero(resolverAddressResult) ? resolverAddressResult : undefined,
     false
   )
+   // @ts-ignore
   const addr = useSingleCallResult(resolverContract, 'addr', ensNodeArgument)
 
   const changed = debouncedName !== ensName

@@ -5,6 +5,8 @@ import * as wallets from '@rainbow-me/rainbowkit/wallets'
 import {  CHAINS, transports } from './constants'
 import walletConnectConfig from 'walletConnectConfig.json'
 import { tryClearIndexedDB } from 'utils'
+import { createPublicClient, http } from 'viem'
+import { baseSepolia } from 'viem/chains'
 
 type WalletConnectConfig = {
   [key: string]: string
@@ -51,5 +53,10 @@ export function createWagmiConfig() {
 
   return config
 }
+
+export const publicClient = createPublicClient({
+  chain: baseSepolia,
+  transport: http()
+})
 
 export const queryClient = new QueryClient()

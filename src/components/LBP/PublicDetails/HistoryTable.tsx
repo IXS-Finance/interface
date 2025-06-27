@@ -13,7 +13,7 @@ import {
 import { styled } from '@mui/system'
 import { TYPE } from 'theme'
 import { EmptyTable } from '../Dashboard/EmptyTable'
-import { useSubgraphQuery } from 'hooks/useSubgraphQuery'
+import { useSubgraphQueryLegacy } from 'hooks/useSubgraphQuery'
 import { useWeb3React } from 'hooks/useWeb3React'
 import { unixTimeToFormat } from 'utils/time'
 import { ethers } from 'ethers'
@@ -146,7 +146,7 @@ export default function TradeHistory({ contractAddress, assetTokenAddress, share
     [chainId]
   )
 
-  const subgraphData = useSubgraphQuery({
+  const subgraphData = useSubgraphQueryLegacy({
     feature: 'LBP',
     chainId,
     query: contractAddress ? composeLatestTradeQuery(contractAddress.toLowerCase()) : '',
