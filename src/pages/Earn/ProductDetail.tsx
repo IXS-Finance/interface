@@ -254,7 +254,7 @@ export default function ProductDetail() {
     if (!vaultAmount || isNaN(parseFloat(vaultAmount)) || isNaN(parseFloat(currentExchangeRate))) return '0'
     return (parseFloat(vaultAmount) * parseFloat(currentExchangeRate)).toLocaleString('en-US', {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 6,
+      maximumFractionDigits: 4,
     })
   }
 
