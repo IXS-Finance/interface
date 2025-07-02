@@ -65,7 +65,7 @@ export const DepositPreview: React.FC<DepositPreviewProps> = ({
           <Card>
             <Flex css={{ gap: '8px', flexDirection: 'column' }}>
               <Label>Deposit Amount</Label>
-              <Value>USDC {formatAmount(parseFloat(amount), 6)}</Value>
+              <Value>USDC {formatAmount(parseFloat(amount), 4)}</Value>
             </Flex>
           </Card>
         </Flex>
@@ -92,7 +92,7 @@ export const DepositPreview: React.FC<DepositPreviewProps> = ({
         <Label>Summary</Label>
         <Flex justifyContent="space-between" alignItems="center" css={{ marginTop: '32px' }}>
           <Value>Exchange Rate</Value>
-          <Value>{exchangeRate ? formatAmount(parseFloat(exchangeRate), 6) : 'N/A'}</Value>
+          <Value>{exchangeRate ? formatAmount(parseFloat(exchangeRate), 4) : 'N/A'}</Value>
         </Flex>
         <Box css={{ marginBottom: '16px', borderBottom: '1px solid #E8E8FF', paddingTop: '16px' }} />
         <Flex justifyContent="space-between" alignItems="center" css={{ marginTop: '8px' }}>
@@ -103,9 +103,9 @@ export const DepositPreview: React.FC<DepositPreviewProps> = ({
               const numericAmount = parseFloat(amount)
               const numericExchangeRate = exchangeRate ? parseFloat(exchangeRate) : 0
               if (!isNaN(numericAmount) && numericExchangeRate > 0) {
-                return formatAmount(numericAmount / numericExchangeRate, 6)
+                return formatAmount(numericAmount / numericExchangeRate, 4)
               }
-              return formatAmount(0, 6)
+              return formatAmount(0, 4)
             })()}
           </Value>
         </Flex>
