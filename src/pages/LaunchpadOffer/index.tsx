@@ -67,9 +67,8 @@ export default function LaunchpadOffer() {
   return (
     <OfferBackgroundWrapper>
       <OfferContainer>
-        <header>
-          <Header />
-        </header>
+        <Header />
+
         <div className="back-button">
           <BackButton onClick={() => history.goBack()}>
             <ArrowLeft color={theme.launchpad.colors.primary} />
