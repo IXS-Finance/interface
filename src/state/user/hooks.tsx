@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
-import { useHistory, useLocation } from 'react-router-dom'
 import { Percent, Token } from '@ixswap1/sdk-core'
 import { Pair } from '@ixswap1/v2-sdk'
 import { t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import flatMap from 'lodash.flatmap'
+import { useQueryClient } from '@tanstack/react-query'
 
 import { ERROR_ACCREDITATION_STATUSES } from 'components/Vault/enum'
 import { IXS_ADDRESS, IXS_GOVERNANCE_ADDRESS } from 'constants/addresses'
@@ -512,6 +512,7 @@ export function useAccount() {
   const login = useLogin({ mustHavePreviousLogin: true })
   const getUserSecTokens = useFetchUserSecTokenListCallback()
   const isLoggedIn = useUserisLoggedIn()
+  const queryClient = useQueryClient()
 
   const { loginError, token } = useAuthState()
 
@@ -528,13 +529,15 @@ export function useAccount() {
       const status = await login(true)
       if (status == LOGIN_STATUS.SUCCESS && isLoggedIn) {
         getUserSecTokens()
+        // Refetch KYC data after successful authentication
+        await queryClient.refetchQueries({ queryKey: ['myKyc', account || 'anonymous'] })
       }
     } catch (error) {
       console.error(error)
     } finally {
       dispatch(setWalletState({ isSignLoading: false }))
     }
-  }, [login, getUserSecTokens, isLoggedIn])
+  }, [login, getUserSecTokens, isLoggedIn, queryClient, account])
 
   useEffect(() => {
     const timerFunc = setTimeout(checkAuthError, 20000)
@@ -556,8 +559,10 @@ export function useAccount() {
   useEffect(() => {
     if (token) {
       getUserSecTokens()
+      // Refetch KYC data when token changes (user logged in)
+      queryClient.refetchQueries({ queryKey: ['myKyc', account || 'anonymous'] })
     }
-  }, [token, getUserSecTokens])
+  }, [token, getUserSecTokens, queryClient, account])
 
   return { authenticate }
 }
@@ -568,18 +573,22 @@ export const me = async () => {
 }
 
 export function useGetMe() {
+  const { account } = useActiveWeb3React()
+  const queryClient = useQueryClient()
   const dispatch = useDispatch<AppDispatch>()
   const callback = useCallback(async () => {
     try {
       dispatch(getMe.pending())
       const data = await me()
+      // Invalidate KYC data for the current account
+      await queryClient.invalidateQueries({ queryKey: ['myKyc', account || 'anonymous'] })
       dispatch(getMe.fulfilled({ data }))
       return data
     } catch (error: any) {
       dispatch(getMe.rejected({ errorMessage: 'Could not get me' }))
       return null
     }
-  }, [dispatch])
+  }, [dispatch, queryClient, account])
   return callback
 }
 

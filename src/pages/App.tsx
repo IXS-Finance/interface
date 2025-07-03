@@ -68,7 +68,7 @@ export default function App() {
   const isSettingsOpen = useModalOpen(ApplicationModal.SETTINGS)
   const { pathname } = useLocation()
   const { chainId, account } = useActiveWeb3React()
-  const { data: kycData } = useGetMyKycQuery(account)
+  useGetMyKycQuery()
   const { token } = useAuthState()
   const dispatch = useDispatch()
   const getWitelabelConfig = useGetWhitelabelConfig()
