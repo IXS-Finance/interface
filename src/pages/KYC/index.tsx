@@ -11,7 +11,7 @@ import { useWeb3React } from 'hooks/useWeb3React'
 import { TYPE } from 'theme'
 import { StyledBodyWrapper } from 'pages/SecurityTokens'
 import Column from 'components/Column'
-import { useKYCState } from 'state/kyc/hooks'
+import { useGetMyKycQuery, useKYCState } from 'state/kyc/hooks'
 import { ReactComponent as IndividualKYC } from 'assets/images/newIndividual.svg'
 import { ReactComponent as CorporateKYC } from 'assets/images/newCorporate.svg'
 import { KYCStatuses } from './enum'
@@ -91,6 +91,7 @@ const Description: FC<DescriptionProps> = ({ description }: DescriptionProps) =>
 
 const KYC = () => {
   const { account } = useWeb3React()
+  useGetMyKycQuery()
   const { chainId } = useAccount()
   const [cookies] = useCookies(['annoucementsSeen'])
   const { config } = useWhitelabelState()

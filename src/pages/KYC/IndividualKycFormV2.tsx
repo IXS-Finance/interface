@@ -156,7 +156,7 @@ export default function IndividualKycFormV2() {
   const [isCheckboxChecked, setIsCheckboxChecked] = useState(false)
   const [initialValues, setInitialValues] = useState(individualFormV2InitialValues)
   const queryClient = useQueryClient()
-  const { data: kycQueryData } = useGetMyKycQuery(account)
+  useGetMyKycQuery()
   const query = useQuery()
 
   const getInitialValues = () => {
@@ -223,7 +223,7 @@ export default function IndividualKycFormV2() {
   ])
 
   const fetchKYCData = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['myKyc', account] })
+    await queryClient.invalidateQueries({ queryKey: ['myKyc', account || 'anonymous'] })
   }
 
   useEffect(() => {
