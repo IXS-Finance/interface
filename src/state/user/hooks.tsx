@@ -529,8 +529,6 @@ export function useAccount() {
       const status = await login(true)
       if (status == LOGIN_STATUS.SUCCESS && isLoggedIn) {
         getUserSecTokens()
-        // Refetch KYC data after successful authentication
-        await queryClient.refetchQueries({ queryKey: ['myKyc', account || 'anonymous'] })
       }
     } catch (error) {
       console.error(error)
@@ -559,8 +557,6 @@ export function useAccount() {
   useEffect(() => {
     if (token) {
       getUserSecTokens()
-      // Refetch KYC data when token changes (user logged in)
-      queryClient.refetchQueries({ queryKey: ['myKyc', account || 'anonymous'] })
     }
   }, [token, getUserSecTokens, queryClient, account])
 
@@ -580,8 +576,6 @@ export function useGetMe() {
     try {
       dispatch(getMe.pending())
       const data = await me()
-      // Invalidate KYC data for the current account
-      await queryClient.invalidateQueries({ queryKey: ['myKyc', account || 'anonymous'] })
       dispatch(getMe.fulfilled({ data }))
       return data
     } catch (error: any) {

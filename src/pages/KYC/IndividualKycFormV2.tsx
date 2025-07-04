@@ -14,7 +14,7 @@ import { ReactComponent as TelegramIcon } from 'assets/images/telegramNewIcon.sv
 import { ReactComponent as AddressIcon } from 'assets/images/addressIcon.svg'
 import { StyledBodyWrapper } from 'pages/SecurityTokens'
 import Row, { RowCenter, RowStart } from 'components/Row'
-import { useKYCState, useVerifyIdentity, useGetMyKycQuery } from 'state/kyc/hooks'
+import { useKYCState, useVerifyIdentity } from 'state/kyc/hooks'
 import { useQueryClient } from '@tanstack/react-query'
 import { useActiveWeb3React } from 'hooks/web3'
 import { useAuthState } from 'state/auth/hooks'
@@ -156,7 +156,6 @@ export default function IndividualKycFormV2() {
   const [isCheckboxChecked, setIsCheckboxChecked] = useState(false)
   const [initialValues, setInitialValues] = useState(individualFormV2InitialValues)
   const queryClient = useQueryClient()
-  useGetMyKycQuery()
   const query = useQuery()
 
   const getInitialValues = () => {
