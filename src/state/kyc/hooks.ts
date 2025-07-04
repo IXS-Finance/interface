@@ -629,7 +629,7 @@ export function useGetMyKycQuery() {
       }
     },
     enabled: !!token, // Only run query when user is authenticated (has token)
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 300000, // Refetch every 5 minutes
     refetchIntervalInBackground: true, // Continue refetching even when window is not focused
     staleTime: 0, // Data is considered stale immediately
     retry: 3, // Retry failed requests 3 times
