@@ -26,6 +26,7 @@ export const pinFileToIPFS = async ({ file, name, keyValues }: any) => {
     })
     formData.append('pinataMetadata', metadata)
     formData.append('file', file, file.name)
+     // @ts-ignore
     const result = await axios.post(url, formData, requestMeta)
     return result?.data
   } catch (error: any) {

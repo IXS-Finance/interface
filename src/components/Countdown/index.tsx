@@ -362,17 +362,12 @@ export const renderer = ({ days, hours, minutes, seconds, completed }: ITimer) =
   if (completed) {
     return <>00 : 00 : 00</>
   }
-  if (days === 1) {
-    return <>1 Day</>
-  }
-  if (days > 1) {
-    return <>{days} Days</>
+  if (days > 0) {
+    return (
+      <>{days} {days === 1 ? 'Day' : 'Days'}</>
+    )
   }
   return (
-    <>
-      <>{hours ? `${displayNumber(hours)} : ` : '00 : '}</>
-      <>{minutes ? `${displayNumber(minutes)} : ` : '00 : '}</>
-      <span>{seconds ? `${displayNumber(seconds)}` : '00'}</span>
-    </>
+    <>{displayNumber(hours)} : {displayNumber(minutes)} : {displayNumber(seconds)}</>
   )
 }

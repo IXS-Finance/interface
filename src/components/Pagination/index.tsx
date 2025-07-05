@@ -6,17 +6,16 @@ import { adminOffset } from 'state/admin/constants'
 
 interface Props {
   page: number
-  totalPages: number
+  totalPages: number | null
   onPageChange: (page: number) => void
   totalItems?: number
   hidePaginationLabel?: boolean
 }
 
 export const Pagination = ({ page, onPageChange, totalPages, totalItems, hidePaginationLabel }: Props) => {
-  if (!totalPages) return null
   const itemsPerPage = adminOffset <= (totalItems ?? 0) ? adminOffset : (totalItems ?? 0);
   const startItem = (page - 1) * itemsPerPage + 1
-  const endItem = Math.min(page * itemsPerPage, totalPages * itemsPerPage)
+  const endItem = totalPages ? Math.min(page * itemsPerPage, totalPages * itemsPerPage) : '...'
 
   return (
     <Container>
