@@ -222,7 +222,10 @@ export default function IndividualKycFormV2() {
   ])
 
   const fetchKYCData = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['myKyc', account || 'anonymous'] })
+    await queryClient.invalidateQueries({
+      queryKey: ['myKyc'],
+      predicate: (query: any) => query.queryKey[0] === 'myKyc' && query.queryKey[1] === (account || 'anonymous')
+    })
   }
 
   useEffect(() => {

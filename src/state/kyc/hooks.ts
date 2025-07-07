@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -35,6 +35,13 @@ const corporateKYCFiles = [
   'authorizationDocuments',
   'authorizationIdentity',
 ]
+
+export const invalidateKycQueries = async (queryClient: any, account: string | null) => {
+  await queryClient.invalidateQueries({
+    queryKey: ['myKyc'],
+    predicate: (query: any) => query.queryKey[0] === 'myKyc' && query.queryKey[1] === (account || 'anonymous')
+  })
+}
 
 export function useKYCState() {
   return useSelector<AppState, AppState['kyc']>((state) => state.kyc)
@@ -514,7 +521,7 @@ export function useCreateIndividualKYC() {
         const data = await createIndividualKYC(newKYC, draft)
         dispatch(createKYC.fulfilled(data))
         // Invalidate and refetch KYC data for the current account
-        await queryClient.invalidateQueries({ queryKey: ['myKyc', account || 'anonymous'] })
+        await invalidateKycQueries(queryClient, account)
         return data
       } catch (error: any) {
         if (error.message === LONG_WAIT_RESPONSE) {
@@ -543,7 +550,7 @@ export function useCreateCorporateKYC() {
         const data = await createCorporateKYC(newKYC, draft)
         dispatch(createKYC.fulfilled(data))
         // Invalidate and refetch KYC data for the current account
-        await queryClient.invalidateQueries({ queryKey: ['myKyc', account || 'anonymous'] })
+        await invalidateKycQueries(queryClient, account)
         return data
       } catch (error: any) {
         if (error.message === LONG_WAIT_RESPONSE) {
@@ -573,7 +580,7 @@ export function useUpdateIndividualKYC() {
         const data = await updateIndividualKYC(kycId, newKYC, draft)
         dispatch(updateKYC.fulfilled(data))
         // Invalidate and refetch KYC data for the current account
-        await queryClient.invalidateQueries({ queryKey: ['myKyc', account || 'anonymous'] })
+        await invalidateKycQueries(queryClient, account)
         return data
       } catch (error: any) {
         dispatch(updateKYC.rejected({ errorMessage: 'Could not update individual kyc' }))
@@ -597,7 +604,7 @@ export function useUpdateCorporateKYC() {
         const data = await updateCorporateKYC(kycId, newKYC, draft)
         dispatch(updateKYC.fulfilled(data))
         // Invalidate and refetch KYC data for the current account
-        await queryClient.invalidateQueries({ queryKey: ['myKyc', account || 'anonymous'] })
+        await invalidateKycQueries(queryClient, account)
         return data
       } catch (error: any) {
         dispatch(updateKYC.rejected({ errorMessage: 'Could not update individual kyc' }))
@@ -615,7 +622,7 @@ export function useGetMyKycQuery() {
   const { token } = useAuthState()
 
   return useQuery({
-    queryKey: ['myKyc', account || 'anonymous'],
+    queryKey: ['myKyc', account || 'anonymous', token || 'no-token'],
     queryFn: async () => {
       dispatch(fetchGetMyKyc.pending())
       try {
@@ -632,8 +639,32 @@ export function useGetMyKycQuery() {
     refetchInterval: 300000, // Refetch every 5 minutes
     refetchIntervalInBackground: true, // Continue refetching even when window is not focused
     staleTime: 0, // Data is considered stale immediately
-    retry: 3, // Retry failed requests 3 times
+    retry: (failureCount, error: any) => {
+      // Don't retry on 401 errors, let the token refresh handle it
+      if (error?.response?.status === 401 || error?.status === 401) {
+        return false
+      }
+      // Retry up to 3 times for other errors
+      return failureCount < 3
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   })
+}
+
+// Custom hook to handle KYC query with better 401 recovery
+export function useKycQueryWithAuthRecovery() {
+  const { token } = useAuthState()
+  const query = useGetMyKycQuery()
+
+  // When token changes (user logs in after 401), refetch the query
+  useEffect(() => {
+    if (token && query.isError) {
+      // If we have a token and the query was in error state, retry
+      query.refetch()
+    }
+  }, [token, query.isError, query.refetch])
+
+  return query
 }
 
 export const exportCSVApi = async (filters: KycFilter) => {
