@@ -292,36 +292,37 @@ export const individualErrorsSchema = yup.object().shape({
 })
 
 export const corporateErrorsSchema = yup.object().shape({
-  corporateName: yup.string().min(1, 'Too short').max(50, 'Too Long!').required('Corporate name is required'),
-  typeOfLegalEntity: yup.object().nullable().required('Please select type of legal entity'),
-  countryOfIncorporation: yup.object().nullable().required('Please select country of incorporation'),
-  businessActivity: yup.string().nullable().required('Business activity is required'),
+  corporateName: yup.string().min(1, 'Too short').max(50, 'Too Long!').required('Required'),
+  typeOfLegalEntity: yup.object().nullable().required('Required'),
+  countryOfIncorporation: yup.object().nullable().required('Required'),
+  businessActivity: yup.string().nullable().required('Required'),
 
-  registrationNumber: yup.string().nullable().required('Registration number is required'),
-  inFatfJurisdiction: yup.string().required('FATF jurisdiction information is required'),
+  registrationNumber: yup.string().nullable().required('Required'),
+  inFatfJurisdiction: yup.string().required('Required'),
 
-  personnelName: yup.string().required('Authorized personnel name is required'),
-  designation: yup.string().nullable().required('Designation is required'),
-  email: yup.string().email('Invalid email').required('Email address is required'),
+  personnelName: yup.string().required('Required'),
+  designation: yup.string().nullable().required('Required'),
+  email: yup.string().email('Invalid email').required('Required'),
   phoneNumber: yup
-    .string().nullable()
+    .string()
+    .nullable()
     .min(10, 'Must be valid phone number')
     .max(15, 'Must be valid phone number')
-    .required('Phone number is required'),
-  authorizationDocuments: yup.array().min(1, 'Authorization documents are required').nullable(),
-  authorizationIdentity: yup.array().min(1, 'Proof of identity is required').nullable(),
-  address: yup.string().nullable().required('Address is required'),
-  postalCode: yup.string().nullable().required('Postal code is required'),
-  country: yup.object().nullable().required('Country is required'),
-  city: yup.string().nullable().required('City is required'),
-  residentialAddressAddress: yup.string().nullable().required('Registered address is required'),
-  residentialAddressPostalCode: yup.string().nullable().required('Registered postal code is required'),
-  residentialAddressCountry: yup.object().nullable().required('Registered country is required'),
-  residentialAddressCity: yup.string().nullable().required('Registered city is required'),
-  sourceOfFunds: yup.array().min(1, 'Please select at least one source of funds').required('Source of funds is required'),
+    .required('Required'),
+  authorizationDocuments: yup.array().min(1, 'Required').nullable(),
+  authorizationIdentity: yup.array().min(1, 'Required').nullable(),
+  address: yup.string().required('Required'),
+  postalCode: yup.string().required('Required'),
+  country: yup.object().nullable().required('Required'),
+  city: yup.string().required('Required'),
+  residentialAddressAddress: yup.string().required('Required'),
+  residentialAddressPostalCode: yup.string().required('Required'),
+  residentialAddressCountry: yup.object().nullable().required('Required'),
+  residentialAddressCity: yup.string().required('Required'),
+  sourceOfFunds: yup.array().min(1, 'Choose one').required('Required'),
   otherFunds: yup.string().when('sourceOfFunds', {
     is: (sourceOfFunds: string[]) => sourceOfFunds.includes('Others'),
-    then: yup.string().required('Please specify other source of funds'),
+    then: yup.string().required('Required'),
     otherwise: yup.string().nullable(),
   }),
   // accredited: yup.number().min(0).max(1),
@@ -331,7 +332,7 @@ export const corporateErrorsSchema = yup.object().shape({
     .nullable()
     .when('isUSTaxPayer', {
       is: 1,
-      then: yup.string().required('US TIN is required'),
+      then: yup.string().required('Required'),
       otherwise: yup.string().nullable(),
     }),
   taxCountry: yup
@@ -339,7 +340,7 @@ export const corporateErrorsSchema = yup.object().shape({
     .nullable()
     .when('taxIdAvailable', {
       is: true,
-      then: yup.object().required('Tax country is required'),
+      then: yup.object().required('Required'),
       otherwise: yup.object().nullable(),
     }),
   taxNumber: yup
@@ -347,7 +348,7 @@ export const corporateErrorsSchema = yup.object().shape({
     .nullable()
     .when('taxIdAvailable', {
       is: true,
-      then: yup.string().required('Tax identification number is required'),
+      then: yup.string().required('Required'),
       otherwise: yup.string().nullable(),
     }),
 
@@ -355,20 +356,20 @@ export const corporateErrorsSchema = yup.object().shape({
     .array()
     .of(
       yup.object().shape({
-        fullName: yup.string().required('Full name is required'),
-        nationality: yup.string().required('Nationality is required'),
-        dateOfBirth: yup.mixed().nullable().required('Date of birth is required'),
-        address: yup.string().required('Address is required'),
+        fullName: yup.string().required('Required'),
+        nationality: yup.string().required('Required'),
+        dateOfBirth: yup.mixed().nullable().required('Required'),
+        address: yup.string().required('Required'),
         shareholding: yup
           .number()
-          .min(1, 'Minimum shareholding is 1%')
-          .max(100, 'Total sum of shareholding must be max 100%')
-          .required('Shareholding percentage is required'),
-        proofOfIdentity: yup.mixed().nullable().required('Proof of identity is required'),
+          .min(1, 'Min 1')
+          .max(100, 'Total sum of shareholding must be max 100')
+          .required('Required'),
+        proofOfIdentity: yup.mixed().nullable().required('Required'),
       })
     )
-    .min(1, 'At least one beneficial owner is required')
-    .required('Beneficial owners information is required')
+    .min(1, 'At least one beneficial owner')
+    .required('Required')
     .test('isShareholdingAmountValid', (value = []) => {
       const sum = value.reduce((acc, next) => acc + Number(next.shareholding || 0), 0)
       if (sum > 100) {
@@ -380,14 +381,14 @@ export const corporateErrorsSchema = yup.object().shape({
     .array()
     .of(
       yup.object().shape({
-        fullName: yup.string().required('Full name is required'),
-        nationality: yup.string().required('Nationality is required'),
-        designation: yup.string().required('Designation is required'),
-        proofOfIdentity: yup.mixed().nullable().required('Proof of identity is required'),
+        fullName: yup.string().required('Required'),
+        nationality: yup.string().required('Required'),
+        designation: yup.string().required('Required'),
+        proofOfIdentity: yup.mixed().nullable().required('Required'),
       })
     )
-    .min(1, 'At least one corporate member is required')
-    .required('Corporate members information is required'),
-  corporateDocuments: yup.array().min(1, 'Corporate documents are required').nullable(),
-  financialDocuments: yup.array().min(1, 'Financial documents are required').nullable(),
+    .min(1, 'At least one corporate member')
+    .required('Required'),
+  corporateDocuments: yup.array().min(1, 'Required').nullable(),
+  financialDocuments: yup.array().min(1, 'Required').nullable(),
 })

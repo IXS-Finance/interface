@@ -85,7 +85,6 @@ export default function CorporateKycForm() {
       if (data) {
         const transformedData = corporateTransformApiData(data)
         const formData = { ...transformedData }
-
         // Update initial values instead of directly setting form values
         setInitialFormValues(formData)
         setHasInitialized(true)
@@ -655,7 +654,7 @@ export default function CorporateKycForm() {
                           <Select
                             withScroll
                             label="Country"
-                            placeholder='Country'
+                            placeholder="Country"
                             selectedItem={values.country}
                             items={countries}
                             onSelect={(country) => onSelectChange('country', country, setFieldValue)}
