@@ -16,10 +16,10 @@ interface Props {
 export const PhoneInput = ({ value, onChange, label, onBlur, error }: Props) => {
   return (
     <Container>
-      <Label style={{ marginTop: '15px', color: '#555566', fontSize: '13px', fontWeight: 500 }}>{t`${label || 'Phone Number'}`}</Label>
+      <Label style={{ color: '#555566', fontSize: '13px', fontWeight: 500, paddingBottom: 2 }}>{t`${label || 'Phone Number'}`}</Label>
       <ReactPhoneInput placeholder="Phone Number" onBlur={onBlur} country={'us'} value={value} onChange={onChange} />
       {error && (
-        <TYPE.small marginTop="-8px" color={'red1'}>
+        <TYPE.small marginTop="1px" color={'red1'}>
           {error}
         </TYPE.small>
       )}
@@ -37,7 +37,7 @@ const Container = styled.div`
   row-gap: 6px;
   .react-tel-input,
   .form-control {
-    height: 60px;
+    height: 62px;
     position: relative;
   }
   .react-tel-input {
@@ -48,12 +48,14 @@ const Container = styled.div`
 
   .form-control {
     position: relative;
-    padding: 18px 20px 18px 52px;
+    padding: 10px 20px 10px 52px;
     border-radius: 6px;
     background-color: ${({ theme: { bg0 } }) => bg0};
     color: ${({ theme: { text1 } }) => text1};
     border: 1px solid #e6e6ff;
     width: 100%;
+    font-size: 16px;
+    line-height: 40px;
   }
   .form-control:focus {
     background-color: ${({ theme }) => (theme.config.background ? theme.bg0 : theme.bg0)};

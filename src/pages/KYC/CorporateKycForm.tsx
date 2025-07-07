@@ -655,6 +655,7 @@ export default function CorporateKycForm() {
                           <Select
                             withScroll
                             label="Country"
+                            placeholder='Country'
                             selectedItem={values.country}
                             items={countries}
                             onSelect={(country) => onSelectChange('country', country, setFieldValue)}
