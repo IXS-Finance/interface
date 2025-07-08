@@ -425,6 +425,7 @@ export default function CorporateKycForm() {
             const infoFilled =
               shouldValidate &&
               !errors.corporateName &&
+              !errors.typeOfLegalEntity &&
               !errors.countryOfIncorporation &&
               !errors.businessActivity &&
               !errors.registrationNumber &&
