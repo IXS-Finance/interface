@@ -65,43 +65,45 @@ export default function LaunchpadOffer() {
   }
 
   return (
-    <OfferBackgroundWrapper>
-      <OfferContainer>
-        <Header />
+    <>
+      <Header />
 
-        <div className="back-button">
-          <BackButton onClick={() => history.goBack()}>
-            <ArrowLeft color={theme.launchpad.colors.primary} />
-          </BackButton>
-        </div>
+      <OfferBackgroundWrapper>
+        <OfferContainer>
+          <div className="back-button">
+            <BackButton onClick={() => history.goBack()}>
+              <ArrowLeft color={theme.launchpad.colors.primary} />
+            </BackButton>
+          </div>
 
-        <section>
-          <OfferSummary offer={offer.data} />
-        </section>
+          <section>
+            <OfferSummary offer={offer.data} />
+          </section>
 
-        <main>
-          <OfferMainInfo offer={offer.data} />
-        </main>
+          <main>
+            <OfferMainInfo offer={offer.data} />
+          </main>
 
-        <aside>
-          <OfferSidebar offer={offer.data} />
-        </aside>
+          <aside>
+            <OfferSidebar offer={offer.data} />
+          </aside>
 
-        <footer>
-          <BackToTopButton />
+          <footer>
+            <BackToTopButton />
 
-          {isIxSwap ? <Footer offerId={params.offerId} /> : <WhiteLabelFooter />}
-        </footer>
-      </OfferContainer>
+            {isIxSwap ? <Footer offerId={params.offerId} /> : <WhiteLabelFooter />}
+          </footer>
+        </OfferContainer>
 
-      {account && chainId && isWrongChain ? (
-        <Portal>
-          <CenteredFixed width="100vw" height="100vh">
-            <NetworkNotAvailable expectChainId={expectChain} />
-          </CenteredFixed>
-        </Portal>
-      ) : null}
-    </OfferBackgroundWrapper>
+        {account && chainId && isWrongChain ? (
+          <Portal>
+            <CenteredFixed width="100vw" height="100vh">
+              <NetworkNotAvailable expectChainId={expectChain} />
+            </CenteredFixed>
+          </Portal>
+        ) : null}
+      </OfferBackgroundWrapper>
+    </>
   )
 }
 
