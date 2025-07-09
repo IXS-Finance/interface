@@ -70,7 +70,6 @@ export const EmailVerification = ({ isModalOpen, closeModal, kycType, referralCo
       if (result.success) {
         localStorage.setItem('newKyc', 'newKyc')
         history.push(referralCode)
-        window.location.reload()
 
         setTimer(60)
         setResetCodeInput(false)

@@ -71,7 +71,6 @@ export const ResendEmailModal = ({ isModalOpen, closeModal, kycType, referralCod
       if (result.success) {
         localStorage.setItem('newKyc', 'newKyc')
         history.push(referralCode)
-        window.location.reload()
 
         setTimer(60)
         setResetCodeInput(false)
