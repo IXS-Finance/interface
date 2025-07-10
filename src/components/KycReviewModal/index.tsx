@@ -23,9 +23,10 @@ interface Props {
   isOpen: boolean
   onClose: () => void
   data: KycItem
+  currentFilters?: Record<string, string | number>
 }
 
-export const KycReviewModal = ({ isOpen, onClose, data }: Props) => {
+export const KycReviewModal = ({ isOpen, onClose, data, currentFilters }: Props) => {
   const [openReasonModal, handleOpenReasonModal] = useState('')
   const [riskJSON, setRiskJSON] = useState<any>(null)
   const [loadingCynopsis, handleLoadingCynopsis] = useState(false)
@@ -57,12 +58,12 @@ export const KycReviewModal = ({ isOpen, onClose, data }: Props) => {
 
   const approve = async () => {
     onClose()
-    await approveKyc(data.id, riskReportId)
+    await approveKyc(data.id, riskReportId, currentFilters)
   }
 
   const resubmit = async () => {
     onClose()
-    await resubmitKyc(data.id)
+    await resubmitKyc(data.id, currentFilters)
   }
 
   const closeModal = () => handleOpenReasonModal('')
@@ -77,9 +78,9 @@ export const KycReviewModal = ({ isOpen, onClose, data }: Props) => {
 
   const onReasonAction = (reason?: string) => {
     if (openReasonModal === 'reject') {
-      rejectKyc({ id: data.id, message: reason, riskReportId })
+      rejectKyc({ id: data.id, message: reason, riskReportId }, currentFilters)
     } else {
-      resetKyc({ id: data.id, message: reason })
+      resetKyc({ id: data.id, message: reason }, currentFilters)
     }
     closeModal()
     onClose()
@@ -139,7 +140,7 @@ export const KycReviewModal = ({ isOpen, onClose, data }: Props) => {
   return (
     <>
       {data?.individual?.version === 'v2' ? (
-        <KycReviewModalV2 isOpen={isOpen} onClose={onClose} data={data} />
+        <KycReviewModalV2 isOpen={isOpen} onClose={onClose} data={data} currentFilters={currentFilters} />
       ) : (
         <>
           <ReasonModal
