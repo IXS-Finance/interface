@@ -461,7 +461,7 @@ const CodeRow = styled.div`
 `
 
 const CodeInput = ({ numberOfBoxes, boxBackgroundColor, boxBorderColor, reset, handleNextClick }: any) => {
-  const inputRefs = Array.from({ length: numberOfBoxes }, () => React.createRef<HTMLInputElement>())
+  const inputRefs = React.useRef<HTMLInputElement[]>([])
   const [code, setCode] = React.useState(Array(numberOfBoxes).fill(''))
 
   React.useEffect(() => {
@@ -472,20 +472,29 @@ const CodeInput = ({ numberOfBoxes, boxBackgroundColor, boxBorderColor, reset, h
   }, [reset, numberOfBoxes])
 
   const handleCodeChange = (index: number, value: string) => {
+    if (!/^[a-zA-Z0-9]*$/.test(value)) return
+
     const newCode = [...code]
+    newCode[index] = value.slice(-1)
+    setCode(newCode)
 
-    if (newCode[index] !== value) {
-      newCode[index] = ''
+    // Automatically move to the next input box when the current box is filled
+    if (value && index < numberOfBoxes - 1) {
+      inputRefs.current[index + 1]?.focus()
     }
+  }
 
-    if (/^[a-zA-Z0-9]*$/.test(value)) {
-      newCode[index] = value
-      setCode(newCode)
-
-      // Automatically move to the next input box when the current box is filled
-      if (value && index < numberOfBoxes - 1) {
-        inputRefs[index + 1].current?.focus()
+  const handleKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Backspace') {
+      if (code[index]) {
+        const newCode = [...code]
+        newCode[index] = ''
+        setCode(newCode)
+      } else if (index > 0) {
+        inputRefs.current[index - 1]?.focus()
       }
+    } else {
+      inputRefs.current[index].select()
     }
   }
 
@@ -515,9 +524,14 @@ const CodeInput = ({ numberOfBoxes, boxBackgroundColor, boxBorderColor, reset, h
             key={index}
             value={code[index]}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCodeChange(index, e.target.value)}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleKeyDown(index, e)}
             borderColor={boxBorderColor}
             backgroundColor={boxBackgroundColor}
-            ref={inputRefs[index]}
+            ref={(el) => {
+              if (el) {
+                inputRefs.current[index] = el as HTMLInputElement
+              }
+            }}
           />
         ))}
       </CodeRow>
