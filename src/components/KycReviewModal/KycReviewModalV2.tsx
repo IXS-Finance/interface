@@ -22,6 +22,7 @@ interface Props {
   isOpen: boolean
   onClose: () => void
   data: KycItem
+  currentFilters?: Record<string, string | number>
 }
 
 interface ReferralInfoWrapperProps {
@@ -32,7 +33,7 @@ interface CopyContainerProps {
   isMobile: boolean
 }
 
-export const KycReviewModalV2 = ({ isOpen, onClose, data }: Props) => {
+export const KycReviewModalV2 = ({ isOpen, onClose, data, currentFilters }: Props) => {
   const [openReasonModal, handleOpenReasonModal] = useState('')
   const [riskReportId, handleRiskReportId] = useState(0)
 
@@ -56,14 +57,14 @@ export const KycReviewModalV2 = ({ isOpen, onClose, data }: Props) => {
 
   const approve = async () => {
     onClose()
-    await approveKyc(data.id, riskReportId)
+    await approveKyc(data.id, riskReportId, currentFilters)
   }
 
   const onReasonAction = (reason?: string) => {
     if (openReasonModal === 'reject') {
-      rejectKyc({ id: data.id, message: reason, riskReportId })
+      rejectKyc({ id: data.id, message: reason, riskReportId }, currentFilters)
     } else {
-      resetKyc({ id: data.id, message: reason })
+      resetKyc({ id: data.id, message: reason }, currentFilters)
     }
     closeModal()
     onClose()

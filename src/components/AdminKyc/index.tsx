@@ -254,7 +254,7 @@ export const AdminKycTable = () => {
   return (
     <div style={{ margin: isMobile ? '30px 0px 0px 40px' : '30px 30px 0 30px' }} id="kyc-container">
       {/* version v2 is hardcoded for testing purpose only */}
-      {Boolean(kyc.id) && <KycReviewModal isOpen onClose={closeModal} data={kyc} />}
+      {Boolean(kyc.id) && <KycReviewModal isOpen onClose={closeModal} data={kyc} currentFilters={getKycFilters(page) as Record<string, string | number>} />}
       <TYPE.title4 fontSize={isMobile ? '29px' : '40px'} marginBottom="30px" data-testid="securityTokensTitle">
         <Trans>KYC</Trans>
       </TYPE.title4>
