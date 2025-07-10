@@ -743,6 +743,7 @@ export const useCreateNftAssetForm = (history: H.History) => {
       }
       // end getting contract instance
       if (contractInstance) {
+         // @ts-ignore
         const mintStatus = await mintNFT({ nft: contractInstance, account, assetURI })
 
         if (!mintStatus) {

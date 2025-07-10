@@ -1,0 +1,359 @@
+import React, { useEffect, useState } from 'react'
+import styled from 'styled-components'
+import { Box, Flex } from 'rebass'
+import { getAddress, isAddress } from '@ethersproject/address'
+import { formatUnits } from '@ethersproject/units'
+
+import chainIcon from 'assets/images/dex-v2/chain.svg'
+import SwapPair from './SwapPair'
+import { ButtonPrimary } from '../../common'
+import SwapDetails from './SwapDetails'
+import useSwapping from 'state/dexV2/swap/useSwapping'
+import { useSwapState } from 'state/dexV2/swap/useSwapState'
+import { useSwapAssets } from 'state/dexV2/swap/useSwapAssets'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import useWeb3 from 'hooks/dex-v2/useWeb3'
+import useValidation, { SwapValidation } from 'state/dexV2/swap/useValidation'
+import { WrapType } from 'lib/utils/balancer/wrapper'
+import { SubgraphPoolBase } from '@ixswap1/dex-v2-sdk'
+import SwapPreviewModal from './SwapPreviewModal'
+import { useIsMounted } from 'hooks/dex-v2/useIsMounted'
+import SwapSettingsPopover, { SwapSettingsContext } from 'pages/DexV2/common/popovers/SwapSettingsPopover'
+import SwapRoute from './SwapRoute'
+import BalAlert from 'pages/DexV2/common/BalAlert'
+import { safeParseUnits } from 'utils/formatCurrencyAmount'
+import useTokenApprovalActions from 'hooks/dex-v2/approvals/useTokenApprovalActions'
+import useNetwork from 'hooks/dex-v2/useNetwork'
+import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
+import { TransactionActionInfo } from 'pages/DexV2/types/transactions'
+import { useParams } from 'react-router-dom'
+
+const SwapCard: React.FC = () => {
+  const { inputAsset, outputAsset } = useSwapAssets()
+  const { account, appNetworkConfig, isMismatchedNetwork, startConnectWithInjectedProvider } = useWeb3()
+  const { nativeAsset, tokens, dynamicDataLoading } = useTokens()
+  const isMounted = useIsMounted()
+  const { getTokenApprovalActions } = useTokenApprovalActions()
+  const { networkConfig } = useNetwork()
+  const params: any = useParams()
+
+  const [tokenApprovalActions, setTokenApprovalActions] = useState<TransactionActionInfo[]>([])
+  const [loadingApprovals, setLoadingApprovals] = useState(true)
+  const [hopCount, setHopCount] = useState(0)
+  const [isOpenSwapPreview, setOpenSwapPreview] = useState(false)
+  const [exactIn, setExactIn] = useState(true)
+  const [dismissedErrors, setDismissedErrors] = useState({
+    highPriceImpact: false,
+  })
+  const {
+    tokenInAddress,
+    tokenOutAddress,
+    tokenInAmount,
+    tokenOutAmount,
+    setTokenInAddress,
+    setTokenOutAddress,
+    setTokenInAmount,
+    setTokenOutAmount,
+    setInitialized,
+  } = useSwapState()
+  const swapping = useSwapping(
+    exactIn,
+    tokenInAddress,
+    tokenInAmount,
+    tokenOutAddress,
+    tokenOutAmount,
+    setTokenInAmount,
+    setTokenOutAmount
+  )
+
+  const { errorMessage } = useValidation(tokenInAddress, tokenInAmount, tokenOutAddress, tokenOutAmount)
+  const isHighPriceImpact = swapping.sor.validationErrors.highPriceImpact && !dismissedErrors.highPriceImpact
+  const hasMismatchedNetwork = isMismatchedNetwork
+  const hasAmountsError = !tokenInAmount || !tokenOutAmount
+  const hasBalancerErrors = swapping.isBalancerSwap && isHighPriceImpact
+  const swapDisabled =
+    hasAmountsError ||
+    hasBalancerErrors ||
+    hasMismatchedNetwork ||
+    errorMessage !== SwapValidation.VALID ||
+    dynamicDataLoading
+  const swapLoading = swapping.isBalancerSwap ? swapping.isLoading : false
+  const sorReturn = swapping.sor.sorReturn
+  const hasSwaps = sorReturn.hasSwaps
+
+  const title =
+    swapping.wrapType === WrapType.Wrap
+      ? `Wrap ${swapping.tokenIn?.symbol}`
+      : swapping.wrapType === WrapType.Unwrap
+      ? `Unwrap ${swapping.tokenOut?.symbol}`
+      : 'Swap'
+  const pools: SubgraphPoolBase[] = swapping.sor.pools
+
+  let error
+  if (isMismatchedNetwork) {
+    error = {
+      header: 'Switch network',
+      body: `Please switch to ${appNetworkConfig.name}`,
+    }
+  } else if (swapping.isBalancerSwap && !swapping.isLoading && swapping.sor.validationErrors.noSwaps) {
+    error = {
+      header: 'Not enough liquidity',
+      body: 'Try swapping with a smaller amount or check back when liquidity for this pool has increased.',
+    }
+  } else if (swapping.isBalancerSwap && isHighPriceImpact) {
+    error = {
+      header: 'High price impact',
+      body: 'This swap is significantly moving the market price.',
+      label: 'accept',
+    }
+  } else {
+    error = undefined
+  }
+
+  // METHODS
+  function handleErrorButtonClick() {
+    if (swapping.sor.validationErrors.highPriceImpact) {
+      setDismissedErrors({ ...dismissedErrors, highPriceImpact: true })
+    }
+  }
+
+  function isNativeAssetIdentifier(assetParam: string | undefined): boolean {
+    return (
+      assetParam?.toLowerCase() === nativeAsset.deeplinkId?.toLowerCase() ||
+      assetParam?.toLowerCase() === nativeAsset.symbol?.toLowerCase()
+    )
+  }
+
+  function getFirstValidAddress(assets: string[]): string | undefined {
+    for (const asset of assets) {
+      if (isNativeAssetIdentifier(asset)) {
+        return nativeAsset.address
+      }
+      if (isAddress(asset)) {
+        return getAddress(asset)
+      }
+    }
+  }
+
+  function populateInitialTokens(): void {
+    const assetIn = getFirstValidAddress([
+      params?.assetIn ?? '',
+      inputAsset,
+      appNetworkConfig.tokens.InitialSwapTokens.input,
+    ])
+
+    if (assetIn) {
+      setTokenInAddress(assetIn)
+    }
+    const assetOut = getFirstValidAddress([
+      params?.assetOut ?? '',
+      outputAsset,
+      appNetworkConfig.tokens.InitialSwapTokens.output,
+    ])
+    if (assetOut) {
+      setTokenOutAddress(assetOut)
+    }
+  }
+
+  async function fetchTokenApprovalActions() {
+    const quote = swapping.getQuote()
+    const addressIn = swapping.tokenIn.address
+    const tokenApprovalSpender =
+      swapping.isWrap && !swapping.isNativeAssetSwap ? swapping.tokenOut.address : networkConfig.addresses.vault
+
+    const amountToApprove = safeParseUnits(
+      +formatUnits(quote.maximumInAmount, swapping.tokenIn.decimals),
+      swapping.tokenIn.decimals
+    )
+
+    const actions = await getTokenApprovalActions({
+      amountsToApprove: [
+        {
+          address: addressIn,
+          amount: amountToApprove,
+        },
+      ],
+      tokens,
+      spender: tokenApprovalSpender,
+      actionType: ApprovalAction.Swapping,
+      forceMax: false,
+    })
+    setTokenApprovalActions(actions)
+    setLoadingApprovals(false)
+  }
+
+  function handlePreviewButton() {
+    fetchTokenApprovalActions()
+    swapping.resetSubmissionError()
+    setOpenSwapPreview(true)
+  }
+
+  function handlePreviewModalClose() {
+    swapping.resetSubmissionError()
+    setOpenSwapPreview(false)
+  }
+
+  useEffect(() => {
+    populateInitialTokens()
+    setInitialized(true)
+  }, [])
+
+  const isLoadingSwaps = swapping.isBalancerSwap ? swapping.isLoading : false
+  const isLoading = isLoadingSwaps || !isMounted || dynamicDataLoading
+  const loadingText = isLoading ? 'Fetching swap...' : 'Next'
+  const showSwapRoute = swapping.isBalancerSwap
+
+  const linkSwap = `${window.location.origin}/#/v2/swap/${swapping.tokenIn?.address}/${swapping.tokenOut?.address}`
+
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyLink = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(linkSwap)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1200)
+    }
+  }
+
+  return (
+    <Container>
+      <Flex justifyContent="space-between" alignItems="center">
+        <Title>{title}</Title>
+
+        <Flex alignItems="center">
+          <Flex
+            alignItems="center"
+            style={{ cursor: 'pointer', position: 'relative' }}
+            onClick={handleCopyLink}
+          >
+            <img src={chainIcon} alt="link" title="Copy swap link" />
+            {copied && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '-24px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  background: '#000',
+                  color: '#fff',
+                  fontSize: 12,
+                  padding: '2px 8px',
+                  borderRadius: 8,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                  zIndex: 10,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Copied!
+              </span>
+            )}
+          </Flex>
+          <HorizontalLine />
+          <SwapSettingsPopover context={SwapSettingsContext.swap} isGasless={swapping.swapGasless} />
+        </Flex>
+      </Flex>
+
+      <SwapPair
+        exactIn={exactIn}
+        swapLoading={swapLoading}
+        amountChange={swapping.handleAmountChange}
+        setExactIn={setExactIn}
+      />
+
+      {error && tokenInAmount ? (
+        <BalAlert
+          className="p-3 mb-4"
+          type="error"
+          size="sm"
+          title={error.header}
+          description={error.body}
+          actionLabel={error.label}
+          block
+          onActionClick={handleErrorButtonClick}
+        />
+      ) : null}
+
+      {WrapType.NonWrap === swapping.wrapType && !hasSwaps && tokenInAmount ? (
+        <BalAlert type="warning" size="md" title="Insufficient liquidity for this trade" block />
+      ) : null}
+
+      {showSwapRoute && hopCount > 0 && swapping?.tokenIn && swapping?.tokenOut ? (
+        <SwapDetails swapping={swapping} hopCount={hopCount} />
+      ) : null}
+
+      <Box>
+        {!account ? (
+          <ButtonPrimary onClick={startConnectWithInjectedProvider}>Connect Wallet</ButtonPrimary>
+        ) : (
+          <ButtonPrimary disabled={!!swapDisabled} onClick={handlePreviewButton}>
+            {loadingText}
+          </ButtonPrimary>
+        )}
+      </Box>
+
+      {showSwapRoute && swapping?.tokenIn && swapping?.tokenOut ? (
+        <SwapRoute
+          addressIn={swapping?.tokenIn?.address}
+          addressOut={swapping?.tokenOut?.address}
+          amountIn={swapping?.tokenInAmountInput}
+          amountOut={swapping?.tokenOutAmountInput}
+          pools={pools}
+          sorReturn={sorReturn}
+          setHopCount={setHopCount}
+        />
+      ) : null}
+
+      {isOpenSwapPreview ? (
+        <SwapPreviewModal
+          swapping={swapping}
+          loadingApprovals={loadingApprovals}
+          tokenApprovalActions={tokenApprovalActions}
+          error={error}
+          onClose={handlePreviewModalClose}
+        />
+      ) : null}
+    </Container>
+  )
+}
+
+export default SwapCard
+
+const Container = styled.div`
+  width: 480px;
+  margin: 0 auto;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0px 30px 48px 0px rgba(63, 63, 132, 0.05);
+  padding: 32px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: 100%;
+    padding: 24px 16px;
+  `};
+
+  .p-3 {
+    padding: 12px;
+  }
+
+  .mb-4 {
+    margin-bottom: 16px;
+  }
+`
+
+const Title = styled.div`
+  color: rgba(41, 41, 51, 0.9);
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: -0.6px;
+`
+
+const HorizontalLine = styled.div`
+  border: 1px solid #e6e6ff;
+  height: 18px;
+  margin-right: 16px;
+  margin-left: 16px;
+`

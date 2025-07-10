@@ -52,6 +52,7 @@ export const blockchainNetworks = Object.entries(NetworkName).map(([key, value])
   return {
     value,
     label: capitalizeWords(value),
+    // @ts-ignore
     icon: networkIcons[value],
     chainId: chainId,
   }
