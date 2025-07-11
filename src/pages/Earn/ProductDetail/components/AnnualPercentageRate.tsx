@@ -59,7 +59,7 @@ export const AnnualPercentageRate: React.FC<AnnualPercentageRateProps> = ({ open
 
   return (
     <InfoCard>
-      <InfoCardLabel>Annual Percentage Rate</InfoCardLabel>
+      <InfoCardLabel>Current APY</InfoCardLabel>
 
       {loading ? (
         <LoadingBlock className="rate-number" />
