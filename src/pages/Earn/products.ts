@@ -22,6 +22,7 @@ export interface EarnProduct {
   bgUrl: string // background image URL for the product
   bgFullUrl: string // full background image URL for the product
   learnMoreUrl?: string // optional URL for more information about the product
+  apyUpto: number // optional maximum APY for the product
 }
 
 // Base product data without environment-specific values
@@ -64,6 +65,7 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
     bgUrl: '/images/earn/bg-hycb.svg',
     bgFullUrl: '/images/earn/image02.svg',
     learnMoreUrl: 'https://docs.opentrade.io/stablecoin-yield/stablecoin-yield-vaults/high-yield-corporate-bond-vault',
+    apyUpto: 0.085,
   },
 ]
 
