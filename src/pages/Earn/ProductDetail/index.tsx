@@ -9,23 +9,23 @@ import Portal from '@reach/portal'
 import { Copy, ExternalLink, Link } from 'react-feather'
 
 import { useActiveWeb3React } from 'hooks/web3'
-import { EarnProduct, products } from './products'
+import { EarnProduct, products } from '../products'
 import { useSubgraphQuery } from 'hooks/useSubgraphQuery'
 import { formatAmount } from 'utils/formatCurrencyAmount'
-import { DepositTab } from './components/tabs/Deposit'
-import { WithdrawRequestTab } from './components/tabs/WithdrawRequest'
-import { ClaimTab } from './components/tabs/Claim'
+import { DepositTab } from '../components/tabs/Deposit'
+import { WithdrawRequestTab } from '../components/tabs/WithdrawRequest'
+import { ClaimTab } from '../components/tabs/Claim'
+import { AnnualPercentageRate } from './components/AnnualPercentageRate'
 import { ExplorerDataType, getExplorerLink } from 'utils/getExplorerLink'
 import { checkWrongChain } from 'utils/chains'
 import { CenteredFixed } from 'components/LaunchpadMisc/styled'
 import { NetworkNotAvailable } from 'components/Launchpad/NetworkNotAvailable'
 
-import OpenTradeABI from './abis/OpenTrade.json'
-import USDCIcon from '../../assets/images/usdcNew.svg'
+import OpenTradeABI from '../abis/OpenTrade.json'
+import USDCIcon from 'assets/images/usdcNew.svg'
 import { Box, Flex } from 'rebass'
 import { isMobile } from 'react-device-detect'
-import { useMulticall } from './hooks/useMulticall'
-import LoadingBlock from './components/LoadingBlock'
+import { useMulticall } from '../hooks/useMulticall'
 interface Transaction {
   date: number
   type: string
@@ -307,15 +307,7 @@ export default function ProductDetail() {
             ) : null}
           </InfoCard>
 
-          <InfoCard>
-            <InfoCardLabel>Annual Percentage Rate</InfoCardLabel>
-
-            {isLoadingGetRate ? (
-              <LoadingBlock className="rate-number" />
-            ) : (
-              <ApyBigText>{indicativeInterestRatePercentage}%</ApyBigText>
-            )}
-          </InfoCard>
+          <AnnualPercentageRate opentradeVaultAddress={product.opentradeVaultAddress} chainId={product.chainId} />
         </InfoCardsSection>
 
         <FormContainer>
@@ -658,24 +650,6 @@ const InfoCardValue = styled.div`
 
   @media (min-width: 768px) {
     font-size: 32px;
-  }
-`
-
-const ApyBigText = styled.div`
-  color: #66f;
-  text-align: right;
-  font-family: Inter;
-  font-size: 40px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 60px; /* 150% */
-  letter-spacing: -1.6px;
-
-  @media (min-width: 768px) {
-    color: #66f;
-    font-size: 64px;
-    line-height: 60px; /* 93.75% */
-    letter-spacing: -2.56px;
   }
 `
 
