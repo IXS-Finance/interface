@@ -7,7 +7,7 @@ import { isMobile } from 'react-device-detect'
 import { Formik } from 'formik'
 import { object, string } from 'yup'
 import { useAddPopup } from 'state/application/hooks'
-import { useEmailVerify, useEmailVerifyCode } from 'state/kyc/hooks'
+import { useEmailVerify, useEmailVerifyCode, useGetMyKycQuery } from 'state/kyc/hooks'
 import { ReactComponent as ArrowBack } from 'assets/images/newBack.svg'
 import { useHistory } from 'react-router-dom'
 import { resendEmail } from 'state/admin/hooks'
@@ -22,6 +22,7 @@ interface Props {
 
 export const EmailVerification = ({ isModalOpen, closeModal, kycType, referralCode }: Props) => {
   const { config } = useWhitelabelState()
+  const query = useGetMyKycQuery();
 
   const [active, setActive] = React.useState(false)
   const [step, setStep] = React.useState(1)
@@ -70,6 +71,7 @@ export const EmailVerification = ({ isModalOpen, closeModal, kycType, referralCo
       if (result.success) {
         localStorage.setItem('newKyc', 'newKyc')
         history.push(referralCode)
+        query.refetch()
 
         setTimer(60)
         setResetCodeInput(false)
