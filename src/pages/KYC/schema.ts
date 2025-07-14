@@ -399,6 +399,14 @@ export const corporateErrorsSchema = yup.object().shape({
       then: yup.string().required('Required'),
       otherwise: yup.string().nullable(),
     }),
+  reason: yup
+    .string()
+    .nullable()
+    .when('taxIdAvailable', {
+      is: false,
+      then: yup.string().required('Required'),
+      otherwise: yup.string().nullable(),
+    }),
 
   beneficialOwners: yup
     .array()

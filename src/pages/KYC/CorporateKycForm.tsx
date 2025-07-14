@@ -450,7 +450,7 @@ export default function CorporateKycForm() {
             const fatcaFilled = shouldValidate && !errors.usTin && !errors.isUSTaxPayer
             const taxDeclarationFilled = values.taxIdAvailable
               ? shouldValidate && !errors.taxCountry && !errors.taxNumber
-              : shouldValidate
+              : shouldValidate && !errors.reason
             const filesFilled = shouldValidate && !errors.financialDocuments && !errors.corporateDocuments
             const beneficialOwnersFilled =
               shouldValidate && !Object.keys(errors).some((errorField) => errorField.startsWith('beneficialOwners'))
