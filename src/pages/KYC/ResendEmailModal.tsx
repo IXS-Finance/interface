@@ -76,6 +76,10 @@ export const ResendEmailModal = ({ isModalOpen, closeModal, kycType, referralCod
 
         setTimer(60)
         setResetCodeInput(false)
+        // Clear any error states
+        setHasCodeError(false)
+        setErrorMessage('')
+        setBoxBorderColor('#E6E6FF')
       } else {
         // Handle error
         // console.error(result.error)
@@ -83,6 +87,7 @@ export const ResendEmailModal = ({ isModalOpen, closeModal, kycType, referralCod
         // setResetCodeInput(true);
         // setErrorMessage( 'Invalid code. Please try again or get a new code.')
         setErrorMessage(String((result.error as MyError).message))
+        // Don't clear the code input so user can see what they entered
       }
     } catch (error) {
       console.error(error)
@@ -238,6 +243,13 @@ export const ResendEmailModal = ({ isModalOpen, closeModal, kycType, referralCod
                 gapBetweenBoxes={5}
                 handleNextClick={handleNextClick}
                 reset={resetCodeInput}
+                onCodeChange={() => {
+                  if (hasCodeError) {
+                    setHasCodeError(false)
+                    setErrorMessage('')
+                    setBoxBorderColor('#E6E6FF')
+                  }
+                }}
                 // resetCode={() => setCode(Array(6).fill(''))}
               />
 
@@ -460,7 +472,7 @@ const CodeRow = styled.div`
   flex-direction: row;
 `
 
-const CodeInput = ({ numberOfBoxes, boxBackgroundColor, boxBorderColor, reset, handleNextClick }: any) => {
+const CodeInput = ({ numberOfBoxes, boxBackgroundColor, boxBorderColor, reset, handleNextClick, onCodeChange }: any) => {
   const inputRefs = React.useRef<HTMLInputElement[]>([])
   const [code, setCode] = React.useState(Array(numberOfBoxes).fill(''))
 
@@ -474,26 +486,49 @@ const CodeInput = ({ numberOfBoxes, boxBackgroundColor, boxBorderColor, reset, h
   const handleCodeChange = (index: number, value: string) => {
     if (!/^[a-zA-Z0-9]*$/.test(value)) return
 
+    // Reset error state when user starts typing
+    if (onCodeChange) {
+      onCodeChange()
+    }
+
     const newCode = [...code]
     newCode[index] = value.slice(-1)
     setCode(newCode)
 
     // Automatically move to the next input box when the current box is filled
     if (value && index < numberOfBoxes - 1) {
-      inputRefs.current[index + 1]?.focus()
+      // Use setTimeout to ensure the focus happens after state updates
+      setTimeout(() => {
+        inputRefs.current[index + 1]?.focus()
+      }, 0)
     }
   }
 
   const handleKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Backspace') {
+      // Reset error state when user starts editing
+      if (onCodeChange) {
+        onCodeChange()
+      }
+
       if (code[index]) {
         const newCode = [...code]
         newCode[index] = ''
         setCode(newCode)
       } else if (index > 0) {
-        inputRefs.current[index - 1]?.focus()
+        // Use setTimeout to ensure the focus happens after state updates
+        setTimeout(() => {
+          inputRefs.current[index - 1]?.focus()
+        }, 0)
       }
+    } else if (event.key === 'ArrowLeft' && index > 0) {
+      // Allow navigation with arrow keys
+      inputRefs.current[index - 1]?.focus()
+    } else if (event.key === 'ArrowRight' && index < numberOfBoxes - 1) {
+      // Allow navigation with arrow keys
+      inputRefs.current[index + 1]?.focus()
     } else {
+      // Select all text when typing to replace existing character
       inputRefs.current[index].select()
     }
   }
@@ -504,8 +539,6 @@ const CodeInput = ({ numberOfBoxes, boxBackgroundColor, boxBorderColor, reset, h
     const verificationCode = code.join('')
     if (verificationCode.length === numberOfBoxes) {
       handleNextClick(verificationCode) // Pass verificationCode as a single argument
-    } else {
-      // Set the error message
     }
   }
 
