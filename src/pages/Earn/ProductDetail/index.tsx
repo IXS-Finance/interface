@@ -5,7 +5,7 @@ import { Trans } from '@lingui/macro'
 import { format } from 'date-fns'
 import { formatUnits } from 'viem'
 import Portal from '@reach/portal'
-import { Copy, ExternalLink, Link } from 'react-feather'
+import { ExternalLink } from 'react-feather'
 import _get from 'lodash/get'
 
 import { useActiveWeb3React } from 'hooks/web3'
@@ -20,12 +20,13 @@ import { ExplorerDataType, getExplorerLink } from 'utils/getExplorerLink'
 import { checkWrongChain } from 'utils/chains'
 import { CenteredFixed } from 'components/LaunchpadMisc/styled'
 import { NetworkNotAvailable } from 'components/Launchpad/NetworkNotAvailable'
-
 import OpenTradeABI from '../abis/OpenTrade.json'
 import USDCIcon from 'assets/images/usdcNew.svg'
 import { Box, Flex } from 'rebass'
 import { isMobile } from 'react-device-detect'
 import { useMulticall } from '../hooks/useMulticall'
+import ExternalLinkIcon from 'assets/images/icons/external-link.svg'
+
 interface Transaction {
   date: number
   type: string
@@ -405,7 +406,7 @@ export default function ProductDetail() {
               >
                 {isMobile ? `${activeTab} ` : null}Amount
               </Box>
-              {!isMobile ? <HeaderCell>Transaction Hash</HeaderCell> : null}
+              {!isMobile ? <HeaderCell style={{ textAlign: 'right' }}>Transaction Hash</HeaderCell> : null}
             </TableHeader>
 
             {transactions.length > 0 ? (
@@ -432,6 +433,15 @@ export default function ProductDetail() {
                           </SmallCurrencyIcon>
                           {tx.amount}
                         </CurrencyDisplay>
+
+                        <a
+                          href={getExplorerLink(chainId, tx.hash, ExplorerDataType.TRANSACTION)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ textDecoration: 'none', color: '#6C5DD3' }}
+                        >
+                          <img src={ExternalLinkIcon} alt="External Link" width={16} height={16} style={{ marginLeft: 8 }} />
+                        </a>
                       </Flex>
                     ) : (
                       <>{tx.amount}</>
@@ -447,7 +457,7 @@ export default function ProductDetail() {
                           style={{ textDecoration: 'none', color: '#6C5DD3' }}
                         >
                           {tx.hash.substring(0, 6)}...{tx.hash.substring(tx.hash.length - 4)}
-                          <ExternalLink size={'16'} style={{ marginLeft: 8 }} />
+                          <img src={ExternalLinkIcon} alt="External Link" style={{ marginLeft: 8 }} />
                         </a>
                       </HashDisplay>
                     </Cell>
@@ -779,6 +789,7 @@ const SmallCurrencyIcon = styled.div`
 const HashDisplay = styled.div`
   display: flex;
   align-items: center;
+  justify-content: flex-end;
 `
 
 const CopyIcon = styled.button`
