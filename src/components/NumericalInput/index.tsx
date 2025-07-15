@@ -20,7 +20,7 @@ export const Input = React.memo(function InnerInput({
   placeholder,
   prependSymbol,
   maxLength = 79,
-
+  fontSize = '22px',
   ...rest
 }: {
   value: string | number
@@ -75,6 +75,7 @@ export const Input = React.memo(function InnerInput({
       minLength={1}
       maxLength={maxLength}
       spellCheck="false"
+      style={{ fontSize: fontSize }}
     />
   )
 })
