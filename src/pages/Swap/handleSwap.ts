@@ -20,7 +20,15 @@ import { useAuthorizationDigest, useSwapCallback, useSwapCallbackError } from '.
 import { Version } from '../../hooks/useToggledVersion'
 import { useUserSingleHopOnly } from '../../state/user/hooks'
 
-export function useHandleSwap({ priceImpact }: { priceImpact: Percent | undefined }) {
+export function useHandleSwap({
+  priceImpact,
+  confirm,
+  prompt
+}: {
+  priceImpact: Percent | undefined
+  confirm: (options: { message: string }) => Promise<boolean>
+  prompt: (options: { message: string; expectedValue: string }) => Promise<string | null>
+}) {
   const { showConfirm, tradeToConfirm, setSwapState } = useSetSwapState()
   const { account } = useActiveWeb3React()
   const { toggledTrade: trade, allowedSlippage, shouldGetAuthorization } = useDerivedSwapInfo()
@@ -60,7 +68,7 @@ export function useHandleSwap({ priceImpact }: { priceImpact: Percent | undefine
     if (swapCallbackError || !swapCallback || shouldGetAuthorization) {
       return
     }
-    if (priceImpact && !confirmPriceImpactWithoutFee(priceImpact)) {
+    if (priceImpact && !(await confirmPriceImpactWithoutFee(priceImpact, confirm, prompt))) {
       return
     }
     setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })

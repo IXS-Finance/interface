@@ -6,6 +6,8 @@ import { useConnectModal } from '@rainbow-me/rainbowkit'
 
 import { SwapErrorCard } from 'components/Card'
 import { OutputInfo } from 'components/swap/OutputInfo'
+import { ConfirmModal, PromptModal } from 'components/ConfirmationModals'
+import { useConfirmation } from 'hooks/useConfirmation'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { UseERC20PermitState } from 'hooks/useERC20Permit'
 import useIsArgentWallet from 'hooks/useIsArgentWallet'
@@ -61,11 +63,12 @@ export const SwapButtons = ({
 
   const { secTokens: userSecTokens } = useUserSecTokens()
   const { showConfirm, swapErrorMessage, setSwapState } = useSetSwapState()
+  const { confirm, prompt, confirmProps, promptProps } = useConfirmation()
 
   // for expert mode
   const { expertMode } = useExpertModeManager()
   const { priceImpactSeverity, priceImpact } = usePriceImpact({ parsedAmounts })
-  const handleSwap = useHandleSwap({ priceImpact })
+  const handleSwap = useHandleSwap({ priceImpact, confirm, prompt })
 
   // toggle wallet when disconnected
   const { error: swapCallbackError } = useSwapCallbackError(trade, allowedSlippage, recipient)
@@ -236,6 +239,8 @@ export const SwapButtons = ({
           {expertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
         </BottomGrouping>
       )}
+      <ConfirmModal {...confirmProps} />
+      <PromptModal {...promptProps} />
     </>
   )
 }
