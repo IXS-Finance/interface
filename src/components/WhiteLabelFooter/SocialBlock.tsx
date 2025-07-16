@@ -13,7 +13,7 @@ import { useWhitelabelState } from 'state/whitelabel/hooks'
 import { SocialBlockContainer } from './styleds'
 
 const data = [
-  { href: 'https://t.me/ixswapofficial', Icon: telegramImg, name: 'telegram' },
+  { href: 'https://t.me/ixsfinance', Icon: telegramImg, name: 'telegram' },
   { href: 'https://x.com/IxSwap', Icon: xImg, name: 'twitter' },
   { href: 'https://www.linkedin.com/company/ixswap', Icon: linkedinImg, name: 'linkedin' },
   { href: 'https://www.youtube.com/channel/UCaYPNR-eLs9iuB5ZVKRx-fw', Icon: youtubeImg, name: 'youtube' },
