@@ -8,7 +8,7 @@
 
 - Website: [ixs.finance](https://www.ixs.finance)
 - Interface: [app.ixs.finance](https://app.ixs.finance)
-- Telegram: [ixswapofficial](https://t.me/ixswapofficial)
+- Telegram: [ixswapofficial](https://t.me/ixsfinance)
 - X: [@IxSwap](https://x.com/IxSwap)
 - Linkedin: [IXS](https://www.linkedin.com/company/ixswap)
 - Mediun: [IXS](https://ixswap.medium.com/)

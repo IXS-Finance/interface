@@ -51,7 +51,7 @@ export const ZeroBalanceVesting = () => {
         data-testid="redirect-to-telegram"
         style={{ maxWidth: '308px', width: '100%' }}
         as={ExternalLink}
-        href="https://t.me/ixswapofficial"
+        href="https://t.me/ixsfinance"
       >
         <ExternalBright style={{ marginRight: '10px' }} />
         <Trans>{IXSCurrency?.symbol} in Telegram</Trans>
