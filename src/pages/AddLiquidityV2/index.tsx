@@ -377,8 +377,12 @@ export default function AddLiquidity({
 
       <ToggleableBody style={{ marginTop: isMobile ? '0px' : '0px' }} isVisible={!showConfirm}>
         {/* <AddLiduidityContainer></AddLiduidityContainer> */}
-        <Box style={{ marginTop: isMobile ? '0px' : '200px' }}>
-          <AppBody page="liquidity" blurred={chainId !== undefined && !TGE_CHAINS_WITH_SWAP.includes(chainId)}>
+        <Box>
+          <AppBody
+            page="liquidity"
+            blurred={chainId !== undefined && !TGE_CHAINS_WITH_SWAP.includes(chainId)}
+            style={{ padding: 0, marginTop: -40 }}
+          >
             <AddRemoveTabs creating={isCreate} adding={true} showBadge={mitigationEnabled} />
             <>
               <AutoColumn gap="14px">
