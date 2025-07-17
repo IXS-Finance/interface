@@ -76,6 +76,7 @@ export default function AppBody({
   transparent?: boolean
   maxWidth?: string
   page?: string
+  style?: React.CSSProperties
 }) {
   const { account } = useWeb3React()
   const [cookies] = useCookies(['annoucementsSeen'])
