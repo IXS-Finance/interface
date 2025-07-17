@@ -45,7 +45,7 @@ const InternalNotes: React.FC<InternalNotesProps> = ({ message }) => {
   )
 
   useEffect(() => {
-    if (note) {
+    if (note && note.trim() !== '') {
       debouncedSaveNote()
     }
     return () => {
