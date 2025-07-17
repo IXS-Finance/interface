@@ -412,16 +412,8 @@ export default function CorporateKycForm() {
             }
           }}
         >
-          {({ values, setFieldValue, dirty, handleSubmit }) => {
-            if (values?.taxIdAvailable === undefined) {
-              if (values === null) {
-                values = {}
-              }
-
-              values.taxIdAvailable = true
-            }
-
-            const shouldValidate = dirty && isSubmittedOnce
+          {({ values, setFieldValue, handleSubmit }) => {
+            const shouldValidate = isSubmittedOnce
             const infoFilled =
               shouldValidate &&
               !errors.corporateName &&
@@ -859,6 +851,7 @@ export default function CorporateKycForm() {
                                 setFieldValue('taxNumber', '', false)
                                 setIsTaxNumberDisabled(true)
                               } else {
+                                setFieldValue('reason', '', false)
                                 setIsTaxNumberDisabled(false)
                               }
                             }}
@@ -871,6 +864,7 @@ export default function CorporateKycForm() {
                         <Column style={{ gap: '20px', marginTop: 20 }}>
                           <TextInput
                             value={values.reason}
+                            label="Reason"
                             placeholder="Reason"
                             onChange={(e: any) => onChangeInput('reason', e.currentTarget.value, values, setFieldValue)}
                             error={errors.reason && errors.reason}

@@ -298,6 +298,8 @@ export const corporateFormInitialValues: IFormInitial = {
   usTin: '',
   taxCountry: null,
   taxNumber: '',
+  taxIdAvailable: false,
+  reason: '',
   beneficialOwners: [
     { fullName: '', nationality: '', dateOfBirth: '', address: '', shareholding: '', proofOfIdentity: null },
   ],

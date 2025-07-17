@@ -380,16 +380,9 @@ export const corporateErrorsSchema = yup.object().shape({
   taxCountry: yup
     .object()
     .nullable()
-    .when('taxIdAvailable', {
-      is: true,
-      then: yup
-        .object()
-        .nullable()
-        .required('Required')
-        .test('validSelection', 'Required', (value: any) => {
-          return value && value.label !== null && value.label !== undefined && value.label !== ''
-        }),
-      otherwise: yup.object().nullable(),
+    .required('Required')
+    .test('validSelection', 'Required', (value: any) => {
+      return value && value.label !== null && value.label !== undefined && value.label !== ''
     }),
   taxNumber: yup
     .string()
@@ -404,7 +397,7 @@ export const corporateErrorsSchema = yup.object().shape({
     .nullable()
     .when('taxIdAvailable', {
       is: false,
-      then: yup.string().required('Required'),
+      then: yup.string().nullable().required('Required'),
       otherwise: yup.string().nullable(),
     }),
 
