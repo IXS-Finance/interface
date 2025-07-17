@@ -43,6 +43,8 @@ export const corporateTransformApiData = (data: any) => {
     reason: data.reason || '',
     usTin: data.usTin || '',
     otherFunds: otherFunds || '',
+    // Ensure taxIdAvailable is a boolean, default to false if not present (TIN not available by default)
+    taxIdAvailable: data.taxIdAvailable !== null && data.taxIdAvailable !== undefined ? !!data.taxIdAvailable : false,
 
     typeOfLegalEntity: {
       value: legalEntityTypes?.find(({ label }) => label === typeOfLegalEntity)?.value || 0,
