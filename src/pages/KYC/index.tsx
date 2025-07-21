@@ -138,11 +138,8 @@ const KYC = () => {
   const getKYCLink = () => {
     const referralCodeParam = new URL(window.location.href).href?.split('=')[1]
     const baseLink = '/kyc/individual'
-    if (kyc?.individual?.version === 'v2' || !kyc?.individual?.version) {
-      return referralCodeParam ? `${baseLink}/v2?referralCode=${referralCodeParam}` : `${baseLink}/v2`
-    } else {
-      return referralCodeParam ? `${baseLink}?referralCode=${referralCodeParam}` : `${baseLink}`
-    }
+
+    return referralCodeParam ? `${baseLink}/v2?referralCode=${referralCodeParam}` : `${baseLink}/v2`
   }
 
   const getKYCDescription = useCallback(() => {
