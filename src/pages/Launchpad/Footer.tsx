@@ -78,7 +78,7 @@ export const Footer: React.FC<Props> = (props) => {
         </Formik>
 
         <SocialMediaLinks>
-          <SocialMediaLink href="https://t.me/ixswapofficial" target="_blank" rel="noreferrer">
+          <SocialMediaLink href="https://t.me/ixsfinance" target="_blank" rel="noreferrer">
             <TelegramLogo />
           </SocialMediaLink>
           <SocialMediaLink href="https://x.com/IxSwap" target="_blank" rel="noreferrer">

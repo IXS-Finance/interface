@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
-import { useHistory, useLocation } from 'react-router-dom'
 import { Percent, Token } from '@ixswap1/sdk-core'
 import { Pair } from '@ixswap1/v2-sdk'
 import { t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import flatMap from 'lodash.flatmap'
+import { useQueryClient } from '@tanstack/react-query'
 
 import { ERROR_ACCREDITATION_STATUSES } from 'components/Vault/enum'
 import { IXS_ADDRESS, IXS_GOVERNANCE_ADDRESS } from 'constants/addresses'
@@ -512,6 +512,7 @@ export function useAccount() {
   const login = useLogin({ mustHavePreviousLogin: true })
   const getUserSecTokens = useFetchUserSecTokenListCallback()
   const isLoggedIn = useUserisLoggedIn()
+  const queryClient = useQueryClient()
 
   const { loginError, token } = useAuthState()
 
@@ -534,7 +535,7 @@ export function useAccount() {
     } finally {
       dispatch(setWalletState({ isSignLoading: false }))
     }
-  }, [login, getUserSecTokens, isLoggedIn])
+  }, [login, getUserSecTokens, isLoggedIn, queryClient, account])
 
   useEffect(() => {
     const timerFunc = setTimeout(checkAuthError, 20000)
@@ -557,7 +558,7 @@ export function useAccount() {
     if (token) {
       getUserSecTokens()
     }
-  }, [token, getUserSecTokens])
+  }, [token, getUserSecTokens, queryClient, account])
 
   return { authenticate }
 }
@@ -568,6 +569,8 @@ export const me = async () => {
 }
 
 export function useGetMe() {
+  const { account } = useActiveWeb3React()
+  const queryClient = useQueryClient()
   const dispatch = useDispatch<AppDispatch>()
   const callback = useCallback(async () => {
     try {
@@ -579,7 +582,7 @@ export function useGetMe() {
       dispatch(getMe.rejected({ errorMessage: 'Could not get me' }))
       return null
     }
-  }, [dispatch])
+  }, [dispatch, queryClient, account])
   return callback
 }
 

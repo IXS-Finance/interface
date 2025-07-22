@@ -91,7 +91,7 @@ export const getChainFromName = (name: string, isTestnet = false): SupportedChai
     base: isTestnet ? SupportedChainId.BASE_SEPOLIA : SupportedChainId.BASE,
     kaia: isTestnet ? SupportedChainId.KAIROS_TESTNET : SupportedChainId.KAIA,
     ozean: isTestnet ? SupportedChainId.OZEAN_TESTNET : SupportedChainId.OZEAN_TESTNET,
-    redBelly: isTestnet ? SupportedChainId.REDBELLY_TESNET : SupportedChainId.REDBELLY,
+    redbelly: isTestnet ? SupportedChainId.REDBELLY_TESNET : SupportedChainId.REDBELLY,
     avalanche: isTestnet ? SupportedChainId.AVALANCHE_FUJI : SupportedChainId.AVALANCHE,
     etherenum: isTestnet ? SupportedChainId.SEPOLIA : SupportedChainId.MAINNET,
   } as any

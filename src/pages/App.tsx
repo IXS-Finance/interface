@@ -25,7 +25,7 @@ import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { useAuthState } from 'state/auth/hooks'
 import { useHideHeader, useModalOpen } from 'state/application/hooks'
 import { useAccount, useGetMe, useRawRole, useRole } from 'state/user/hooks'
-import { useGetMyKyc, useKYCState } from 'state/kyc/hooks'
+import { useGetMyKycQuery, useKYCState } from 'state/kyc/hooks'
 import { useGetWhitelabelConfig, useWhitelabelState } from 'state/whitelabel/hooks'
 
 import { ApplicationModal, clearStore } from 'state/application/actions'
@@ -68,7 +68,7 @@ export default function App() {
   const isSettingsOpen = useModalOpen(ApplicationModal.SETTINGS)
   const { pathname } = useLocation()
   const { chainId, account } = useActiveWeb3React()
-  const getMyKyc = useGetMyKyc()
+  useGetMyKycQuery()
   const { token } = useAuthState()
   const dispatch = useDispatch()
   const getWitelabelConfig = useGetWhitelabelConfig()
@@ -194,10 +194,6 @@ export default function App() {
     },
     [isAllowed, canAccessKycForm, chainId, isWhitelisted, userRole, account]
   )
-
-  useEffect(() => {
-    getMyKyc()
-  }, [account, token, getMyKyc])
 
   useEffect(() => {
     if (token) {

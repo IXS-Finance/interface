@@ -73,6 +73,10 @@ const colourStyles = {
       ...styles,
       color: 'text1',
       fontSize: '16px',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      maxWidth: '100%',
     }
   },
   dropdownIndicator: (
@@ -106,14 +110,9 @@ const colourStyles = {
     return {
       ...styles,
       width: '100%',
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      // flexWrap: 'nowrap',
       display: 'flex',
-
-      flexDirection: isMulti ? 'row' : '',
-      flexWrap: 'wrap',
+      flexWrap: isMulti ? 'wrap' : 'nowrap',
+      overflow: 'hidden',
     }
   },
   control: (styles: Record<string, any>) => {
@@ -145,7 +144,7 @@ const MultiValue = (props: any) => {
 const SingleValue = (props: any) => {
   const networkLogo = props?.data?.network ? NETWORK_LOGOS[props?.data?.network] : ''
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', width: '96%' }}>
+    <FlexContainer style={{ width: '100%' }}>
       <StyledValue disabled={props.isDisabled}>
         {props?.isTokenLogoVisible && props?.data && renderIcon(props.data)}
         {props?.data?.label}
@@ -156,7 +155,7 @@ const SingleValue = (props: any) => {
           <NetworkLogo style={{ width: '20px' }} src={networkLogo} alt="network logo" />
         </StyledValue>
       ) : null}
-    </div>
+    </FlexContainer>
   )
 }
 
@@ -286,22 +285,19 @@ const StyledReactSelect = styled(ReactSelect)<{ error: string; borderRadius: str
     box-shadow: none;
     color: #8f8fb2;
     cursor: pointer;
-    font-size: 13px;
-    height: 60px;
+    font-size: 16px;
+    min-height: 60px;
     border-radius: 8px;
     border: 1px solid #e6e6ff !important;
     // border-radius: ${({ borderRadius }) => borderRadius};
     padding: 0px 16px;
     background: ${({ theme }) => theme.bg0};
-    border: none;
     ${({ error }) =>
       error &&
       css`
         border: 1px solid;
         border-color: #ff6161 !important;
-      `}import { stake } from '../../state/stake/actions'
-import { style } from 'styled-system'
-
+      `}
   }
   *[class*='indicatorSeparator'] {
     display: none;
@@ -338,6 +334,11 @@ const StyledValue = styled.div<{ disabled?: boolean }>`
   align-items: center;
   column-gap: 6px;
   cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 
   ${({ disabled }) =>
     disabled &&

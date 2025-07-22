@@ -65,44 +65,45 @@ export default function LaunchpadOffer() {
   }
 
   return (
-    <OfferBackgroundWrapper>
-      <OfferContainer>
-        <header>
-          <Header />
-        </header>
-        <div className="back-button">
-          <BackButton onClick={() => history.goBack()}>
-            <ArrowLeft color={theme.launchpad.colors.primary} />
-          </BackButton>
-        </div>
+    <>
+      <Header />
 
-        <section>
-          <OfferSummary offer={offer.data} />
-        </section>
+      <OfferBackgroundWrapper>
+        <OfferContainer>
+          <div className="back-button">
+            <BackButton onClick={() => history.goBack()}>
+              <ArrowLeft color={theme.launchpad.colors.primary} />
+            </BackButton>
+          </div>
 
-        <main>
-          <OfferMainInfo offer={offer.data} />
-        </main>
+          <section>
+            <OfferSummary offer={offer.data} />
+          </section>
 
-        <aside>
-          <OfferSidebar offer={offer.data} />
-        </aside>
+          <main>
+            <OfferMainInfo offer={offer.data} />
+          </main>
 
-        <footer>
-          <BackToTopButton />
+          <aside>
+            <OfferSidebar offer={offer.data} />
+          </aside>
 
-          {isIxSwap ? <Footer offerId={params.offerId} /> : <WhiteLabelFooter />}
-        </footer>
-      </OfferContainer>
+          <footer>
+            <BackToTopButton />
 
-      {account && chainId && isWrongChain ? (
-        <Portal>
-          <CenteredFixed width="100vw" height="100vh">
-            <NetworkNotAvailable expectChainId={expectChain} />
-          </CenteredFixed>
-        </Portal>
-      ) : null}
-    </OfferBackgroundWrapper>
+            {isIxSwap ? <Footer offerId={params.offerId} /> : <WhiteLabelFooter />}
+          </footer>
+        </OfferContainer>
+
+        {account && chainId && isWrongChain ? (
+          <Portal>
+            <CenteredFixed width="100vw" height="100vh">
+              <NetworkNotAvailable expectChainId={expectChain} />
+            </CenteredFixed>
+          </Portal>
+        ) : null}
+      </OfferBackgroundWrapper>
+    </>
   )
 }
 

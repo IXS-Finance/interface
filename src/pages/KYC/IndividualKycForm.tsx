@@ -113,6 +113,7 @@ export default function IndividualKycForm() {
   const [canSubmit, setCanSubmit] = useState(true)
   const [isSubmittedOnce, setIsSubmittedOnce] = useState(false)
   const [errors, setErrors] = useState<any>({})
+  const [hasInitialized, setHasInitialized] = useState(false)
   const addPopup = useAddPopup()
   const history = useHistory()
   const createIndividualKYC = useCreateIndividualKYC()
@@ -184,7 +185,8 @@ export default function IndividualKycForm() {
         const formData = { ...transformedData, taxDeclarations }
 
         setFormData(formData)
-        form.current.setValues(formData)
+        setHasInitialized(true)
+        // Remove direct form value setting since we're using formData as initial values
 
         if (kyc?.status === KYCStatuses.DRAFT) {
           setCanSubmit(true)
@@ -202,15 +204,16 @@ export default function IndividualKycForm() {
       }
     }
 
-    if (kyc && [KYCStatuses.CHANGES_REQUESTED, KYCStatuses.DRAFT].includes(kyc.status)) {
+    // Only initialize once when the component mounts and has KYC data
+    if (!hasInitialized && kyc && [KYCStatuses.CHANGES_REQUESTED, KYCStatuses.DRAFT].includes(kyc.status)) {
       getProgress()
       setUpdateKycId(kyc.id)
-    } else {
+    } else if (!hasInitialized) {
       setFormData(individualFormInitialValues)
     }
 
     setWaitingForInitialValues(false)
-  }, [kyc])
+  }, [kyc, hasInitialized])
 
   useEffect(() => {
     window.addEventListener('beforeunload', alertUser)
@@ -584,7 +587,7 @@ export default function IndividualKycForm() {
         {!waitingForInitialValues && formData && (
           <Formik
             innerRef={form}
-            initialValues={individualFormInitialValues}
+            initialValues={formData || individualFormInitialValues}
             initialErrors={errors}
             validateOnBlur={false}
             validateOnChange={false}

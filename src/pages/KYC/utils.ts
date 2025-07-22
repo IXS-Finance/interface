@@ -21,53 +21,69 @@ export const corporateTransformApiData = (data: any) => {
     corporateMembers,
     usTin,
   } = data
-  const [funds, otherFunds = ''] = sourceOfFunds ? sourceOfFunds.split(', Others, ') : [null, null]
+  const [funds, otherFunds = ''] = sourceOfFunds ? sourceOfFunds.split(', Others, ') : ['', '']
 
   return {
     ...data,
+    // Convert null string fields to empty strings
+    corporateName: data.corporateName || '',
+    businessActivity: data.businessActivity || '',
+    registrationNumber: data.registrationNumber || '',
+    personnelName: data.personnelName || '',
+    designation: data.designation || '',
+    email: data.email || '',
+    phoneNumber: data.phoneNumber || '',
+    address: address?.address || '',
+    postalCode: address?.postalCode || '',
+    city: address?.city || '',
+    residentialAddressAddress: residentialAddress?.address || '',
+    residentialAddressPostalCode: residentialAddress?.postalCode || '',
+    residentialAddressCity: residentialAddress?.city || '',
+    taxNumber: data.taxNumber === 'null' ? '' : (data.taxNumber || ''),
+    reason: data.reason || '',
+    usTin: data.usTin || '',
+    otherFunds: otherFunds || '',
+    // Ensure taxIdAvailable is a boolean, default to false if not present (TIN not available by default)
+    taxIdAvailable: data.taxIdAvailable !== null && data.taxIdAvailable !== undefined ? !!data.taxIdAvailable : false,
+
     typeOfLegalEntity: {
       value: legalEntityTypes?.find(({ label }) => label === typeOfLegalEntity)?.value || 0,
-      label: typeOfLegalEntity,
+      label: typeOfLegalEntity || '',
     },
-    countryOfIncorporation: { value: 0, label: countryOfIncorporation },
-    authorizationDocuments: documents?.filter(({ type }: any) => type === 'authorization'),
-    authorizationIdentity: documents?.filter(({ type }: any) => type === 'authorizationIdentity'),
-    address: address.address,
-    postalCode: address.postalCode,
-    country: { value: 0, label: address.country },
-    city: address.city,
-    residentialAddressAddress: residentialAddress.address,
-    residentialAddressPostalCode: residentialAddress.postalCode,
-    residentialAddressCountry: { value: 0, label: residentialAddress.country },
-    residentialAddressCity: residentialAddress.city,
-    sourceOfFunds: funds && otherFunds && otherFunds.length ? [...funds?.split(', '), 'Others'] : funds?.split(', '),
+    countryOfIncorporation: { value: 0, label: countryOfIncorporation || '' },
+    country: { value: 0, label: address?.country || '' },
+    residentialAddressCountry: { value: 0, label: residentialAddress?.country || '' },
+    taxCountry: { value: 0, label: taxCountry || '' },
+
+    authorizationDocuments: documents?.filter(({ type }: any) => type === 'authorization') || [],
+    authorizationIdentity: documents?.filter(({ type }: any) => type === 'authorizationIdentity') || [],
+    corporateDocuments: documents?.filter(({ type }: any) => type === 'corporate') || [],
+    financialDocuments: documents?.filter(({ type }: any) => type === 'financial') || [],
+
+    sourceOfFunds: funds && otherFunds && otherFunds.length ? [...funds?.split(', '), 'Others'] : funds?.split(', ') || [],
     isUSTaxPayer: usTin ? 1 : 0,
-    otherFunds,
-    taxCountry: { value: 0, label: taxCountry },
     beneficialOwners:
-      beneficialOwners.length > 0
+      beneficialOwners?.length > 0
         ? beneficialOwners?.map(({ id, fullName, nationality, dateOfBirth, address, shareholding, proofOfIdentity }: any) => ({
-            id,
-            fullName,
-            nationality, 
-            dateOfBirth,
-            address,
-            shareholding,
-            proofOfIdentity,
-          }))
+          id,
+          fullName: fullName || '',
+          nationality: nationality || '',
+          dateOfBirth: dateOfBirth || '',
+          address: address || '',
+          shareholding: shareholding || '',
+          proofOfIdentity,
+        }))
         : [{ fullName: '', nationality: '', dateOfBirth: '', address: '', shareholding: '', proofOfAddress: null, proofOfIdentity: null }],
     corporateMembers:
-      corporateMembers.length > 0
+      corporateMembers?.length > 0
         ? corporateMembers?.map(({ id, fullName, nationality, designation, proofOfIdentity }: any) => ({
-            id,
-            fullName,
-            nationality,
-            designation,
-            proofOfIdentity,
-          }))
-        : [{ fullName: '', nationality: '', designation: '',  proofOfIdentity: null }],
-    corporateDocuments: documents?.filter(({ type }: any) => type === 'corporate'),
-    financialDocuments: documents?.filter(({ type }: any) => type === 'financial'),
+          id,
+          fullName: fullName || '',
+          nationality: nationality || '',
+          designation: designation || '',
+          proofOfIdentity,
+        }))
+        : [{ fullName: '', nationality: '', designation: '', proofOfIdentity: null }],
     removedDocuments: [],
     removedBeneficialOwners: [],
     removedCorporateMembers: [],
@@ -249,16 +265,16 @@ export const individualTransformKycDto = (values: any, referralCode?: any) => {
 
     investorDeclaration: values?.accredited
       ? {
-          ...values.investorDeclaration,
+        ...values.investorDeclaration,
 
-          isTotalAssets: values.isTotalAssets,
-          isAnnualIncome: values.isAnnualIncome,
-          isFinancialAssets: values.isFinancialAssets,
-          isJointIncome: values.isJointIncome,
+        isTotalAssets: values.isTotalAssets,
+        isAnnualIncome: values.isAnnualIncome,
+        isFinancialAssets: values.isFinancialAssets,
+        isJointIncome: values.isJointIncome,
 
-          acceptOfQualification: values?.acceptOfQualification,
-          acceptRefusalRight: values?.acceptRefusalRight,
-        }
+        acceptOfQualification: values?.acceptOfQualification,
+        acceptRefusalRight: values?.acceptRefusalRight,
+      }
       : emptyInvestorDeclaration,
 
     taxDeclarations: taxDeclarations?.map((t: any, idx: number) => ({
