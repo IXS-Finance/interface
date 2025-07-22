@@ -63,8 +63,6 @@ export const PUBLIC_NODES = {
   [ChainId.RedBelly]: ['https://governors.mainnet.redbelly.network'],
   [ChainId.Avalanche]: ['https://api.avax.network/ext/bc/C/rpc'],
   [ChainId.AvalancheFuji]: ['https://api.avax-test.network/ext/bc/C/rpc'],
-  [ChainId.Mainnet]: [getAlchemyUrlFor('eth-mainnet'), 'https://cloudflare-eth.com'],
-  [ChainId.Sepolia]: [getAlchemyUrlFor('eth-sepolia'), 'https://sepolia.drpc.org'],
 } as any
 
 export const transports = CHAINS.reduce((ts, chain) => {
