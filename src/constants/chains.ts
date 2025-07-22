@@ -20,7 +20,6 @@ export enum SupportedChainId {
   KAIA = 8217,
   REDBELLY = 151,
   REDBELLY_TESNET = 153,
-  SEPOLIA = 11155111,
   AVALANCHE = 43114,
   AVALANCHE_FUJI = 43113,
 }
@@ -36,7 +35,6 @@ export const NETWORK_LOGOS: { [chainName: string]: string } = {
 }
 
 export const NETWORK_LABELS: { [chainId: number]: string } = {
-  [1]: 'Ethereum',
   [4]: 'Rinkeby',
   [3]: 'Ropsten',
   [5]: 'Görli',
@@ -51,7 +49,6 @@ export const NETWORK_LABELS: { [chainId: number]: string } = {
   [8217]: 'Kaia',
   [151]: 'RedBelly',
   [153]: 'RedBelly Testnet',
-  [11155111]: 'Sepolia',
   [43114]: 'Avalanche',
   [43113]: 'Avalanche Fuji',
 }
@@ -93,19 +90,12 @@ export const getChainFromName = (name: string, isTestnet = false): SupportedChai
     ozean: isTestnet ? SupportedChainId.OZEAN_TESTNET : SupportedChainId.OZEAN_TESTNET,
     redbelly: isTestnet ? SupportedChainId.REDBELLY_TESNET : SupportedChainId.REDBELLY,
     avalanche: isTestnet ? SupportedChainId.AVALANCHE_FUJI : SupportedChainId.AVALANCHE,
-    etherenum: isTestnet ? SupportedChainId.SEPOLIA : SupportedChainId.MAINNET,
   } as any
 
   return chainByName[name]
 }
 
 export const CHAIN_INFO: ChainInfoMap = {
-  [SupportedChainId.MAINNET]: {
-    blockExplorerUrls: ['https://etherscan.io/'],
-    chainName: 'Ethereum',
-    nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-    logoUrl: ethereumLogoUrl,
-  },
   [SupportedChainId.KOVAN]: {
     blockExplorerUrls: ['https://kovan.etherscan.io/'],
     chainName: 'Kovan',
@@ -228,17 +218,6 @@ export const CHAIN_INFO: ChainInfoMap = {
     logoUrl: redBellyLogoUrl,
     rpcUrls: ['https://governors.mainnet.redbelly.network'],
     blockExplorerUrls: ['https://redbelly.routescan.io'],
-  },
-  [SupportedChainId.SEPOLIA]: {
-    chainName: 'Sepolia',
-    nativeCurrency: {
-      name: 'ETH',
-      symbol: 'ETH',
-      decimals: 18,
-    },
-    logoUrl: ethereumLogoUrl,
-    rpcUrls: ['https://sepolia.drpc.org'],
-    blockExplorerUrls: ['https://sepolia.etherscan.io/'],
   },
   [SupportedChainId.AVALANCHE]: {
     chainName: 'Avalanche',
