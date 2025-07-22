@@ -34,7 +34,7 @@ interface WithdrawPreviewProps {
   type?: 'EARN_V2_TREASURY' | 'EARN_V2_HYCB'
 }
 
-const VAULT_TOKEN_DECIMALS = 3
+const VAULT_TOKEN_DECIMALS = 4
 
 export const WithdrawPreview: React.FC<WithdrawPreviewProps> = ({
   vaultAddress,
@@ -67,7 +67,6 @@ export const WithdrawPreview: React.FC<WithdrawPreviewProps> = ({
               <Value>
                 VT{' '}
                 {parseFloat(withdrawAmount || '0').toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
                   maximumFractionDigits: VAULT_TOKEN_DECIMALS,
                 })}
               </Value>
@@ -97,7 +96,7 @@ export const WithdrawPreview: React.FC<WithdrawPreviewProps> = ({
         <Label>Summary</Label>
         <Flex justifyContent="space-between" alignItems="center" css={{ marginTop: '32px' }}>
           <Value>Exchange Rate</Value>
-          <Value>{exchangeRate ? formatAmount(parseFloat(exchangeRate), 6) : 'N/A'}</Value>
+          <Value>{exchangeRate ? formatAmount(parseFloat(exchangeRate), 4) : 'N/A'}</Value>
         </Flex>
         <Box css={{ marginBottom: '16px', borderBottom: '1px solid #E8E8FF', paddingTop: '16px' }} />
         <Flex justifyContent="space-between" alignItems="center" css={{ marginTop: '8px' }}>

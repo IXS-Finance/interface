@@ -3,10 +3,9 @@ import { useParams, useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 import { Trans } from '@lingui/macro'
 import { format } from 'date-fns'
-import { useReadContract } from 'wagmi'
 import { formatUnits } from 'viem'
 import Portal from '@reach/portal'
-import { Copy, ExternalLink, Link } from 'react-feather'
+import _get from 'lodash/get'
 
 import { useActiveWeb3React } from 'hooks/web3'
 import { EarnProduct, products } from '../products'
@@ -20,12 +19,13 @@ import { ExplorerDataType, getExplorerLink } from 'utils/getExplorerLink'
 import { checkWrongChain } from 'utils/chains'
 import { CenteredFixed } from 'components/LaunchpadMisc/styled'
 import { NetworkNotAvailable } from 'components/Launchpad/NetworkNotAvailable'
-
 import OpenTradeABI from '../abis/OpenTrade.json'
 import USDCIcon from 'assets/images/usdcNew.svg'
 import { Box, Flex } from 'rebass'
 import { isMobile } from 'react-device-detect'
 import { useMulticall } from '../hooks/useMulticall'
+import ExternalLinkIcon from 'assets/images/icons/external-link.svg'
+
 interface Transaction {
   date: number
   type: string
@@ -34,7 +34,7 @@ interface Transaction {
   hash: string
 }
 
-const POLLING_INTERVAL: number = 5000
+const POLLING_INTERVAL: number = 10000
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>()
@@ -98,11 +98,12 @@ export default function ProductDetail() {
 
   // Subgraph Queries
   const userAddress = account?.toLowerCase()
+  const fromContract = _get(product, 'address', '').toLowerCase()
 
   const DEPOSITS_QUERY = `
     query {
       deposits(
-        where: { user: "${userAddress}" }
+        where: { user: "${userAddress}", fromContract: "${fromContract}" }
         orderBy: timestamp
         orderDirection: desc
       ) {
@@ -116,7 +117,7 @@ export default function ProductDetail() {
   const WITHDRAWS_QUERY = `
     query {
       withdraws(
-        where: { user: "${userAddress}" }
+        where: { user: "${userAddress}", fromContract: "${fromContract}" }
         orderBy: timestamp
         orderDirection: desc
       ) {
@@ -130,7 +131,7 @@ export default function ProductDetail() {
   const CLAIMS_QUERY = `
     query {
       claims(
-        where: { user: "${userAddress}" }
+        where: { user: "${userAddress}", fromContract: "${fromContract}" }
         orderBy: timestamp
         orderDirection: desc
       ) {
@@ -153,7 +154,7 @@ export default function ProductDetail() {
   }
 
   const subgraphData = useSubgraphQuery({
-    feature: product.type,
+    feature: product.subgraphFeatureType,
     chainId: chainId,
     query: query,
     autoPolling: true,
@@ -251,7 +252,10 @@ export default function ProductDetail() {
   const getUsdcEquivalent = (vaultAmount: string) => {
     const currentExchangeRate = openTradeExchangeRate || '0' // Use fetched rate, fallback to '0'
     if (!vaultAmount || isNaN(parseFloat(vaultAmount)) || isNaN(parseFloat(currentExchangeRate))) return '0'
-    return (parseFloat(vaultAmount) * parseFloat(currentExchangeRate)).toFixed(6)
+    return (parseFloat(vaultAmount) * parseFloat(currentExchangeRate)).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 4,
+    })
   }
 
   return (
@@ -401,7 +405,7 @@ export default function ProductDetail() {
               >
                 {isMobile ? `${activeTab} ` : null}Amount
               </Box>
-              {!isMobile ? <HeaderCell>Transaction Hash</HeaderCell> : null}
+              {!isMobile ? <HeaderCell style={{ textAlign: 'right' }}>Transaction Hash</HeaderCell> : null}
             </TableHeader>
 
             {transactions.length > 0 ? (
@@ -428,6 +432,15 @@ export default function ProductDetail() {
                           </SmallCurrencyIcon>
                           {tx.amount}
                         </CurrencyDisplay>
+
+                        <a
+                          href={getExplorerLink(chainId, tx.hash, ExplorerDataType.TRANSACTION)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ textDecoration: 'none', color: '#6C5DD3' }}
+                        >
+                          <img src={ExternalLinkIcon} alt="External Link" width={16} height={16} style={{ marginLeft: 8 }} />
+                        </a>
                       </Flex>
                     ) : (
                       <>{tx.amount}</>
@@ -443,7 +456,7 @@ export default function ProductDetail() {
                           style={{ textDecoration: 'none', color: '#6C5DD3' }}
                         >
                           {tx.hash.substring(0, 6)}...{tx.hash.substring(tx.hash.length - 4)}
-                          <ExternalLink size={'16'} style={{ marginLeft: 8 }} />
+                          <img src={ExternalLinkIcon} alt="External Link" style={{ marginLeft: 8 }} />
                         </a>
                       </HashDisplay>
                     </Cell>
@@ -775,6 +788,7 @@ const SmallCurrencyIcon = styled.div`
 const HashDisplay = styled.div`
   display: flex;
   align-items: center;
+  justify-content: flex-end;
 `
 
 const CopyIcon = styled.button`

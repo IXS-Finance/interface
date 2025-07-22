@@ -4,8 +4,8 @@ const currentEnv = process.env.REACT_APP_ENV || 'development'
 export interface EarnProduct {
   id: string
   name: string
-  type: 'EARN_V2_TREASURY' | 'EARN_V2_HYCB' // Add more types as needed
-  apy: number
+  type: 'EARN_V2_TREASURY' | 'EARN_V2_HYCB'
+  subgraphFeatureType: string
   description: string
   iconUrl: string | null
   tvl?: number
@@ -31,7 +31,6 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
   //   id: 'treasury-bill',
   //   name: 'Flexible TERM USDC Vault',
   //   type: 'EARN_V2_TREASURY',
-  //   apy: 3.9,
   //   tvl: 5000000,
   //   minimumDeposit: 100,
   //   maximumDeposit: 100,
@@ -51,7 +50,7 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
     id: 'hycb',
     name: 'High Yield Corporate Bond',
     type: 'EARN_V2_HYCB',
-    apy: 6.45,
+    subgraphFeatureType: 'EARN_AVALANCHE',
     tvl: 2800000,
     minimumDeposit: 1,
     maximumDeposit: 1,
@@ -73,6 +72,7 @@ const baseProducts: Omit<EarnProduct, 'address' | 'investingTokenAddress' | 'ope
 const addresses: Record<string, Record<string, string>> = {
   development: {
     'treasury-bill': '0xDDdc40135eF85848d977B9f9317cF3EE02E5C226',
+    'treasury-bill-avalanche': '0x2D49B183CE78201bA5627013F8c9442477e7C98b',
     hycb: '0x5E25F811828D063E436A3923e00C7F9aDAdE39BF',
   },
   staging: {
@@ -111,6 +111,7 @@ const investingTokenAddresses: Record<string, Record<string, Record<string, stri
 const opentradeVaultAddresses: Record<string, Record<string, string>> = {
   development: {
     'treasury-bill': '0xaE3cfBe878FB66070030B7cb29cfe0Deeac624DD',
+    'treasury-bill-avalanche': '0xBaE016C19F5b51D0Ca0af627C61EC854C712c290',
     hycb: '0xc982983B42178448C72B0fa1E7af8CbA5f79bBE3',
   },
   staging: {

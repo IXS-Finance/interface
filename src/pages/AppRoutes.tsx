@@ -145,12 +145,6 @@ export const routeConfigs: RouteMapEntry[] = [
   { path: routes.kyc, component: KYC, conditions: { isWhitelisted: true } },
   { path: '/maintainance', component: Maintenance, },
   {
-    path: routes.kycIndividual,
-    component: IndividualKYC,
-    conditions: { isWhitelisted: true, kycFormAccess: 'individual' },
-  },
-
-  {
     path: routes.kycIndividualV2,
     component: IndividualKYCV2,
     conditions: { isWhitelisted: true, kycFormAccess: 'individual' },

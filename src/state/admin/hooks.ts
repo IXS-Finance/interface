@@ -370,19 +370,19 @@ export function useApproveKyc() {
     kycList: { page, offset },
   } = useAdminState()
   const callback = useCallback(
-    async (id: number, riskReportId: number) => {
+    async (id: number, riskReportId: number, filters?: Record<string, string | number>) => {
       try {
         dispatch(postApproveKyc.pending())
         const data = await approveKyc(id, riskReportId)
         dispatch(postApproveKyc.fulfilled({ data }))
-        await getKycList({ page, offset })
+        await getKycList(filters || { page, offset })
         return STATUS.SUCCESS
       } catch (error: any) {
         dispatch(postApproveKyc.rejected({ errorMessage: 'Could not approve kyc' }))
         return STATUS.FAILED
       }
     },
-    [dispatch]
+    [dispatch, getKycList, page, offset]
   )
   return callback
 }
@@ -407,19 +407,19 @@ export function useRejectKyc() {
     kycList: { page, offset },
   } = useAdminState()
   const callback = useCallback(
-    async (data: { id: number; message?: string; riskReportId: number }) => {
+    async (data: { id: number; message?: string; riskReportId: number }, filters?: Record<string, string | number>) => {
       try {
         dispatch(postRejectKyc.pending())
         const res = await rejectKyc(data)
         dispatch(postRejectKyc.fulfilled({ data: res }))
-        await getKycList({ page, offset })
+        await getKycList(filters || { page, offset })
         return STATUS.SUCCESS
       } catch (error: any) {
         dispatch(postRejectKyc.rejected({ errorMessage: 'Could not reject jyc' }))
         return STATUS.FAILED
       }
     },
-    [dispatch]
+    [dispatch, getKycList, page, offset]
   )
   return callback
 }
@@ -441,19 +441,19 @@ export function useResetKyc() {
     kycList: { page, offset },
   } = useAdminState()
   const callback = useCallback(
-    async (data: { id: number; message?: string }) => {
+    async (data: { id: number; message?: string }, filters?: Record<string, string | number>) => {
       try {
         dispatch(postResetKyc.pending())
         const res = await resetKyc(data)
         dispatch(postResetKyc.fulfilled({ data: res }))
-        await getKycList({ page, offset })
+        await getKycList(filters || { page, offset })
         return STATUS.SUCCESS
       } catch (error: any) {
         dispatch(postResetKyc.rejected({ errorMessage: 'Could not reset kyc' }))
         return STATUS.FAILED
       }
     },
-    [dispatch]
+    [dispatch, getKycList, page, offset]
   )
   return callback
 }
@@ -475,19 +475,19 @@ export function useResubmitKyc() {
     kycList: { page, offset },
   } = useAdminState()
   const callback = useCallback(
-    async (id: number) => {
+    async (id: number, filters?: Record<string, string | number>) => {
       try {
         dispatch(postResubmitKyc.pending())
         await resubmitKyc(id)
         dispatch(postResubmitKyc.fulfilled())
-        await getKycList({ page, offset })
+        await getKycList(filters || { page, offset })
         return STATUS.SUCCESS
       } catch (error: any) {
         dispatch(postResubmitKyc.rejected({ errorMessage: 'Could not reset kyc' }))
         return STATUS.FAILED
       }
     },
-    [dispatch]
+    [dispatch, getKycList, page, offset]
   )
   return callback
 }

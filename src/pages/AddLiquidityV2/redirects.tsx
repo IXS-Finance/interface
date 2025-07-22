@@ -9,6 +9,7 @@ import { NetworkNotAvailable } from 'components/Launchpad/NetworkNotAvailable'
 import { DEFAULT_CHAIN_ID } from 'config'
 import { useAccount } from 'wagmi'
 import { TGE_CHAINS_WITH_SWAP } from 'constants/addresses'
+import AppBody from 'pages/AppBody'
 
 export const AddWhiteBGContainer = styled.div<{ background?: string }>`
   display: flex;
@@ -62,19 +63,9 @@ export const RedirectDuplicateTokenIdsV2: React.FC<
 
   const blurred = chainId !== undefined && !TGE_CHAINS_WITH_SWAP.includes(chainId)
 
-  if (blurred) {
-    return (
-      <Portal>
-        <CenteredFixed width="100vw" height="100vh">
-          <NetworkNotAvailable expectChainId={Number(DEFAULT_CHAIN_ID)} />
-        </CenteredFixed>
-      </Portal>
-    )
-  }
-
   return (
-    <>
+    <AppBody page="liquidity" blurred={blurred}>
       <AddLiquidityV2 {...props} />
-    </>
+    </AppBody>
   )
 }
