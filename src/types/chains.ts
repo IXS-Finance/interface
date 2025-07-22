@@ -1,5 +1,4 @@
 export enum SupportedChainId {
-  MAINNET = 1,
   POLYGON = 137,
   AMOY = 80002,
   BASE = 8453,
@@ -9,13 +8,11 @@ export enum SupportedChainId {
   KAIA = 8217,
   REDBELLY = 151,
   REDBELLY_TESNET = 153,
-  SEPOLIA = 11155111,
   AVALANCHE = 43114,
   AVALANCHE_FUJI = 43113,
 }
 
 export enum ChainId {
-  Mainnet = SupportedChainId.MAINNET,
   Polygon = SupportedChainId.POLYGON,
   Base = SupportedChainId.BASE,
   Amoy = SupportedChainId.AMOY,
@@ -25,7 +22,6 @@ export enum ChainId {
   Kaia = SupportedChainId.KAIA,
   RedBelly = SupportedChainId.REDBELLY,
   RedBellyTestnet = SupportedChainId.REDBELLY_TESNET,
-  Sepolia = SupportedChainId.SEPOLIA,
   Avalanche = SupportedChainId.AVALANCHE,
   AvalancheFuji = SupportedChainId.AVALANCHE_FUJI,
 }

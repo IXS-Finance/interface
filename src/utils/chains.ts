@@ -8,7 +8,6 @@ import kaiaLogoUrl from 'assets/images/chains/kaia.png'
 import redBellyLogoUrl from 'assets/images/chains/redbelly.png'
 
 export enum NetworkName {
-  MAINNET = 'ethereum',
   AVALANCHE = 'avalanche',
   BASE = 'base',
   POLYGON = 'polygon',
@@ -29,7 +28,6 @@ export const chainIdToNetworkName = (chainId: number): string => {
 }
 
 export const Chains = {
-  [NetworkName.MAINNET]: [SupportedChainId.SEPOLIA, SupportedChainId.MAINNET],
   [NetworkName.BASE]: [SupportedChainId.BASE_SEPOLIA, SupportedChainId.BASE],
   [NetworkName.POLYGON]: [SupportedChainId.AMOY, SupportedChainId.MATIC],
   [NetworkName.OZEAN]: [SupportedChainId.OZEAN_TESTNET],
