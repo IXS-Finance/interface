@@ -1,5 +1,4 @@
 const ETHERSCAN_PREFIXES: { [chainId: number]: string } = {
-  1: '',
   3: 'ropsten.',
   4: 'rinkeby.',
   5: 'goerli.',
@@ -14,13 +13,11 @@ const ETHERSCAN_PREFIXES: { [chainId: number]: string } = {
   8217: '',
   151: 'redbelly.',
   153: 'redbelly.testnet.',
-  11155111: 'sepolia.',
   43114: '',
   43113: 'testnet.',
 
 }
 const CHAIN_EXPLORERS: { [chainId: number]: string } = {
-  1: 'etherscan.io',
   3: 'etherscan.io',
   4: 'etherscan.io',
   5: 'etherscan.io',
@@ -35,7 +32,6 @@ const CHAIN_EXPLORERS: { [chainId: number]: string } = {
   8217: 'kaiascan.io',
   153: 'routescan.io',
   151: 'routescan.io',
-  11155111: 'etherscan.io',
   43114: 'snowtrace.io',
   43113: 'snowtrace.io',
 }
