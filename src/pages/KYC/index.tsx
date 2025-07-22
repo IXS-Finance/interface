@@ -155,7 +155,7 @@ const KYC = () => {
               sx={{ gap: '1rem', marginTop: '40px' }}
             >
               <Flex
-                onClick={() => history.push(getKYCLink())}
+                onClick={() => !isWrongNetwork && history.push(getKYCLink())}
                 sx={{
                   border: '1px solid #E6E6FF',
                   marginBottom: isMobile ? '32px' : '0px',
@@ -180,13 +180,13 @@ const KYC = () => {
                   </Text>
 
                   <Text sx={{ marginTop: '12px', fontSize: '13px', fontWeight: '600', color: '#6666FF' }}>
-                    <Trans>Start Now</Trans>
+                    {isWrongNetwork ? <LoaderThin size={24} style={{ marginTop: 12 }} /> : <Trans>Start Now</Trans>}
                   </Text>
                 </>
               </Flex>
 
               <Flex
-                onClick={() => openModal('corporate')}
+                onClick={() => !isWrongNetwork && openModal('corporate')}
                 sx={{
                   border: '1px solid #E6E6FF',
                   padding: isMobile ? '40px 40px' : '50px 90px',
@@ -204,9 +204,8 @@ const KYC = () => {
                   </Text>
                 </>
                 {/* <Link style={{ textDecoration: 'none ' }} to="/kyc/corporate"> */}
-
                 <Text sx={{ marginTop: '12px', fontSize: '13px', fontWeight: '600', color: '#6666FF' }}>
-                  <Trans>Start Now</Trans>
+                  {isWrongNetwork ? <LoaderThin size={24} /> : <Trans>Start Now</Trans>}
                 </Text>
 
                 {/* </Link> */}
