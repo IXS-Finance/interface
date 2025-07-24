@@ -22,52 +22,13 @@ import { useKyc, useRole } from 'state/user/hooks'
 
 const activeClassName = 'ACTIVE'
 
-const HeaderPopover = () => {
-  const { config } = useWhitelabelState()
-  const stakingUrl = process.env.REACT_APP_STAKING_URL || 'https://staking.ixs.finance'
-
-  const isAllowed = useCallback(
-    (path: string): boolean => {
-      if (!config || !config.pages || config.pages.length === 0) {
-        return true
-      }
-
-      return config.pages.includes(path)
-    },
-    [config]
-  )
-
-  return (
-    <PopOverContent
-      onClick={(e: any) => (e ? e.stopPropagation() : null)}
-      onMouseDown={(e: any) => (e ? e.stopPropagation() : null)}
-    >
-      <Column style={{ gap: 3 }}>
-        <SubMenuExternalLink style={{ fontSize: '13px' }} href={stakingUrl || ``}>
-          <Trans>Staking on Base</Trans>
-        </SubMenuExternalLink>
-      </Column>
-
-      <Row style={{ padding: '0', margin: '5px 0' }}>
-        <Line />
-      </Row>
-
-      <Column style={{ gap: 3 }}>
-        {isAllowed(routes.vesting) && (
-          <SubMenuLink style={{ fontSize: '13px' }} id={`vesting-nav-link`} to={routes.vesting}>
-            <Trans>Token Sale Distribution</Trans>
-          </SubMenuLink>
-        )}
-      </Column>
-    </PopOverContent>
-  )
-}
-
 export const HeaderLinks = () => {
   const [open, toggle] = useToggle(false)
+  const [openV2, toggleV2] = useToggle(false)
   const [openNFT, toggleNFT] = useToggle(false)
   const { isApproved } = useKyc()
   const farmNode = useRef<HTMLDivElement>()
+  const v2Node = useRef<HTMLDivElement>()
   const nftNode = useRef<HTMLDivElement>()
 
   const { config } = useWhitelabelState()
@@ -75,7 +36,107 @@ export const HeaderLinks = () => {
   const bridgeUrl = process.env.REACT_APP_BRIDGE_URL || 'https://bridge.ixs.finance'
 
   useOnClickOutside(farmNode, open ? toggle : undefined)
+  useOnClickOutside(v2Node, openV2 ? toggleV2 : undefined)
   useOnClickOutside(nftNode, openNFT ? toggleNFT : undefined)
+
+  const HeaderPopover = () => {
+    const { config } = useWhitelabelState()
+
+    const isAllowed = useCallback(
+      (path: string): boolean => {
+        if (!config || !config.pages || config.pages.length === 0) {
+          return true
+        }
+
+        return config.pages.includes(path)
+      },
+      [config]
+    )
+
+    return (
+      <PopOverContent
+        onClick={(e: any) => (e ? e.stopPropagation() : null)}
+        onMouseDown={(e: any) => (e ? e.stopPropagation() : null)}
+      >
+        <Column style={{ gap: 3 }}>
+          <SubMenuExternalLink style={{ fontSize: '13px' }} href={`https://staking.ixswap.io/`}>
+            <Trans>Staking on Base</Trans>
+          </SubMenuExternalLink>
+        </Column>
+
+        <Row style={{ padding: '0', margin: '5px 0' }}>
+          <Line />
+        </Row>
+
+        <Column style={{ gap: 3 }}>
+          {isAllowed(routes.vesting) && (
+            <SubMenuLink style={{ fontSize: '13px' }} id={`vesting-nav-link`} to={routes.vesting} onClick={toggle}>
+              <Trans>Token Sale Distribution</Trans>
+            </SubMenuLink>
+          )}
+        </Column>
+      </PopOverContent>
+    )
+  }
+
+  const DexV2Popover = () => {
+    return (
+      <PopOverContent
+        onClick={(e: any) => (e ? e.stopPropagation() : null)}
+        onMouseDown={(e: any) => (e ? e.stopPropagation() : null)}
+      >
+        <Column style={{ gap: 3 }}>
+          <SubMenuLink style={{ fontSize: '13px' }} id={`pools`} to={routes.dexV2Pools} onClick={toggleV2}>
+            <Trans>Pools</Trans>
+          </SubMenuLink>
+        </Column>
+
+        <Row style={{ padding: '0', margin: '5px 0' }}>
+          <Line />
+        </Row>
+
+        <Column style={{ gap: 3 }}>
+          <SubMenuLink
+            style={{ fontSize: '13px' }}
+            id={`swap`}
+            to={routes.dexV2Swap.replace('/:assetIn?/:assetOut?', '')}
+            onClick={toggleV2}
+          >
+            <Trans>Swap</Trans>
+          </SubMenuLink>
+        </Column>
+
+        <Row style={{ padding: '0', margin: '5px 0' }}>
+          <Line />
+        </Row>
+
+        <Column style={{ gap: 3 }}>
+          <SubMenuLink style={{ fontSize: '13px' }} id={`staking`} to={routes.dexV2Lock} onClick={toggleV2}>
+            <Trans>Staking</Trans>
+          </SubMenuLink>
+        </Column>
+        <Row style={{ padding: '0', margin: '5px 0' }}>
+          <Line />
+        </Row>
+
+        <Column style={{ gap: 3 }}>
+          <SubMenuLink style={{ fontSize: '13px' }} id={`dashboard`} to={routes.dexV2Dashboard} onClick={toggleV2}>
+            <Trans>Dashboard</Trans>
+          </SubMenuLink>
+        </Column>
+
+        <Row style={{ padding: '0', margin: '5px 0' }}>
+          <Line />
+        </Row>
+
+        <Column style={{ gap: 3 }}>
+          <SubMenuLink style={{ fontSize: '13px' }} id={`vote`} to={routes.dexV2Vote} onClick={toggleV2}>
+            <Trans>Vote</Trans>
+          </SubMenuLink>
+        </Column>
+      </PopOverContent>
+    )
+  }
 
   const isWhitelisted = isUserWhitelisted({ account, chainId })
 
@@ -164,6 +225,26 @@ export const HeaderLinks = () => {
             <RowFixed onClick={toggle}>
               <Trans>Staking</Trans>
               <ChevronElement marginLeft={5} showMore={open} />
+            </RowFixed>
+          </Popover>
+        </StyledNavLink>
+      ),
+    },
+    {
+      condition: isAllowed(routes.swap) && isWhitelisted,
+      component: (
+        <StyledNavLink
+          key="v2"
+          ref={v2Node as any}
+          id="dexV2-nav-link"
+          to="#"
+          onClick={(e) => e.preventDefault()}
+          isActive={(match, { pathname }) => pathname.startsWith('/v2')}
+        >
+          <Popover hideArrow show={openV2} content={<DexV2Popover />} placement="bottom-start">
+            <RowFixed onClick={toggleV2}>
+              <Trans>Dex V2</Trans>
+              <ChevronElement marginLeft={5} showMore={openV2} />
             </RowFixed>
           </Popover>
         </StyledNavLink>

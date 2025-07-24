@@ -1,6 +1,6 @@
 import { Currency, Token, CurrencyAmount, Ether } from '@ixswap1/sdk-core'
 import JSBI from 'jsbi'
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { useActiveWeb3React } from '../../hooks/web3'
 import { useAllTokens } from '../../hooks/Tokens'
 import { useMulticall2Contract, useTokenContract } from '../../hooks/useContract'
@@ -11,6 +11,9 @@ import ERC20ABI from 'abis/erc20.json'
 import { Erc20Interface } from 'abis/types/Erc20'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
+import { Address } from 'viem'
+import { wagmiConfig } from 'components/Web3Provider'
+import { getBalance, GetBalanceReturnType } from '@wagmi/core'
 
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.
@@ -33,6 +36,7 @@ export function useETHBalances(uncheckedAddresses?: (string | undefined)[]): {
   )
 
   const results = useSingleContractMultipleData(
+     // @ts-ignore
     multicallContract,
     'getEthBalance',
     addresses.map((address) => [address])
@@ -56,6 +60,7 @@ export function useSimpleTokenBalanceWithLoading(
   tokenAddress?: string
 ) {
   const tokenContract = useTokenContract(tokenAddress)
+   // @ts-ignore
   const balance = useSingleCallResult(tokenContract, 'balanceOf', [account ?? undefined])
   const value = balance?.result
   const amount = value && currency ? CurrencyAmount.fromRawAmount(currency, JSBI.BigInt(value.toString())) : undefined
@@ -162,3 +167,30 @@ export const useWalletState = () => {
 
   return walletState;
 };
+
+export const useCurrencyBalanceV2 = ({
+  currency,
+  chainId,
+  account,
+}: {
+  currency: Address,
+  chainId: number,
+  account: Address,
+}) => {
+  const [balance, setBalance] = useState<GetBalanceReturnType | undefined>(undefined)
+
+  useMemo(async () => {
+    if (!currency || !account) return
+    const amount = await getBalance(
+      wagmiConfig,
+      {
+        address: account,
+        chainId,
+        token: currency,
+      }
+    )
+    setBalance(amount)
+  }, [currency, account])
+
+  return balance
+}

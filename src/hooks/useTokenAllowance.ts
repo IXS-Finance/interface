@@ -11,6 +11,7 @@ export function useTokenAllowance(
   const contract = useTokenContract(token?.address, false)
 
   const inputs = useMemo(() => [owner, spender], [owner, spender])
+   // @ts-ignore
   const allowance = useSingleCallResult(contract, 'allowance', inputs).result
 
   return useMemo(

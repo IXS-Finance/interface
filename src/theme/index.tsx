@@ -182,20 +182,25 @@ export function colors(configColors?: WlColors): Colors {
     red4: '#FF9999',
     red41: 'rgba(255, 153, 153, 0.1)',
     red45: 'rgba(255, 153, 153, 0.5)',
+    red5: '#FF8080',
     green1: wlColors.status?.success || '#0ECC88',
     green2: '#9DF9B1B2',
     green3: '#9DF9B1B3',
     green4: '#24E49F',
+    green5: '#1FBA66',
+    green51: '#1FBA661A',
     yellow1: '#e3a507',
     yellow2: '#ff8f00',
     yellow3: '#F3B71E',
     yellow4: wlColors.status?.warning || '#D1BF1E',
     yellow5: '#FFD056',
+    yellow69: '#ECBD44E5',
     orange: '#FF6D41',
     blue1: '#2172E5',
     blue2: '#5199FF',
     blue3: '#5B7BCF',
     blue4: '#48A1F3',
+    blue5: '#B8B8D2',
 
     orange1: '#FF6D41',
     orange2: '#FFAD31',
@@ -479,6 +484,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
   html {
     color: ${({ theme }) => theme.text1};
     background-color: ${({ theme }) => theme.bg0} !important;
+    font-family: "Inter", sans-serif;
   }
 
   a {
@@ -499,7 +505,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
 
   /* svg{
     ${({ theme }) =>
-    theme.config.elements &&
+      theme.config.elements &&
       css`
         stroke: ${({ theme }) => theme.config.elements.main};
       `};

@@ -17,12 +17,14 @@ export default function useENSContentHash(ensName?: string | null): { loading: b
     }
   }, [ensName])
   const registrarContract = useENSRegistrarContract(false)
+   // @ts-ignore
   const resolverAddressResult = useSingleCallResult(registrarContract, 'resolver', ensNodeArgument)
   const resolverAddress = resolverAddressResult.result?.[0]
   const resolverContract = useENSResolverContract(
     resolverAddress && isZero(resolverAddress) ? undefined : resolverAddress,
     false
   )
+   // @ts-ignore
   const contenthash = useSingleCallResult(resolverContract, 'contenthash', ensNodeArgument)
 
   return {

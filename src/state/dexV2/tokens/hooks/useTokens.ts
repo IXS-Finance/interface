@@ -1,0 +1,497 @@
+import { useDispatch } from 'react-redux'
+import { omit, pick } from 'lodash'
+import { getAddress, isAddress } from '@ethersproject/address'
+
+import { bnum, getAddressFromPoolId, includesAddress, isSameAddress, selectByAddressFast } from 'lib/utils'
+import { NativeAsset, TokenInfo, TokenInfoMap, TokenListMap } from 'types/TokenList'
+import { useTokensState } from '.'
+import { setAllowances, setTokensState, setSpenders } from '..'
+import useConfig from 'hooks/dex-v2/useConfig'
+import TokenService from 'services/token/token.service'
+import { tokenListService } from 'services/token-list/token-list.service'
+import useTokenLists from 'state/dexV2/tokenLists/useTokenLists'
+import useBalancesQuery from 'hooks/dex-v2/queries/useBalancesQuery'
+import { TOKENS } from 'constants/dexV2/tokens'
+import useAllowancesQuery from 'hooks/dex-v2/queries/useAllowancesQuery'
+import useTokenPricesQuery, { TokenPrices } from 'hooks/dex-v2/queries/useTokenPricesQuery'
+import useWeb3 from 'hooks/dex-v2/useWeb3'
+import { ContractAllowancesMap } from 'services/token/concerns/allowances.concern'
+import { AmountToApprove } from 'hooks/dex-v2/approvals/useTokenApprovalActions'
+import { useEffect, useState } from 'react'
+import { BigNumber } from 'ethers'
+
+const { uris: tokenListUris } = tokenListService
+
+export const useTokens = () => {
+  const state = useTokensState()
+  const dispatch = useDispatch()
+  const { networkConfig } = useConfig()
+  const { isWalletReady } = useWeb3()
+  const { allTokens } = useTokenLists()
+  const { allowances, balances, spenders } = state
+
+  const nativeAsset: NativeAsset = {
+    ...networkConfig.nativeAsset,
+    chainId: networkConfig.chainId,
+  }
+
+  /**
+   * COMPUTED
+   */
+
+  /**
+   * All tokens from all token lists.
+   */
+  const allTokenListTokens: TokenInfoMap = {
+    [networkConfig.nativeAsset.address]: nativeAsset,
+    ...state.injectedTokens,
+    // ...mapTokenListTokens(allTokens),
+    ...allTokens,
+  }
+
+  /**
+   * The main tokens map
+   * A combination of activated token list tokens
+   * and any injected tokens. Static and dynamic
+   * meta data should be available for these tokens.
+   */
+  const tokens: TokenInfoMap = {
+    [networkConfig.nativeAsset.address]: nativeAsset,
+    ...state.injectedTokens,
+    ...allTokenListTokens,
+  }
+
+  const wrappedNativeAsset: TokenInfo = getToken(TOKENS.Addresses.wNativeAsset)
+
+  /****************************************************************
+   * Dynamic metadata
+   *
+   * The prices, balances and allowances maps provide dynamic
+   * metadata for each token in the tokens state array.
+   ****************************************************************/
+  const {
+    data: priceData,
+    isSuccess: priceQuerySuccess,
+    isLoading: priceQueryLoading,
+    isRefetching: priceQueryRefetching,
+    isError: priceQueryError,
+    refetch: refetchPrices,
+  } = useTokenPricesQuery(state.injectedPrices, tokens)
+
+  const {
+    data: balanceData,
+    isSuccess: balanceQuerySuccess,
+    isLoading: balanceQueryLoading,
+    isRefetching: balanceQueryRefetching,
+    isError: balancesQueryError,
+    refetch: refetchBalances,
+  } = useBalancesQuery({ tokens, isEnabled: true })
+
+  const {
+    data: allowanceData,
+    isSuccess: allowanceQuerySuccess,
+    isLoading: allowanceQueryLoading,
+    isRefetching: allowanceQueryRefetching,
+    isError: allowancesQueryError,
+    refetch: refetchAllowances,
+  } = useAllowancesQuery({
+    tokenAddresses: Object.keys(tokens),
+    contractAddresses: spenders,
+    isEnabled: true,
+  })
+
+  const prices: TokenPrices = priceData ? priceData : {}
+
+  useEffect(() => {
+    dispatch(setTokensState({ allowanceQueryRefetching }))
+  }, [allowanceQueryRefetching])
+  useEffect(() => {
+    dispatch(setTokensState({ balanceQueryRefetching }))
+  }, [balanceQueryRefetching])
+  useEffect(() => {
+    if (Object.keys(allowanceData).length > 0) {
+      dispatch(setAllowances(allowanceData))
+    }
+  }, [JSON.stringify(allowanceData)])
+  useEffect(() => {
+    if (Object.keys(balanceData).length > 0) {
+      dispatch(setTokensState({ balances: balanceData }))
+    }
+  }, [JSON.stringify(balanceData)])
+  useEffect(() => {
+    if (Object.keys(prices).length > 0) {
+      dispatch(setTokensState({ prices, injectedPrices: { ...state.injectedPrices, ...prices } }))
+    }
+  }, [JSON.stringify(prices)])
+
+  const onchainDataLoading: boolean =
+    isWalletReady &&
+    (balanceQueryLoading || balanceQueryRefetching || allowanceQueryLoading || allowanceQueryRefetching)
+
+  const dynamicDataLoaded: boolean = priceQuerySuccess && balanceQuerySuccess && allowanceQuerySuccess
+
+  const dynamicDataLoading: boolean = priceQueryLoading || priceQueryRefetching || onchainDataLoading
+
+  /**
+   * METHODS
+   */
+  /**
+   * Create token map from a token list tokens array.const isEmpty = Object.keys(person).length === 0;
+   */
+  function mapTokenListTokens(tokenListMap: TokenListMap): TokenInfoMap {
+    const isEmpty = Object.keys(tokenListMap).length === 0
+    if (isEmpty) return {}
+
+    const tokens = [...Object.values(tokenListMap)].map((list) => list.tokens).flat()
+
+    const tokensMap = tokens.reduce<TokenInfoMap>((acc, token) => {
+      const address: string = getAddress(token.address)
+
+      // Don't include if already included
+      if (acc[address]) return acc
+
+      // Don't include if not on app network
+      if (token.chainId !== networkConfig.chainId) return acc
+
+      acc[address] = token
+      return acc
+    }, {})
+
+    return tokensMap
+  }
+
+  /**
+   * METHODS
+   */
+  /**
+   * Create token map from a token list tokens array.const isEmpty = Object.keys(person).length === 0;
+   */
+  function mapTokenforceAllTokens(forceAllTokens: TokenInfo[]): TokenInfoMap {
+    const isEmpty = forceAllTokens.length === 0
+    if (isEmpty) return {}
+
+    const tokens: TokenInfo[] = forceAllTokens
+
+    const tokensMap = tokens.reduce<TokenInfoMap>((acc, token) => {
+      const address: string = getAddress(token.address)
+
+      // Don't include if already included
+      if (acc[address]) return acc
+
+      // Don't include if not on app network
+      if (token.chainId !== networkConfig.chainId) return acc
+
+      acc[address] = token
+      return acc
+    }, {})
+
+    return tokensMap
+  }
+
+  /**
+   * Fetches static token metadata for given addresses and injects
+   * tokens into state tokens map.
+   */
+  async function injectTokens(addresses: string[]): Promise<void> {
+    addresses = addresses
+      .filter((a) => a)
+      .map(getAddressFromPoolId)
+      .map(getAddress)
+
+    // Remove any duplicates
+    addresses = [...new Set(addresses)]
+
+    const existingAddresses = Object.keys(tokens)
+    const existingAddressesMap = Object.fromEntries(
+      existingAddresses.map((address: string) => [getAddress(address), true])
+    )
+
+    // Only inject tokens that aren't already in tokens
+    const injectable = addresses.filter((address) => !existingAddressesMap[address])
+    if (injectable.length === 0) return
+
+    const newTokens = await new TokenService().metadata.get(
+      injectable,
+      omit(allTokens, tokenListUris.Balancer.Allowlisted)
+    )
+
+    dispatch(
+      setTokensState({
+        injectedTokens: {
+          ...state.injectedTokens,
+          ...newTokens,
+        },
+      })
+    )
+    // await forChange(onchainDataLoading, false);
+  }
+
+  /**
+   * Injects contract addresses that could possibly spend the users tokens into
+   * the spenders map. E.g. This is used for injecting gauges into the map as they
+   * must be allowed to spend a users BPT in order to stake the BPT in the gauge.
+   */
+  async function injectSpenders(addresses: string[]): Promise<void> {
+    addresses = addresses.filter((a) => a).map(getAddress)
+
+    dispatch(setSpenders([...new Set(spenders.concat(addresses))]))
+    // await forChange(onchainDataLoading, false);
+  }
+
+  /**
+   * Given query, filters tokens map by name, symbol or address.
+   * If address is provided, search for address in tokens or injectToken
+   */
+  async function searchTokens(
+    query: string,
+    {
+      excluded = [],
+      disableInjection = false,
+      subset = [],
+    }: { excluded?: string[]; disableInjection?: boolean; subset?: string[] }
+  ): Promise<TokenInfoMap> {
+    const fullTokens: TokenInfoMap = {
+      [networkConfig.nativeAsset.address]: nativeAsset,
+      ...allTokens,
+    }
+    const tokensToSearch = subset.length > 0 ? getTokens(subset) : fullTokens
+
+    if (!query) return removeExcluded(tokensToSearch, excluded)
+
+    const potentialAddress = getAddressFromPoolId(query)
+    if (isAddress(potentialAddress)) {
+      const address = getAddress(potentialAddress)
+      const token = tokensToSearch[address]
+      if (token) {
+        return { [address]: token }
+      } else {
+        if (!disableInjection) {
+          await injectTokens([address])
+          return pick(tokens, address)
+        } else {
+          return { [address]: token }
+        }
+      }
+    } else {
+      const tokensArray = Object.entries(tokensToSearch)
+      const results = tokensArray.filter(
+        ([, token]) =>
+          token.name?.toLowerCase().includes(query.toLowerCase()) ||
+          token.symbol?.toLowerCase().includes(query.toLowerCase())
+      )
+      return removeExcluded(Object.fromEntries(results), excluded)
+    }
+  }
+
+  /**
+   * Checks if token has a balance
+   */
+  function hasBalance(address: string): boolean {
+    return Number(selectByAddressFast(balances, getAddress(address)) || '0') > 0
+  }
+
+  /**
+   * Returns the allowance for a token, scaled by token decimals
+   *  (so 1 ETH = 1, 1 GWEI = 0.000000001)
+   */
+  function allowanceFor(tokenAddress: string, spenderAddress: string): BigNumber | undefined {
+    return (allowances[getAddress(spenderAddress)] || {})[getAddress(tokenAddress)]
+  }
+
+  /**
+   * Returns the allowance for a token, scaled by token decimals
+   *  (so 1 ETH = 1, 1 GWEI = 0.000000001)
+   */
+  function allowanceForWithAllowances(
+    tokenAddress: string,
+    spenderAddress: string,
+    newAllowances: ContractAllowancesMap
+  ): any {
+    return (newAllowances[getAddress(spenderAddress)] || {})[getAddress(tokenAddress)]
+  }
+
+  /**
+   * Check if approval is required for given contract address
+   * for a token and amount.
+   */
+  function approvalRequiredWithAllowances(
+    tokenAddress: string,
+    amount: BigNumber,
+    spenderAddress: string,
+    newAllowances: ContractAllowancesMap
+  ): boolean {
+    if (!amount || amount.eq(0)) return false
+    if (!spenderAddress) return false
+    if (isSameAddress(tokenAddress, nativeAsset.address)) return false
+
+    const allowance = allowanceForWithAllowances(tokenAddress, spenderAddress, newAllowances)
+
+    return allowance.lt(amount)
+  }
+
+  /**
+   * Check if approval is required for given contract address
+   * for a token and amount.
+   */
+  function approvalRequired(tokenAddress: string, amount: BigNumber, spenderAddress: string): boolean {
+    if (!amount || amount.eq(0)) return false
+    if (!spenderAddress) return false
+    if (isSameAddress(tokenAddress, nativeAsset.address)) return false
+
+    const allowance = allowanceFor(tokenAddress, spenderAddress)
+
+    return !!allowance && allowance.lt(amount)
+  }
+
+  /**
+   * Check which tokens/amounts require approvals for the spender.
+   *
+   * @param {AmountToApprove[]} amountsToApprove - array of token addresses and amounts to check.
+   * @param {string} spender - Contract address of spender to check approvals against.
+   * @returns a subset of the amountsToApprove array.
+   */
+  function approvalsRequired(amountsToApprove: AmountToApprove[], spender: string): AmountToApprove[] {
+    return amountsToApprove.filter(({ address, amount }) => {
+      if (!spender) return false
+      return approvalRequired(address, amount, spender)
+    })
+  }
+
+  /**
+   * Get subset of tokens from state
+   */
+  function getTokens(addresses: string[]) {
+    return pick(tokens, addresses.map(getAddress))
+  }
+
+  /**
+   * Injects prices for tokens where the pricing provider
+   * may have not found a valid price for provided tokens
+   * @param pricesToInject A map of <address, price> to inject
+   */
+  function injectPrices(pricesToInject: TokenPrices) {
+    dispatch(
+      setTokensState({
+        injectedPrices: {
+          ...state.injectedPrices,
+          ...pricesToInject,
+        },
+      })
+    )
+  }
+
+  /**
+   * Get single token from state
+   */
+  function getToken(address: string): TokenInfo {
+    address = getAddressFromPoolId(address) // In case pool ID has been passed
+
+    return selectByAddressFast(tokens, getAddress(address)) as TokenInfo
+  }
+
+  /**
+   * Fetch balance for a token
+   */
+  function balanceFor(address: string): string {
+    try {
+      return selectByAddressFast(balances, getAddress(address)) || '0'
+    } catch {
+      return '0'
+    }
+  }
+
+  /**
+   * Fetch price for a token
+   */
+  function priceFor(address: string): number {
+    try {
+      const price = selectByAddressFast(prices, getAddress(address))
+      if (!price) {
+        return 0
+      }
+
+      return price
+    } catch {
+      return 0
+    }
+  }
+
+  /**
+   * Remove excluded tokens from given token map.
+   */
+  function removeExcluded(tokens: TokenInfoMap, excluded: string[]): TokenInfoMap {
+    return Object.keys(tokens)
+      .filter((address: any) => !includesAddress(excluded, address))
+      .reduce((result: any, address: any) => {
+        result[address] = tokens[address]
+        return result
+      }, {})
+  }
+
+  /**
+   * Get max balance of token
+   * @param tokenAddress
+   * @param disableNativeAssetBuffer Optionally disable native asset buffer
+   */
+  function getMaxBalanceFor(tokenAddress: string, disableNativeAssetBuffer = false): string {
+    let maxAmount
+    const tokenBalance = balanceFor(tokenAddress) || '0'
+    const tokenBalanceBN = bnum(tokenBalance)
+
+    if (tokenAddress === nativeAsset.address && !disableNativeAssetBuffer) {
+      // Subtract buffer for gas
+      maxAmount = tokenBalanceBN.gt(nativeAsset.minTransactionBuffer)
+        ? tokenBalanceBN.minus(nativeAsset.minTransactionBuffer).toString()
+        : tokenBalance.toString()
+    } else {
+      maxAmount = tokenBalance
+    }
+    return maxAmount
+  }
+
+  /**
+   * Returns true if the token is the native asset or wrapped native asset
+   */
+  function isWethOrEth(tokenAddress: string): boolean {
+    return isSameAddress(tokenAddress, nativeAsset.address) || isSameAddress(tokenAddress, wrappedNativeAsset.address)
+  }
+
+  return {
+    ...state,
+    nativeAsset,
+    // computed
+    tokens,
+    wrappedNativeAsset,
+    prices,
+    balances,
+    allowances,
+    balanceQueryLoading,
+    dynamicDataLoaded,
+    dynamicDataLoading,
+    allowanceQueryRefetching: state.allowanceQueryRefetching,
+    priceQueryError,
+    priceQueryLoading,
+    balancesQueryError,
+    allowancesQueryError,
+    // methods
+    refetchPrices,
+    refetchBalances,
+    refetchAllowances,
+    injectTokens,
+    injectSpenders,
+    searchTokens,
+    hasBalance,
+    approvalRequired,
+    approvalsRequired,
+    approvalRequiredWithAllowances,
+    allowanceFor,
+    priceFor,
+    balanceFor,
+    getTokens,
+    getToken,
+    injectPrices,
+    getMaxBalanceFor,
+    isWethOrEth,
+    mapTokenforceAllTokens,
+  }
+}

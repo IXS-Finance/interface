@@ -1,0 +1,111 @@
+[
+  {
+    "chainId": 84532,
+    "address": "0x4a2b0767ACEE85C7825F09F48A9347285F58a5C2",
+    "name": "Wrapped Ether",
+    "symbol": "WETH",
+    "decimals": 18,
+    "type": "crypto",
+    "extensions": { "coingeckoId": "weth" },
+    "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png"
+  },
+  {
+    "chainId": 84532,
+    "address": "0xb6cd7297d7f0D761C5C395383219333d47F47b2a",
+    "name": "USDT",
+    "symbol": "USDT",
+    "decimals": 6,
+    "type": "crypto",
+    "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"
+  },
+  {
+    "chainId": 84532,
+    "address": "0x8e3b0aEEF4b75d5aF86eF027fFe2d7C2AeC21CA4",
+    "name": "USDC",
+    "symbol": "USDC",
+    "decimals": 6,
+    "type": "crypto",
+    "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png"
+  },
+  {
+    "chainId": 84532,
+    "address": "0x949546713004ee02537292b1F41046f705909191",
+    "name": "TIXS",
+    "symbol": "TIXS",
+    "decimals": 18,
+    "type": "crypto",
+    "logoURI": "https://asset-metadata-service-production.s3.amazonaws.com/asset_icons/f1516fe008a89da24fe1930c30acb4c4c262696a919c7e9c52dd127b9ee1cfc6.png"
+  },
+  {
+    "chainId": 84532,
+    "address": "0x8a1887973f72D43B023EA2EF848BB3614664cE5b",
+    "name": "TOKENA",
+    "symbol": "TOKENA",
+    "decimals": 18,
+    "type": "crypto"
+  },
+  {
+    "chainId": 84532,
+    "address": "0xbed7ef47506556b96839e6607ddee9b49de55fdb",
+    "name": "KDA",
+    "symbol": "KDA",
+    "decimals": 18,
+    "type": "crypto"
+  },
+  {
+    "chainId": 84532,
+    "address": "0xdba068f4486C9d7409976AdECF43417403aD1121",
+    "name": "LEON",
+    "symbol": "LEON",
+    "decimals": 18,
+    "type": "crypto"
+  },
+  {
+    "chainId": 84532,
+    "address": "0x00A276Ae9b8A3Ca5128B7aba8EAeF62E4C59F871",
+    "name": "TIGER",
+    "symbol": "TIGER",
+    "decimals": 18,
+    "type": "crypto"
+  },
+  {
+    "chainId": 84532,
+    "address": "0x2f1ACd467196A4fA45A74ABEF54889dF33cfad92",
+    "name": "RWA1 token",
+    "symbol": "RWA1",
+    "decimals": 18,
+    "type": "rwa"
+  },
+  {
+    "chainId": 84532,
+    "address": "0xB43D31D8f4DE425793D2d5F019C1667997C5188C",
+    "name": "RWA2 token",
+    "symbol": "RWA2",
+    "decimals": 18,
+    "type": "rwa"
+  },
+  {
+    "chainId": 84532,
+    "address": "0x32f17C1995f81c0a2349209b7A6877185546f314",
+    "name": "RWA Doge",
+    "symbol": "RWADOGE",
+    "decimals": 18,
+    "type": "rwa"
+  },
+  {
+    "chainId": 84532,
+    "address": "0x887415624B9be539702b79158Ad4796ba4750324",
+    "name": "Moon",
+    "symbol": "MOON",
+    "decimals": 18,
+    "type": "rwa"
+  },
+  {
+    "chainId": 84532,
+    "address": "0x80C3908e6Aec64099392a50ae3bD8fe84db94274",
+    "name": "LUNC",
+    "symbol": "LUNC",
+    "decimals": 18,
+    "type": "rwa"
+  }
+]

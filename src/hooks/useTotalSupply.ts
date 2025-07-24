@@ -8,6 +8,7 @@ import { useSingleCallResult } from '../state/multicall/hooks'
 export function useTotalSupply(token?: Currency): CurrencyAmount<Token> | undefined {
   const contract = useTokenContract(token?.isToken ? token.address : undefined, false)
 
+   // @ts-ignore
   const totalSupply: BigNumber = useSingleCallResult(contract, 'totalSupply')?.result?.[0]
 
   return token?.isToken && totalSupply ? CurrencyAmount.fromRawAmount(token, totalSupply.toString()) : undefined

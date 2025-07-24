@@ -1,0 +1,136 @@
+[
+  {
+    "inputs": [{ "internalType": "address", "name": "_voter", "type": "address" }],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "limit", "type": "uint256" },
+      { "internalType": "uint256", "name": "offset", "type": "uint256" }
+    ],
+    "name": "all",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "id", "type": "uint256" },
+          { "internalType": "address", "name": "account", "type": "address" },
+          { "internalType": "uint8", "name": "decimals", "type": "uint8" },
+          { "internalType": "int128", "name": "amount", "type": "int128" },
+          { "internalType": "uint256", "name": "votingAmount", "type": "uint256" },
+          { "internalType": "uint256", "name": "expiresAt", "type": "uint256" },
+          { "internalType": "uint256", "name": "votedAt", "type": "uint256" },
+          {
+            "components": [
+              { "internalType": "address", "name": "lp", "type": "address" },
+              { "internalType": "uint256", "name": "weight", "type": "uint256" }
+            ],
+            "internalType": "struct VeSugar.LpVote[]",
+            "name": "votes",
+            "type": "tuple[]"
+          },
+          { "internalType": "address", "name": "token", "type": "address" },
+          { "internalType": "bool", "name": "permanent", "type": "bool" },
+          { "internalType": "uint256", "name": "delegateId", "type": "uint256" },
+          { "internalType": "uint256", "name": "managedId", "type": "uint256" }
+        ],
+        "internalType": "struct VeSugar.VeNFT[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "account", "type": "address" }],
+    "name": "byAccount",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "id", "type": "uint256" },
+          { "internalType": "address", "name": "account", "type": "address" },
+          { "internalType": "uint8", "name": "decimals", "type": "uint8" },
+          { "internalType": "int128", "name": "amount", "type": "int128" },
+          { "internalType": "uint256", "name": "votingAmount", "type": "uint256" },
+          { "internalType": "uint256", "name": "expiresAt", "type": "uint256" },
+          { "internalType": "uint256", "name": "votedAt", "type": "uint256" },
+          {
+            "components": [
+              { "internalType": "address", "name": "lp", "type": "address" },
+              { "internalType": "uint256", "name": "weight", "type": "uint256" }
+            ],
+            "internalType": "struct VeSugar.LpVote[]",
+            "name": "votes",
+            "type": "tuple[]"
+          },
+          { "internalType": "address", "name": "token", "type": "address" },
+          { "internalType": "bool", "name": "permanent", "type": "bool" },
+          { "internalType": "uint256", "name": "delegateId", "type": "uint256" },
+          { "internalType": "uint256", "name": "managedId", "type": "uint256" }
+        ],
+        "internalType": "struct VeSugar.VeNFT[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "id", "type": "uint256" }],
+    "name": "byId",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "id", "type": "uint256" },
+          { "internalType": "address", "name": "account", "type": "address" },
+          { "internalType": "uint8", "name": "decimals", "type": "uint8" },
+          { "internalType": "int128", "name": "amount", "type": "int128" },
+          { "internalType": "uint256", "name": "votingAmount", "type": "uint256" },
+          { "internalType": "uint256", "name": "expiresAt", "type": "uint256" },
+          { "internalType": "uint256", "name": "votedAt", "type": "uint256" },
+          {
+            "components": [
+              { "internalType": "address", "name": "lp", "type": "address" },
+              { "internalType": "uint256", "name": "weight", "type": "uint256" }
+            ],
+            "internalType": "struct VeSugar.LpVote[]",
+            "name": "votes",
+            "type": "tuple[]"
+          },
+          { "internalType": "address", "name": "token", "type": "address" },
+          { "internalType": "bool", "name": "permanent", "type": "bool" },
+          { "internalType": "uint256", "name": "delegateId", "type": "uint256" },
+          { "internalType": "uint256", "name": "managedId", "type": "uint256" }
+        ],
+        "internalType": "struct VeSugar.VeNFT",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "token",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ve",
+    "outputs": [{ "internalType": "contract IVotingEscrow", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "voter",
+    "outputs": [{ "internalType": "contract IVoter", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

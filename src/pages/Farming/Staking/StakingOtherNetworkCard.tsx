@@ -81,6 +81,7 @@ export const StakingOtherNetworkCard = () => {
 
   const computedSwitchToParams = useMemo(() => {
     if (chainId) {
+      // @ts-ignore
       return switchToParams[chainId as SupportedChainId]
     }
     return null
@@ -110,7 +111,7 @@ export const StakingOtherNetworkCard = () => {
         <TYPE.body1 fontWeight={400} style={{ textAlign: 'center' }}>
           <Trans>Staking options:</Trans>
           <OptionList>
-            {computedSwitchToParams?.options?.map((key) => (
+            {computedSwitchToParams?.options?.map((key: any) => (
               <li key={key}>
                 <Trans>{key}</Trans>
               </li>

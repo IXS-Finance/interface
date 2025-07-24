@@ -1,0 +1,112 @@
+import React, { useEffect, FC } from 'react'
+import styled from 'styled-components'
+import { useParams } from 'react-router-dom'
+
+// import WithdrawPage from '@/components/contextual/pages/pool/withdraw/WithdrawPage';
+import { usePool } from 'state/dexV2/pool/usePool'
+import LoadingBlock from 'pages/DexV2/common/LoadingBlock'
+import { oneSecondInMs } from 'hooks/dex-v2/useTime'
+import { useTokens } from 'state/dexV2/tokens/hooks/useTokens'
+import BalCard from 'pages/DexV2/common/BalCard'
+import { Flex } from 'rebass'
+import SwapSettingsPopover, { SwapSettingsContext } from 'pages/DexV2/common/popovers/SwapSettingsPopover'
+import WithdrawForm from './components/WithdrawForm'
+import WithdrawTabs from './components/WithdrawTabs'
+import useWithdrawPageTabs from 'state/dexV2/pool/useWithdrawPageTabs'
+import { setDataForSingleAmountOut, setPoolState } from 'state/dexV2/pool'
+import { useDispatch, useSelector } from 'react-redux'
+import DexV2Layout from 'pages/DexV2/common/Layout'
+import { isDeep, tokenTreeLeafs } from 'hooks/dex-v2/usePoolHelpers'
+import { AppState } from 'state'
+import { isSameAddress } from 'lib/utils'
+
+function useInterval(callback: () => void, delay: number | null) {
+  useEffect(() => {
+    if (delay === null) return
+    const id = setInterval(callback, delay)
+    return () => clearInterval(id)
+  }, [callback, delay])
+}
+
+const Withdraw: FC = () => {
+  const { isSingleAssetExit } = useSelector((state: AppState) => state.dexV2Pool)
+  const params = useParams<any>()
+  const poolId = (params.id as string).toLowerCase()
+  const { pool, isLoadingPool, refetchOnchainPoolData } = usePool(poolId)
+  useInterval(refetchOnchainPoolData, oneSecondInMs * 20)
+  const { balanceQueryLoading } = useTokens()
+  const { resetTabs } = useWithdrawPageTabs()
+  const dispatch = useDispatch()
+
+  const isLoading = isLoadingPool || !pool || balanceQueryLoading
+
+  function setInitialPropAmountsOut() {
+    if (!pool || !pool.tokensList) return
+    const leafNodes: string[] = isDeep(pool)
+      ? tokenTreeLeafs(pool.tokens)
+      : pool.tokensList.filter((token) => !isSameAddress(token, pool.address))
+    dispatch(
+      setPoolState({
+        propAmountsOut: leafNodes.map((address) => ({
+          address,
+          value: '0',
+          max: '',
+          valid: true,
+        })),
+      })
+    )
+  }
+
+  useEffect(() => {
+    resetTabs()
+    dispatch(setPoolState({ bptIn: '' }))
+
+    if (!isSingleAssetExit) {
+      setInitialPropAmountsOut()
+    } else {
+      dispatch(setDataForSingleAmountOut({ key: 'value', value: '' }))
+    }
+  }, [isLoading])
+
+  return (
+    <DexV2Layout>
+      <Container>
+        {isLoading ? (
+          <LoadingBlock style={{ height: '24rem' }} />
+        ) : (
+          <BalCard shadow="xl" exposeOverflow noBorder>
+            <div className="w-full">
+              <Flex justifyContent="space-between" alignItems="center">
+                <Title>Withdraw from pool</Title>
+                <SwapSettingsPopover context={SwapSettingsContext.invest} />
+              </Flex>
+
+              <WithdrawTabs pool={pool} />
+            </div>
+
+            <WithdrawForm pool={pool} />
+          </BalCard>
+        )}
+      </Container>
+    </DexV2Layout>
+  )
+}
+
+export default Withdraw
+
+// Styled container similar to "px-4 sm:px-0 mx-auto max-w-md"
+const Container = styled.div`
+  margin: 0 auto;
+  width: 100%;
+  max-width: 480px;
+`
+
+const Title = styled.div`
+  color: rgba(41, 41, 51, 0.9);
+  font-family: Inter;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.6px;
+`

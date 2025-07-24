@@ -1,0 +1,256 @@
+// useJoinPool.ts
+import { useState, useEffect } from 'react'
+
+import { joinTokens, fiatValueOf, isDeep, isStableLike } from 'hooks/dex-v2/usePoolHelpers'
+import useNumbers from 'hooks/dex-v2/useNumbers'
+import { useTxState } from 'hooks/dex-v2/useTxState'
+import { HIGH_PRICE_IMPACT, REKT_PRICE_IMPACT } from 'constants/dexV2/poolLiquidity'
+import { bnSum, bnum, isSameAddress } from 'lib/utils'
+import { JoinHandler, JoinPoolService } from 'services/balancer/pools/joins/join-pool.service'
+import { TokenInfoMap } from 'types/TokenList'
+import { TransactionResponse } from '@ethersproject/abstract-provider'
+import { ApprovalAction } from 'hooks/dex-v2/approvals/types'
+import { throwQueryError } from 'lib/utils/queries'
+import { captureBalancerException } from 'lib/utils/errors'
+import useTokenApprovalActions from 'hooks/dex-v2/approvals/useTokenApprovalActions'
+import { useTokens } from '../tokens/hooks/useTokens'
+import useWeb3 from 'hooks/dex-v2/useWeb3'
+import useUserSettings from '../userSettings/useUserSettings'
+import { useDispatch, useSelector } from 'react-redux'
+import { setPoolState } from '.'
+import { BigNumber } from 'ethers'
+import { getAddress, parseUnits } from 'viem'
+
+// --- Types ---
+export type AmountIn = {
+  address: string
+  value: string
+  valid: boolean
+}
+
+// --- Hook ---
+export const useJoinPool = (pool: any) => {
+  const dispatch = useDispatch()
+  const state = useSelector((state: any) => state.dexV2Pool)
+  const { amountsIn, bptOut, priceImpact, approvalActions } = state
+
+  // STATE
+  const [highPriceImpactAccepted, setHighPriceImpactAccepted] = useState<boolean>(false)
+  const [txError, setTxError] = useState<string>('')
+  const [isSingleAssetJoin, setSingleAssetJoin] = useState<boolean>(false)
+  // (For relayer approval/signature, these are placeholders—you may replace them with real state.)
+  const [relayerSignature, setRelayerSignature] = useState<string>('')
+  const [relayerApproval, setRelayerApproval] = useState({ isUnlocked: false })
+
+  // SERVICES & COMPOSABLES
+  const { toFiat } = useNumbers()
+  const { slippageBsp, transactionDeadline } = useUserSettings()
+  const { getSigner, appNetworkConfig } = useWeb3()
+  const { txState, txInProgress, resetTxState } = useTxState()
+  const { getTokenApprovalActions } = useTokenApprovalActions()
+  const { tokens, getTokens, priceFor, nativeAsset, wrappedNativeAsset } = useTokens()
+
+  // Create a join pool service instance.
+  const joinPoolService = new JoinPoolService(pool)
+
+  // --- Derived values (computed inline) ---
+  const isDeepPool = isDeep(pool)
+  const poolJoinTokens = joinTokens(pool)
+  const tokensIn: TokenInfoMap = getTokens(amountsIn.map((a: any) => a.address))
+  const highPriceImpactFlag = bnum(priceImpact).isGreaterThanOrEqualTo(HIGH_PRICE_IMPACT)
+  const rektPriceImpactFlag = bnum(priceImpact).isGreaterThanOrEqualTo(REKT_PRICE_IMPACT)
+  const hasAcceptedHighPriceImpact = highPriceImpactFlag ? highPriceImpactAccepted : true
+  const hasValidInputs = amountsIn.every((a: any) => a.valid) && hasAcceptedHighPriceImpact
+  const hasAmountsIn = amountsIn.some((a: any) => bnum(a.value).gt(0))
+  const amountsInWithValue = amountsIn.filter((a: any) => bnum(a.value).gt(0))
+  const missingPricesIn = !amountsInWithValue.every((a: any) => bnum(priceFor(a.address)).gt(0))
+  const fiatValueIn = bnSum(amountsIn.map((a: any) => toFiat(a.value || 0, a.address))).toString()
+  const fiatValueOut = fiatValueOf(pool, bptOut)
+
+  const amountsToApprove = amountsIn.map((amountIn: { address: string; value: string }) => ({
+    address: amountIn.address,
+    amount: BigNumber.from(parseUnits(amountIn.value, tokensIn[getAddress(amountIn.address)]?.decimals)),
+    spender: appNetworkConfig.addresses.vault,
+  }))
+
+  const joinHandlerType: JoinHandler = isDeepPool
+    ? isSingleAssetJoin
+      ? JoinHandler.Swap
+      : JoinHandler.Generalised
+    : JoinHandler.ExactIn
+
+  const supportsProportionalOptimization = !isStableLike(pool.poolType)
+
+  // --- Methods ---
+
+  const setTokensIn = (tokens: string[]) => {
+    dispatch(setPoolState({ amountsIn: tokens.map((address) => ({ address, value: '', valid: true })) }))
+  }
+
+  const resetAmounts = () => {
+    dispatch(setPoolState({ amountsIn: amountsIn.map((a: any) => ({ ...a, value: '' })) }))
+  }
+
+  const setApprovalActions = async () => {
+    const tokenApprovalActions = await getTokenApprovalActions({
+      amountsToApprove,
+      tokens,
+      spender: appNetworkConfig.addresses.vault,
+      actionType: ApprovalAction.AddLiquidity,
+      forceMax: false,
+    })
+    dispatch(setPoolState({ approvalActions: tokenApprovalActions }))
+  }
+
+  const validateAmountsIn = (): boolean => {
+    if (!hasAmountsIn) {
+      dispatch(setPoolState({ priceImpact: 0 }))
+      return false
+    }
+    return true
+  }
+
+  // The function to query expected join output (debounced later)
+  const queryJoin = async () => {
+    if (!validateAmountsIn()) return null
+    try {
+      joinPoolService.setJoinHandler(joinHandlerType)
+      await setApprovalActions()
+      if (!validateAmountsIn()) return null
+      const output = await joinPoolService.queryJoin({
+        amountsIn: amountsInWithValue,
+        tokensIn,
+        signer: await getSigner(),
+        slippageBsp: slippageBsp,
+        relayerSignature: relayerSignature,
+        approvalActions,
+        transactionDeadline: transactionDeadline,
+      })
+
+      dispatch(setPoolState({ bptOut: output.bptOut, priceImpact: output.priceImpact }))
+
+      return output
+    } catch (error) {
+      await logJoinException(error as Error)
+      throwQueryError('Failed to construct join.', error)
+    }
+  }
+
+  // Execute join transaction.
+  const join = async (): Promise<TransactionResponse> => {
+    try {
+      setTxError('')
+      joinPoolService.setJoinHandler(joinHandlerType)
+      // await setApprovalActions()
+      const joinRes = await joinPoolService.join({
+        amountsIn: amountsInWithValue,
+        tokensIn,
+        signer: await getSigner(),
+        slippageBsp: slippageBsp,
+        relayerSignature: relayerSignature,
+        approvalActions,
+        transactionDeadline: transactionDeadline,
+      })
+      return joinRes
+    } catch (error) {
+      await logJoinException(error as Error)
+      setTxError((error as Error).message)
+      throw error
+    }
+  }
+
+  const setIsSingleAssetJoin = (value: boolean) => {
+    setSingleAssetJoin(value)
+  }
+
+  const setJoinWithNativeAsset = (joinWithNativeAsset: boolean): void => {
+    const newAddress = joinWithNativeAsset ? nativeAsset.address : wrappedNativeAsset.address
+    const prevAddress = joinWithNativeAsset ? wrappedNativeAsset.address : nativeAsset.address
+
+    dispatch(
+      setPoolState({
+        amountsIn: amountsIn.map((item: any) =>
+          isSameAddress(prevAddress, item.address) ? { ...item, address: newAddress } : item
+        ),
+      })
+    )
+  }
+
+  const logJoinException = async (error: Error, query?: any) => {
+    const signer = await getSigner()
+    const sender = await signer.getAddress()
+    captureBalancerException({
+      error,
+      action: 'invest',
+      query,
+      context: {
+        level: 'fatal',
+        extra: {
+          joinHandler: joinHandlerType,
+          params: JSON.stringify(
+            {
+              amountsIn: amountsInWithValue,
+              tokensIn,
+              signer: sender,
+              slippageBsp,
+              relayerSignature,
+              approvalActions,
+              transactionDeadline,
+            },
+            null,
+            2
+          ),
+        },
+      },
+    })
+  }
+
+  const setAmountsIn = (amountsInParam: AmountIn[]) => {
+    dispatch(setPoolState({ amountsIn: amountsInParam }))
+  }
+
+  // When isSingleAssetJoin changes, reset query state and update join handler.
+  useEffect(() => {
+    // resetQueryJoinState()
+    joinPoolService.setJoinHandler(joinHandlerType)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSingleAssetJoin])
+
+  return {
+    // State
+    amountsIn,
+    highPriceImpactAccepted,
+    txState,
+    pool, // read-only (the pool object passed in)
+    isSingleAssetJoin,
+    bptOut,
+    priceImpact,
+    txError,
+    poolJoinTokens,
+    highPriceImpact: highPriceImpactFlag,
+    rektPriceImpact: rektPriceImpactFlag,
+    hasAcceptedHighPriceImpact,
+    hasValidInputs,
+    hasAmountsIn,
+    fiatValueIn,
+    fiatValueOut,
+    txInProgress,
+    approvalActions,
+    missingPricesIn,
+    tokensIn,
+    supportsProportionalOptimization,
+
+    // Methods
+    setAmountsIn,
+    setTokensIn,
+    resetAmounts,
+    join,
+    resetTxState,
+    setIsSingleAssetJoin,
+    setJoinWithNativeAsset,
+
+    // Query
+    queryJoin,
+    setHighPriceImpactAccepted,
+  }
+}

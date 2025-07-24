@@ -39,8 +39,27 @@ import issuance from './issuance/reducer'
 import wallet from './wallet'
 import global from './global'
 import jumpTask from './jumpTask'
+import poolCreation from './dexV2/poolCreation'
+import tokenLists from './dexV2/tokenLists'
+import tokens from './dexV2/tokens'
+import swapDexV2 from './dexV2/swap'
+import userSettings from './dexV2/userSettings'
+import dexV2Pool from './dexV2/pool'
+import dexV2Staking from './dexV2/poolStaking'
+import dexV2Vote from './dexV2/vote'
 
-const PERSISTED_KEYS: string[] = ['auth', 'lists', 'swap', 'swapHelper', 'transactions', 'user', 'wallet', 'global']
+const PERSISTED_KEYS: string[] = [
+  'auth',
+  'lists',
+  'swap',
+  'swapHelper',
+  'transactions',
+  'user',
+  'wallet',
+  'global',
+  'userSettings',
+  'dexV2Pool'
+]
 
 const persistConfig = {
   key: 'root',
@@ -83,7 +102,15 @@ const combinedReducer = combineReducers({
   issuance,
   wallet,
   global,
-  jumpTask
+  jumpTask,
+  poolCreation,
+  tokenLists,
+  tokens,
+  swapDexV2,
+  userSettings,
+  dexV2Pool,
+  dexV2Staking,
+  dexV2Vote,
 })
 
 const rootReducer = (state: any, action: any) => {

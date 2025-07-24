@@ -2,6 +2,8 @@ import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'reac
 import { Redirect, RouteComponentProps, Route, Switch, useLocation } from 'react-router-dom'
 import styled from 'styled-components/macro'
 import { useDispatch } from 'react-redux'
+import BigNumber from 'bignumber.js'
+import { DEFAULT_TOKEN_DECIMALS } from 'constants/tokens'
 
 import { useActiveWeb3React } from 'hooks/web3'
 import ApeModeQueryParamReader from 'hooks/useApeModeQueryParamReader'
@@ -46,6 +48,8 @@ import SignMessageModal from 'components/SignMessageModal'
 import useQuery from 'hooks/useQuery'
 import { setJumpTaskState } from 'state/jumpTask'
 import { CHAINS } from 'components/Web3Provider/constants'
+import ConnectWalletCard from 'components/NotAvailablePage/ConnectWalletCard'
+import { Flex } from 'rebass'
 
 const chains = CHAINS ? CHAINS.map((chain) => chain.id) : []
 const lbpAdminRoutes = [routes.lbpCreate, routes.lbpEdit, routes.lbpDashboard, routes.adminDetails]
@@ -60,6 +64,8 @@ const initSafary = () => {
   script.crossOrigin = 'anonymous'
   document.head.appendChild(script)
 }
+
+BigNumber.config({ DECIMAL_PLACES: DEFAULT_TOKEN_DECIMALS })
 
 export default function App() {
   const getMe = useGetMe()
@@ -86,6 +92,7 @@ export default function App() {
   const affUnique1 = query.get('aff_unique1')
   const isIxSwap = whiteLabelConfig?.isIxSwap ?? false
   const routeFinalConfig = isAdmin ? routeConfigs : routeConfigs.filter((route) => !lbpAdminRoutes.includes(route.path))
+  const isPublic = ['/launchpad', '/v2/pool/', '/v2/swap', '/v2/pools'].some((p) => pathname.includes(p))
 
   const canAccessKycForm = (kycType: string) => {
     if (!account) return false
@@ -258,19 +265,25 @@ export default function App() {
             hideHeader={hideHeader}
           >
             <IXSBalanceModal />
-            <Suspense
-              fallback={
-                <>
-                  <LoadingIndicator isLoading />
-                </>
-              }
-            >
-              <Switch>
-                {routeFinalConfig.map(routeGenerator).filter((route) => !!route)}
+            {!account && !isPublic ? (
+              <Flex justifyContent="center" width="100%" mt="3rem">
+                <ConnectWalletCard />
+              </Flex>
+            ) : (
+              <Suspense
+                fallback={
+                  <>
+                    <LoadingIndicator isLoading />
+                  </>
+                }
+              >
+                <Switch>
+                  {routeFinalConfig.map(routeGenerator).filter((route) => !!route)}
 
-                <Route component={() => <Redirect to={defaultPage ? defaultPage : routes.kyc} />} />
-              </Switch>
-            </Suspense>
+                  <Route component={() => <Redirect to={defaultPage ? defaultPage : routes.kyc} />} />
+                </Switch>
+              </Suspense>
+            )}
           </ToggleableBody>
           {!hideHeader ? <>{isIxSwap ? <DefaultFooter /> : <WhiteLabelFooter />}</> : null}
         </AppWrapper>
@@ -299,6 +312,7 @@ const BodyWrapper = styled.div<{ hideHeader?: boolean }>`
   display: flex;
   flex-direction: column;
   width: 100%;
+  min-height: calc(100vh - 150px);
   align-items: center;
   flex: 1;
   z-index: 1;
@@ -306,6 +320,10 @@ const BodyWrapper = styled.div<{ hideHeader?: boolean }>`
     padding: 0 12px;
     margin-top: 0;
   `};
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    min-height: 100%;
+  `}
 `
 
 const ToggleableBody = styled(BodyWrapper)<{ isVisible?: boolean; hideHeader?: boolean }>`

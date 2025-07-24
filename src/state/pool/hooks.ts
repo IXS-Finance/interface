@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+// @ts-nocheck
 import { Contract } from 'ethers'
 import { usePairContract } from 'hooks/useContract'
 import { useCallback, useEffect, useState } from 'react'

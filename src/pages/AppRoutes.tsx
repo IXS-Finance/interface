@@ -68,6 +68,16 @@ const LBPPublicDetailsPage = lazy(() => import('./LBP/PublicDetails'))
 const TenantPage = lazy(() => import('./Tenant'))
 const CreateTenantPage = lazy(() => import('./Tenant/TenantForm'))
 
+const DexV2CreatePool = lazy(() => import('pages/DexV2/Pool/Create'))
+const DexV2Pool = lazy(() => import('pages/DexV2/Pool/List'))
+const DexV2PoolDetail = lazy(() => import('pages/DexV2/Pool/Detail'))
+const DexV2PoolAddLiquidty = lazy(() => import('pages/DexV2/Pool/AddLiquidity'))
+const DexV2PoolWithdraw = lazy(() => import('pages/DexV2/Pool/Withdraw'))
+const DexV2Swap = lazy(() => import('pages/DexV2/Swap'))
+const DexV2Lock = lazy(() => import('pages/DexV2/Lock'))
+const DexV2LockDetail = lazy(() => import('pages/DexV2/Lock/Detail'))
+const DexV2Dashboard = lazy(() => import('pages/DexV2/Dashboard'))
+const DexV2Vote = lazy(() => import('pages/DexV2/Vote'))
 export interface RouteMapEntry {
   path: string
   render?: () => JSX.Element
@@ -158,11 +168,18 @@ export const routeConfigs: RouteMapEntry[] = [
   { path: '/swap', component: Swap },
   { path: '/find', component: PoolFinder },
   { path: '/pool', component: PoolV2 },
-
   { path: '/add/:currencyIdA?/:currencyIdB?', component: RedirectDuplicateTokenIdsV2 },
-
   { path: '/remove/:currencyIdA/:currencyIdB', component: RemoveLiquidity },
-
+  { path: routes.dexV2CreatePool, component: DexV2CreatePool },
+  { path: routes.dexV2Pools, component: DexV2Pool },
+  { path: routes.dexV2PoolDetail, component: DexV2PoolDetail },
+  { path: routes.dexV2PoolAddLiquidity, component: DexV2PoolAddLiquidty },
+  { path: routes.dexV2PoolWithdraw, component: DexV2PoolWithdraw },
+  { path: routes.dexV2Swap, component: DexV2Swap },
+  { path: routes.dexV2Lock, component: DexV2Lock },
+  { path: routes.dexV2LockDetail, component: DexV2LockDetail },
+  { path: routes.dexV2Dashboard, component: DexV2Dashboard },
+  { path: routes.dexV2Vote, component: DexV2Vote },
   { path: routes.faucet, component: Faucet },
 
   { path: routes.securityToken(), component: SecTokenDetails },

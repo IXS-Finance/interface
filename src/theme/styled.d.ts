@@ -102,20 +102,25 @@ export interface Colors {
   red4: Color
   red41: Color
   red45: Color
+  red5: Color
   green1: Color
   green2: Color
   green3: Color
   green4: Color
+  green5: Color
+  green51: Color
   yellow1: Color
   yellow2: Color
   yellow3: Color
   yellow4: Color
   yellow5: Color
+  yellow69: Color
   orange: Color
   blue1: Color
   blue2: Color
   blue3: Color
   blue4: Color
+  blue5: Color
 
   // orange
   orange1: Color

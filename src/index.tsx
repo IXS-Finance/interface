@@ -1,5 +1,5 @@
 import { CookiesProvider } from 'react-cookie'
-import React, { StrictMode } from 'react'
+import React from 'react'
 import { isMobile } from 'react-device-detect'
 import ReactDOM from 'react-dom/client'
 import ReactGA from 'react-ga'
@@ -25,10 +25,13 @@ import TransactionUpdater from './state/transactions/updater'
 import UserUpdater from './state/user/updater'
 import ThemeProvider, { ThemedGlobalStyle } from './theme'
 import Web3Provider from 'components/Web3Provider'
+import { initDependencies } from 'dependencies'
 
 import 'react-toastify/dist/ReactToastify.css'
 import 'react-phone-input-2/lib/bootstrap.css'
 import './index.css'
+
+initDependencies();
 
 if (!!window.ethereum) {
   window.ethereum.autoRefreshOnNetworkChange = false
@@ -86,32 +89,30 @@ Sentry.init({
 })
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <HashRouter>
-          <LanguageProvider>
-            <Web3Provider>
-              <Blocklist>
-                <Updaters />
-                <ThemeProvider>
-                  <ThemedGlobalStyle />
-                  <MuiThemeProvider>
-                    <LocalizationProvider dateAdapter={DayJsUtils}>
-                      <CookiesProvider>
-                        <App />
-                        <ToastContainer />
-                      </CookiesProvider>
-                    </LocalizationProvider>
-                  </MuiThemeProvider>
-                </ThemeProvider>
-              </Blocklist>
-            </Web3Provider>
-          </LanguageProvider>
-        </HashRouter>
-      </PersistGate>
-    </Provider>
-  </StrictMode>
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <HashRouter>
+        <LanguageProvider>
+          <Web3Provider>
+            <Blocklist>
+              <Updaters />
+              <ThemeProvider>
+                <ThemedGlobalStyle />
+                <MuiThemeProvider>
+                  <LocalizationProvider dateAdapter={DayJsUtils}>
+                    <CookiesProvider>
+                      <App />
+                      <ToastContainer />
+                    </CookiesProvider>
+                  </LocalizationProvider>
+                </MuiThemeProvider>
+              </ThemeProvider>
+            </Blocklist>
+          </Web3Provider>
+        </LanguageProvider>
+      </HashRouter>
+    </PersistGate>
+  </Provider>
 )
 
 serviceWorkerRegistration.unregister()

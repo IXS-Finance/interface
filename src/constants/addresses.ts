@@ -2,6 +2,7 @@ import { FACTORY_ADDRESS } from '@ixswap1/v2-sdk'
 import { constructSameAddressMap } from '../utils/constructSameAddressMap'
 import { SupportedChainId } from './chains'
 import { isProd } from 'utils/isEnvMode'
+import { Address } from 'viem'
 
 export const MULTICALL2_ADDRESSES = {
   [1]: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
@@ -85,7 +86,7 @@ export const TGE_CHAINS_WITH_KYC = ENV_SUPPORTED_TGE_CHAINS || [
   SUPPORTED_TGE_CHAINS.BASE_SEPOLIA,
 ]
 // the rest are same as kovan for now
-export const IXS_ADDRESS: { [key: number]: string } = {
+export const IXS_ADDRESS: { [key: number]: Address } = {
   [1]: '0x73d7c860998CA3c01Ce8c808F5577d94d545d1b4',
   [4]: '0xA1997c88a60dCe7BF92A3644DA21e1FfC8F96dC2',
   [3]: '0xA1997c88a60dCe7BF92A3644DA21e1FfC8F96dC2',
