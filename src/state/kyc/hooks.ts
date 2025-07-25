@@ -39,7 +39,7 @@ const corporateKYCFiles = [
 export const invalidateKycQueries = async (queryClient: any, account: string | null) => {
   await queryClient.invalidateQueries({
     queryKey: ['myKyc'],
-    predicate: (query: any) => query.queryKey[0] === 'myKyc' && query.queryKey[1] === (account || 'anonymous')
+    predicate: (query: any) => query.queryKey[0] === 'myKyc' && query.queryKey[1] === (account || 'anonymous'),
   })
 }
 
@@ -59,6 +59,7 @@ export const getMyKyc = async () => {
 
 export const getStatusStats = async (params?: KycFilter) => {
   try {
+    // @ts-ignore
     const result = await apiService.get(kyc.getStatusStats, undefined, params)
     return result.data
   } catch (e) {
