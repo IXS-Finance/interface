@@ -46,31 +46,6 @@ export const KYCProgressBar: FC<Props> = ({
 
   return (
     <div>
-      {description && (
-        <FormCard style={{ padding: 24, marginBottom: 24 }}>
-          <TYPE.title6
-            fontSize={15}
-            marginBottom="16px"
-            style={{ textTransform: 'uppercase', whiteSpace: 'nowrap' }}
-            color={'bg14'}
-          >
-            <Trans>Reason of changes requested</Trans>
-          </TYPE.title6>
-
-          <TYPE.body3 marginBottom="16px" opacity="0.5">
-            {description}
-          </TYPE.body3>
-
-          {/* <Ul style={{ paddingLeft: 32 }}>
-          {reasons.map((reason) => (
-            <Li key={`reason-${reason}`}>
-              <TYPE.body1 lineHeight="16px">{reason}</TYPE.body1>
-            </Li>
-          ))}
-        </Ul> */}
-        </FormCard>
-      )}
-
       <FormCard style={{ padding: '24px 0px' }}>
         <TYPE.title6 fontSize={'18px'} fontWeight={'700'} marginBottom="16px" paddingX="24px">
           Progress
