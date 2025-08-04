@@ -766,7 +766,7 @@ const StyledInput = styled(Input)`
   border-radius: 8px;
   font-weight: normal;
   font-size: 16px;
-  border: ${({ error, theme }) => (error ? 'solid 1px' + theme.error : 'solid 1px #E6E6FF')};
+  border: ${({ error, theme }) => (error ? 'solid 1px' + theme.error : 'solid 1px #353840')};
   background-color: ${({ disabled, theme: { bg0, bg23 } }) => {
     return disabled ? bg23 : bg0
   }};
@@ -776,6 +776,9 @@ const StyledInput = styled(Input)`
   }
   :disabled {
     color: #b8b8cc;
+  }
+  ::placeholder {
+    color: ${({ theme }) => theme.text11};
   }
 `
 

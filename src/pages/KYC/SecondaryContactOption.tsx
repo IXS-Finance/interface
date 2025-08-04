@@ -9,7 +9,6 @@ import {
   useVerifySecondaryEmailCode,
   useSocialAccountVerificationStatus,
 } from 'state/kyc/hooks'
-import { PinnedContentButton } from 'components/Button'
 import { isMobile } from 'react-device-detect'
 import { EmailType, SuccessType, KYCV2RequestButtonText } from './enum'
 import { MEDIA_WIDTHS, TYPE } from 'theme'
@@ -387,9 +386,9 @@ const CodeInput: React.FC<any> = ({
             <CopyIcon style={{ width: '30px', height: '18px', cursor: 'pointer' }} onClick={handleCopyClick} />
           </Container>
         ) : (
-          <PinnedContentButton disabled={isButtonDisabled} onClick={handleButtonClick}>
+          <SendCodeButton disabled={isButtonDisabled} onClick={handleButtonClick}>
             {buttonText}
-          </PinnedContentButton>
+          </SendCodeButton>
         )}
       </CodeInputContainer>
       {emailType === EmailType.SOCIAL_ACCOUNT && (
@@ -413,9 +412,8 @@ const Container = styled.div`
 `
 
 const EmailVerificationContainer = styled.div`
-  background: #f7f7fa;
+  background: ${({ theme }) => theme.bg0};
   margin-top: 30px;
-  border: 1px solid #e6e6ff;
   padding: 20px 40px;
   border-radius: 6px;
   @media (max-width: ${MEDIA_WIDTHS.upToMedium}px) {
@@ -437,7 +435,7 @@ const Title = styled.div`
   font-weight: 600;
   font-size: 20px;
   text-align: center;
-  color: #292933;
+  color: ${({ theme }) => theme.text1};
   margin-top: 20px;
   @media (max-width: 768px) {
     font-size: 13px;
@@ -461,7 +459,7 @@ const SubTitle = styled.div`
   font-weight: 400;
   font-size: 14px;
   text-align: center;
-  color: #666680;
+  color: ${({ theme }) => theme.text11};
   margin: 10px 220px;
   line-height: 20px;
   @media (max-width: ${MEDIA_WIDTHS.upToMedium}px) {
@@ -504,7 +502,7 @@ const TimerText = styled.span`
 const NewCodeText = styled.span`
   color: #6666FF;
   font-size: 13px;
-  font-weight 600;
+  font-weight: 600;
 `
 
 const CodeBox = styled.input.attrs(
@@ -544,6 +542,38 @@ const CodeRow = styled.div`
   margin-bottom: 10px;
   flex-direction: row;
   gap: 4px;
+`
+
+const SendCodeButton = styled.button`
+  background: ${(props) => (props.disabled ? '#202126' : '#ffffff')};
+  border: none;
+  border-radius: 50px;
+  color: ${(props) => (props.disabled ? '#ffffff' : '#16171c')};
+  opacity: ${(props) => (props.disabled ? 0.3 : 1)};
+  font-family: 'Inter Display', 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  height: 50px;
+  width: 240px;
+  padding: 12px 32px;
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    background: #e0e0e0;
+    transform: translateY(0);
+  }
+
+  @media (max-width: ${MEDIA_WIDTHS.upToMedium}px) {
+    width: 200px;
+    font-size: 14px;
+    height: 45px;
+  }
 `
 
 export default SecondaryContactOption

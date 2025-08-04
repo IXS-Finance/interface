@@ -49,24 +49,24 @@ export function colors(configColors?: WlColors): Colors {
     black,
 
     // text
-    text1: wlColors.text?.main || '#292933',
+    text1: wlColors.text?.main || white,
     text2: wlColors.text?.additional1 || '#666680',
     text3: wlColors.text?.main || '#6C7284',
     text4: wlColors.text?.main || '#6666FF33',
-    text5: wlColors.text?.main || '#555566',
+    text5: wlColors.text?.main || white,
     text6: wlColors.text?.main || '#8F8FB2',
     text7: wlColors.text?.main || '#9184C4',
     text8: wlColors.text?.main || '#9184C3',
     text9: wlColors.text?.main || '#6b6b6b',
     text10: wlColors.text?.main || '#EDCEFF0D',
-    text11: wlColors.text?.main || '#B8B8CC',
+    text11: wlColors.text?.main || 'rgba(255, 255, 255, 0.5)',
     text12: wlColors.text?.main || '#292933',
     text13: wlColors.text?.main || '#666680',
 
     // rgba(237, 206, 255, 0.05)
     // backgrounds / greys
-    bg0: wlColors.background?.main || '#FFFFFF',
-    bg1: wlColors.background?.secondary || '#F7F7FF',
+    bg0: wlColors.background?.main || '#1B1C21',
+    bg1: wlColors.background?.secondary || '#16171C',
     bg2: '#F6F6FB',
     bg3: '#6666ff33',
     bg4: '#565A69',
@@ -288,7 +288,7 @@ export function launchpadTheme(colors?: WlColors) {
       background: '#FFFFFF',
       foreground: '#F7F7FF',
       newBackground: '#F8F8F8',
-      green: 'rgba(9, 205, 135, 0.5)',
+      green: 'rgba(25, 37, 33, 0.5)',
 
       border: {
         default: '#E6E6FF',
@@ -499,7 +499,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
 
   /* svg{
     ${({ theme }) =>
-    theme.config.elements &&
+      theme.config.elements &&
       css`
         stroke: ${({ theme }) => theme.config.elements.main};
       `};

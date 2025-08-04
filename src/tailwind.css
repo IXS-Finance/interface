@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme CSS Custom Properties */
+:root {
+  /* Default theme colors - these will be overridden by your theme system */
+  --color-primary: #6C5CE7;
+  --color-primary-dark: #5A4FCF;
+  --color-bg-0: #FFFFFF;
+  --color-bg-1: #F8F9FF;
+  --color-bg-2: #F1F2F6;
+  --color-bg-3: #E6E6FF;
+  --color-bg-4: #FFFFFF;
+  --color-bg-5: #F8F9FF;
+  --color-text-1: #292D3E;
+  --color-text-2: #8F95B2;
+  --color-text-3: #C3C5CB;
+  --color-text-4: #FFFFFF;
+  --color-text-5: #8F95B2;
+  --color-text-6: #6C5CE7;
+  --color-red-1: #FF6871;
+  --color-red-2: #FF3838;
+  --color-red-3: #FF002E;
+  --color-green-1: #27AE60;
+  --color-yellow-1: #FFD23F;
+  --color-yellow-2: #F39C12;
+  --color-blue-1: #2F80ED;
+  --color-error: #FF6871;
+  --color-success: #27AE60;
+  --color-warning: #FFD23F;
+}
+
+/* Dark theme for new design system */
+:root[data-theme="dark"],
+.dark {
+  /* Design system colors from Figma */
+  --color-bg-0: #FFFFFF;
+  --color-bg-1: #16171C;  /* Main background */
+  --color-bg-2: #141419;  /* Sidebar background */
+  --color-bg-3: #222328;  /* Border/card background */
+  --color-text-1: #FFFFFF;
+  --color-text-2: rgba(255, 255, 255, 0.6);
+  --color-text-3: rgba(255, 255, 255, 0.3);
+  --color-text-4: #16171C;  /* Dark text for light backgrounds */
+  --color-border: #222328;
+}
+
+/* Custom component classes for common patterns */
+@layer components {
+  .btn-primary {
+    @apply px-4 py-3 bg-primary text-text-4 rounded-lg font-medium hover:bg-primary-dark transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-3 bg-bg-2 text-text-1 rounded-lg font-medium hover:bg-bg-3 transition-colors duration-200;
+  }
+
+  /* Design system buttons from Figma */
+  .btn-connect-wallet {
+    @apply px-8 py-3 bg-white text-dark-200 rounded-50 font-medium hover:bg-light-200 transition-colors duration-200;
+  }
+
+  .btn-nav-item {
+    @apply flex items-center gap-2.5 px-4 py-3 rounded-100 text-white text-lg font-medium opacity-50 hover:opacity-100 transition-opacity duration-200;
+  }
+
+  .btn-nav-item.active {
+    @apply opacity-100 bg-white bg-opacity-10;
+  }
+
+  .card {
+    @apply bg-bg-0 rounded-20 p-6 shadow-card;
+  }
+
+  .card-dark {
+    @apply bg-dark-100 rounded-32 p-8 border border-dark-300;
+  }
+
+  .sidebar {
+    @apply bg-dark-100 w-60 h-screen flex flex-col justify-between p-8 rounded-tl-32 rounded-bl-32 border-r border-dark-300;
+  }
+
+  .main-content {
+    @apply bg-dark-200 flex-1 min-h-screen p-12 rounded-tr-32 rounded-br-32;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 bg-bg-0 border border-bg-3 rounded-lg text-text-1 placeholder-text-2 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-200;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-blue-1 bg-clip-text text-transparent;
+  }
+
+  /* Typography from design system */
+  .heading-hero {
+    @apply text-5xl font-bold text-white leading-tight tracking-tight;
+  }
+
+  .heading-large {
+    @apply text-3xl font-bold text-white;
+  }
+
+  .text-muted {
+    @apply text-light-300;
+  }
+
+  .text-muted-light {
+    @apply text-light-400;
+  }
+}
+
+/* Utility classes for common patterns */
+@layer utilities {
+  .text-responsive {
+    @apply text-sm md:text-base lg:text-lg;
+  }
+
+  .container-responsive {
+    @apply w-full max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl mx-auto;
+  }
+
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .flex-between {
+    @apply flex items-center justify-between;
+  }
+}

@@ -72,9 +72,8 @@ export const FormWrapper = styled.form`
 
 export const FormCard = styled.div<{ filled?: boolean }>`
   background: ${({ theme }) => theme.bg0};
-  border: ${({ filled, theme }) => `1px solid ${filled ? theme.success : 'transparent'}`};
-  padding: 24px 24px 32px 24px;
-  border-radius: 8px;
+  padding: 32px;
+  border-radius: 16px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 16px;
@@ -106,7 +105,6 @@ export const PageLink = styled.div<{ active?: boolean }>`
   margin: 4px 0px;
   padding: 8px 16px 8px 24px;
   color: ${({ theme, active }) => (active ? theme.text1 : theme.text11)};
-  border-left: ${({ theme, active }) => (active ? `2px solid ${theme.bg26}` : 'none')};
   text-decoration: none;
 `
 

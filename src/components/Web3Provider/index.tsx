@@ -5,7 +5,7 @@ import { reconnect } from '@wagmi/core'
 
 import { queryClient, createWagmiConfig } from './wagmi'
 import { ConnectionProvider } from 'hooks/useConnect'
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit'
 
 import '@rainbow-me/rainbowkit/styles.css'
 
@@ -32,11 +32,16 @@ function AutoReconnect() {
 }
 
 export default function Web3Provider({ children }: { children: ReactNode }) {
-
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
+        <RainbowKitProvider
+          theme={darkTheme({
+            accentColor: '#fff',
+            accentColorForeground: '#222328',
+            borderRadius: 'large',
+          })}
+        >
           <AutoReconnect />
           <ConnectionProvider>{children}</ConnectionProvider>
         </RainbowKitProvider>

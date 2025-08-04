@@ -224,7 +224,7 @@ export default function IndividualKycFormV2() {
   const fetchKYCData = async () => {
     await queryClient.invalidateQueries({
       queryKey: ['myKyc'],
-      predicate: (query: any) => query.queryKey[0] === 'myKyc' && query.queryKey[1] === (account || 'anonymous')
+      predicate: (query: any) => query.queryKey[0] === 'myKyc' && query.queryKey[1] === (account || 'anonymous'),
     })
   }
 
@@ -354,7 +354,11 @@ export default function IndividualKycFormV2() {
     <Loadable loading={!isLoggedIn}>
       <Prompt when={!canLeavePage.current} message={promptValue} />
       <LoadingIndicator isLoading={loadingRequest} />
+
       <StyledBodyWrapper style={{ background: 'none', boxShadow: 'none' }} hasAnnouncement={!cookies.annoucementsSeen}>
+        <div className="text-white font-bold text-3xl leading-none py-10">
+          <Trans>Individual KYC</Trans>
+        </div>
         {
           <Formik
             innerRef={form}
@@ -387,13 +391,16 @@ export default function IndividualKycFormV2() {
               const businessEmailDisabled = kyc?.individual?.isSecondaryContactVerified || isBusinessEmailVerified
               return (
                 <FormRow>
-                  <FormContainer onSubmit={handleSubmit} style={{ gap: '35px', alignSelf: isMobile ? 'center' : '' }}>
-                    <Column style={{ gap: '35px' }}>
-                      <FormCard style={{ marginTop: isMobile ? '90px' : '0px' }} id="personal">
+                  <FormContainer
+                    onSubmit={handleSubmit}
+                    className="space-y-6"
+                    style={{ gap: '35px', alignSelf: isMobile ? 'center' : '' }}
+                  >
+                    <CountriesBlockAlert />
+
+                    <Column style={{ gap: '24px' }}>
+                      <FormCard id="personal">
                         <HeaderContainer>
-                          <Title>
-                            <Trans>Individual KYC</Trans>
-                          </Title>
                           {referralCode && (
                             <ReferralCode>
                               Referred by <ReferralCodeText>{referralCode}</ReferralCodeText>
@@ -401,10 +408,7 @@ export default function IndividualKycFormV2() {
                           )}
                         </HeaderContainer>
 
-                        <Line style={{ margin: '40px 0px', opacity: '0.1' }} />
-                        <CountriesBlockAlert />
-
-                        <RowStart marginBottom="32px" marginTop="32px">
+                        <RowStart marginBottom="32px">
                           <TYPE.title7>
                             <Trans>Personal Information</Trans>
                           </TYPE.title7>

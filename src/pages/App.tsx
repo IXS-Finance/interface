@@ -15,7 +15,6 @@ import Popups from 'components/Popups'
 import ErrorBoundary from 'components/ErrorBoundary'
 import GoogleAnalyticsReporter from 'components/analytics/GoogleAnalyticsReporter'
 
-import WhiteLabelFooter from 'components/WhiteLabelFooter'
 import { LoadingIndicator } from 'components/LoadingIndicator'
 import { AppBackground } from 'components/AppBackground'
 import { IXSBalanceModal } from 'components/Header/IXSBalanceModal'
@@ -36,7 +35,6 @@ import { ROLES } from 'constants/roles'
 import { RestrictedModal } from './RestrictedModal'
 import axios from 'axios'
 import { ip } from 'services/apiUrls'
-import { Footer as DefaultFooter } from './Launchpad/Footer'
 import { CustomHeaders } from 'components/CustomHeaders'
 import { useWalletState } from 'state/wallet/hooks'
 import { blockedCountries } from 'constants/countriesList'
@@ -64,7 +62,6 @@ const initSafary = () => {
 export default function App() {
   const getMe = useGetMe()
   const { isAdmin } = useRole()
-  const { config: whiteLabelConfig } = useWhitelabelState()
   const isSettingsOpen = useModalOpen(ApplicationModal.SETTINGS)
   const { pathname } = useLocation()
   const { chainId, account } = useActiveWeb3React()
@@ -84,7 +81,6 @@ export default function App() {
 
   const transactionId = query.get('transaction_id')
   const affUnique1 = query.get('aff_unique1')
-  const isIxSwap = whiteLabelConfig?.isIxSwap ?? false
   const routeFinalConfig = isAdmin ? routeConfigs : routeConfigs.filter((route) => !lbpAdminRoutes.includes(route.path))
 
   const canAccessKycForm = (kycType: string) => {
@@ -272,7 +268,6 @@ export default function App() {
               </Switch>
             </Suspense>
           </ToggleableBody>
-          {!hideHeader ? <>{isIxSwap ? <DefaultFooter /> : <WhiteLabelFooter />}</> : null}
         </AppWrapper>
       </ErrorBoundary>
 

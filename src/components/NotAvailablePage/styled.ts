@@ -7,7 +7,7 @@ export const Container = styled.div`
   min-height: 473px;
   width: 100%;
   border-radius: 6px;
-  background: ${({ theme }) => theme.bg25};
+  background: ${({ theme }) => theme.bg1};
   padding: 48px;
   text-align: center;
   @media (max-width: ${MEDIA_WIDTHS.upToSmall}px) {
@@ -147,13 +147,6 @@ export const ConnectWalletContainer = styled(Container)<{ hasAnnouncement?: bool
     margin-bottom: 32px;
     font-size: 32px;
     font-weight: 800;
-  }
-
-  > button {
-    max-width: 312px;
-    width: 100%;
-    margin: 0 auto;
-    margin-bottom: 32px;
   }
 
   > span:last-child {

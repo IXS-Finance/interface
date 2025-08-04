@@ -30,7 +30,7 @@ const PoolV2 = lazy(() => import('pages/Pool/v2'))
 const RemoveLiquidity = lazy(() => import('pages/RemoveLiquidity'))
 const SecTokenDetails = lazy(() => import('pages/SecTokenDetails'))
 
-const KYC = lazy(() => import('pages/KYC'))
+const KYC = lazy(() => import('pages/KYC/indexDark'))
 const IndividualKYC = lazy(() => import('pages/KYC/IndividualKycForm'))
 const IndividualKYCV2 = lazy(() => import('pages/KYC/IndividualKycFormV2'))
 const CorporateKYC = lazy(() => import('pages/KYC/CorporateKycForm'))
