@@ -60,7 +60,7 @@ export const NoIXSTokens = () => {
         <ButtonRow>
           <ButtonGradientBorder
             as={ExternalLink}
-            href="https://t.me/ixswapofficial"
+            href="https://t.me/ixsfinance"
             data-testid="staking-redirect-to-telegram"
             style={{ textTransform: 'none', textDecoration: 'none' }}
           >

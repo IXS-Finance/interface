@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { FACTORY_ROUTER_ADDRESS, SWAP_ROUTER_ADDRESS } from 'constants/addresses'
 import { BigNumber, utils } from 'ethers'
-import { Contract } from 'web3-eth-contract'
 import { Trade as V2Trade } from '@ixswap1/v2-sdk'
 import { Currency, TradeType } from '@ixswap1/sdk-core'
 
@@ -29,44 +28,35 @@ const Web3Global = require('web3')
 
 class Web3 {
   getUrl(chainId: number): any {
-    const networkNames = {
-      '1': 'homestead',
-      '42': 'kovan',
-      '137': 'matic',
-      '80001': 'maticmum',
-      '80002': 'amoy',
-      '8453': 'base',
-      '84532': 'basesepolia',
-    } as Record<string, string>
+    const getAlchemyUrl = (network: string) =>
+      process.env.REACT_APP_ALCHEMY_KEY ? `https://${network}.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_KEY}` : ''
 
-    let host = ''
-    switch (networkNames[chainId.toString()]) {
-      case 'homestead':
-        host = 'mainnet.infura.io'
-        break
-      case 'kovan':
-        host = 'kovan.infura.io'
-        break
-      case 'matic':
-        host = 'polygon-mainnet.infura.io'
-        break
-      case 'maticmum':
-        host = 'polygon-mumbai.infura.io'
-        break
-      case 'amoy':
-        host = 'polygon-amoy.infura.io'
-        break
-      case 'base':
-        host = 'basechain.infura.io'
-        break
-      case 'basesepolia':
-        host = 'sepolia.basechain.infura.io'
-        break
-      default:
-        break
+    let rpcUrl = ''
+    switch (chainId) {
+    case 1: // Ethereum Mainnet
+      rpcUrl = getAlchemyUrl('eth-mainnet')
+      break
+    case 137: // Polygon
+      rpcUrl = getAlchemyUrl('polygon-mainnet')
+      break
+    case 80002: // Polygon Amoy
+      rpcUrl = getAlchemyUrl('polygon-amoy')
+      break
+    case 8453: // Base
+      rpcUrl = getAlchemyUrl('base-mainnet')
+      break
+    case 84532: // Base Sepolia
+      rpcUrl = getAlchemyUrl('base-sepolia')
+      break
+    default:
+      throw new Error(`Unsupported chain ID: ${chainId}`)
     }
 
-    return new Web3Global(`https://${host}/v3/${process.env.REACT_APP_INFURA_KEY}`)
+    if (!rpcUrl) {
+      throw new Error('REACT_APP_ALCHEMY_KEY environment variable is not set')
+    }
+
+    return new Web3Global(rpcUrl)
   }
 }
 

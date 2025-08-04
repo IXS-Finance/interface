@@ -34,18 +34,20 @@ const InternalNotes: React.FC<InternalNotesProps> = ({ message }) => {
     mutationFn: (newNote: string) => apiService.put(`/newkyc/private-notes/${id}`, { message: newNote }),
   })
 
-  const handleSaveNote = () => {
-    saveNoteMutation.mutate(note)
-  }
+  const handleSaveNote = React.useCallback(() => {
+    if (note !== message) {
+      saveNoteMutation.mutate(note)
+    }
+  }, [note, message, saveNoteMutation])
 
   const debouncedSaveNote = React.useMemo(
     () => debounce(handleSaveNote, 1000),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [note, id]
+    [handleSaveNote]
   )
 
   useEffect(() => {
-    if (note) {
+    if (note && note.trim() !== '') {
       debouncedSaveNote()
     }
     return () => {

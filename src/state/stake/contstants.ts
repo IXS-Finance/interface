@@ -2,6 +2,7 @@ import { t } from '@lingui/macro'
 import { SupportedChainId } from 'constants/chains'
 import { PERIOD } from './reducer'
 
+// @ts-ignore
 export const POOL_SIZE_LIMITS: {
   [key in SupportedChainId]: {
     [period in PERIOD]: string
@@ -81,6 +82,7 @@ export const POOL_SIZE_LIMITS: {
   },
 }
 
+// @ts-ignore
 export const POOL_SIZE_LIMIT_TEXTS: {
   [key in SupportedChainId]: {
     [period in PERIOD]: string

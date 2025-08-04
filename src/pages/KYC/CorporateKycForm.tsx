@@ -53,7 +53,7 @@ export default function CorporateKycForm() {
   const [cookies] = useCookies(['annoucementsSeen'])
   const form = useRef<any>(null)
   const history = useHistory()
-  const { kyc, loadingRequest } = useKYCState()
+  const { kyc } = useKYCState()
   const showError = useShowError()
   const addPopup = useAddPopup()
   const createCorporateKYC = useCreateCorporateKYC()
@@ -68,6 +68,8 @@ export default function CorporateKycForm() {
   const [canSubmit, setCanSubmit] = useState(true)
   const [isSubmittedOnce, setIsSubmittedOnce] = useState(false)
   const [errors, setErrors] = useState<any>({})
+  const [initialFormValues, setInitialFormValues] = useState<any>(corporateFormInitialValues)
+  const [hasInitialized, setHasInitialized] = useState(false)
 
   const isLoggedIn = !!token && !!account
 
@@ -83,8 +85,9 @@ export default function CorporateKycForm() {
       if (data) {
         const transformedData = corporateTransformApiData(data)
         const formData = { ...transformedData }
-
-        form?.current?.setValues(formData)
+        // Update initial values instead of directly setting form values
+        setInitialFormValues(formData)
+        setHasInitialized(true)
 
         if (kyc?.status === KYCStatuses.DRAFT) {
           setCanSubmit(true)
@@ -92,11 +95,12 @@ export default function CorporateKycForm() {
       }
     }
 
-    if (kyc?.status === KYCStatuses.CHANGES_REQUESTED || kyc?.status === KYCStatuses.DRAFT) {
+    // Only initialize once when the component mounts and has KYC data
+    if (!hasInitialized && (kyc?.status === KYCStatuses.CHANGES_REQUESTED || kyc?.status === KYCStatuses.DRAFT)) {
       getProgress()
       setUpdateKycId(kyc.id)
     }
-  }, [kyc, form])
+  }, [kyc, hasInitialized])
 
   useEffect(() => {
     window.addEventListener('beforeunload', alertUser)
@@ -350,12 +354,11 @@ export default function CorporateKycForm() {
   return (
     <Loadable loading={!isLoggedIn}>
       <Prompt when={!canLeavePage.current} message={promptValue} />
-      <LoadingIndicator isLoading={loadingRequest} />
 
       <StyledBodyWrapper style={{ background: 'none', boxShadow: 'none' }} hasAnnouncement={!cookies.annoucementsSeen}>
         <Formik
           innerRef={form}
-          initialValues={corporateFormInitialValues}
+          initialValues={initialFormValues}
           initialErrors={errors}
           validateOnBlur={false}
           validateOnChange={false}
@@ -409,19 +412,12 @@ export default function CorporateKycForm() {
             }
           }}
         >
-          {({ values, setFieldValue, dirty, handleSubmit }) => {
-            if (values?.taxIdAvailable === undefined) {
-              if (values === null) {
-                values = {}
-              }
-
-              values.taxIdAvailable = true
-            }
-
-            const shouldValidate = dirty && isSubmittedOnce
+          {({ values, setFieldValue, handleSubmit }) => {
+            const shouldValidate = isSubmittedOnce
             const infoFilled =
               shouldValidate &&
               !errors.corporateName &&
+              !errors.typeOfLegalEntity &&
               !errors.countryOfIncorporation &&
               !errors.businessActivity &&
               !errors.registrationNumber &&
@@ -446,7 +442,7 @@ export default function CorporateKycForm() {
             const fatcaFilled = shouldValidate && !errors.usTin && !errors.isUSTaxPayer
             const taxDeclarationFilled = values.taxIdAvailable
               ? shouldValidate && !errors.taxCountry && !errors.taxNumber
-              : shouldValidate
+              : shouldValidate && !errors.reason
             const filesFilled = shouldValidate && !errors.financialDocuments && !errors.corporateDocuments
             const beneficialOwnersFilled =
               shouldValidate && !Object.keys(errors).some((errorField) => errorField.startsWith('beneficialOwners'))
@@ -502,18 +498,6 @@ export default function CorporateKycForm() {
                             placeholder="Registration Number"
                             error={errors.registrationNumber && errors.registrationNumber}
                           />
-                          <Select
-                            withScroll
-                            placeholder="Country of Incorporation"
-                            label="Country of Incorporation"
-                            selectedItem={values.countryOfIncorporation}
-                            items={countries}
-                            onSelect={(country) => onSelectChange('countryOfIncorporation', country, setFieldValue)}
-                            error={errors.countryOfIncorporation && errors.countryOfIncorporation}
-                          />
-                        </FormGrid>
-
-                        <FormGrid columns={2}>
                           <TextInput
                             label="Business Activity"
                             placeholder="Business Activity"
@@ -522,6 +506,18 @@ export default function CorporateKycForm() {
                               onChangeInput('businessActivity', e.currentTarget.value, values, setFieldValue)
                             }
                             error={errors.businessActivity && errors.businessActivity}
+                          />
+                        </FormGrid>
+
+                        <FormGrid columns={2}>
+                          <Select
+                            withScroll
+                            placeholder="Country of Incorporation"
+                            label="Country of Incorporation"
+                            selectedItem={values.countryOfIncorporation}
+                            items={countries}
+                            onSelect={(country) => onSelectChange('countryOfIncorporation', country, setFieldValue)}
+                            error={errors.countryOfIncorporation && errors.countryOfIncorporation}
                           />
                           <Select
                             withScroll
@@ -651,6 +647,7 @@ export default function CorporateKycForm() {
                           <Select
                             withScroll
                             label="Country"
+                            placeholder="Country"
                             selectedItem={values.country}
                             items={countries}
                             onSelect={(country) => onSelectChange('country', country, setFieldValue)}
@@ -854,6 +851,7 @@ export default function CorporateKycForm() {
                                 setFieldValue('taxNumber', '', false)
                                 setIsTaxNumberDisabled(true)
                               } else {
+                                setFieldValue('reason', '', false)
                                 setIsTaxNumberDisabled(false)
                               }
                             }}
@@ -866,6 +864,7 @@ export default function CorporateKycForm() {
                         <Column style={{ gap: '20px', marginTop: 20 }}>
                           <TextInput
                             value={values.reason}
+                            label="Reason"
                             placeholder="Reason"
                             onChange={(e: any) => onChangeInput('reason', e.currentTarget.value, values, setFieldValue)}
                             error={errors.reason && errors.reason}

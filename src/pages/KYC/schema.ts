@@ -293,18 +293,36 @@ export const individualErrorsSchema = yup.object().shape({
 
 export const corporateErrorsSchema = yup.object().shape({
   corporateName: yup.string().min(1, 'Too short').max(50, 'Too Long!').required('Required'),
-  typeOfLegalEntity: yup.object().nullable().required('Required'),
-  countryOfIncorporation: yup.object().nullable().required('Required'),
+  typeOfLegalEntity: yup
+    .object()
+    .nullable()
+    .required('Required')
+    .test('validSelection', 'Required', (value: any) => {
+      return value && value.label !== null && value.label !== undefined && value.label !== ''
+    }),
+  countryOfIncorporation: yup
+    .object()
+    .nullable()
+    .required('Required')
+    .test('validSelection', 'Required', (value: any) => {
+      return value && value.label !== null && value.label !== undefined && value.label !== ''
+    }),
   businessActivity: yup.string().nullable().required('Required'),
 
   registrationNumber: yup.string().nullable().required('Required'),
-  inFatfJurisdiction: yup.string().required('Required'),
+  inFatfJurisdiction: yup
+    .mixed()
+    .required('Choose one')
+    .test('validChoice', 'Choose one', (value: any) => {
+      return value === true || value === false
+    }),
 
   personnelName: yup.string().required('Required'),
   designation: yup.string().nullable().required('Required'),
   email: yup.string().email('Invalid email').required('Required'),
   phoneNumber: yup
-    .string().nullable()
+    .string()
+    .nullable()
     .min(10, 'Must be valid phone number')
     .max(15, 'Must be valid phone number')
     .required('Required'),
@@ -312,44 +330,76 @@ export const corporateErrorsSchema = yup.object().shape({
   authorizationIdentity: yup.array().min(1, 'Required').nullable(),
   address: yup.string().required('Required'),
   postalCode: yup.string().required('Required'),
-  country: yup.object().nullable().required('Required'),
+  country: yup
+    .object()
+    .nullable()
+    .required('Required')
+    .test('validSelection', 'Required', (value: any) => {
+      return value && value.label !== null && value.label !== undefined && value.label !== ''
+    }),
   city: yup.string().required('Required'),
   residentialAddressAddress: yup.string().required('Required'),
   residentialAddressPostalCode: yup.string().required('Required'),
-  residentialAddressCountry: yup.object().nullable().required('Required'),
+  residentialAddressCountry: yup
+    .object()
+    .nullable()
+    .required('Required')
+    .test('validSelection', 'Required', (value: any) => {
+      return value && value.label !== null && value.label !== undefined && value.label !== ''
+    }),
   residentialAddressCity: yup.string().required('Required'),
-  sourceOfFunds: yup.array().min(1, 'Choose one').required('Required'),
+  sourceOfFunds: yup
+    .array()
+    .required('Choose one')
+    .test('hasSelection', 'Choose one', (value: any) => {
+      const validSelections = value && Array.isArray(value) ? value.filter((item) => item && item.trim() !== '') : []
+
+      const result = validSelections.length > 0
+      return result
+    }),
   otherFunds: yup.string().when('sourceOfFunds', {
     is: (sourceOfFunds: string[]) => sourceOfFunds.includes('Others'),
     then: yup.string().required('Required'),
     otherwise: yup.string().nullable(),
   }),
   // accredited: yup.number().min(0).max(1),
-  isUSTaxPayer: yup.number().min(0).max(1),
+  isUSTaxPayer: yup
+    .number()
+    .required('Choose one')
+    .test('validChoice', 'Choose one', (value: any) => {
+      return value === 0 || value === 1
+    }),
   usTin: yup
-  .string()
-  .nullable()
-  .when('isUSTaxPayer', {
-    is: 1,
-    then: yup.string().required('Required'),
-    otherwise: yup.string().nullable(),
-  }),
-taxCountry: yup
-  .object()
-  .nullable()
-  .when('taxIdAvailable', {
-    is: true,
-    then: yup.object().required('Required'),
-    otherwise: yup.object().nullable(),
-  }),
-taxNumber: yup
-  .string()
-  .nullable()
-  .when('taxIdAvailable', {
-    is: true,
-    then: yup.string().required('Required'),
-    otherwise: yup.string().nullable(),
-  }),
+    .string()
+    .nullable()
+    .when('isUSTaxPayer', {
+      is: 1,
+      then: yup.string().required('Required'),
+      otherwise: yup.string().nullable(),
+    }),
+  taxCountry: yup
+    .object()
+    .nullable()
+    .required('Required')
+    .test('validSelection', 'Required', (value: any) => {
+      return value && value.label !== null && value.label !== undefined && value.label !== ''
+    }),
+  taxNumber: yup
+    .string()
+    .nullable()
+    .when('taxIdAvailable', {
+      is: true,
+      then: yup.string().required('Required'),
+      otherwise: yup.string().nullable(),
+    }),
+  reason: yup
+    .string()
+    .nullable()
+    .when('taxIdAvailable', {
+      is: false,
+      then: yup.string().nullable().required('Required'),
+      otherwise: yup.string().nullable(),
+    }),
 
   beneficialOwners: yup
     .array()
@@ -357,10 +407,23 @@ taxNumber: yup
       yup.object().shape({
         fullName: yup.string().required('Required'),
         nationality: yup.string().required('Required'),
-        dateOfBirth: yup.mixed().nullable().required('Required'),
+        dateOfBirth: yup
+          .mixed()
+          .nullable()
+          .required('Required')
+          .test('validDate', 'Required', (value: any) => {
+            return value && value !== '' && value !== null && value !== undefined
+          }),
         address: yup.string().required('Required'),
         shareholding: yup
           .number()
+          .transform((value, originalValue) => {
+            // Handle empty string case
+            if (originalValue === '' || originalValue === null || originalValue === undefined) {
+              return undefined // This will trigger required validation
+            }
+            return value
+          })
           .min(1, 'Min 1')
           .max(100, 'Total sum of shareholding must be max 100')
           .required('Required'),

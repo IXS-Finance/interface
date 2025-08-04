@@ -3,29 +3,30 @@ import { useParams, useHistory } from 'react-router-dom'
 import styled from 'styled-components/macro'
 import { Trans } from '@lingui/macro'
 import { format } from 'date-fns'
-import { useReadContract } from 'wagmi'
 import { formatUnits } from 'viem'
 import Portal from '@reach/portal'
-import { Copy, ExternalLink, Link } from 'react-feather'
+import { ExternalLink } from 'react-feather'
+import _get from 'lodash/get'
 
 import { useActiveWeb3React } from 'hooks/web3'
-import { EarnProduct, products } from './products'
+import { EarnProduct, products } from '../products'
 import { useSubgraphQuery } from 'hooks/useSubgraphQuery'
 import { formatAmount } from 'utils/formatCurrencyAmount'
-import { DepositTab } from './components/tabs/Deposit'
-import { WithdrawRequestTab } from './components/tabs/WithdrawRequest'
-import { ClaimTab } from './components/tabs/Claim'
+import { DepositTab } from '../components/tabs/Deposit'
+import { WithdrawRequestTab } from '../components/tabs/WithdrawRequest'
+import { ClaimTab } from '../components/tabs/Claim'
+import { AnnualPercentageRate } from './components/AnnualPercentageRate'
 import { ExplorerDataType, getExplorerLink } from 'utils/getExplorerLink'
 import { checkWrongChain } from 'utils/chains'
 import { CenteredFixed } from 'components/LaunchpadMisc/styled'
 import { NetworkNotAvailable } from 'components/Launchpad/NetworkNotAvailable'
-
-import OpenTradeABI from './abis/OpenTrade.json'
-import USDCIcon from '../../assets/images/usdcNew.svg'
+import OpenTradeABI from '../abis/OpenTrade.json'
+import USDCIcon from 'assets/images/usdcNew.svg'
 import { Box, Flex } from 'rebass'
 import { isMobile } from 'react-device-detect'
-import { useMulticall } from './hooks/useMulticall'
-import LoadingBlock from './components/LoadingBlock'
+import { useMulticall } from '../hooks/useMulticall'
+import ExternalLinkIcon from 'assets/images/icons/external-link.svg'
+
 interface Transaction {
   date: number
   type: string
@@ -34,7 +35,7 @@ interface Transaction {
   hash: string
 }
 
-const POLLING_INTERVAL: number = 5000
+const POLLING_INTERVAL: number = 10000
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>()
@@ -98,11 +99,12 @@ export default function ProductDetail() {
 
   // Subgraph Queries
   const userAddress = account?.toLowerCase()
+  const fromContract = _get(product, 'address', '').toLowerCase()
 
   const DEPOSITS_QUERY = `
     query {
       deposits(
-        where: { user: "${userAddress}" }
+        where: { user: "${userAddress}", fromContract: "${fromContract}" }
         orderBy: timestamp
         orderDirection: desc
       ) {
@@ -116,7 +118,7 @@ export default function ProductDetail() {
   const WITHDRAWS_QUERY = `
     query {
       withdraws(
-        where: { user: "${userAddress}" }
+        where: { user: "${userAddress}", fromContract: "${fromContract}" }
         orderBy: timestamp
         orderDirection: desc
       ) {
@@ -130,7 +132,7 @@ export default function ProductDetail() {
   const CLAIMS_QUERY = `
     query {
       claims(
-        where: { user: "${userAddress}" }
+        where: { user: "${userAddress}", fromContract: "${fromContract}" }
         orderBy: timestamp
         orderDirection: desc
       ) {
@@ -153,7 +155,7 @@ export default function ProductDetail() {
   }
 
   const subgraphData = useSubgraphQuery({
-    feature: product.type,
+    feature: product.subgraphFeatureType,
     chainId: chainId,
     query: query,
     autoPolling: true,
@@ -251,7 +253,10 @@ export default function ProductDetail() {
   const getUsdcEquivalent = (vaultAmount: string) => {
     const currentExchangeRate = openTradeExchangeRate || '0' // Use fetched rate, fallback to '0'
     if (!vaultAmount || isNaN(parseFloat(vaultAmount)) || isNaN(parseFloat(currentExchangeRate))) return '0'
-    return (parseFloat(vaultAmount) * parseFloat(currentExchangeRate)).toFixed(6)
+    return (parseFloat(vaultAmount) * parseFloat(currentExchangeRate)).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 4,
+    })
   }
 
   return (
@@ -307,15 +312,7 @@ export default function ProductDetail() {
             ) : null}
           </InfoCard>
 
-          <InfoCard>
-            <InfoCardLabel>Annual Percentage Rate</InfoCardLabel>
-
-            {isLoadingGetRate ? (
-              <LoadingBlock className="rate-number" />
-            ) : (
-              <ApyBigText>{indicativeInterestRatePercentage}%</ApyBigText>
-            )}
-          </InfoCard>
+          <AnnualPercentageRate opentradeVaultAddress={product.opentradeVaultAddress} chainId={product.chainId} />
         </InfoCardsSection>
 
         <FormContainer>
@@ -409,7 +406,7 @@ export default function ProductDetail() {
               >
                 {isMobile ? `${activeTab} ` : null}Amount
               </Box>
-              {!isMobile ? <HeaderCell>Transaction Hash</HeaderCell> : null}
+              {!isMobile ? <HeaderCell style={{ textAlign: 'right' }}>Transaction Hash</HeaderCell> : null}
             </TableHeader>
 
             {transactions.length > 0 ? (
@@ -436,6 +433,15 @@ export default function ProductDetail() {
                           </SmallCurrencyIcon>
                           {tx.amount}
                         </CurrencyDisplay>
+
+                        <a
+                          href={getExplorerLink(chainId, tx.hash, ExplorerDataType.TRANSACTION)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ textDecoration: 'none', color: '#6C5DD3' }}
+                        >
+                          <img src={ExternalLinkIcon} alt="External Link" width={16} height={16} style={{ marginLeft: 8 }} />
+                        </a>
                       </Flex>
                     ) : (
                       <>{tx.amount}</>
@@ -451,7 +457,7 @@ export default function ProductDetail() {
                           style={{ textDecoration: 'none', color: '#6C5DD3' }}
                         >
                           {tx.hash.substring(0, 6)}...{tx.hash.substring(tx.hash.length - 4)}
-                          <ExternalLink size={'16'} style={{ marginLeft: 8 }} />
+                          <img src={ExternalLinkIcon} alt="External Link" style={{ marginLeft: 8 }} />
                         </a>
                       </HashDisplay>
                     </Cell>
@@ -661,24 +667,6 @@ const InfoCardValue = styled.div`
   }
 `
 
-const ApyBigText = styled.div`
-  color: #66f;
-  text-align: right;
-  font-family: Inter;
-  font-size: 40px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 60px; /* 150% */
-  letter-spacing: -1.6px;
-
-  @media (min-width: 768px) {
-    color: #66f;
-    font-size: 64px;
-    line-height: 60px; /* 93.75% */
-    letter-spacing: -2.56px;
-  }
-`
-
 // Forms and other styled components
 const FormContainer = styled.div`
   border-radius: 16px;
@@ -801,6 +789,7 @@ const SmallCurrencyIcon = styled.div`
 const HashDisplay = styled.div`
   display: flex;
   align-items: center;
+  justify-content: flex-end;
 `
 
 const CopyIcon = styled.button`

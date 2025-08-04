@@ -1,10 +1,10 @@
 import { QueryClient } from '@tanstack/react-query'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import * as wallets from '@rainbow-me/rainbowkit/wallets'
+import { createStorage } from 'wagmi'
 
 import {  CHAINS, transports } from './constants'
 import walletConnectConfig from 'walletConnectConfig.json'
-import { tryClearIndexedDB } from 'utils'
 
 type WalletConnectConfig = {
   [key: string]: string
@@ -19,13 +19,16 @@ function getWalletConnectProjectId() {
 }
 
 export function createWagmiConfig() {
-  tryClearIndexedDB()
-
   const WALLET_CONNECT_PROJECT_ID = getWalletConnectProjectId()
 
   const config = getDefaultConfig({
     appName: 'IXSwap',
     projectId: WALLET_CONNECT_PROJECT_ID,
+    ssr: false, // Disable SSR to prevent hydration mismatches
+    storage: createStorage({
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+      key: 'wagmi.store', // Explicit storage key
+    }),
     wallets: [
       {
         groupName: 'Popular',

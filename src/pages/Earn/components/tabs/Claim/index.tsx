@@ -193,7 +193,7 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
   // Calculate actual claimable amount (claimable amount - platform fee - service fee)
   const actualClaimableAmount = useMemo(() => {
     if (!rawUserAssetBalance) {
-      return formatAmount(0, 2)
+      return formatAmount(0, 4)
     }
 
     const claimableAmountNum = parseFloat(formatUnits(rawUserAssetBalance as bigint, 6))
@@ -202,7 +202,7 @@ export const ClaimTab: React.FC<ClaimTabProps> = ({
 
     const actualAmount = claimableAmountNum - platformFeeAmount - serviceFeeAmount
 
-    return formatAmount(Math.max(0, actualAmount), 2)
+    return formatAmount(Math.max(0, actualAmount), 4)
   }, [rawUserAssetBalance, platformFeeBps, claimFlatFee, calculatedPlatformFee, calculatedServiceFee])
 
   // Use calculated platform fee or fallback to prop

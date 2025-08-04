@@ -101,8 +101,6 @@ export default function PoolFinder() {
 
   return (
     <>
-      <Header />
-      {/* <AddLiduidityContainer> */}
       <AppBody
         page="liquidity"
         {...bodyProps}
