@@ -10,7 +10,8 @@ import { KYCStatuses } from 'pages/KYC/enum'
 
 import { isUserWhitelisted } from 'utils/isUserWhitelisted'
 
-import Header from 'components/Header'
+import HeaderNew from 'components/Header/HeaderNew'
+import Sidebar from 'components/Sidebar'
 import Popups from 'components/Popups'
 import ErrorBoundary from 'components/ErrorBoundary'
 import GoogleAnalyticsReporter from 'components/analytics/GoogleAnalyticsReporter'
@@ -246,48 +247,70 @@ export default function App() {
         <Route component={ApeModeQueryParamReader} />
         <AppBackground />
         <Popups />
-        <AppWrapper isLaunchpad={isWhiteBackground}>
-          {!isAdminKyc && !hideHeader && <Header />}
-          <ToggleableBody
-            isVisible={visibleBody}
-            {...(isAdminKyc && { style: { marginTop: 26 } })}
-            hideHeader={hideHeader}
-          >
-            <IXSBalanceModal />
-            <Suspense
-              fallback={
-                <>
-                  <LoadingIndicator isLoading />
-                </>
-              }
-            >
-              <Switch>
-                {routeFinalConfig.map(routeGenerator).filter((route) => !!route)}
 
-                <Route component={() => <Redirect to={defaultPage ? defaultPage : routes.kyc} />} />
-              </Switch>
-            </Suspense>
-          </ToggleableBody>
-        </AppWrapper>
+        {/* New Layout with Sidebar */}
+        <LayoutContainer className="flex flex-row h-screen">
+          {/* Sidebar */}
+          <Sidebar />
+
+          {/* Main Content Area */}
+          <MainContent className="flex-1 bg-[#16171c] ml-[280px]">
+            <ContentWrapper isLaunchpad={isWhiteBackground}>
+              {!isAdminKyc && !hideHeader && <HeaderNew className="px-6 py-4" />}
+              <ToggleableBody
+                isVisible={visibleBody}
+                {...(isAdminKyc && { style: { marginTop: 26 } })}
+                hideHeader={hideHeader}
+              >
+                <IXSBalanceModal />
+                <Suspense
+                  fallback={
+                    <>
+                      <LoadingIndicator isLoading />
+                    </>
+                  }
+                >
+                  <Switch>
+                    {routeFinalConfig.map(routeGenerator).filter((route) => !!route)}
+
+                    <Route component={() => <Redirect to={defaultPage ? defaultPage : routes.kyc} />} />
+                  </Switch>
+                </Suspense>
+              </ToggleableBody>
+            </ContentWrapper>
+          </MainContent>
+        </LayoutContainer>
       </ErrorBoundary>
 
-      {!token && account && chains.includes(chainId) ? (
-        <Portal>
-          <CenteredFixed width="100vw" height="100vh">
-            <SignMessageModal authenticate={authenticate} />
-          </CenteredFixed>
-        </Portal>
-      ) : null}
+      {!token && account && chains.includes(chainId) ? <SignMessageModal authenticate={authenticate} /> : null}
     </>
   )
 }
 
-const AppWrapper = styled.div<{ isLaunchpad: boolean }>`
+const LayoutContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+`
+
+const MainContent = styled.div`
+  flex: 1;
+  background: #16171c;
+  margin-left: 280px;
+  overflow: auto;
+  position: relative;
+`
+
+const ContentWrapper = styled.div<{ isLaunchpad: boolean }>`
   display: flex;
   flex-flow: column;
   align-items: flex-start;
   position: relative;
-  background: ${({ isLaunchpad }) => (isLaunchpad ? '#ffffff' : 'initial')};
+  background: ${({ isLaunchpad }) => (isLaunchpad ? '#ffffff' : 'transparent')};
+  min-height: 100%;
+  width: 100%;
 `
 
 const BodyWrapper = styled.div<{ hideHeader?: boolean }>`
