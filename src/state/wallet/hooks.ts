@@ -1,19 +1,40 @@
 import { Currency, Token, CurrencyAmount, Ether } from '@ixswap1/sdk-core'
 import JSBI from 'jsbi'
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo } from 'react'
 import { useActiveWeb3React } from '../../hooks/web3'
 import { useAllTokens } from '../../hooks/Tokens'
 import { useMulticall2Contract, useTokenContract } from '../../hooks/useContract'
 import { isAddress } from '../../utils'
-import { useMultipleContractSingleData, useSingleCallResult, useSingleContractMultipleData } from '../multicall/hooks'
-import { Interface } from '@ethersproject/abi'
-import ERC20ABI from 'abis/erc20.json'
-import { Erc20Interface } from 'abis/types/Erc20'
+import { useSingleCallResult, useSingleContractMultipleData } from '../multicall/hooks'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
+import { useReadContracts, useBalance } from 'wagmi'
+import { erc20Abi } from 'viem'
+
+/**
+ * Modern implementation using Wagmi's useBalance for single ETH balance
+ */
+export function useETHBalance(address?: string): CurrencyAmount<Currency> | undefined {
+  const { chainId } = useActiveWeb3React()
+
+  const { data: balance } = useBalance({
+    address: address as `0x${string}`,
+    query: {
+      enabled: Boolean(address),
+      staleTime: 30_000,
+      gcTime: 5 * 60 * 1000,
+    },
+  })
+
+  return useMemo(() => {
+    if (!balance || !chainId) return undefined
+    return CurrencyAmount.fromRawAmount(Ether.onChain(chainId), JSBI.BigInt(balance.value.toString()))
+  }, [balance, chainId])
+}
 
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.
+ * Legacy implementation using multicall
  */
 export function useETHBalances(uncheckedAddresses?: (string | undefined)[]): {
   [address: string]: CurrencyAmount<Currency> | undefined
@@ -25,9 +46,9 @@ export function useETHBalances(uncheckedAddresses?: (string | undefined)[]): {
     () =>
       uncheckedAddresses
         ? uncheckedAddresses
-          .map(isAddress)
-          .filter((a): a is string => a !== false)
-          .sort()
+            .map(isAddress)
+            .filter((a): a is string => a !== false)
+            .sort()
         : [],
     [uncheckedAddresses]
   )
@@ -64,6 +85,7 @@ export function useSimpleTokenBalanceWithLoading(
 
 /**
  * Returns a map of token addresses to their eventually consistent token balances for a single account.
+ * Using Wagmi/Viem for better performance and modern API
  */
 export function useTokenBalancesWithLoadingIndicator(
   address?: string,
@@ -74,41 +96,60 @@ export function useTokenBalancesWithLoadingIndicator(
     [tokens]
   )
 
-  const validatedTokenAddresses = useMemo(() => validatedTokens.map((vt) => vt.address), [validatedTokens])
-  const ERC20Interface = new Interface(ERC20ABI) as Erc20Interface
-  const balances = useMultipleContractSingleData(
-    validatedTokenAddresses,
-    ERC20Interface,
-    'balanceOf',
-    [address],
-    undefined,
-    100_000
+  // Prepare contracts for useReadContracts
+  const contracts = useMemo(
+    () =>
+      validatedTokens.map((token) => ({
+        address: token.address as `0x${string}`,
+        abi: erc20Abi,
+        functionName: 'balanceOf',
+        args: [address as `0x${string}`],
+      })),
+    [validatedTokens, address]
   )
-  const anyLoading: boolean = useMemo(() => balances.some((callState) => callState.loading), [balances])
 
-  return [
-    useMemo(
-      () =>
-        address && validatedTokens.length > 0
-          ? validatedTokens.reduce<{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }>((memo, token, i) => {
-            const value = balances?.[i]?.result?.[0]
-            const amount = value ? JSBI.BigInt(value.toString()) : undefined
-            if (amount) {
-              memo[token.address] = CurrencyAmount.fromRawAmount(token, amount)
-            }
-            return memo
-          }, {})
-          : {},
-      [address, validatedTokens, balances]
-    ),
-    anyLoading,
-  ]
+  // @ts-ignore
+  const { data: balances, isLoading } = useReadContracts({
+    contracts,
+    query: {
+      enabled: Boolean(address && validatedTokens.length > 0),
+      staleTime: 30_000, // 30 seconds
+      gcTime: 5 * 60 * 1000, // 5 minutes
+    },
+  })
+
+  const tokenBalanceMap = useMemo(() => {
+    if (!address || !validatedTokens.length || !balances) return {}
+
+    return validatedTokens.reduce<{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }>((memo, token, i) => {
+      const result = balances[i]
+      if (result?.status === 'success' && result.result !== undefined) {
+        const amount = JSBI.BigInt(result.result.toString())
+        memo[token.address] = CurrencyAmount.fromRawAmount(token, amount)
+      } else if (result?.status === 'failure') {
+        console.warn(`Failed to fetch balance for ${token.symbol} (${token.address}):`, result.error)
+      }
+      return memo
+    }, {})
+  }, [address, validatedTokens, balances])
+
+  return [tokenBalanceMap, isLoading]
 }
 
 export function useTokenBalances(
   address?: string,
   tokens?: (Token | undefined)[]
 ): { [tokenAddress: string]: CurrencyAmount<Token> | undefined } {
+  return useTokenBalancesWithLoadingIndicator(address, tokens)[0]
+}
+
+// get the balance for a single token/account combo
+
+export function useTokenBalancesLegacy(
+  address?: string,
+  tokens?: (Token | undefined)[]
+): { [tokenAddress: string]: CurrencyAmount<Token> | undefined } {
+  // Legacy implementation using multicall
   return useTokenBalancesWithLoadingIndicator(address, tokens)[0]
 }
 
@@ -130,22 +171,37 @@ export function useCurrencyBalances(
 
   const tokenBalances = useTokenBalances(account, tokens)
   const containsETH: boolean = useMemo(() => currencies?.some((currency) => currency?.isNative) ?? false, [currencies])
-  const ethBalance = useETHBalances(containsETH ? [account] : [])
+
+  // Use modern ETH balance for single account
+  const ethBalance = useETHBalance(containsETH ? account : undefined)
+  const ethBalances = useMemo(() => (account && ethBalance ? { [account]: ethBalance } : {}), [account, ethBalance])
 
   return useMemo(
     () =>
       currencies?.map((currency) => {
         if (!account || !currency) return undefined
         if (currency?.isToken) return tokenBalances[currency.address]
-        if (currency.isNative) return ethBalance[account]
+        if (currency.isNative) return ethBalances[account]
         return undefined
       }) ?? [],
-    [account, currencies, ethBalance, tokenBalances]
+    [account, currencies, ethBalances, tokenBalances]
   )
 }
 
 export function useCurrencyBalance(account?: string, currency?: Currency): CurrencyAmount<Currency> | undefined {
-  return useCurrencyBalances(account, [currency])[0]
+  // For single currency, use optimized hooks directly
+  const isToken = currency?.isToken
+  const isNative = currency?.isNative
+
+  const tokenBalance = useTokenBalance(account, isToken ? (currency as Token) : undefined)
+  const ethBalance = useETHBalance(isNative ? account : undefined)
+
+  return useMemo(() => {
+    if (!account || !currency) return undefined
+    if (isToken) return tokenBalance
+    if (isNative) return ethBalance
+    return undefined
+  }, [account, currency, isToken, isNative, tokenBalance, ethBalance])
 }
 
 // mimics useAllBalances
@@ -158,7 +214,7 @@ export function useAllTokenBalances(): { [tokenAddress: string]: CurrencyAmount<
 }
 
 export const useWalletState = () => {
-  const walletState = useSelector((state: AppState) => state.wallet);
+  const walletState = useSelector((state: AppState) => state.wallet)
 
-  return walletState;
-};
+  return walletState
+}

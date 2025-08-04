@@ -167,6 +167,7 @@ export const AdminKycTable = () => {
   const [sortBy, setSortBy] = useState('')
   const [sortDirection, setSortDirection] = useState<OrderType>('DESC')
   const [order, setOrder] = React.useState<KycOrderConfig>({})
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const { openModalExportCSV } = useKYCState()
 
   const {
@@ -211,7 +212,10 @@ export const AdminKycTable = () => {
   }, [getKycList, searchValue, identity, selectedStatuses, endDate, sortBy, sortDirection])
 
   const onPageChange = (page: number) => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    // Only scroll if we're not opening a modal and there's no ID in URL
+    if (!isModalOpen && !id) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
 
     getKycList(getKycFilters(page) as Record<string, string | number>)
   }
@@ -229,12 +233,16 @@ export const AdminKycTable = () => {
   }
 
   const closeModal = () => {
+    setIsModalOpen(false)
     history.push(`/admin/kyc`)
     handleKyc({} as KycItem)
   }
 
   const getKyc = useCallback(async () => {
     if (!id) return
+    // Don't fetch if we already have the kyc data and modal is opening
+    if (kyc.id && isModalOpen) return
+
     try {
       handleIsLoading(true)
       const data = await getKycById(id)
@@ -243,13 +251,27 @@ export const AdminKycTable = () => {
     } catch (e) {
       handleIsLoading(false)
     }
-  }, [id])
+  }, [id, kyc.id, isModalOpen])
 
   useEffect(() => {
     getKyc()
   }, [id, getKyc])
 
-  const openModal = (kyc: KycItem) => history.push(`/admin/kyc/${kyc.id}`)
+  // Update modal state when URL changes
+  useEffect(() => {
+    setIsModalOpen(Boolean(id))
+  }, [id])
+
+  const openModal = (kyc: KycItem) => {
+    // Immediately set modal state and data to prevent any scroll triggers
+    setIsModalOpen(true)
+    handleKyc(kyc)  // Set the KYC data directly instead of fetching
+
+    // Use requestAnimationFrame to ensure state updates are processed first
+    requestAnimationFrame(() => {
+      history.push(`/admin/kyc/${kyc.id}`)
+    })
+  }
 
   return (
     <div style={{ margin: isMobile ? '30px 0px 0px 40px' : '30px 30px 0 30px' }} id="kyc-container">

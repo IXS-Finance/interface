@@ -32,7 +32,7 @@ const onRefreshed = (newToken: string) => {
 }
 
 _axios.interceptors.response.use(responseSuccessInterceptor, async function responseErrorInterceptor(error: any) {
-  if (error?.response?.status !== OK_RESPONSE_CODE || error?.response?.status !== CREATED_RESPONSE_CODE) {
+  if (error?.response?.status !== OK_RESPONSE_CODE && error?.response?.status !== CREATED_RESPONSE_CODE) {
     const method = error?.response?.config?.method
     // only log errors if the URL contain kyc
     if (error?.response?.config?.url?.includes('kyc') && (method === 'post' || method === 'put')) {
@@ -77,7 +77,8 @@ _axios.interceptors.response.use(responseSuccessInterceptor, async function resp
               'x-user-address': account,
             },
           })
-          if (!response?.data) {
+
+          if (!response?.data?.accessToken) {
             store.dispatch(
               postLogin.rejected({
                 errorMessage: 'No response on refresh token',
@@ -85,26 +86,52 @@ _axios.interceptors.response.use(responseSuccessInterceptor, async function resp
               })
             )
             store.dispatch(setWalletState({ isSignLoading: false }))
+            isRefreshing = false
+            // Reject all queued requests when refresh fails
+            subscribers.forEach((callback) => callback(''))
+            subscribers = []
+            return Promise.reject(error)
+          } else {
+            store.dispatch(
+              postLogin.fulfilled({
+                auth: response?.data,
+                account,
+              })
+            )
+            isRefreshing = false
+            onRefreshed(response?.data?.accessToken)
           }
-          store.dispatch(
-            postLogin.fulfilled({
-              auth: response?.data,
-              account,
-            })
-          )
+        } catch (refreshError: any) {
           isRefreshing = false
-          onRefreshed(response?.data?.accessToken)
-        } catch (error: any) {
-          isRefreshing = false
-          console.error({ requestError: error.message })
-          store.dispatch(postLogin.rejected({ errorMessage: error.message, account }))
+          console.error({ refreshTokenError: refreshError.message })
+
+          // Handle refresh token failure
+          const errorMessage = refreshError?.response?.data?.message || refreshError.message || 'Refresh token failed'
+          store.dispatch(postLogin.rejected({ errorMessage, account }))
           store.dispatch(setWalletState({ isSignLoading: false }))
+
+          // Reject all queued requests when refresh fails
+          subscribers.forEach((callback) => callback(''))
+          subscribers = []
+
+          // If refresh token is invalid (401), reject the original request
+          if (refreshError?.response?.status === 401) {
+            return Promise.reject(refreshError)
+          }
+
+          return Promise.reject(error)
         }
       }
 
       // Wait for the refresh token to complete, then retry the original request
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         subscribeTokenRefresh((newAccessToken) => {
+          if (!newAccessToken) {
+            // Refresh failed, reject the original request
+            reject(error)
+            return
+          }
+
           originalConfig.headers.Authorization = `Bearer ${newAccessToken}`
           // Use _axios to ensure the correct configuration is applied
           resolve(_axios(originalConfig))
