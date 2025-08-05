@@ -33,7 +33,7 @@ export const EmailVerification = ({ isModalOpen, closeModal, kycType, referralCo
   const [hasCodeError, setHasCodeError] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState('')
   const history = useHistory()
-  const [boxBorderColor, setBoxBorderColor] = React.useState('#E6E6FF')
+  const [boxBorderColor, setBoxBorderColor] = React.useState('#353840')
   const [resetCodeInput, setResetCodeInput] = React.useState(false)
 
   React.useEffect(() => {
@@ -240,7 +240,7 @@ export const EmailVerification = ({ isModalOpen, closeModal, kycType, referralCo
               <CodeInput
                 key={resetCodeInput}
                 numberOfBoxes={6}
-                boxBackgroundColor="#F7F7FA"
+                boxBackgroundColor="#202126"
                 boxBorderColor={hasCodeError ? 'red' : boxBorderColor}
                 gapBetweenBoxes={5}
                 handleNextClick={handleNextClick}
@@ -249,7 +249,7 @@ export const EmailVerification = ({ isModalOpen, closeModal, kycType, referralCo
                   if (hasCodeError) {
                     setHasCodeError(false)
                     setErrorMessage('')
-                    setBoxBorderColor('#E6E6FF')
+                    setBoxBorderColor('#353840')
                   }
                 }}
                 // resetCode={() => setCode(Array(6).fill(''))}

@@ -366,10 +366,10 @@ const CodeInput: React.FC<any> = ({
                     value={code[index]}
                     onChange={(e) => handleCodeChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
-                    borderColor={verifyError ? '#FF6D6D80' : '#E6E6FF'}
-                    backgroundColor={verifyError ? '#F8E9EC' : '#F7F7FA'}
-                    color={verifyError ? '#FF6D6D' : '#292933'}
-                    placeholderColor={verifyError ? '#FF6D6D' : '#B8B8CC'}
+                    borderColor={verifyError ? '#FF6D6D80' : '#353840'}
+                    backgroundColor={verifyError ? '#F8E9EC' : '#202126'}
+                    color={verifyError ? '#FF6D6D' : '#ffffff'}
+                    placeholderColor={verifyError ? '#FF6D6D' : 'rgba(255, 255, 255, 0.6)'}
                     ref={(el) => {
                       if (el) {
                         inputRefs.current[index] = el as HTMLInputElement
@@ -386,7 +386,7 @@ const CodeInput: React.FC<any> = ({
             <CopyIcon style={{ width: '30px', height: '18px', cursor: 'pointer' }} onClick={handleCopyClick} />
           </Container>
         ) : (
-          <SendCodeButton disabled={isButtonDisabled} onClick={handleButtonClick}>
+          <SendCodeButton disabled={isButtonDisabled} onClick={handleButtonClick} className="mt-4">
             {buttonText}
           </SendCodeButton>
         )}
@@ -500,9 +500,12 @@ const TimerText = styled.span`
 `
 
 const NewCodeText = styled.span`
-  color: #6666FF;
-  font-size: 13px;
-  font-weight: 600;
+  color: #fff;
+  font-size: 16px;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 140%;
 `
 
 const CodeBox = styled.input.attrs(
