@@ -1,11 +1,10 @@
 import React from 'react'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { useActiveWeb3React } from 'hooks/web3'
+import networkIcon from 'assets/images/new-dark-ui/layout/network.svg'
+import networkDotIcon from 'assets/images/new-dark-ui/layout/network-dot.svg'
+import settingIcon from 'assets/images/new-dark-ui/layout/setting.svg'
 
-// Asset imports from Figma
-const networkIcon = "http://localhost:3845/assets/9ecd8db1b543699f5a240338682cbf148a91cdbb.png"
-const networkDotIcon = "http://localhost:3845/assets/4146ef8c12ed7ccc79b0ac8b135b929f2aa311b9.svg"
-const copyIcon = "http://localhost:3845/assets/30cb6f73968a224aceb7fae84af61f77867ad05d.svg"
 
 interface HeaderNewProps {
   className?: string
@@ -87,8 +86,8 @@ const HeaderNew: React.FC<HeaderNewProps> = ({ className }) => {
           >
             <div className="absolute left-1/2 w-[18px] h-[18px] top-1/2 -translate-x-1/2 -translate-y-1/2">
               <img
-                src={copyIcon}
-                alt="Copy Address"
+                src={settingIcon}
+                alt="Settings"
                 className="w-full h-full object-contain"
               />
             </div>

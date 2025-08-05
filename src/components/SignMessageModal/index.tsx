@@ -4,9 +4,9 @@ import { X } from 'react-feather'
 import { LoaderThin } from 'components/Loader/LoaderThin'
 import { useLogout } from 'state/auth/hooks'
 import { useWalletState } from 'state/wallet/hooks'
+import walletIcon from 'assets/images/new-dark-ui/layout/wallet.svg'
 
 // Asset imports from Figma
-const walletIcon = "http://localhost:3845/assets/1468e58e10f9d332649751faf1d4b706da483e5e.svg"
 
 interface SignMessageModalProps {
   loading?: boolean
