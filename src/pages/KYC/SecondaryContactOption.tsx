@@ -160,14 +160,18 @@ const SecondaryContactOption: React.FC<Props> = ({
           {emailType === EmailType.SOCIAL_ACCOUNT ? (
             <>
               <SocialAccountTitle>Instruction</SocialAccountTitle>
-              <SocialAccountSubTitle>1. Open the Telegram App</SocialAccountSubTitle>
+              <SocialAccountSubTitle>
+                1. Open the <span className="text-white">Telegram App</span>
+              </SocialAccountSubTitle>
               <SocialAccountSubTitle>
                 2. Start a chat with{' '}
-                <span onClick={handleTelegramRedirect} style={{ color: '#6666FF', cursor: 'pointer' }}>
+                <span onClick={handleTelegramRedirect} style={{ color: '#fff', cursor: 'pointer' }}>
                   @{telegramBotUsername}
                 </span>
               </SocialAccountSubTitle>
-              <SocialAccountSubTitle>3. Get Verification Code</SocialAccountSubTitle>
+              <SocialAccountSubTitle>
+                3. Get <span className="text-white">Verification Code</span>
+              </SocialAccountSubTitle>
             </>
           ) : (
             <>
@@ -210,7 +214,9 @@ const SecondaryContactOption: React.FC<Props> = ({
               {emailType !== EmailType.SOCIAL_ACCOUNT && (
                 <TimerContainer>
                   {timer > 0 ? (
-                    <TimerText>{`Get new code (${timer} seconds)`}</TimerText>
+                    <TimerText>
+                      {`Get new code - `} <span className="text-white">${timer} sec</span>
+                    </TimerText>
                   ) : (
                     <span style={{ cursor: 'pointer' }} onClick={handleGetNewCodeClick}>
                       {buttonText === KYCV2RequestButtonText.VERIFY_CODE ? <NewCodeText>Get New Code</NewCodeText> : ''}
@@ -367,9 +373,9 @@ const CodeInput: React.FC<any> = ({
                     onChange={(e) => handleCodeChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
                     borderColor={verifyError ? '#FF6D6D80' : '#353840'}
-                    backgroundColor={verifyError ? '#F8E9EC' : '#202126'}
-                    color={verifyError ? '#FF6D6D' : '#ffffff'}
-                    placeholderColor={verifyError ? '#FF6D6D' : 'rgba(255, 255, 255, 0.6)'}
+                    backgroundColor={verifyError ? '#202126' : '#202126'}
+                    color="#ffffff"
+                    placeholderColor="rgba(255, 255, 255, 0.6)"
                     ref={(el) => {
                       if (el) {
                         inputRefs.current[index] = el as HTMLInputElement
@@ -392,7 +398,9 @@ const CodeInput: React.FC<any> = ({
         )}
       </CodeInputContainer>
       {emailType === EmailType.SOCIAL_ACCOUNT && (
-        <SocialAccountSubTitle style={{ marginTop: '20px' }}>4. Send the code to the Bot</SocialAccountSubTitle>
+        <SocialAccountSubTitle style={{ marginTop: '20px' }}>
+          4. <span className="text-white">Send the code</span> to the Bot
+        </SocialAccountSubTitle>
       )}
     </>
   )
@@ -447,7 +455,7 @@ const SocialAccountTitle = styled.div`
   font-weight: 600;
   font-size: 20px;
   text-align: left;
-  color: #292933;
+  color: #fff;
   margin-top: 20px;
   @media (max-width: 768px) {
     font-size: 13px;
@@ -473,7 +481,7 @@ const SocialAccountSubTitle = styled.div`
   font-weight: 400;
   font-size: 14px;
   text-align: left;
-  color: #666680;
+  color: rgba(255, 255, 255, 0.5);
   margin: 10px 0px;
   line-height: 20px;
   @media (max-width: 768px) {
@@ -495,8 +503,8 @@ const TimerContainer = styled.div`
 `
 
 const TimerText = styled.span`
-  color: #666680;
-  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
 `
 
 const NewCodeText = styled.span`

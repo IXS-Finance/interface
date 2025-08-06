@@ -50,7 +50,7 @@ export function colors(configColors?: WlColors): Colors {
 
     // text
     text1: wlColors.text?.main || white,
-    text2: wlColors.text?.additional1 || '#666680',
+    text2: wlColors.text?.additional1 || 'rgba(255, 255, 255, 0.50)',
     text3: wlColors.text?.main || '#6C7284',
     text4: wlColors.text?.main || '#6666FF33',
     text5: wlColors.text?.main || white,

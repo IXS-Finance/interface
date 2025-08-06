@@ -293,28 +293,20 @@ export const KycTextInput: FC<TextInputProps> = ({
         <KycInputLabel name={name} label={label} error={error} tooltipText={tooltipText} />
       )}
       <p style={{ color: '#B8B8CC', fontSize: '12px', padding: '0px 80px 0px 0px' }}>{subText}</p>
-      {disabled && value ? (
-        <div>
-          <StyledInput
-            style={{ background: '#F7F7FA', color: '#6d6d73', pointerEvents: 'none', cursor: 'not-allowed' }}
-            value={value}
-          />
-        </div>
-      ) : (
-        <StyledInput
-          onBlur={onBlur}
-          name={name}
-          placeholder={placeholder}
-          data-testid={id}
-          value={value}
-          onChange={onChange}
-          style={style}
-          type={type}
-          autoComplete="off"
-          disabled={disabled}
-          error={error}
-        />
-      )}
+
+      <StyledInput
+        onBlur={onBlur}
+        name={name}
+        placeholder={placeholder}
+        data-testid={id}
+        value={value}
+        onChange={onChange}
+        style={style}
+        type={type}
+        autoComplete="off"
+        disabled={disabled}
+        error={error}
+      />
       {kycVersion === 'v2' && <KycErrorDisplay label={error ? label : ''} error={error} />}
     </Box>
   )
@@ -775,7 +767,9 @@ const StyledInput = styled(Input)`
     background-color: ${({ theme: { bg0 } }) => bg0};
   }
   :disabled {
-    color: #b8b8cc;
+    color: rgba(255, 255, 255, 0.5);
+    border: 1px solid #353840;
+    background: #202126;
   }
   ::placeholder {
     color: ${({ theme }) => theme.text11};

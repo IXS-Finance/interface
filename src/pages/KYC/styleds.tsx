@@ -278,7 +278,8 @@ const KYCStatusDescription = {
   [KYCStatuses.REJECTED]:
     'Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Vivamus suscipit tortor eget felis porttitor volutpat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.',
   [KYCStatuses.DRAFT]: 'Your KYC application draft has been saved',
-  [KYCStatuses.FAILED]: 'We regret to inform you that your KYC verification has been rejected due to incomplete documentation. Please ensure all required documents are provided and meet our specified criteria for successful verification. Thank you for your cooperation.',
+  [KYCStatuses.FAILED]:
+    'We regret to inform you that your KYC verification has been rejected due to incomplete documentation. Please ensure all required documents are provided and meet our specified criteria for successful verification. Thank you for your cooperation.',
   [KYCStatuses.IN_PROGRESS]:
     'Your KYC application has been received and will be processed by the team. Thank you for your patience.',
 }
@@ -306,9 +307,9 @@ export const DateInfoContainer = styled.div`
 `
 
 export const EligibilityAndDocumentsContainer = styled.div`
-  border-radius: 8px;
-  border: 1px solid #e6e6ff;
-  background: #f7f7fa;
+  border-radius: 16px;
+  border: 1px solid #353840;
+  background: #202126;
   display: flex;
   padding: 48px 64px;
   flex-direction: column;
@@ -336,7 +337,7 @@ export const EligibilityAndDocumentsContainer = styled.div`
     border-bottom: 1px solid rgba(102, 102, 255, 0.1);
 
     li {
-      color: #666680;
+      color: rgba(255, 255, 255, 0.50);
       font-family: Inter;
       font-size: 14px;
       font-style: normal;
@@ -352,7 +353,7 @@ export const EligibilityAndDocumentsContainer = styled.div`
     margin-bottom: 16px;
 
     label.label {
-      color: #666680;
+      color: #fff;
       font-family: Inter;
       font-size: 14px;
       font-style: normal;

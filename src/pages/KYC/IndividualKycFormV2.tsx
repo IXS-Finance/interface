@@ -7,7 +7,6 @@ import { isMobile } from 'react-device-detect'
 import { useCookies } from 'react-cookie'
 import usePrevious from 'hooks/usePrevious'
 import Column from 'components/Column'
-import { PinnedContentButton } from 'components/Button'
 import { MEDIA_WIDTHS, TYPE } from 'theme'
 import { ReactComponent as KYCEmailIcon } from 'assets/images/newEmailgray.svg'
 import { ReactComponent as TelegramIcon } from 'assets/images/telegramNewIcon.svg'
@@ -98,9 +97,10 @@ const CheckboxLabel = styled.label<{ selected: boolean; disabled: boolean }>`
   display: flex;
   align-items: center;
   font-size: 16px;
-  border: 1px solid ${(props) => (props.selected ? '#6666FFCC' : '#e6e6ff')};
+  border-radius: 16px;
+  border: 1px solid #353840;
+  background: #202126;
   padding: 16px;
-  border-radius: 6px;
   width: 250px;
   justify-content: space-between;
   cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
@@ -660,16 +660,23 @@ export default function IndividualKycFormV2() {
                           <TYPE.description3
                             style={{ margin: isMobile ? '10px' : '0px 190px 30px 190px', textAlign: 'center' }}
                           >
-                            Please note that your documents will be verified through the ComplyCube service. This
-                            process may take some time, and you will be notified within 10-15 minutes.
+                            Please note that your documents will be verified through the{' '}
+                            <span className="text-white">ComplyCube</span> service. This process may take some time, and
+                            you will be notified within 10-15 minutes.
                           </TYPE.description3>
                         </RowCenter>
 
                         <EligibilityAndDocumentsContainer>
-                          <div className="title">Eligibility & Document Requirements:</div>
+                          <div className="title text-white">Eligibility & Document Requirements:</div>
                           <ul className="description">
-                            <li>Document Authenticity: No copied or expired documents allowed</li>
-                            <li>Liveliness Test: A mandatory selfie is required to verify your identity</li>
+                            <li>
+                              <span className="text-white">Document Authenticity:</span> No copied or expired documents
+                              allowed
+                            </li>
+                            <li>
+                              <span className="text-white">Liveliness Test:</span> A mandatory selfie is required to
+                              verify your identity
+                            </li>
                           </ul>
 
                           <div className="checkbox-container">
@@ -686,9 +693,25 @@ export default function IndividualKycFormV2() {
                           </div>
                         </EligibilityAndDocumentsContainer>
 
-                        <PinnedContentButton onClick={handleVerifyDocuments} disabled={!isCheckboxChecked || loading}>
-                          {loading ? 'Verifying...' : 'Verify Documents'}
-                        </PinnedContentButton>
+                        <div className='flex justify-center mt-5'>
+                          <button
+                            onClick={handleVerifyDocuments}
+                            disabled={!isCheckboxChecked || loading}
+                            className={`flex flex-row gap-2 items-center justify-center px-8 py-3 rounded-[50px] transition-all duration-200 ${
+                              !isCheckboxChecked || loading
+                                ? 'bg-[#202126] cursor-not-allowed'
+                                : 'bg-white hover:bg-gray-100'
+                            }`}
+                          >
+                            <span className={`font-inter font-medium text-base leading-[1.4] whitespace-nowrap ${
+                              !isCheckboxChecked || loading
+                                ? 'text-white opacity-60'
+                                : 'text-[#16171c]'
+                            }`}>
+                              {loading ? 'Verifying...' : 'Verify Documents'}
+                            </span>
+                          </button>
+                        </div>
                       </FormCard>
                     </Column>
                   </FormContainer>
