@@ -16,8 +16,13 @@ export function useSecTokenState(): AppState['secTokens'] {
 }
 
 export const getSecTokensList = async () => {
-  const result = await apiService.get(tokens.all)
-  return result.data
+  try {
+    const result = await apiService.get(tokens.all)
+    return result?.data || []
+  } catch (error) {
+    console.error('Failed to fetch sec tokens list:', error)
+    return []
+  }
 }
 export const useIsSecToken = (address?: string) => {
   const { secTokens } = useSecTokens()
