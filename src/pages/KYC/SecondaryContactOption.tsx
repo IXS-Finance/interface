@@ -204,9 +204,9 @@ const SecondaryContactOption: React.FC<Props> = ({
             setErrorMessage={setErrorMessage}
           />
 
-          {hasCodeError ? (
-            <ErrorText>{errorMessage}</ErrorText>
-          ) : (
+          {hasCodeError ? <ErrorText>{errorMessage}</ErrorText> : null}
+
+          {errorMessage !== 'Email already existed' ? (
             <>
               {emailType !== EmailType.SOCIAL_ACCOUNT && (
                 <TimerContainer>
@@ -220,7 +220,7 @@ const SecondaryContactOption: React.FC<Props> = ({
                 </TimerContainer>
               )}
             </>
-          )}
+          ) : null}
         </ModalContent>
       </ContentContainer>
     </EmailVerificationContainer>
