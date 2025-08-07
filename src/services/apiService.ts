@@ -32,6 +32,14 @@ const onRefreshed = (newToken: string) => {
 }
 
 _axios.interceptors.response.use(responseSuccessInterceptor, async function responseErrorInterceptor(error: any) {
+  // Handle network errors (DNS resolution, connection issues, etc.)
+  if (!error.response) {
+    console.error('Network error:', error.message)
+    // For network errors, return a rejected promise with a user-friendly message
+    const networkError = new Error(`Network error: Unable to connect to server. ${error.message}`)
+    return Promise.reject(networkError)
+  }
+
   if (error?.response?.status !== OK_RESPONSE_CODE && error?.response?.status !== CREATED_RESPONSE_CODE) {
     const method = error?.response?.config?.method
     // only log errors if the URL contain kyc
@@ -209,8 +217,21 @@ const apiService = {
 
   _getErrorMessage(error: any) {
     let message = 'Unknown error'
+
+    // Handle network errors (no response object)
+    if (!error.response) {
+      if (error.code === 'ERR_NAME_NOT_RESOLVED') {
+        return 'Unable to connect to server. Please check your internet connection or try again later.'
+      }
+      if (error.code === 'ERR_NETWORK') {
+        return 'Network error. Please check your internet connection.'
+      }
+      return `Connection error: ${error.message}`
+    }
+
+    // Handle HTTP errors (has response object)
     if (error.response !== undefined) {
-      message = error.response.data.message ?? error.response.message
+      message = error.response.data?.message ?? error.response.message ?? `HTTP ${error.response.status} error`
     } else {
       message = error.message
     }
