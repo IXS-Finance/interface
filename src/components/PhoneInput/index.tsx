@@ -52,7 +52,7 @@ const Container = styled.div`
     border-radius: 6px;
     background-color: ${({ theme: { bg0 } }) => bg0};
     color: ${({ theme: { text1 } }) => text1};
-    border: 1px solid #e6e6ff;
+    border: 1px solid #353840;
     width: 100%;
     font-size: 16px;
     line-height: 40px;

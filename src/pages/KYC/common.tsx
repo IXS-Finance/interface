@@ -531,7 +531,7 @@ export const UploaderLBP: FC<UploaderProps> = ({
                 PNG, JPG, and SVG files only.
               </TYPE.title10>
               <TYPE.small display="flex" textAlign="center" color={'#666680'}>
-                <Text style={{ marginLeft: 2, color: '#6666FF' }}>Browse</Text>
+                <Text style={{ marginLeft: 2, color: '#fff' }}>Browse</Text>
               </TYPE.small>
             </Flex>
           </UploaderCard>
@@ -637,7 +637,7 @@ export const ChooseFile = ({ label, file, onDrop, error, handleDeleteClick, id }
                 Drag and Drop
               </TYPE.small>
               <TYPE.small display="flex" textAlign="center" color={'#666680'}>
-                or <Text style={{ marginLeft: 2, color: '#6666FF' }}>Upload</Text>
+                or <Text style={{ marginLeft: 2, color: '#fff' }}>Upload</Text>
               </TYPE.small>
             </Flex>
           </UploaderCard>
@@ -717,25 +717,17 @@ export const DeleteRow = ({ children, onClick }: DeleteRowTypes) => {
 }
 
 const StyledUploadLogo = styled(UploadLogo)`
-  ${({ theme }) =>
-    theme.config.elements?.main &&
-    css`
-      path {
-        stroke: ${theme.config.elements?.main};
-        fill: none;
-      }
-    `}
+  path {
+    stroke: #fff;
+    fill: none;
+  }
 `
 
 const StyledUploadLogoLbp = styled(UploadLogoLbp)`
-  ${({ theme }) =>
-    theme.config.elements?.main &&
-    css`
-      path {
-        stroke: ${theme.config.elements?.main};
-        fill: none;
-      }
-    `}
+  path {
+    stroke: #fff;
+    fill: none;
+  }
 `
 
 const StyledDescription = styled(TYPE.description3)`
@@ -862,7 +854,7 @@ export const SelfieUploaderCard = styled.div`
   }
 `
 const LinkButton = styled(LinkStyledButton)`
-  color: #6666ff;
+  color: #fff;
 `
 
 const StyledRow = styled.div`

@@ -4,13 +4,13 @@ import styled, { css } from 'styled-components'
 
 import { ButtonText } from 'components/Button'
 import { TYPE } from 'theme'
-import { ReactComponent as Checked } from 'assets/images/checkedNew.svg'
-import { ReactComponent as NotChecked } from 'assets/images/uncheckedNew.svg'
-import { ReactComponent as RadioChecked } from 'assets/images/checkedRadioNew.svg'
-import { ReactComponent as RadioNotChecked } from 'assets/images/uncheckedRadioNew.svg'
+import { ReactComponent as Checked } from 'assets/images/new-dark-ui/form/checkedNew.svg'
+import { ReactComponent as NotChecked } from 'assets/images/new-dark-ui/form/uncheckedNew.svg'
+import { ReactComponent as RadioChecked } from 'assets/images/new-dark-ui/form/checkedRadioNew.svg'
+import { ReactComponent as RadioNotChecked } from 'assets/images/new-dark-ui/form/uncheckedRadioNew.svg'
 
-import { ReactComponent as ActiveCheck } from 'assets/images/ActiveCheck.svg'
-import { ReactComponent as InActiveCheck } from 'assets/images/InactiveCheck.svg'
+import { ReactComponent as ActiveCheck } from 'assets/images/new-dark-ui/form/ActiveCheck.svg'
+import { ReactComponent as InActiveCheck } from 'assets/images/new-dark-ui/form/InactiveCheck.svg'
 
 interface Props {
   label: string | JSX.Element

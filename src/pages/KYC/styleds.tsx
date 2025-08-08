@@ -46,7 +46,7 @@ export const KYCStatusCard = styled(Card)`
   border-radius: 6px;
   padding: 8px 20px;
   // background: ${({ theme }) => theme.bgG13};
-  border: 1px solid #e6e6ff;
+  border: 1px solid #353840;
 
   ${cardCommonStyles};
 
@@ -121,13 +121,12 @@ export const FormGrid = styled.div<{ columns?: number }>`
 export const ExtraInfoCard = styled.div`
   padding: 12px 8px 12px 27px;
   border-radius: 8px;
-  background: ${({ theme }) => theme.bg2};
 `
 export const ExtraInfoCardCountry = styled.div`
   padding: 12px 8px 12px 27px;
   border-radius: 8px;
   background: ${({ theme }) => theme.bg0};
-  border: 1px solid #e6e6ff;
+  border: 1px solid #353840;
 `
 
 export const StyledInput = styled(Input)`
@@ -142,7 +141,7 @@ export const UploaderCard = styled.div`
   height: 120px;
   width: 100%;
   background: ${({ theme }) => theme.bg0};
-  border: 1px solid #e6e6ff;
+  border: 1px solid #353840;
   border-radius: 8px;
   cursor: pointer;
 `
@@ -154,7 +153,7 @@ export const SelfieUploaderCard = styled.div`
   height: 400px;
   width: 100%;
   background: ${({ theme }) => theme.bg0};
-  border: 1px solid #e6e6ff;
+  border: 1px solid #353840;
   border-radius: 8px;
   cursor: pointer;
 `

@@ -9,7 +9,7 @@ import { AcceptFiles } from 'components/Upload/types'
 import { ReactComponent as InfoLogo } from 'assets/images/info-filled.svg'
 import { ReactComponent as UploadLogo } from 'assets/images/NewDownloads.svg'
 import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { UploaderCard } from 'pages/KYC/styleds'
 
 export interface UploaderProps {
@@ -133,7 +133,7 @@ export const Uploader: FC<UploaderProps> = ({
                 Drag and Drop
               </TYPE.small>
               <TYPE.small display="flex" textAlign="center" color={'#666680'}>
-                or <Text style={{ marginLeft: 2, color: '#6666FF' }}>Upload</Text>
+                or <Text style={{ marginLeft: 2, color: '#fff' }}>Upload</Text>
               </TYPE.small>
             </Flex>
           </UploaderCard>
@@ -165,12 +165,8 @@ const StyledDescription = styled(TYPE.description3)`
 `
 
 const StyledUploadLogo = styled(UploadLogo)`
-  ${({ theme }) =>
-    theme.config.elements?.main &&
-    css`
-      path {
-        stroke: ${theme.config.elements?.main};
-        fill: none;
-      }
-    `}
+  path {
+    stroke: #fff;
+    fill: none;
+  }
 `

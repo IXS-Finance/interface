@@ -390,7 +390,7 @@ export const TYPE = {
     return <TextWrapper fontWeight={500} fontSize={14} lineHeight={'21px'} {...props} />
   },
   buttonMuted(props: TextProps) {
-    return <TextWrapper fontWeight={500} fontSize={13} color={'#555566'} lineHeight={'16px'} {...props} />
+    return <TextWrapper fontWeight={500} fontSize={13} color={'rgba(255, 255, 255, 0.50)'} lineHeight={'16px'} {...props} />
   },
   titleBig(props: TextProps) {
     return <TextWrapper fontWeight={400} fontSize={36} lineHeight={'56px'} {...props} />

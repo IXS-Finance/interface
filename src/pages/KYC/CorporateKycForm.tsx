@@ -896,7 +896,7 @@ export default function CorporateKycForm() {
                             gap: '20px',
                             marginBottom: '24px',
                             borderRadius: '8px',
-                            border: 'solid 1px #E6E6FF',
+                            border: 'solid 1px #222328',
                             padding: '24px 24px',
                           }}
                           key={index}
@@ -1035,7 +1035,7 @@ export default function CorporateKycForm() {
                                 width: '100%',
                                 minHeight: 18,
                                 borderRadius: '8px',
-                                border: 'solid 1px #E6E6FF',
+                                border: 'solid 1px #222328',
                                 padding: '18px 21px',
                               }}
                               onClick={(e) => {
@@ -1058,7 +1058,7 @@ export default function CorporateKycForm() {
                         style={{ fontSize: 16, padding: 15 }}
                         onClick={() => addBeneficiary(values.beneficialOwners, setFieldValue)}
                       >
-                        <RowCenter style={{ color: '#6666FF' }}>
+                        <RowCenter style={{ color: '#fff' }}>
                           <Plus style={{ width: '20px', marginRight: '5px', cursor: 'pointer' }} />
                           <Box> Add Beneficiary </Box>
                         </RowCenter>
@@ -1085,7 +1085,7 @@ export default function CorporateKycForm() {
                             gap: '20px',
                             marginBottom: '24px',
                             borderRadius: '8px',
-                            border: 'solid 1px #E6E6FF',
+                            border: 'solid 1px #222328',
                             padding: '24px 24px',
                           }}
                           key={index}
@@ -1183,7 +1183,7 @@ export default function CorporateKycForm() {
                                 width: '100%',
                                 minHeight: 18,
                                 borderRadius: '8px',
-                                border: 'solid 1px #E6E6FF',
+                                border: 'solid 1px #222328',
                                 padding: '18px 21px',
                               }}
                               onClick={(e) => {
@@ -1211,7 +1211,7 @@ export default function CorporateKycForm() {
                         style={{ marginTop: 32, fontSize: 16, padding: 15 }}
                         onClick={() => addCorporateMember(values.corporateMembers, setFieldValue)}
                       >
-                        <RowCenter style={{ color: '#6666FF' }}>
+                        <RowCenter style={{ color: '#fff' }}>
                           <Plus style={{ width: '20px', marginRight: '5px', cursor: 'pointer' }} />
                           <Box> Add Corporate Member </Box>
                         </RowCenter>

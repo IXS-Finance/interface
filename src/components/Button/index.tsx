@@ -281,17 +281,22 @@ export const NewButtonGradient = styled(Base)`
 `
 
 export const PinnedContentButton = styled(Base)`
-  color: ${(props) => props.theme.launchpad.colors.text.light};
-  background-color: ${(props) => props.theme.launchpad.colors.primary};
-  font-family: ${(props) => props.theme.launchpad.font};
-  border-radius: 6px;
+  color: #16171c;
+  background-color: #ffffff;
+  font-family: 'Inter Display', sans-serif;
+  font-weight: 500;
+  border-radius: 50px;
   text-align: center;
   border: unset;
   cursor: pointer;
   width: 100%;
+  padding: 12px 32px;
+  font-size: 16px;
   &:disabled {
-    background-color: #e2e2f1;
-    background: #e2e2f1;
+    background-color: #222328;
+    background: #222328;
+    color: #ffffff;
+    opacity: 0.5;
   }
 `
 
@@ -309,12 +314,14 @@ export const NewApproveButton = styled(Base)`
 `
 
 export const ButtonOutlined = styled(Base)`
-  border: 1px solid #e6e6ff;
-  background-color: transparent;
-  color: ${({ theme }) => theme.bg26};
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 13px;
+  border: none;
+  background-color: #222328;
+  color: #ffffff;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 16px;
+  font-family: 'Inter Display', sans-serif;
+  padding: 12px 32px;
 
   &:focus {
     box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};

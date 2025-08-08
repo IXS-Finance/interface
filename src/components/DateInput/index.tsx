@@ -113,7 +113,7 @@ const TextField = styled(Input)<{ maxHeight?: number; error?: any }>`
   padding: 11px 66px 9px 21px;
   font-weight: normal;
   font-size: 16px;
-  border: ${({ error, theme }) => (error ? 'solid 1px' + theme.error : '1px solid #E6E6FF')};
+  border: ${({ error, theme }) => (error ? 'solid 1px' + theme.error : '1px solid #353840')};
   background-color: ${({ theme: { bg0 } }) => bg0};
   cursor: pointer;
 `
