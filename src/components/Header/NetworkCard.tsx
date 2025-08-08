@@ -1,5 +1,4 @@
 import React, { useMemo, useRef } from 'react'
-import styled from 'styled-components'
 import { Flex } from 'rebass'
 import { useAccount, useSwitchChain } from 'wagmi'
 
@@ -7,16 +6,9 @@ import { CHAIN_INFO, NETWORK_LABELS } from 'constants/chains'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { ChevronElement } from 'components/ChevronElement'
-import { MEDIA_WIDTHS } from 'theme'
-import { ReactComponent as Checked } from 'assets/images/checked-blue.svg'
-import { VioletCard } from '../Card'
+import { ReactComponent as Checked } from 'assets/images/new-dark-ui/form/ActiveCheck.svg'
 import { CHAINS } from 'components/Web3Provider/constants'
 import wrongNetworkImg from 'assets/images/warningRedRec.png'
-
-interface StyledBoxProps {
-  isCorrectNetwork: boolean
-}
 
 export const NetworkCard = () => {
   const { chainId, address: account } = useAccount()
@@ -40,167 +32,101 @@ export const NetworkCard = () => {
   }
 
   return (
-    <StyledBox isCorrectNetwork={isCorrectNetwork}>
+    <div className="relative">
       {account && (
-        <Selector ref={node as any}>
-          <SelectorControls onClick={() => toggle()}>
+        <div ref={node as any} className="mr-1">
+          <div
+            onClick={() => toggle()}
+            className={`cursor-pointer flex h-10 px-3 py-3 pl-2.5 justify-end items-center gap-2 rounded-[32px] backdrop-blur-lg ${
+              open ? 'bg-white' : 'bg-[#222328]'
+            }`}
+          >
             {isPending ? (
-              <PendingText>Switching...</PendingText>
+              <div className={`text-base font-medium font-inter ${open ? 'text-black' : 'text-white'}`}>
+                Switching...
+              </div>
             ) : (
               <Flex alignItems="center">
                 {isCorrectNetwork ? (
                   <>
-                    {info ? <Logo src={info.logoUrl} /> : null}
-                    <NetworkCardWrapper style={{ color: '#292933', marginRight: '10px' }}>
+                    {info ? (
+                      <img
+                        src={info.logoUrl}
+                        alt={activeChainName || ''}
+                        className="h-5 w-5 mr-2 rounded-full"
+                      />
+                    ) : null}
+                    <div className={`text-base font-inter font-medium whitespace-nowrap xl:hidden lg:text-[15px] ${
+                      open ? 'text-black' : 'text-white'
+                    }`}>
                       {activeChainName}
-                    </NetworkCardWrapper>
+                    </div>
                   </>
                 ) : (
                   <>
-                    <Logo src={wrongNetworkImg} />
-                    <NetworkCardWrapper style={{ color: '#292933', marginRight: '10px' }}>
+                    <img
+                      src={wrongNetworkImg}
+                      alt="Wrong Network"
+                      className="h-5 w-5 mr-2 rounded-full"
+                    />
+                    <div className={`text-base font-inter font-medium whitespace-nowrap xl:hidden lg:text-[15px] ${
+                      open ? 'text-black' : 'text-white'
+                    }`}>
                       Wrong Network
-                    </NetworkCardWrapper>
+                    </div>
                   </>
                 )}
               </Flex>
             )}
 
-            <ChevronElement showMore={open} setShowMore={toggle} />
-          </SelectorControls>
+            <div className={`flex items-center ${open ? '[&>*]:opacity-100' : '[&>*]:opacity-50'}`}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="5"
+                height="4"
+                viewBox="0 0 5 4"
+                fill="none"
+                className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+              >
+                <path
+                  d="M2.5 3.5L0 0.5H5L2.5 3.5Z"
+                  fill={open ? "#16171c" : "#ffffff"}
+                />
+              </svg>
+            </div>
+          </div>
 
           {open && (
-            <FlyoutMenu>
+            <div className="absolute top-[50px] right-0 w-40 bg-[#16171c] border border-[#222328] rounded-2xl p-2 z-[99] flex flex-col gap-0 min-w-[200px]">
               {CHAINS.map((chain: any) => {
-                const active = chainId === chain.id
                 const targetChain = chain.id
+                const isSelected = chainId === targetChain
                 return (
-                  <FlyoutRow key={targetChain} onClick={() => handleRowClick(targetChain)} active={active}>
-                    <Logo src={CHAIN_INFO[targetChain].logoUrl} />
-                    <NetworkLabel>{chain.name}</NetworkLabel>
-                    {chainId === targetChain && <Checked />}
-                  </FlyoutRow>
+                  <div
+                    key={targetChain}
+                    onClick={() => handleRowClick(targetChain)}
+                    className={`flex items-center justify-between p-2 px-4 rounded-[32px] cursor-pointer font-medium text-[15px] font-inter w-full hover:opacity-80 mb-0 text-white ${
+                      isSelected ? 'bg-[#222328] backdrop-blur-[16px]' : 'backdrop-blur-lg'
+                    }`}
+                  >
+                    <div className="flex items-center flex-1">
+                      <img
+                        src={CHAIN_INFO[targetChain].logoUrl}
+                        alt={chain.name}
+                        className="h-5 w-5 mr-2 rounded-full"
+                      />
+                      <div className="flex-1 font-inter text-[15px]">
+                        {chain.name}
+                      </div>
+                    </div>
+                    {isSelected && <Checked />}
+                  </div>
                 )
               })}
-            </FlyoutMenu>
+            </div>
           )}
-        </Selector>
+        </div>
       )}
-    </StyledBox>
+    </div>
   )
 }
-
-const SelectorControls = styled(VioletCard)`
-  cursor: pointer;
-  padding: 2px 3px;
-  background: transparent;
-  width: max-content;
-  display: flex;
-  justify-content: space-between;
-  button {
-    ${({ theme }) => theme.mediaWidth.upToSmall`
-     padding: 0 3px 0 1px;
-  `};
-  }
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin: 0;
-    text-overflow: ellipsis;
-    flex-shrink: 1;
-    padding: 0;
-  `};
-`
-
-const NetworkCardWrapper = styled.div`
-  font-size: 13px;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    display: none;
-  `};
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-     font-size: 12px;
-  `};
-`
-
-const FlyoutMenu = styled.div`
-  align-items: flex-start;
-  background-color: ${({ theme }) => theme.bg0};
-  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
-    0px 24px 32px rgba(0, 0, 0, 0.01);
-  border-radius: 8px;
-  border: 1px solid #e6e6ff;
-  display: flex;
-  flex-direction: column;
-  font-size: 13px;
-  overflow: auto;
-  padding: 6px 24px;
-  position: absolute;
-  top: 70px;
-  width: 210px;
-  z-index: 99;
-  @media screen and (min-width: ${MEDIA_WIDTHS.upToSmall}px) {
-    top: 54px;
-    left: 0;
-  }
-  @media screen and (max-width: ${MEDIA_WIDTHS.upToExtraSmall}px) {
-    right: 70px;
-    left: 0;
-  }
-  @media screen and (max-width: 400px) {
-    right: 30px;
-    left: 0;
-  }
-`
-const FlyoutRow = styled.div<{ active: boolean }>`
-  align-items: center;
-  background-color: transparent;
-  cursor: pointer;
-  display: flex;
-  font-weight: 500;
-  justify-content: space-between;
-  padding: 18px 0;
-  text-align: left;
-  width: 100%;
-
-  &:not(:last-child) {
-    border-bottom: 1px solid #e6e6ff;
-  }
-`
-const Logo = styled.img`
-  height: 20px;
-  width: 20px;
-  margin-right: 8px;
-`
-const NetworkLabel = styled.div`
-  flex: 1 1 auto;
-`
-
-const Selector = styled.div`
-  margin-right: 5px;
-`
-const StyledBox = styled.div<StyledBoxProps>`
-  font-size: 12px;
-  border: 1px solid ${({ isCorrectNetwork }) => (isCorrectNetwork ? '#e6e6ff' : 'red')};
-  padding: 10px 5px 10px 10px;
-  border-radius: 4px;
-  background-color: #fff;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-     padding: 12px;
-  `};
-  :active {
-    border: 1px solid ${({ isCorrectNetwork }) => (isCorrectNetwork ? '#4d8fea' : 'red')};
-  }
-  :hover {
-    transform: scale(0.99);
-    transition: 0.2s;
-    border: 1px solid ${({ isCorrectNetwork }) => (isCorrectNetwork ? '#4d8fea' : 'red')};
-  }
-  position: relative;
-`
-
-const PendingText = styled.div`
-  font-size: 13px;
-  color: #292933;
-  font-weight: 500;
-  margin-right: 10px;
-`

@@ -182,9 +182,9 @@ export const KycReviewModal = ({ isOpen, onClose, data, currentFilters }: Props)
                 </TitleContainer>
                 <Body>
                   {data?.individualKycId ? (
-                    <IndividualForm riskJSON={riskJSON} data={kyc} />
+                    <IndividualForm riskJSON={riskJSON} data={kyc as IndividualKyc} />
                   ) : (
-                    <CorporateForm riskJSON={riskJSON} data={kyc} />
+                    <CorporateForm riskJSON={riskJSON} data={kyc as CorporateKyc} />
                   )}
                 </Body>
                 <ActionsContainer buttons={needResubmit ? 4 : 3}>
